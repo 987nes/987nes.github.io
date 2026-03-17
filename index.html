@@ -12,8 +12,8 @@
 <link rel="canonical" href="https://987nes.com">
 
 <!-- FAVICON -->
-<link rel="icon" type="image/png" href="https://static.wixstatic.com/media/0790aa_72f29aa7d58749efa6ccdbfb89e0ba54~mv2.png">
-<link rel="apple-touch-icon" href="https://static.wixstatic.com/media/0790aa_72f29aa7d58749efa6ccdbfb89e0ba54~mv2.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
 
 <!-- OPEN GRAPH (Facebook, Telegram, Discord, LinkedIn...) -->
 <meta property="og:type" content="website">
@@ -21,7 +21,7 @@
 <meta property="og:site_name" content="987NES">
 <meta property="og:title" content="987NES | The Swiss Memecoin. Meet DZÔ.">
 <meta property="og:description" content="NineEightSeven. Born in Fribourg. Built on Solana. LP locked. Team doxxed. 100% speculation. 0% shame.">
-<meta property="og:image" content="https://static.wixstatic.com/media/0790aa_98f69276ccb04120aee419faa17b1128~mv2.png">
+<meta property="og:image" content="https://987nes.com/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="en_US">
@@ -32,7 +32,7 @@
 <meta name="twitter:creator" content="@987_nes">
 <meta name="twitter:title" content="987NES | The Swiss Memecoin. Meet DZÔ.">
 <meta name="twitter:description" content="NineEightSeven. Born in Fribourg. Built on Solana. LP locked. Team doxxed. 100% speculation. 0% shame.">
-<meta name="twitter:image" content="https://static.wixstatic.com/media/0790aa_98f69276ccb04120aee419faa17b1128~mv2.png">
+<meta name="twitter:image" content="https://987nes.com/og-image.png">
 
 <!-- ROBOTS -->
 <meta name="robots" content="index, follow">
@@ -198,6 +198,14 @@ nav {
   padding: 120px 56px 80px;
   position: relative;
   overflow: hidden;
+  background: url('dzo-0.png') right center / auto 90% no-repeat;
+}
+
+.hero .hero-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, var(--black) 35%, rgba(7,8,10,0.85) 55%, rgba(7,8,10,0.5) 80%, rgba(7,8,10,0.3) 100%);
+  z-index: 1;
 }
 
 /* Blue glow */
@@ -282,10 +290,22 @@ nav {
   letter-spacing: -3px;
   color: var(--white);
   margin: 16px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: clamp(16px, 3vw, 48px);
 }
 
 .hero-title .nes { color: var(--nes-yellow); }
 .hero-title .num { color: var(--nes-blue); }
+
+.hero-dzo img {
+  height: clamp(5rem, 13vw, 16rem);
+  width: auto;
+  display: block;
+  border: 1px solid rgba(14,95,160,0.2);
+  filter: contrast(1.05);
+}
 
 .hero-full-name {
   font-family: var(--mono);
@@ -1445,7 +1465,7 @@ footer {
 <!-- NAV -->
 <nav id="nav">
   <a href="#" class="nav-brand">
-    <img src="https://static.wixstatic.com/media/0790aa_72f29aa7d58749efa6ccdbfb89e0ba54~mv2.png" alt="987NES">
+    <img src="favicon.png" alt="987NES">
     <span class="nav-brand-text">987<span class="y">NES</span></span>
   </a>
 
@@ -1454,6 +1474,7 @@ footer {
     <li><a href="#token">$NES</a></li>
     <li><a href="#tools">987Track / 987Buy</a></li>
     <li><a href="#dzo">DZÔ</a></li>
+    <li><a href="#whitepaper">White Paper</a></li>
     <li><a href="#community"><span data-l="en">Community</span><span data-l="fr">Communauté</span><span data-l="es">Comunidad</span></a></li>
   </ul>
 
@@ -1473,6 +1494,7 @@ footer {
 
 <!-- HERO -->
 <section class="hero" id="home">
+  <div class="hero-bg-overlay"></div>
   <div class="hero-inner">
     <div class="hero-flag">
       <div class="swiss-flag"></div>
@@ -1907,7 +1929,7 @@ footer {
   <div class="container sec">
     <div class="dzo-layout">
       <div class="dzo-img">
-        <img src="/dzo.png" alt="DZÔ">
+        <img src="dzo-1.png" alt="DZÔ">
       </div>
       <div class="dzo-text">
         <p class="lbl">
@@ -2083,7 +2105,7 @@ footer {
     <div class="footer-layout">
       <div class="f-brand">
         <a href="#" class="f-logo">
-          <img src="https://static.wixstatic.com/media/0790aa_72f29aa7d58749efa6ccdbfb89e0ba54~mv2.png" alt="987NES">
+          <img src="favicon.png" alt="987NES">
           <span class="f-logo-text">987<span>NES</span></span>
         </a>
         <div class="f-tagline">
