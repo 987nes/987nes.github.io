@@ -959,8 +959,21 @@ section { position: relative; z-index: 1; }
 
 /* ===== WHITEPAPER ===== */
 #whitepaper {
-  background: var(--dark);
+  background: url('dzo-3.jpg') center center / cover no-repeat;
   border-top: 1px solid rgba(14,95,160,0.15);
+  position: relative;
+}
+
+#whitepaper .wp-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, var(--dark) 0%, rgba(13,17,23,0.88) 20%, rgba(13,17,23,0.82) 80%, var(--dark) 100%);
+  z-index: 0;
+}
+
+#whitepaper .container {
+  position: relative;
+  z-index: 1;
 }
 
 .wp-layout {
@@ -1987,6 +2000,7 @@ footer {
 
 <!-- WHITEPAPER -->
 <section id="whitepaper" class="reveal">
+  <div class="wp-bg-overlay"></div>
   <div class="container sec">
     <div class="wp-layout">
       <div>
