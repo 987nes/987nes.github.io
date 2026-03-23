@@ -7,7 +7,7 @@
 <!-- PRIMARY SEO -->
 <title>987NES | $NES : NineEightSeven. The Swiss Memecoin on Solana.</title>
 <meta name="description" content="987NES ($NES) is the Swiss Memecoin built on Solana. NineEightSeven: a permanent countdown. Meet DZÔ. LP locked. Team doxxed. 987 654 321 tokens. 100% speculation. 0% shame.">
-<meta name="keywords" content="987NES, NES, NineEightSeven, Swiss memecoin, Solana memecoin, $NES, DZÔ, crypto Fribourg, 987Track, 987Buy">
+<meta name="keywords" content="987NES, NES, NineEightSeven, Swiss memecoin, Solana memecoin, $NES, DZÔ, crypto Fribourg, 987Track, 987Buy, 987News">
 <meta name="author" content="987NES Team">
 <link rel="canonical" href="https://987nes.com">
 
@@ -812,7 +812,7 @@ section { position: relative; z-index: 1; }
 
 .tools-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 2px;
   margin-top: 60px;
   background: rgba(14,95,160,0.08);
@@ -891,6 +891,20 @@ section { position: relative; z-index: 1; }
 }
 
 .tool-feats li::before { content: ''; width: 18px; height: 1px; background: var(--nes-blue); flex-shrink: 0; }
+
+.tool-tiers {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+.tool-tiers li {
+  font-size: 0.85rem;
+  color: var(--offwhite);
+  line-height: 1.5;
+  padding-left: 4px;
+}
 
 .tool-access {
   font-family: var(--mono);
@@ -1498,7 +1512,7 @@ footer {
   <ul class="nav-links">
     <li><a href="#story">NineEightSeven</a></li>
     <li><a href="#token">$NES</a></li>
-    <li><a href="#tools">987Track / 987Buy</a></li>
+    <li><a href="#tools">987Track / 987Buy / 987News</a></li>
     <li><a href="#dzo">DZÔ</a></li>
     <li><a href="#whitepaper">White Paper</a></li>
     <li><a href="#community"><span data-l="en">Community</span><span data-l="fr">Communauté</span><span data-l="es">Comunidad</span></a></li>
@@ -1654,19 +1668,19 @@ footer {
           <div class="bl en">
             <p>The name says everything. <strong>NineEightSeven</strong>: a deliberately incomplete sequence. A permanent countdown. Not toward something promised. Toward something decided.</p>
             <p>987NES was born on October 16, 2025, in Switzerland, <strong>in reaction</strong>: to scams, fake utility narratives, and the technological veneer that often masks a simple reality. Speculation.</p>
-            <p>Started as pure speculation and nothing else. In a few months, the project has shipped more than 99% of crypto projects ever will: a strong identity, an active community, <strong>987Track</strong> and <strong>987Buy</strong>, both built entirely in-house.</p>
+            <p>Started as pure speculation and nothing else. In a few months, the project has shipped more than 99% of crypto projects ever will: a strong identity, an active community, <strong>987Track</strong>, <strong>987Buy</strong> and <strong>987News</strong>, all built entirely in-house.</p>
             <p>987NES promises. 987NES delivers. In an ecosystem obsessed with surface-level innovation, that's rare enough to be worth saying twice.</p>
           </div>
           <div class="bl fr" style="display:none">
             <p>Le nom dit tout. <strong>NineEightSeven</strong> : une séquence volontairement incomplète. Un compte à rebours permanent. Pas vers quelque chose de promis. Vers quelque chose de décidé.</p>
             <p>987NES est né le 16 octobre 2025, en Suisse, <strong>en réaction</strong> : aux arnaques, aux faux récits d'utility et au vernis technologique qui masque souvent une réalité simple. La spéculation.</p>
-            <p>Parti d'une spéculation pure et assumée. En quelques mois, le projet a livré plus que 99% des projets crypto : une identité forte, une communauté active, <strong>987Track</strong> et <strong>987Buy</strong>, développés entièrement en interne.</p>
+            <p>Parti d'une spéculation pure et assumée. En quelques mois, le projet a livré plus que 99% des projets crypto : une identité forte, une communauté active, <strong>987Track</strong>, <strong>987Buy</strong> et <strong>987News</strong>, développés entièrement en interne.</p>
             <p>987NES promet. 987NES délivre. Dans un écosystème obsédé par la façade, c'est suffisamment rare pour mériter d'être dit.</p>
           </div>
           <div class="bl es" style="display:none">
             <p>El nombre lo dice todo. <strong>NineEightSeven</strong>: una secuencia deliberadamente incompleta. Una cuenta regresiva permanente.</p>
             <p>987NES nació el 16 de octubre de 2025 en Suiza, <strong>como reacción</strong>: a las estafas, los falsos relatos de utilidad y el barniz tecnológico.</p>
-            <p>Empezó como especulación pura. En pocos meses, el proyecto ha entregado más que el 99% de los proyectos cripto: <strong>987Track</strong> y <strong>987Buy</strong>, construidos íntegramente internamente.</p>
+            <p>Empezó como especulación pura. En pocos meses, el proyecto ha entregado más que el 99% de los proyectos cripto: <strong>987Track</strong>, <strong>987Buy</strong> y <strong>987News</strong>, construidos íntegramente de forma interna.</p>
             <p>987NES promete. 987NES entrega.</p>
           </div>
         </div>
@@ -1942,9 +1956,41 @@ footer {
           <li><span data-l="en">Web dashboard · 15+ Telegram commands</span><span data-l="fr">Dashboard web · 15+ commandes Telegram</span><span data-l="es">Panel web · 15+ comandos Telegram</span></li>
         </ul>
         <div class="tool-access">
-          📡 <span data-l="en">Free to use. Add 987Buy to your Telegram group and monitor any Solana token in real time.</span>
-          <span data-l="fr">Gratuit. Ajoutez 987Buy dans votre groupe Telegram et surveillez n'importe quel token Solana en temps réel.</span>
-          <span data-l="es">Gratuito. Añade 987Buy a tu grupo de Telegram y monitorea cualquier token Solana en tiempo real.</span>
+          📡 <span data-l="en">Free to use. Add @NES987_bot to your Telegram group and monitor any Solana token in real time.</span>
+          <span data-l="fr">Gratuit. Ajoutez @NES987_bot dans votre groupe Telegram et surveillez n'importe quel token Solana en temps réel.</span>
+          <span data-l="es">Gratuito. Añade @NES987_bot a tu grupo de Telegram y monitorea cualquier token Solana en tiempo real.</span>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-num">03</div>
+        <div class="tool-badge">Telegram Bot · Real-Time News Aggregator</div>
+        <div class="tool-name">987NEWS</div>
+        <div class="tool-tagline">
+          <span data-l="en">24 sources. 3 priority tiers. Zero noise.</span>
+          <span data-l="fr">24 sources. 3 niveaux de priorité. Zéro bruit.</span>
+          <span data-l="es">24 fuentes. 3 niveles de prioridad. Cero ruido.</span>
+        </div>
+        <p class="tool-desc">
+          <span data-l="en">A real-time crypto, finance and macro news aggregator built for Telegram. Monitors 24 premium RSS sources every 2 minutes — from CoinDesk and Bloomberg to the Federal Reserve. Each article is processed through an AI pipeline (GPT-4o-mini) that scores priority, generates a concise summary, translates to the group's language, and matches against topic filters.</span>
+          <span data-l="fr">Un agrégateur de news crypto, finance et macro en temps réel conçu pour Telegram. Surveille 24 sources RSS premium toutes les 2 minutes — de CoinDesk à Bloomberg en passant par la Réserve fédérale. Chaque article passe par un pipeline IA (GPT-4o-mini) qui score la priorité, génère un résumé concis, traduit dans la langue du groupe et filtre par thématique.</span>
+          <span data-l="es">Un agregador de noticias crypto, finanzas y macro en tiempo real para Telegram. Monitorea 24 fuentes RSS premium cada 2 minutos — desde CoinDesk y Bloomberg hasta la Reserva Federal. Cada artículo pasa por un pipeline IA (GPT-4o-mini) que puntúa prioridad, genera un resumen conciso, traduce al idioma del grupo y filtra por temática.</span>
+        </p>
+        <ul class="tool-tiers">
+          <li>🔴 <span data-l="en">Flash News — market-moving events, pushed instantly</span><span data-l="fr">Flash News — événements majeurs, envoyés instantanément</span><span data-l="es">Flash News — eventos de impacto, enviados al instante</span></li>
+          <li>🟡 <span data-l="en">Alert News — notable developments, real-time or digest</span><span data-l="fr">Alert News — développements notables, temps réel ou digest</span><span data-l="es">Alert News — desarrollos notables, tiempo real o digest</span></li>
+          <li>🟢 <span data-l="en">Daily News — routine updates, compiled into periodic digests</span><span data-l="fr">Daily News — actualités courantes, compilées en digests périodiques</span><span data-l="es">Daily News — actualizaciones rutinarias, compiladas en digests periódicos</span></li>
+        </ul>
+        <ul class="tool-feats">
+          <li><span data-l="en">19 topic filters in 5 sections: Crypto · TradFi · Macro · Regulation · Transversal</span><span data-l="fr">19 filtres thématiques en 5 sections : Crypto · TradFi · Macro · Régulation · Transversal</span><span data-l="es">19 filtros temáticos en 5 secciones: Crypto · TradFi · Macro · Regulación · Transversal</span></li>
+          <li><span data-l="en">3 dispatch modes: real-time · digest · both combined</span><span data-l="fr">3 modes de dispatch : temps réel · digest · les deux combinés</span><span data-l="es">3 modos de envío: tiempo real · digest · ambos combinados</span></li>
+          <li><span data-l="en">Economic calendar: advance alerts 24h before major releases (US, EU, UK, JP, CN)</span><span data-l="fr">Calendrier économique : alertes 24h avant les publications majeures (US, EU, UK, JP, CN)</span><span data-l="es">Calendario económico: alertas 24h antes de publicaciones importantes (US, EU, UK, JP, CN)</span></li>
+          <li><span data-l="en">AI-powered summaries · Auto-translation · Custom keywords · Admin dashboard</span><span data-l="fr">Résumés IA · Traduction automatique · Mots-clés personnalisés · Dashboard admin</span><span data-l="es">Resúmenes IA · Traducción automática · Palabras clave personalizadas · Panel admin</span></li>
+        </ul>
+        <div class="tool-access">
+          📡 <span data-l="en">Free to use. Add @News987NES_bot to your Telegram group, type /987news_start, and configure via /987news_settings. Zero admin rights required.</span>
+          <span data-l="fr">Gratuit. Ajoutez @News987NES_bot dans votre groupe Telegram, tapez /987news_start, et configurez via /987news_settings. Aucun droit admin requis.</span>
+          <span data-l="es">Gratuito. Añade @News987NES_bot a tu grupo de Telegram, escribe /987news_start, y configura vía /987news_settings. Sin permisos de admin.</span>
         </div>
       </div>
     </div>
