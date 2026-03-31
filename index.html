@@ -821,7 +821,7 @@ section { position: relative; z-index: 1; }
 
 .tools-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 2px;
   margin-top: 60px;
   background: rgba(14,95,160,0.08);
@@ -913,6 +913,45 @@ section { position: relative; z-index: 1; }
   color: var(--offwhite);
   line-height: 1.5;
   padding-left: 4px;
+}
+
+.tool-ribbon {
+  position: absolute;
+  top: 28px;
+  right: -35px;
+  background: var(--nes-yellow);
+  color: var(--black);
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 6px 40px;
+  transform: rotate(45deg);
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.tool-emoji-feats {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+.tool-emoji-feats li {
+  font-size: 0.85rem;
+  color: var(--offwhite);
+  line-height: 1.5;
+  padding-left: 4px;
+}
+
+.tool-closer {
+  font-family: var(--body);
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.5);
+  font-style: italic;
+  margin-top: 20px;
 }
 
 .tool-access {
@@ -2008,6 +2047,35 @@ footer {
           <span data-l="fr">Gratuit. Ajoutez @News987NES_bot dans votre groupe Telegram, tapez /987news_start, et configurez via /987news_settings. Aucun droit admin requis.</span>
           <span data-l="es">Gratuito. Añade @News987NES_bot a tu grupo de Telegram, escribe /987news_start, y configura vía /987news_settings. Sin permisos de admin.</span>
         </div>
+      </div>
+
+      <div class="tool-card dev">
+        <div class="tool-ribbon">In Dev</div>
+        <div class="tool-num">04</div>
+        <div class="tool-badge">Solana Smart Contract · AI-Powered Sniper</div>
+        <div class="tool-name">987SNIPE</div>
+        <div class="tool-tagline">
+          <span data-l="en">Buy before graduation. Exit before the dump.</span>
+          <span data-l="fr">Acheter avant la graduation. Sortir avant le dump.</span>
+          <span data-l="es">Comprar antes de la graduacion. Salir antes del dump.</span>
+        </div>
+        <p class="tool-desc">
+          <span data-l="en">While others fight to buy after graduation, we buy before. 987Snipe monitors Pump.fun bonding curves in real time and takes position before the pack arrives. When graduation happens and snipe bots flood in - we're already in place.</span>
+          <span data-l="fr">Pendant que les autres se battent pour acheter apres la graduation, nous achetons avant. 987Snipe surveille les bonding curves de Pump.fun en temps reel et prend position avant que la meute n'arrive. Quand la graduation se produit et que les bots de snipe affluent - on est deja en place.</span>
+          <span data-l="es">Mientras otros pelean por comprar despues de la graduacion, nosotros compramos antes. 987Snipe monitorea las bonding curves de Pump.fun en tiempo real y toma posicion antes de que llegue la manada. Cuando la graduacion ocurre y los bots de snipe llegan - ya estamos en posicion.</span>
+        </p>
+        <ul class="tool-emoji-feats">
+          <li><span data-l="en">&#9889; Smart contract on-chain on Solana - 0.4s execution, trustless vault, automatic SL/TP/trailing</span><span data-l="fr">&#9889; Smart contract on-chain sur Solana - execution 0.4s, vault trustless, SL/TP/trailing automatique</span><span data-l="es">&#9889; Smart contract on-chain en Solana - ejecucion 0.4s, vault trustless, SL/TP/trailing automatico</span></li>
+          <li><span data-l="en">&#129504; AI Scoring - Random Forest + anomaly detection + GPT analysis, trained on 2M+ data points</span><span data-l="fr">&#129504; Scoring IA - Random Forest + detection d'anomalies + analyse GPT, entraine sur 2M+ de donnees</span><span data-l="es">&#129504; Scoring IA - Random Forest + deteccion de anomalias + analisis GPT, entrenado con 2M+ de datos</span></li>
+          <li><span data-l="en">&#128293; 10% of profits converted to $NES and burned - engraved in the smart contract, not a promise</span><span data-l="fr">&#128293; 10% des profits convertis en $NES et brules - grave dans le smart contract, pas une promesse</span><span data-l="es">&#128293; 10% de los beneficios convertidos en $NES y quemados - grabado en el smart contract, no una promesa</span></li>
+          <li><span data-l="en">&#128101; Multi-user - each user has their own on-chain vault, only code controls the funds</span><span data-l="fr">&#128101; Multi-utilisateur - chaque utilisateur a son propre vault on-chain, seul le code controle les fonds</span><span data-l="es">&#128101; Multi-usuario - cada usuario tiene su propio vault on-chain, solo el codigo controla los fondos</span></li>
+          <li><span data-l="en">&#128202; 21 on-chain instructions, 5 security audits passed, open to community</span><span data-l="fr">&#128202; 21 instructions on-chain, 5 audits de securite passes, ouvert a la communaute</span><span data-l="es">&#128202; 21 instrucciones on-chain, 5 auditorias de seguridad pasadas, abierto a la comunidad</span></li>
+        </ul>
+        <p class="tool-closer">
+          <span data-l="en">No magic. No guarantees. Just code that executes faster than you click.</span>
+          <span data-l="fr">Pas de magie. Pas de garanties. Juste du code qui s'execute plus vite que tu ne cliques.</span>
+          <span data-l="es">Sin magia. Sin garantias. Solo codigo que se ejecuta mas rapido de lo que haces clic.</span>
+        </p>
       </div>
     </div>
   </div>
