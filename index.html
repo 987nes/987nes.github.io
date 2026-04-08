@@ -25,6 +25,8 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="fr_FR">
+<meta property="og:locale:alternate" content="es_ES">
 
 <!-- TWITTER / X CARD -->
 <meta name="twitter:card" content="summary_large_image">
@@ -33,6 +35,12 @@
 <meta name="twitter:title" content="987NES | The Swiss Memecoin. Meet DZÔ.">
 <meta name="twitter:description" content="NineEightSeven. Born in Fribourg. Built on Solana. LP locked. Team doxxed. 100% speculation. 0% shame.">
 <meta name="twitter:image" content="https://987nes.com/og-image.png">
+
+<!-- HREFLANG (multilingual) -->
+<link rel="alternate" hreflang="en" href="https://987nes.com/">
+<link rel="alternate" hreflang="fr" href="https://987nes.com/">
+<link rel="alternate" hreflang="es" href="https://987nes.com/">
+<link rel="alternate" hreflang="x-default" href="https://987nes.com/">
 
 <!-- ROBOTS -->
 <meta name="robots" content="index, follow">
@@ -1546,6 +1554,114 @@ footer {
   .nav-right > div { display: none; } /* Hide lang switcher on very small screens */
 }
 </style>
+
+<!-- STRUCTURED DATA / JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "987NES",
+      "alternateName": "NineEightSeven",
+      "url": "https://987nes.com",
+      "logo": "https://987nes.com/favicon.png",
+      "image": "https://987nes.com/og-image.png",
+      "description": "987NES ($NES) is the Swiss Memecoin built on Solana. Born in Fribourg, Switzerland. LP locked. Team doxxed. 987 654 321 tokens.",
+      "foundingLocation": {
+        "@type": "Place",
+        "name": "Fribourg, Switzerland"
+      },
+      "sameAs": [
+        "https://x.com/987_nes",
+        "https://t.me/NineEightSeven987"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "name": "987NES",
+      "url": "https://987nes.com",
+      "inLanguage": ["en", "fr", "es"],
+      "description": "Official website of the 987NES ecosystem - the Swiss Memecoin on Solana."
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "987Track",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Web",
+      "description": "X/Twitter automation and conversational visibility tool for the 987NES ecosystem."
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "987Buy",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Telegram",
+      "description": "Telegram bot providing real-time Solana on-chain transaction alerts with buy, sell, transfer and burn detection."
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "987News",
+      "applicationCategory": "NewsApplication",
+      "operatingSystem": "Telegram",
+      "description": "AI-powered real-time crypto, finance and macro news aggregator for Telegram. Monitors 24 premium RSS sources with GPT-4o-mini pipeline, 3 priority tiers, 19 topic filters and economic calendar."
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is 987NES?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "987NES is a Swiss memecoin project built on the Solana blockchain, born in Fribourg, Switzerland. The token $NES has a fixed supply of 987,654,321 tokens. The project features a mascot called DZO and an ecosystem of tools including 987Track, 987Buy, 987News and 987Snipe."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the $NES token contract address?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The $NES token contract address on Solana is DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t. The total supply is 987,654,321 tokens with LP locked via TeamFinance."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is 987Buy?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "987Buy is a Telegram bot (@NES987_bot) that provides real-time Solana on-chain transaction alerts. It detects buys, sells, transfers and burns with colored alert tiers and instant notifications."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is 987News?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "987News is an AI-powered real-time crypto, finance and macro news aggregator for Telegram (@News987NES_bot). It monitors 24 premium RSS sources every 2 minutes, processes articles through GPT-4o-mini for scoring and translation, and classifies stories into 3 priority tiers: Flash News, Alert News and Daily News."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is DZO?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "DZO is the official mascot of the 987NES project. It represents the spirit and identity of the community and appears throughout the 987NES branding and website."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the $NES liquidity pool safe?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, the $NES liquidity pool is locked via TeamFinance, meaning zero rug risk. The team is also doxxed. The lock transaction is publicly verifiable on Solscan."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+
 </head>
 
 <body>
@@ -1581,7 +1697,7 @@ footer {
 </nav>
 
 <!-- HERO -->
-<section class="hero" id="home">
+<section class="hero" id="home" role="img" aria-label="DZO mascot, the official character of 987NES project">
   <div class="hero-bg-overlay"></div>
   <div class="hero-inner">
     <div class="hero-flag">
@@ -1696,7 +1812,7 @@ footer {
 </div>
 
 <!-- STORY -->
-<section id="story" class="reveal">
+<section id="story" class="reveal" role="img" aria-label="DZO mascot illustration, 987NES project story background">
   <div class="story-bg-overlay"></div>
   <div class="container sec">
     <div class="story-grid">
@@ -2086,7 +2202,7 @@ footer {
   <div class="container sec">
     <div class="dzo-layout">
       <div class="dzo-img">
-        <img src="dzo-1.png" alt="DZÔ">
+        <img src="dzo-1.png" alt="DZO, the official mascot of the 987NES Swiss memecoin project on Solana">
       </div>
       <div class="dzo-text">
         <p class="lbl">
@@ -2129,7 +2245,7 @@ footer {
 </section>
 
 <!-- WHITEPAPER -->
-<section id="whitepaper" class="reveal">
+<section id="whitepaper" class="reveal" role="img" aria-label="DZO mascot with sunglasses, 987NES whitepaper section background">
   <div class="wp-bg-overlay"></div>
   <div class="container sec">
     <div class="wp-layout">
