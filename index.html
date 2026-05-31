@@ -1551,7 +1551,10 @@ footer {
   .hero-title { font-size: clamp(3.5rem, 24vw, 6rem); }
   .tokenomics-grid { grid-template-columns: 1fr; }
   .comm-grid { grid-template-columns: 1fr !important; }
-  .nav-right > div { display: none; } /* Hide lang switcher on very small screens */
+  /* Compact lang switcher to keep it visible on phones */
+  .nav-right { gap: 8px; }
+  .lang-btn { padding: 3px 5px; font-size: 0.48rem; letter-spacing: 1px; }
+  .btn-nav-buy { padding: 7px 10px; font-size: 0.5rem; letter-spacing: 0.5px; }
 }
 </style>
 
