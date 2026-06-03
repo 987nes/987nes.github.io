@@ -1567,6 +1567,152 @@ footer {
   .lang-btn { padding: 3px 5px; font-size: 0.48rem; letter-spacing: 1px; }
   .btn-nav-buy { padding: 7px 10px; font-size: 0.5rem; letter-spacing: 0.5px; }
 }
+
+/* ===== HOW TO BUY (PROTO) ===== */
+#how-to-buy {
+  background: var(--black);
+  padding: 100px 0;
+  border-top: 1px solid rgba(14,95,160,0.15);
+}
+.htb-header { text-align: center; margin-bottom: 60px; }
+.htb-subtitle {
+  font-family: var(--body);
+  font-size: 1rem;
+  color: rgba(255,255,255,0.6);
+  margin-top: 20px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+.htb-steps {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  background: rgba(14,95,160,0.15);
+  border: 1px solid rgba(14,95,160,0.2);
+}
+.htb-step {
+  background: var(--black);
+  padding: 40px;
+  position: relative;
+  transition: background 0.2s;
+}
+.htb-step:hover { background: #0b0d10; }
+.htb-num {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  letter-spacing: 4px;
+  color: var(--nes-yellow);
+  margin-bottom: 16px;
+}
+.htb-icon { font-size: 2.5rem; margin-bottom: 12px; line-height: 1; }
+.htb-title {
+  font-family: var(--display);
+  font-size: 1.6rem;
+  letter-spacing: 2px;
+  color: var(--white);
+  margin-bottom: 14px;
+}
+.htb-desc {
+  font-family: var(--body);
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 16px;
+}
+.htb-warn {
+  font-family: var(--body);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: rgba(240,208,32,0.9);
+  background: rgba(240,208,32,0.06);
+  border-left: 2px solid var(--nes-yellow);
+  padding: 12px 14px;
+  margin: 0 0 16px 0;
+}
+.htb-link {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  color: var(--nes-yellow);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(240,208,32,0.3);
+  padding-bottom: 2px;
+}
+.htb-link:hover { color: var(--white); }
+.htb-ca {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: rgba(240,208,32,0.85);
+  background: rgba(14,95,160,0.1);
+  padding: 10px 12px;
+  border-left: 2px solid var(--nes-yellow);
+  word-break: break-all;
+  margin-top: 12px;
+}
+.htb-safety {
+  margin-top: 50px;
+  padding: 30px;
+  background: rgba(14,95,160,0.08);
+  border: 1px solid rgba(14,95,160,0.2);
+}
+.htb-safety-title {
+  font-family: var(--display);
+  font-size: 1.3rem;
+  letter-spacing: 2px;
+  color: var(--nes-yellow);
+  margin-bottom: 14px;
+}
+.htb-safety-list { list-style: none; padding: 0; margin: 0; }
+.htb-safety-list li {
+  font-family: var(--body);
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.75);
+  padding: 6px 0 6px 22px;
+  position: relative;
+  line-height: 1.6;
+}
+.htb-safety-list li::before {
+  content: ">";
+  position: absolute;
+  left: 6px;
+  color: var(--nes-yellow);
+  font-family: var(--mono);
+  font-weight: bold;
+}
+.htb-more {
+  text-align: center;
+  margin-top: 30px;
+  font-family: var(--body);
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.6);
+}
+.hero-firsttime {
+  display: inline-block;
+  margin-top: 18px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  color: rgba(240,208,32,0.85);
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(240,208,32,0.3);
+  padding-bottom: 3px;
+  transition: color 0.2s;
+}
+.hero-firsttime:hover {
+  color: var(--white);
+  border-bottom-color: var(--white);
+}
+@media (max-width: 768px) {
+  #how-to-buy { padding: 60px 0; }
+  .htb-steps { grid-template-columns: 1fr; }
+  .htb-step { padding: 28px 20px; }
+  .htb-safety { padding: 20px; margin-top: 30px; }
+}
+
 </style>
 
 <!-- STRUCTURED DATA / JSON-LD -->
@@ -1701,7 +1847,8 @@ footer {
   <ul class="nav-links">
     <li><a href="#story">NineEightSeven</a></li>
     <li><a href="#token">$NES</a></li>
-    <li><a href="#tools">987Track / 987Buy / 987News</a></li>
+    <li><a href="#tools"><span data-l="en">Swiss Tools</span><span data-l="fr">Outils Suisses</span><span data-l="es">Herramientas Suizas</span></a></li>
+    <li><a href="#how-to-buy"><span data-l="en">How to Buy</span><span data-l="fr">Comment Acheter</span><span data-l="es">Cómo Comprar</span></a></li>
     <li><a href="#dzo">DZÔ</a></li>
     <li><a href="#whitepaper">White Paper</a></li>
     <li><a href="#community"><span data-l="en">Community</span><span data-l="fr">Communauté</span><span data-l="es">Comunidad</span></a></li>
@@ -1769,6 +1916,12 @@ footer {
       </a>
       <a href="https://t.me/NES_987" class="btn-secondary" target="_blank">Telegram ↗</a>
     </div>
+
+    <a href="#how-to-buy" class="hero-firsttime">
+      <span data-l="en">First time? See the 5-min guide →</span>
+      <span data-l="fr">Première fois ? Voir le guide en 5 min →</span>
+      <span data-l="es">Primera vez? Ver la guía de 5 min →</span>
+    </a>
 
     <div class="hero-trust">
       <span class="trust-item"><span class="trust-dot"></span>LP Locked</span>
@@ -2257,6 +2410,135 @@ footer {
         </p>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- HOW TO BUY (PROTO) -->
+<section id="how-to-buy" class="reveal">
+  <div class="container sec">
+    <div class="htb-header">
+      <p class="lbl">
+        <span data-l="en">Beginner Guide</span>
+        <span data-l="fr">Guide Debutant</span>
+        <span data-l="es">Guia Principiante</span>
+      </p>
+      <h2 class="ttl">
+        <span data-l="en">How to Buy <span class="y">$NES</span></span>
+        <span data-l="fr">Comment Acheter <span class="y">$NES</span></span>
+        <span data-l="es">Como Comprar <span class="y">$NES</span></span>
+      </h2>
+      <p class="htb-subtitle">
+        <span data-l="en">From zero to $NES in 5 minutes. No prior crypto knowledge required.</span>
+        <span data-l="fr">De zero a $NES en 5 minutes. Aucune connaissance crypto requise.</span>
+        <span data-l="es">De cero a $NES en 5 minutos. Sin conocimientos previos requeridos.</span>
+      </p>
+    </div>
+
+    <div class="htb-steps">
+      <div class="htb-step">
+        <div class="htb-num">01</div>
+        <div class="htb-icon">&#128123;</div>
+        <div class="htb-title">
+          <span data-l="en">Install Phantom Wallet</span>
+          <span data-l="fr">Installer Phantom Wallet</span>
+          <span data-l="es">Instalar Phantom Wallet</span>
+        </div>
+        <p class="htb-desc">
+          <span data-l="en">Download Phantom from phantom.com (browser extension or mobile app). Create a new wallet and write down your 12-word seed phrase on paper. Never share it. Never type it online.</span>
+          <span data-l="fr">Telecharge Phantom depuis phantom.com (extension navigateur ou app mobile). Cree un nouveau wallet et note ta seed phrase de 12 mots sur papier. Ne la partage jamais. Ne la tape jamais en ligne.</span>
+          <span data-l="es">Descarga Phantom desde phantom.com (extension de navegador o app movil). Crea una nueva wallet y anota tu frase de 12 palabras en papel. Nunca la compartas. Nunca la escribas online.</span>
+        </p>
+        <p class="htb-warn">
+          <span data-l="en">Important: Phantom now supports multiple chains (Solana, Ethereum, Bitcoin, Base...). For $NES, only Solana matters. Always check the network is set to Solana before any action.</span>
+          <span data-l="fr">Important : Phantom supporte desormais plusieurs chains (Solana, Ethereum, Bitcoin, Base...). Pour le $NES, seule Solana compte. Verifie toujours que le reseau selectionne est bien Solana avant toute action.</span>
+          <span data-l="es">Importante: Phantom ahora soporta multiples chains (Solana, Ethereum, Bitcoin, Base...). Para $NES, solo Solana importa. Siempre verifica que la red seleccionada sea Solana antes de cualquier accion.</span>
+        </p>
+        <a href="https://phantom.com" target="_blank" rel="noopener" class="htb-link">phantom.com &#8594;</a>
+      </div>
+
+      <div class="htb-step">
+        <div class="htb-num">02</div>
+        <div class="htb-icon">&#128179;</div>
+        <div class="htb-title">
+          <span data-l="en">Buy SOL with Credit Card</span>
+          <span data-l="fr">Acheter du SOL par Carte</span>
+          <span data-l="es">Comprar SOL con Tarjeta</span>
+        </div>
+        <p class="htb-desc">
+          <span data-l="en">Open Phantom, tap "Buy" and choose Solana (SOL) - not wrapped SOL on Ethereum. Pay with credit/debit card via MoonPay or Coinbase Pay. Start small ($20-50) to test the flow. Wait 2-5 minutes for SOL to land in your wallet.</span>
+          <span data-l="fr">Ouvre Phantom, tape "Acheter" et choisis Solana (SOL) - pas du wrapped SOL sur Ethereum. Paie par carte de credit/debit via MoonPay ou Coinbase Pay. Commence petit (20-50 CHF) pour tester. Attends 2-5 minutes que le SOL arrive dans ton wallet.</span>
+          <span data-l="es">Abre Phantom, toca "Comprar" y elige Solana (SOL) - no wrapped SOL en Ethereum. Paga con tarjeta via MoonPay o Coinbase Pay. Empieza con poco (20-50 USD) para probar. Espera 2-5 minutos a que llegue el SOL.</span>
+        </p>
+        <p class="htb-warn">
+          <span data-l="en">KYC required: MoonPay/Coinbase Pay will ask for ID verification (passport or ID card, sometimes selfie) before allowing card payment. 5-10 minutes the first time. Done once for life.</span>
+          <span data-l="fr">KYC requis : MoonPay/Coinbase Pay demandent une verification d'identite (passeport ou carte d'identite, parfois selfie) avant d'autoriser le paiement carte. 5-10 minutes la premiere fois. A faire une seule fois.</span>
+          <span data-l="es">KYC requerido: MoonPay/Coinbase Pay piden verificacion de identidad (pasaporte o DNI, a veces selfie) antes de autorizar el pago con tarjeta. 5-10 minutos la primera vez. Solo se hace una vez.</span>
+        </p>
+      </div>
+
+      <div class="htb-step">
+        <div class="htb-num">03</div>
+        <div class="htb-icon">&#128260;</div>
+        <div class="htb-title">
+          <span data-l="en">Swap SOL for $NES</span>
+          <span data-l="fr">Swap SOL contre $NES</span>
+          <span data-l="es">Swap SOL por $NES</span>
+        </div>
+        <p class="htb-desc">
+          <span data-l="en">Go to Raydium or use Phantom's built-in Swap. Paste the $NES contract address (verify it matches below). Set the SOL amount and confirm. Keep a small SOL reserve (~0.01) for future transaction fees.</span>
+          <span data-l="fr">Va sur Raydium ou utilise le Swap integre de Phantom. Colle l'adresse contrat $NES (verifie qu'elle correspond ci-dessous). Choisis le montant de SOL et confirme. Garde un peu de SOL (~0.01) pour les frais de transaction futurs.</span>
+          <span data-l="es">Ve a Raydium o usa el Swap integrado de Phantom. Pega la direccion del contrato $NES (verifica que coincida abajo). Elige el monto de SOL y confirma. Manten un poco de SOL (~0.01) para futuras tarifas.</span>
+        </p>
+        <code class="htb-ca">DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t</code>
+      </div>
+
+      <div class="htb-step">
+        <div class="htb-num">04</div>
+        <div class="htb-icon">&#127881;</div>
+        <div class="htb-title">
+          <span data-l="en">You hold $NES</span>
+          <span data-l="fr">Tu detiens du $NES</span>
+          <span data-l="es">Ya tienes $NES</span>
+        </div>
+        <p class="htb-desc">
+          <span data-l="en">$NES appears in your Phantom tokens list. Welcome to the Swiss memecoin. HODL, trade, or stick around. Join the community on Telegram and X for updates.</span>
+          <span data-l="fr">Le $NES apparait dans tes tokens Phantom. Bienvenue dans le Swiss memecoin. HODL, trade, ou reste dans le coin. Rejoins la communaute sur Telegram et X pour les updates.</span>
+          <span data-l="es">$NES aparece en tu lista de tokens Phantom. Bienvenido al Swiss memecoin. HODL, trade, o quedate por aqui. Unete a la comunidad en Telegram y X.</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="htb-safety">
+      <p class="htb-safety-title">
+        <span data-l="en">Safety Tips</span>
+        <span data-l="fr">Conseils de Securite</span>
+        <span data-l="es">Consejos de Seguridad</span>
+      </p>
+      <ul class="htb-safety-list">
+        <li>
+          <span data-l="en">Never share your 12-word seed phrase with anyone, not even "support"</span>
+          <span data-l="fr">Ne partage jamais ta seed phrase de 12 mots, meme avec un "support"</span>
+          <span data-l="es">Nunca compartas tu frase de 12 palabras, ni siquiera con un "soporte"</span>
+        </li>
+        <li>
+          <span data-l="en">Always verify the $NES contract address before swapping. Beware of fakes.</span>
+          <span data-l="fr">Verifie toujours l'adresse contrat $NES avant de swap. Attention aux faux.</span>
+          <span data-l="es">Siempre verifica la direccion del contrato $NES antes de cambiar. Cuidado con falsificaciones.</span>
+        </li>
+        <li>
+          <span data-l="en">Only buy what you can afford to lose. Memecoins are pure speculation.</span>
+          <span data-l="fr">N'achete que ce que tu peux te permettre de perdre. Les memecoins, c'est de la pure speculation.</span>
+          <span data-l="es">Solo compra lo que puedas permitirte perder. Los memecoins son pura especulacion.</span>
+        </li>
+      </ul>
+    </div>
+
+    <p class="htb-more">
+      <span data-l="en">Want to go deeper? Read the official Solana memecoins guide by Phantom: </span>
+      <span data-l="fr">Pour aller plus loin ? Lis le guide officiel Solana memecoins de Phantom : </span>
+      <span data-l="es">Para profundizar? Lee la guia oficial de Solana memecoins por Phantom: </span>
+      <a href="https://phantom.com/learn/crypto-101/solana-memecoins-tokens" target="_blank" rel="noopener" class="htb-link">phantom.com/learn &#8594;</a>
+    </p>
   </div>
 </section>
 
