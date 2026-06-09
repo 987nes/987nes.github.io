@@ -1729,8 +1729,76 @@ footer {
   background: linear-gradient(90deg, transparent 0%, var(--nes-yellow) 50%, transparent 100%);
   opacity: 0.6;
 }
+.news-carousel {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 60px;
+}
+.news-viewport {
+  overflow: hidden;
+}
+.news-track {
+  display: flex;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+.news-slide {
+  flex: 0 0 100%;
+  min-width: 100%;
+  box-sizing: border-box;
+}
+.news-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 46px;
+  height: 46px;
+  background: rgba(7,8,10,0.8);
+  border: 1px solid rgba(240,208,32,0.45);
+  color: var(--nes-yellow);
+  font-size: 1.6rem;
+  font-family: var(--mono);
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  line-height: 1;
+}
+.news-arrow:hover {
+  background: var(--nes-yellow);
+  color: var(--black);
+  border-color: var(--nes-yellow);
+  transform: translateY(-50%) scale(1.05);
+}
+.news-prev { left: 8px; }
+.news-next { right: 8px; }
+.news-dots {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 28px;
+}
+.news-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s;
+  padding: 0;
+}
+.news-dot.active {
+  background: var(--nes-yellow);
+  transform: scale(1.4);
+}
+.news-dot:hover:not(.active) { background: rgba(240,208,32,0.6); }
 .news-card {
-  max-width: 1100px;
+  max-width: 1080px;
   margin: 0 auto;
   padding: 56px 64px;
   background: linear-gradient(135deg, rgba(240,208,32,0.08) 0%, rgba(14,95,160,0.06) 100%);
@@ -1818,6 +1886,10 @@ footer {
 .news-proof-list a:hover { color: var(--white); border-bottom-color: var(--white); }
 @media (max-width: 768px) {
   #news { padding: 56px 0; }
+  .news-carousel { padding: 0 14px; }
+  .news-arrow { width: 36px; height: 36px; font-size: 1.2rem; }
+  .news-prev { left: -2px; }
+  .news-next { right: -2px; }
   .news-card { padding: 36px 26px; border-left-width: 4px; }
   .news-meta { flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
   .news-badge { font-size: 0.75rem; padding: 6px 12px; }
@@ -1888,6 +1960,33 @@ footer {
       "applicationCategory": "FinanceApplication",
       "operatingSystem": "Android, iOS",
       "description": "Native non-custodial mobile crypto portfolio tracker. Monitors public addresses across 15 blockchains with multi-profile support (multiple independent portfolios in one app), live value, historical charts, cost basis, biometric privacy lock and cloud sync. Read-only, no keys stored, no trading."
+    },
+    {
+      "@type": "NewsArticle",
+      "headline": "987NES is Growing - Flavien Joins the Team",
+      "datePublished": "2026-06-09",
+      "dateModified": "2026-06-09",
+      "inLanguage": "en",
+      "author": {
+        "@type": "Organization",
+        "name": "987NES Team",
+        "url": "https://987nes.com"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "987NES",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://987nes.com/favicon.png"
+        }
+      },
+      "image": "https://987nes.com/og-image.png",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://987nes.com/#news"
+      },
+      "articleBody": "Flavien has officially joined the 987NES team. He will be in charge of prospecting new partners and investors for the project. This addition reinforces 987NES growing organization and its long-term commitment to building a Swiss memecoin ecosystem on Solana.",
+      "keywords": "987NES, team growth, Flavien, partnerships, investors, Swiss memecoin"
     },
     {
       "@type": "NewsArticle",
@@ -2197,50 +2296,107 @@ footer {
 <!-- NEWS -->
 <section id="news" class="reveal">
   <div class="container sec">
-    <div class="news-card">
-      <div class="news-meta">
-        <span class="news-badge">NEW</span>
-        <span class="news-date">
-          <span data-l="en">Token Allocation &middot; June 2026</span>
-          <span data-l="fr">Allocation Token &middot; Juin 2026</span>
-          <span data-l="es">Asignacion Token &middot; Junio 2026</span>
-        </span>
+    <div class="news-carousel" id="news-carousel">
+      <div class="news-viewport">
+        <div class="news-track" id="news-track">
+
+          <!-- Slide 1: Flavien (newest) -->
+          <div class="news-slide">
+            <div class="news-card">
+              <div class="news-meta">
+                <span class="news-badge">NEW</span>
+                <span class="news-date">
+                  <span data-l="en">Team Update &middot; June 2026</span>
+                  <span data-l="fr">Update Equipe &middot; Juin 2026</span>
+                  <span data-l="es">Update Equipo &middot; Junio 2026</span>
+                </span>
+              </div>
+
+              <h2 class="news-title">
+                <span data-l="en">987NES is <span class="y">Growing</span> &middot; Welcome Flavien</span>
+                <span data-l="fr">987NES <span class="y">Grandit</span> &middot; Bienvenue Flavien</span>
+                <span data-l="es">987NES <span class="y">Crece</span> &middot; Bienvenido Flavien</span>
+              </h2>
+
+              <div class="news-body">
+                <p>
+                  <span data-l="en">We are excited to announce that Flavien has officially joined the 987NES team.</span>
+                  <span data-l="fr">Nous sommes ravis d'annoncer que Flavien a officiellement rejoint l'equipe 987NES.</span>
+                  <span data-l="es">Nos complace anunciar que Flavien se ha unido oficialmente al equipo 987NES.</span>
+                </p>
+                <p>
+                  <span data-l="en">He will be in charge of prospecting new partners and investors. Welcome aboard, Flavien!</span>
+                  <span data-l="fr">Il sera en charge de la prospection de nouveaux partenaires et investisseurs. Bienvenue a bord, Flavien !</span>
+                  <span data-l="es">Estara a cargo de la prospeccion de nuevos socios e inversores. Bienvenido a bordo, Flavien!</span>
+                </p>
+              </div>
+
+              <p class="news-tagline">
+                <span data-l="en">Swiss Precision &middot; Long-Term Conviction</span>
+                <span data-l="fr">Precision Suisse &middot; Conviction Long Terme</span>
+                <span data-l="es">Precision Suiza &middot; Conviccion a Largo Plazo</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Slide 2: Team Tokens Locked -->
+          <div class="news-slide">
+            <div class="news-card">
+              <div class="news-meta">
+                <span class="news-date">
+                  <span data-l="en">Token Allocation &middot; June 2026</span>
+                  <span data-l="fr">Allocation Token &middot; Juin 2026</span>
+                  <span data-l="es">Asignacion Token &middot; Junio 2026</span>
+                </span>
+              </div>
+
+              <h2 class="news-title">
+                <span data-l="en">Team Tokens <span class="y">Locked</span> Until October 2027</span>
+                <span data-l="fr">Tokens de l'Equipe <span class="y">Verrouilles</span> Jusqu'en Octobre 2027</span>
+                <span data-l="es">Tokens del Equipo <span class="y">Bloqueados</span> Hasta Octubre 2027</span>
+              </h2>
+
+              <div class="news-body">
+                <p>
+                  <span data-l="en">The 987NES team has decided to lock its 20% $NES allocation until October 16, 2027. As a result, no team sales will be possible before this date.</span>
+                  <span data-l="fr">L'equipe 987NES a decide de verrouiller ses 20% d'allocation $NES jusqu'au 16 octobre 2027. Aucune vente de la part de l'equipe ne sera possible avant cette date.</span>
+                  <span data-l="es">El equipo 987NES ha decidido bloquear su 20% de asignacion $NES hasta el 16 de octubre de 2027. Ninguna venta del equipo sera posible antes de esa fecha.</span>
+                </p>
+                <p>
+                  <span data-l="en">This decision was made to once again reassure the community about our intentions and to send a strong signal: 987NES is here for the long term.</span>
+                  <span data-l="fr">Cette decision a ete prise pour rassurer une fois de plus la communaute sur nos intentions et envoyer un signal fort : 987NES est la pour le long terme.</span>
+                  <span data-l="es">Esta decision se ha tomado para tranquilizar una vez mas a la comunidad sobre nuestras intenciones y enviar una senal fuerte: 987NES esta aqui a largo plazo.</span>
+                </p>
+              </div>
+
+              <p class="news-tagline">
+                <span data-l="en">Swiss Precision &middot; Long-Term Conviction</span>
+                <span data-l="fr">Precision Suisse &middot; Conviction Long Terme</span>
+                <span data-l="es">Precision Suiza &middot; Conviccion a Largo Plazo</span>
+              </p>
+
+              <p class="news-proof-label">
+                <span data-l="en">&#128274; On-chain Proof</span>
+                <span data-l="fr">&#128274; Preuve On-chain</span>
+                <span data-l="es">&#128274; Prueba On-chain</span>
+              </p>
+              <ul class="news-proof-list">
+                <li><a href="https://app.streamflow.finance/contract/solana/mainnet/89dRjHvp5NehJ8MQ4CeznsZBdX8fmLXfgXyVo34L3Zsa?new" target="_blank" rel="noopener">streamflow.finance / contract 89dRjH...3Zsa &#8594;</a></li>
+                <li><a href="https://app.streamflow.finance/contract/solana/mainnet/3ao3MPSNjYjewSG4picQdXtmUCzVBSB5UrWxdaiGj3FP?new" target="_blank" rel="noopener">streamflow.finance / contract 3ao3MP...j3FP &#8594;</a></li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
       </div>
 
-      <h2 class="news-title">
-        <span data-l="en">Team Tokens <span class="y">Locked</span> Until October 2027</span>
-        <span data-l="fr">Tokens de l'Equipe <span class="y">Verrouilles</span> Jusqu'en Octobre 2027</span>
-        <span data-l="es">Tokens del Equipo <span class="y">Bloqueados</span> Hasta Octubre 2027</span>
-      </h2>
+      <button class="news-arrow news-prev" type="button" aria-label="Previous news">&#8249;</button>
+      <button class="news-arrow news-next" type="button" aria-label="Next news">&#8250;</button>
 
-      <div class="news-body">
-        <p>
-          <span data-l="en">The 987NES team has decided to lock its 20% $NES allocation until October 16, 2027. As a result, no team sales will be possible before this date.</span>
-          <span data-l="fr">L'equipe 987NES a decide de verrouiller ses 20% d'allocation $NES jusqu'au 16 octobre 2027. Aucune vente de la part de l'equipe ne sera possible avant cette date.</span>
-          <span data-l="es">El equipo 987NES ha decidido bloquear su 20% de asignacion $NES hasta el 16 de octubre de 2027. Ninguna venta del equipo sera posible antes de esa fecha.</span>
-        </p>
-        <p>
-          <span data-l="en">This decision was made to once again reassure the community about our intentions and to send a strong signal: 987NES is here for the long term.</span>
-          <span data-l="fr">Cette decision a ete prise pour rassurer une fois de plus la communaute sur nos intentions et envoyer un signal fort : 987NES est la pour le long terme.</span>
-          <span data-l="es">Esta decision se ha tomado para tranquilizar una vez mas a la comunidad sobre nuestras intenciones y enviar una senal fuerte: 987NES esta aqui a largo plazo.</span>
-        </p>
+      <div class="news-dots" id="news-dots">
+        <button type="button" class="news-dot active" data-slide="0" aria-label="Slide 1"></button>
+        <button type="button" class="news-dot" data-slide="1" aria-label="Slide 2"></button>
       </div>
-
-      <p class="news-tagline">
-        <span data-l="en">Swiss Precision &middot; Long-Term Conviction</span>
-        <span data-l="fr">Precision Suisse &middot; Conviction Long Terme</span>
-        <span data-l="es">Precision Suiza &middot; Conviccion a Largo Plazo</span>
-      </p>
-
-      <p class="news-proof-label">
-        <span data-l="en">&#128274; On-chain Proof</span>
-        <span data-l="fr">&#128274; Preuve On-chain</span>
-        <span data-l="es">&#128274; Prueba On-chain</span>
-      </p>
-      <ul class="news-proof-list">
-        <li><a href="https://app.streamflow.finance/contract/solana/mainnet/89dRjHvp5NehJ8MQ4CeznsZBdX8fmLXfgXyVo34L3Zsa?new" target="_blank" rel="noopener">streamflow.finance / contract 89dRjH...3Zsa &#8594;</a></li>
-        <li><a href="https://app.streamflow.finance/contract/solana/mainnet/3ao3MPSNjYjewSG4picQdXtmUCzVBSB5UrWxdaiGj3FP?new" target="_blank" rel="noopener">streamflow.finance / contract 3ao3MP...j3FP &#8594;</a></li>
-      </ul>
     </div>
   </div>
 </section>
@@ -3075,6 +3231,50 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
   });
 });
+
+/* ===== NEWS CAROUSEL ===== */
+(function() {
+  const track = document.getElementById('news-track');
+  if (!track) return;
+  const slides = track.querySelectorAll('.news-slide');
+  const dots = document.querySelectorAll('#news-dots .news-dot');
+  const prev = document.querySelector('.news-prev');
+  const next = document.querySelector('.news-next');
+  const carousel = document.getElementById('news-carousel');
+  let current = 0;
+  let autoTimer = null;
+  const AUTO_INTERVAL = 9000;
+
+  function go(i) {
+    current = (i + slides.length) % slides.length;
+    track.style.transform = 'translateX(-' + (current * 100) + '%)';
+    dots.forEach((d, k) => d.classList.toggle('active', k === current));
+  }
+  function nextSlide() { go(current + 1); }
+  function prevSlide() { go(current - 1); }
+
+  function startAuto() {
+    stopAuto();
+    autoTimer = setInterval(nextSlide, AUTO_INTERVAL);
+  }
+  function stopAuto() {
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+  }
+
+  if (next) next.addEventListener('click', () => { nextSlide(); startAuto(); });
+  if (prev) prev.addEventListener('click', () => { prevSlide(); startAuto(); });
+  dots.forEach(d => d.addEventListener('click', () => {
+    go(parseInt(d.dataset.slide, 10));
+    startAuto();
+  }));
+
+  if (carousel) {
+    carousel.addEventListener('mouseenter', stopAuto);
+    carousel.addEventListener('mouseleave', startAuto);
+  }
+
+  if (slides.length > 1) startAuto();
+})();
 </script>
 </body>
 </html>
