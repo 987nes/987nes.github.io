@@ -74,7 +74,23 @@
   /* Fonts */
   --display: 'Bebas Neue', sans-serif;
   --body: 'Syne', sans-serif;
-  --mono: 'Space Mono', monospace;
+  --mono: 'Space Mono', monospace;   /* legacy alias */
+  --code: 'Space Mono', monospace;   /* technical only: addresses, ticker, code */
+
+  /* Type scale (consistent steps) */
+  --fs-2xs: 0.7rem;
+  --fs-xs: 0.8rem;
+  --fs-sm: 0.9rem;
+  --fs-base: 1rem;
+  --fs-md: 1.15rem;
+  --fs-lg: 1.4rem;
+  --fs-xl: 1.8rem;
+  --fs-2xl: 2.4rem;
+  --fs-3xl: 3.2rem;
+
+  /* Radius */
+  --radius: 10px;
+  --radius-sm: 7px;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -146,7 +162,7 @@ nav {
 }
 
 .nav-links a {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.62rem;
   letter-spacing: 3px;
   text-transform: uppercase;
@@ -164,30 +180,33 @@ nav {
 }
 
 .lang-btn {
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  letter-spacing: 2px;
+  font-family: var(--body);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 1px;
   color: var(--gray);
   background: none;
   border: 1px solid var(--slate);
   padding: 5px 10px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.2s;
 }
 .lang-btn.active, .lang-btn:hover { color: var(--nes-yellow); border-color: var(--nes-yellow-dim); }
 
 .btn-nav-buy {
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 2px;
+  font-family: var(--body);
+  font-size: 0.66rem;
+  letter-spacing: 1px;
   text-transform: uppercase;
   color: var(--black);
   background: var(--nes-yellow);
   padding: 10px 22px;
   text-decoration: none;
   border: none;
+  border-radius: var(--radius-sm);
   transition: all 0.2s;
-  font-weight: 700;
+  font-weight: 800;
 }
 .btn-nav-buy:hover { background: var(--white); }
 
@@ -206,13 +225,13 @@ nav {
   padding: 120px 56px 80px;
   position: relative;
   overflow: hidden;
-  background: url('dzo-0.png') right center / auto 90% no-repeat;
+  background: url('dzo-0.png') right center / auto 100% no-repeat;
 }
 
 .hero .hero-bg-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to right, var(--black) 35%, rgba(7,8,10,0.85) 55%, rgba(7,8,10,0.5) 80%, rgba(7,8,10,0.3) 100%);
+  background: linear-gradient(to right, var(--black) 28%, rgba(7,8,10,0.78) 50%, rgba(7,8,10,0.35) 72%, rgba(7,8,10,0.05) 100%);
   z-index: 1;
 }
 
@@ -244,6 +263,9 @@ nav {
   z-index: 2;
   max-width: 900px;
 }
+
+/* Mascot image — desktop uses the background art, mobile uses this */
+.hero-mascot { display: none; }
 
 .hero-flag {
   display: flex;
@@ -284,7 +306,7 @@ nav {
 }
 
 .hero-eyebrow {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.68rem;
   letter-spacing: 5px;
   color: var(--nes-yellow);
@@ -316,7 +338,7 @@ nav {
 }
 
 .hero-full-name {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.75rem;
   letter-spacing: 6px;
   color: var(--gray-mid);
@@ -360,32 +382,36 @@ nav {
 }
 
 .btn-primary {
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 3px;
+  font-family: var(--body);
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   text-decoration: none;
   color: var(--black);
   background: var(--nes-yellow);
-  padding: 16px 34px;
+  padding: 16px 32px;
+  border-radius: var(--radius);
   transition: all 0.2s;
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  box-shadow: 0 4px 16px rgba(240,208,32,0.18);
 }
-.btn-primary:hover { background: var(--white); transform: translateY(-2px); }
+.btn-primary:hover { background: var(--white); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(240,208,32,0.28); }
 
 .btn-secondary {
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 3px;
+  font-family: var(--body);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   text-decoration: none;
   color: var(--white);
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.2);
-  padding: 16px 34px;
+  border: 1px solid rgba(255,255,255,0.25);
+  padding: 16px 32px;
+  border-radius: var(--radius);
   transition: all 0.2s;
   display: inline-flex;
   align-items: center;
@@ -401,7 +427,7 @@ nav {
 }
 
 .trust-item {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.62rem;
   letter-spacing: 2px;
   color: var(--gray-mid);
@@ -444,7 +470,7 @@ nav {
 }
 
 .hstat-label {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.55rem;
   letter-spacing: 3px;
   color: var(--gray);
@@ -478,7 +504,7 @@ nav {
 }
 
 .ticker-item {
-  font-family: var(--mono);
+  font-family: var(--code);
   font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 4px;
@@ -498,10 +524,10 @@ nav {
 section { position: relative; z-index: 1; }
 
 .container { max-width: 1300px; margin: 0 auto; padding: 0 56px; }
-.sec { padding: 120px 0; }
+.sec { padding: 80px 0; }
 
 .lbl {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.62rem;
   letter-spacing: 6px;
   text-transform: uppercase;
@@ -580,7 +606,7 @@ section { position: relative; z-index: 1; }
 }
 
 .countdown-label {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.6rem;
   letter-spacing: 4px;
   color: var(--nes-yellow);
@@ -597,7 +623,7 @@ section { position: relative; z-index: 1; }
 }
 
 .countdown-sub {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.62rem;
   letter-spacing: 2px;
   color: var(--gray-mid);
@@ -614,7 +640,7 @@ section { position: relative; z-index: 1; }
 }
 
 .supply-label {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.58rem;
   letter-spacing: 4px;
   color: var(--gray);
@@ -631,7 +657,7 @@ section { position: relative; z-index: 1; }
 }
 
 .supply-sub {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.6rem;
   letter-spacing: 2px;
   color: var(--gray-mid);
@@ -687,7 +713,7 @@ section { position: relative; z-index: 1; }
 .toko-item:hover { background: var(--dark2); }
 
 .toko-label {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.58rem;
   letter-spacing: 3px;
   color: var(--gray);
@@ -707,7 +733,7 @@ section { position: relative; z-index: 1; }
 .toko-val.b { color: #60a0d8; }
 
 .toko-sub {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.55rem;
   letter-spacing: 1px;
   color: var(--gray);
@@ -728,7 +754,7 @@ section { position: relative; z-index: 1; }
 }
 
 .ca-lbl {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.55rem;
   letter-spacing: 4px;
   color: var(--nes-yellow);
@@ -737,7 +763,7 @@ section { position: relative; z-index: 1; }
 }
 
 .ca-addr {
-  font-family: var(--mono);
+  font-family: var(--code);
   font-size: 0.78rem;
   color: var(--white);
   word-break: break-all;
@@ -745,7 +771,7 @@ section { position: relative; z-index: 1; }
 }
 
 .copy-btn {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.62rem;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -753,6 +779,7 @@ section { position: relative; z-index: 1; }
   background: rgba(240,208,32,0.08);
   border: 1px solid rgba(240,208,32,0.25);
   padding: 12px 20px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s;
@@ -800,7 +827,7 @@ section { position: relative; z-index: 1; }
 }
 
 .buy-desc {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.6rem;
   letter-spacing: 2px;
   color: var(--gray);
@@ -854,7 +881,7 @@ section { position: relative; z-index: 1; }
 }
 
 .tool-badge {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.58rem;
   letter-spacing: 5px;
   color: var(--nes-yellow);
@@ -873,6 +900,7 @@ section { position: relative; z-index: 1; }
   color: var(--white);
   margin-bottom: 8px;
 }
+.tool-name .y { color: var(--nes-yellow); }
 
 .tool-tagline {
   font-size: 1rem;
@@ -897,7 +925,7 @@ section { position: relative; z-index: 1; }
 }
 
 .tool-feats li {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.65rem;
   letter-spacing: 1px;
   color: var(--gray-mid);
@@ -929,7 +957,7 @@ section { position: relative; z-index: 1; }
   right: -35px;
   background: var(--nes-yellow);
   color: var(--black);
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 3px;
@@ -963,7 +991,7 @@ section { position: relative; z-index: 1; }
 }
 
 .tool-note {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.7rem;
   color: rgba(255,255,255,0.35);
   margin-top: 14px;
@@ -974,7 +1002,7 @@ section { position: relative; z-index: 1; }
 }
 
 .tool-access {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.62rem;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -1030,7 +1058,7 @@ section { position: relative; z-index: 1; }
 }
 
 .dzo-patois {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.6rem;
   letter-spacing: 3px;
   color: var(--gray);
@@ -1074,15 +1102,17 @@ section { position: relative; z-index: 1; }
 .wp-btns { display: flex; flex-direction: column; gap: 12px; }
 
 .wp-btn {
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  letter-spacing: 3px;
+  font-family: var(--body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   text-decoration: none;
   color: var(--white);
   background: transparent;
   border: 1px solid rgba(255,255,255,0.15);
   padding: 18px 28px;
+  border-radius: var(--radius);
   transition: all 0.2s;
   display: flex;
   align-items: center;
@@ -1141,7 +1171,7 @@ section { position: relative; z-index: 1; }
 }
 
 .comm-handle {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.6rem;
   letter-spacing: 2px;
   color: var(--nes-yellow);
@@ -1149,7 +1179,7 @@ section { position: relative; z-index: 1; }
 }
 
 .comm-desc {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.6rem;
   letter-spacing: 1px;
   color: var(--gray);
@@ -1174,7 +1204,7 @@ section { position: relative; z-index: 1; }
 .closing-big .y { color: var(--nes-yellow); }
 
 .closing-sub {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.8rem;
   letter-spacing: 6px;
   color: var(--gray-mid);
@@ -1217,7 +1247,7 @@ footer {
 .f-logo-text span { color: var(--nes-yellow); }
 
 .f-tagline {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.62rem;
   letter-spacing: 3px;
   color: var(--gray);
@@ -1226,7 +1256,7 @@ footer {
 }
 
 .f-ca {
-  font-family: var(--mono);
+  font-family: var(--code);
   font-size: 0.55rem;
   letter-spacing: 1px;
   color: rgba(240,208,32,0.3);
@@ -1238,7 +1268,7 @@ footer {
 }
 
 .f-col h4 {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.6rem;
   letter-spacing: 4px;
   color: var(--nes-yellow);
@@ -1249,7 +1279,7 @@ footer {
 .f-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
 
 .f-col a {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.65rem;
   letter-spacing: 2px;
   color: var(--gray-mid);
@@ -1270,7 +1300,7 @@ footer {
 }
 
 .f-copy {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.58rem;
   letter-spacing: 2px;
   color: var(--gray);
@@ -1278,7 +1308,7 @@ footer {
 }
 
 .f-disc {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.52rem;
   letter-spacing: 1px;
   color: rgba(255,255,255,0.2);
@@ -1315,7 +1345,7 @@ footer {
   color: var(--white);
 }
 .wallets-header-sub {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.58rem;
   letter-spacing: 2px;
   color: var(--nes-yellow);
@@ -1334,7 +1364,7 @@ footer {
 .wallet-row:last-child { border-bottom: none; }
 .wallet-row:hover { background: var(--dark2); }
 .wallet-type {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.6rem;
   letter-spacing: 2px;
   color: var(--gray);
@@ -1342,14 +1372,14 @@ footer {
 }
 .wallet-type strong { color: var(--offwhite); font-weight: 600; display: block; margin-bottom: 3px; font-size: 0.65rem; }
 .wallet-addr {
-  font-family: var(--mono);
+  font-family: var(--code);
   font-size: 0.68rem;
   color: var(--offwhite);
   word-break: break-all;
   line-height: 1.5;
 }
 .wallet-link {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.55rem;
   letter-spacing: 2px;
   color: var(--nes-yellow);
@@ -1362,7 +1392,7 @@ footer {
 }
 .wallet-link:hover { background: var(--nes-yellow); color: var(--black); }
 .wallet-note {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.58rem;
   letter-spacing: 1px;
   color: var(--gray);
@@ -1436,11 +1466,18 @@ footer {
     font-size: 0.52rem;
   }
 
-  /* HERO */
+  /* HERO — same mysterious DZÔ artwork as desktop, full-bleed */
   .hero {
-    padding: 90px 16px 50px;
-    min-height: auto;
+    padding: 96px 18px 54px;
+    min-height: 90vh;
+    justify-content: flex-end;
+    background: url('dzo-0.png') center 32% / cover no-repeat;
+    text-align: left;
   }
+  .hero .hero-bg-overlay {
+    background: linear-gradient(to bottom, rgba(7,8,10,0.30) 0%, rgba(7,8,10,0.45) 38%, rgba(7,8,10,0.82) 72%, rgba(7,8,10,0.96) 100%);
+  }
+  .hero-mascot { display: none; }   /* mobile uses the atmospheric background, not a separate photo */
   .hero-title {
     font-size: clamp(4rem, 22vw, 7rem);
     letter-spacing: -2px;
@@ -1480,7 +1517,7 @@ footer {
   .ticker-item { font-size: 0.58rem; padding: 0 28px; gap: 14px; }
 
   /* SECTIONS */
-  .sec { padding: 70px 0; }
+  .sec { padding: 56px 0; }
   .container { padding: 0 16px; }
 
   .ttl { font-size: clamp(2.4rem, 10vw, 4rem); }
@@ -1571,7 +1608,7 @@ footer {
 /* ===== HOW TO BUY (PROTO) ===== */
 #how-to-buy {
   background: var(--black);
-  padding: 100px 0;
+  padding: 80px 0;
   border-top: 1px solid rgba(14,95,160,0.15);
 }
 .htb-header { text-align: center; margin-bottom: 60px; }
@@ -1600,7 +1637,7 @@ footer {
 }
 .htb-step:hover { background: #0b0d10; }
 .htb-num {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.85rem;
   letter-spacing: 4px;
   color: var(--nes-yellow);
@@ -1633,7 +1670,7 @@ footer {
 }
 .htb-link {
   display: inline-block;
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.7rem;
   letter-spacing: 2px;
   color: var(--nes-yellow);
@@ -1644,7 +1681,7 @@ footer {
 .htb-link:hover { color: var(--white); }
 .htb-ca {
   display: block;
-  font-family: var(--mono);
+  font-family: var(--code);
   font-size: 0.65rem;
   color: rgba(240,208,32,0.85);
   background: rgba(14,95,160,0.1);
@@ -1680,7 +1717,7 @@ footer {
   position: absolute;
   left: 6px;
   color: var(--nes-yellow);
-  font-family: var(--mono);
+  font-family: var(--body);
   font-weight: bold;
 }
 .htb-more {
@@ -1693,7 +1730,7 @@ footer {
 .hero-firsttime {
   display: inline-block;
   margin-top: 18px;
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.7rem;
   letter-spacing: 2px;
   color: rgba(240,208,32,0.85);
@@ -1707,7 +1744,7 @@ footer {
   border-bottom-color: var(--white);
 }
 @media (max-width: 768px) {
-  #how-to-buy { padding: 60px 0; }
+  #how-to-buy { padding: 56px 0; }
   .htb-steps { grid-template-columns: 1fr; }
   .htb-step { padding: 28px 20px; }
   .htb-safety { padding: 20px; margin-top: 30px; }
@@ -1716,7 +1753,7 @@ footer {
 /* ===== NEWS SECTION ===== */
 #news {
   background: var(--black);
-  padding: 90px 0;
+  padding: 80px 0;
   border-top: 2px solid rgba(240,208,32,0.35);
   border-bottom: 2px solid rgba(240,208,32,0.2);
   position: relative;
@@ -1758,7 +1795,7 @@ footer {
   border: 1px solid rgba(240,208,32,0.45);
   color: var(--nes-yellow);
   font-size: 1.6rem;
-  font-family: var(--mono);
+  font-family: var(--body);
   cursor: pointer;
   z-index: 10;
   transition: all 0.2s;
@@ -1813,7 +1850,7 @@ footer {
   margin-bottom: 24px;
 }
 .news-badge {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.85rem;
   letter-spacing: 4px;
   color: var(--black);
@@ -1827,7 +1864,7 @@ footer {
   50% { box-shadow: 0 0 0 14px rgba(240,208,32,0); }
 }
 .news-date {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.8rem;
   letter-spacing: 3px;
   color: rgba(255,255,255,0.65);
@@ -1851,7 +1888,7 @@ footer {
 }
 .news-body p { margin: 0 0 14px 0; }
 .news-tagline {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.95rem;
   letter-spacing: 4px;
   color: var(--nes-yellow);
@@ -1860,7 +1897,7 @@ footer {
   font-weight: bold;
 }
 .news-proof-label {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 0.78rem;
   letter-spacing: 2.5px;
   color: rgba(255,255,255,0.55);
@@ -1874,7 +1911,7 @@ footer {
 }
 .news-proof-list li { margin-bottom: 8px; }
 .news-proof-list a {
-  font-family: var(--mono);
+  font-family: var(--code);
   font-size: 0.8rem;
   color: rgba(240,208,32,0.9);
   text-decoration: none;
@@ -1885,7 +1922,7 @@ footer {
 }
 .news-proof-list a:hover { color: var(--white); border-bottom-color: var(--white); }
 @media (max-width: 768px) {
-  #news { padding: 56px 0; }
+  #news { padding: 52px 0; }
   .news-carousel { padding: 0 14px; }
   .news-arrow { width: 36px; height: 36px; font-size: 1.2rem; }
   .news-prev { left: -2px; }
@@ -1896,6 +1933,171 @@ footer {
   .news-title { font-size: 1.8rem; letter-spacing: 2px; }
   .news-body { font-size: 1rem; }
   .news-tagline { font-size: 0.85rem; letter-spacing: 3px; }
+}
+
+/* ===== ARCADE TEASER ===== */
+#arcade { padding: 80px 0; background: var(--black); }
+.arcade-card {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 36px;
+  align-items: center;
+  padding: 44px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(14,95,160,0.12) 0%, rgba(240,208,32,0.06) 100%);
+  border: 1px solid rgba(14,95,160,0.25);
+}
+.arcade-visual {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(14,95,160,0.35), transparent 70%),
+    var(--dark);
+  border: 1px solid rgba(14,95,160,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.arcade-visual img { width: 70%; filter: drop-shadow(0 10px 24px rgba(0,0,0,0.5)); }
+.arcade-badge {
+  position: absolute;
+  top: 12px; left: 12px;
+  font-family: var(--body);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--black);
+  background: var(--nes-yellow);
+  padding: 5px 11px;
+  border-radius: 6px;
+}
+.arcade-eyebrow {
+  font-family: var(--body);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--nes-yellow);
+  margin-bottom: 14px;
+}
+.arcade-title {
+  font-family: var(--display);
+  font-size: var(--fs-3xl);
+  letter-spacing: 2px;
+  line-height: 1;
+  color: var(--white);
+  margin-bottom: 16px;
+}
+.arcade-title .y { color: var(--nes-yellow); }
+.arcade-desc {
+  font-family: var(--body);
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+  color: var(--offwhite);
+  margin-bottom: 24px;
+  max-width: 460px;
+}
+@media (max-width: 768px) {
+  #arcade { padding: 56px 0; }
+  .arcade-card { grid-template-columns: 1fr; padding: 26px; gap: 24px; text-align: center; }
+  .arcade-visual { max-width: 240px; margin: 0 auto; }
+  .arcade-desc { margin-left: auto; margin-right: auto; }
+  .arcade-title { font-size: 2.4rem; }
+}
+
+/* ===== TEAM ===== */
+#team { padding: 80px 0; background: var(--black); }
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 44px;
+}
+.team-card {
+  background: var(--dark);
+  border: 1px solid rgba(14,95,160,0.22);
+  border-radius: 14px;
+  padding: 28px 20px;
+  text-align: center;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.team-card:hover { transform: translateY(-4px); border-color: rgba(240,208,32,0.4); }
+.team-avatar {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--display);
+  font-size: 1.6rem;
+  letter-spacing: 1px;
+  color: var(--black);
+  background: linear-gradient(135deg, var(--nes-yellow), #ffe97a);
+}
+.team-name {
+  font-family: var(--display);
+  font-size: 1.7rem;
+  letter-spacing: 1.5px;
+  color: var(--white);
+  margin-bottom: 6px;
+}
+.team-role {
+  font-family: var(--body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--nes-yellow);
+}
+.team-linkedin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-top: 14px;
+  border-radius: 7px;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: var(--gray-mid);
+  transition: all 0.2s;
+}
+.team-linkedin:hover { color: var(--black); background: var(--nes-yellow); border-color: var(--nes-yellow); }
+.team-linkedin svg { width: 15px; height: 15px; fill: currentColor; }
+.team-mottos {
+  margin-top: 56px;
+  text-align: center;
+  border-top: 1px solid rgba(14,95,160,0.2);
+  padding-top: 40px;
+}
+.team-mottos-label {
+  font-family: var(--body);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-bottom: 18px;
+}
+.team-motto {
+  font-family: var(--display);
+  font-size: 1.9rem;
+  letter-spacing: 1.5px;
+  line-height: 1.25;
+  color: var(--white);
+}
+.team-motto .y { color: var(--nes-yellow); }
+@media (max-width: 768px) {
+  #team { padding: 56px 0; }
+  .team-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .team-card { padding: 22px 14px; }
+  .team-name { font-size: 1.4rem; }
+  .team-motto { font-size: 1.5rem; }
 }
 
 </style>
@@ -1919,8 +2121,36 @@ footer {
       },
       "sameAs": [
         "https://x.com/987_nes",
-        "https://t.me/NineEightSeven987"
+        "https://t.me/NineEightSeven987",
+        "https://www.linkedin.com/company/987nes",
+        "https://github.com/987nes"
       ]
+    },
+    {
+      "@type": "Person",
+      "name": "Dom",
+      "jobTitle": "Co-founder, Tech Lead & Developer",
+      "worksFor": { "@type": "Organization", "name": "987NES" },
+      "sameAs": ["https://www.linkedin.com/in/dominique-schaerli-5a4806bb/"]
+    },
+    {
+      "@type": "Person",
+      "name": "Paco",
+      "jobTitle": "Co-founder, Head of Marketing",
+      "worksFor": { "@type": "Organization", "name": "987NES" }
+    },
+    {
+      "@type": "Person",
+      "name": "Flavien",
+      "jobTitle": "Head of Business Development",
+      "worksFor": { "@type": "Organization", "name": "987NES" },
+      "sameAs": ["https://www.linkedin.com/in/flavien-nivelle-351a42a2/"]
+    },
+    {
+      "@type": "Person",
+      "name": "Luis",
+      "jobTitle": "Technical Advisor",
+      "worksFor": { "@type": "Organization", "name": "987NES" }
     },
     {
       "@type": "WebSite",
@@ -2153,9 +2383,11 @@ footer {
     <li><a href="#news" class="nav-news"><span data-l="en">News</span><span data-l="fr">Actus</span><span data-l="es">Noticias</span></a></li>
     <li><a href="#story">NineEightSeven</a></li>
     <li><a href="#token">$NES</a></li>
+    <li><a href="#team"><span data-l="en">Team</span><span data-l="fr">Équipe</span><span data-l="es">Equipo</span></a></li>
     <li><a href="#tools"><span data-l="en">Swiss Tools</span><span data-l="fr">Outils Suisses</span><span data-l="es">Herramientas Suizas</span></a></li>
     <li><a href="#how-to-buy"><span data-l="en">How to Buy</span><span data-l="fr">Comment Acheter</span><span data-l="es">Cómo Comprar</span></a></li>
     <li><a href="#dzo">DZÔ</a></li>
+    <li style="display:none"><a href="#arcade"><span data-l="en">Arcade</span><span data-l="fr">Arcade</span><span data-l="es">Arcade</span></a></li>
     <li><a href="#whitepaper">White Paper</a></li>
     <li><a href="#community"><span data-l="en">Community</span><span data-l="fr">Communauté</span><span data-l="es">Comunidad</span></a></li>
   </ul>
@@ -2178,6 +2410,7 @@ footer {
 <section class="hero" id="home" role="img" aria-label="DZO mascot, the official character of 987NES project">
   <div class="hero-bg-overlay"></div>
   <div class="hero-inner">
+    <img src="dzo-1.png" alt="DZÔ, the official 987NES mascot" class="hero-mascot" loading="eager">
     <div class="hero-flag">
       <div class="swiss-flag"></div>
       <span class="hero-eyebrow">
@@ -2198,23 +2431,18 @@ footer {
     </p>
 
     <p class="hero-tagline">
-      <span data-l="en"><span class="accent">The Swiss Memecoin.</span> Built on Solana.</span>
-      <span data-l="fr"><span class="accent">Le Memecoin Suisse.</span> Construit sur Solana.</span>
-      <span data-l="es"><span class="accent">El Memecoin Suizo.</span> Construido en Solana.</span>
+      <span data-l="en">The Swiss Memecoin. A crypto token on <span class="accent">Solana.</span></span>
+      <span data-l="fr">Le Memecoin Suisse. Un token crypto sur <span class="accent">Solana.</span></span>
+      <span data-l="es">El Memecoin Suizo. Un token crypto en <span class="accent">Solana.</span></span>
     </p>
 
     <p class="hero-sub">
-      <span data-l="en">Born in reaction to scams, fake utility and the technological veneer that often masks a simple reality: speculation. We don't pretend otherwise. We expose it, study it and execute better than anyone.</span>
-      <span data-l="fr">Né en réaction aux arnaques, aux faux récits d'utility et au vernis technologique qui masque souvent une réalité simple : la spéculation. Nous ne prétendons pas le contraire. Nous l'exposons, l'étudions et exécutons mieux que quiconque.</span>
-      <span data-l="es">Nacido en reacción a las estafas, los falsos relatos de utilidad y el barniz tecnológico que a menudo enmascara una realidad simple: la especulación. No pretendemos lo contrario. Lo exponemos, lo estudiamos y ejecutamos mejor que nadie.</span>
+      <span data-l="en">More than a memecoin: a Swiss-built ecosystem with real in-house tools, locked liquidity and a fully doxxed team. Honest, transparent from day one — and we're only just getting started. Come grow with us.</span>
+      <span data-l="fr">Plus qu'un memecoin : un écosystème suisse avec de vrais outils maison, une liquidité verrouillée et une équipe entièrement doxxée. Honnête, transparent depuis le premier jour — et ce n'est que le début. Viens grandir avec nous.</span>
+      <span data-l="es">Más que un memecoin: un ecosistema hecho en Suiza, con herramientas propias reales, liquidez bloqueada y un equipo totalmente doxxed. Honesto, transparente desde el primer día — y esto apenas empieza. Crece con nosotros.</span>
     </p>
 
     <div class="hero-ctas">
-      <a href="https://raydium.io/swap/?inputMint=DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t&outputMint=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" class="btn-primary" target="_blank">
-        <span data-l="en">⚡ Buy $NES on Raydium</span>
-        <span data-l="fr">⚡ Acheter sur Raydium</span>
-        <span data-l="es">⚡ Comprar en Raydium</span>
-      </a>
       <a href="#story" class="btn-secondary">
         <span data-l="en">The Story →</span>
         <span data-l="fr">L'Histoire →</span>
@@ -2224,17 +2452,17 @@ footer {
     </div>
 
     <a href="#how-to-buy" class="hero-firsttime">
-      <span data-l="en">First time? See the 5-min guide →</span>
-      <span data-l="fr">Première fois ? Voir le guide en 5 min →</span>
-      <span data-l="es">Primera vez? Ver la guía de 5 min →</span>
+      <span data-l="en">First token purchase? See the 5-min guide →</span>
+      <span data-l="fr">Premier achat de token ? Voir le guide en 5 min →</span>
+      <span data-l="es">¿Primera compra de token? Ver la guía de 5 min →</span>
     </a>
 
     <div class="hero-trust">
       <span class="trust-item"><span class="trust-dot"></span>LP Locked</span>
       <span class="trust-item"><span class="trust-dot"></span>
-        <span data-l="en">Team: Dom, Paco &amp; Luis / Wallets public</span>
-        <span data-l="fr">Team: Dom, Paco &amp; Luis / Wallets publics</span>
-        <span data-l="es">Equipo: Dom, Paco &amp; Luis / Wallets públicas</span>
+        <span data-l="en">Team: Dom, Paco, Luis &amp; Flavien / Wallets public</span>
+        <span data-l="fr">Team: Dom, Paco, Luis &amp; Flavien / Wallets publics</span>
+        <span data-l="es">Equipo: Dom, Paco, Luis &amp; Flavien / Wallets públicas</span>
       </span>
       <span class="trust-item"><span class="trust-dot"></span>
         <span data-l="en">0 Tokens Sold</span>
@@ -2313,9 +2541,9 @@ footer {
               </div>
 
               <h2 class="news-title">
-                <span data-l="en">987NES is <span class="y">Growing</span> &middot; Welcome Flavien</span>
-                <span data-l="fr">987NES <span class="y">Grandit</span> &middot; Bienvenue Flavien</span>
-                <span data-l="es">987NES <span class="y">Crece</span> &middot; Bienvenido Flavien</span>
+                <span data-l="en">987NES is Growing &middot; Welcome <span class="y">Flavien</span></span>
+                <span data-l="fr">987NES Grandit &middot; Bienvenue <span class="y">Flavien</span></span>
+                <span data-l="es">987NES Crece &middot; Bienvenido <span class="y">Flavien</span></span>
               </h2>
 
               <div class="news-body">
@@ -2351,9 +2579,9 @@ footer {
               </div>
 
               <h2 class="news-title">
-                <span data-l="en">Team Tokens <span class="y">Locked</span> Until October 2027</span>
-                <span data-l="fr">Tokens de l'Equipe <span class="y">Verrouilles</span> Jusqu'en Octobre 2027</span>
-                <span data-l="es">Tokens del Equipo <span class="y">Bloqueados</span> Hasta Octubre 2027</span>
+                <span data-l="en">Team Tokens Locked Until <span class="y">October 2027</span></span>
+                <span data-l="fr">Tokens de l'Equipe Verrouilles Jusqu'en <span class="y">Octobre 2027</span></span>
+                <span data-l="es">Tokens del Equipo Bloqueados Hasta <span class="y">Octubre 2027</span></span>
               </h2>
 
               <div class="news-body">
@@ -2413,27 +2641,27 @@ footer {
           <span data-l="es">La Historia</span>
         </p>
         <h2 class="ttl">
-          <span data-l="en">The Swiss Memecoin.<br>Nine. Eight.<br><span class="y">Seven.</span></span>
-          <span data-l="fr">Le Memecoin Suisse.<br>Neuf. Huit.<br><span class="y">Sept.</span></span>
-          <span data-l="es">El Memecoin Suizo.<br>Nueve. Ocho.<br><span class="y">Siete.</span></span>
+          <span data-l="en">Nine. Eight. <span class="y">Seven.</span></span>
+          <span data-l="fr">Neuf. Huit. <span class="y">Sept.</span></span>
+          <span data-l="es">Nueve. Ocho. <span class="y">Siete.</span></span>
         </h2>
 
         <div class="story-body">
           <div class="bl en">
             <p>The name says everything. <strong>NineEightSeven</strong>: a deliberately incomplete sequence. A permanent countdown. Not toward something promised. Toward something decided.</p>
-            <p>987NES was born on October 16, 2025, in Switzerland, <strong>in reaction</strong>: to scams, fake utility narratives, and the technological veneer that often masks a simple reality. Speculation.</p>
+            <p>987NES, the <strong>Swiss crypto memecoin</strong>, was born on October 16, 2025, in Switzerland, <strong>in reaction</strong>: to scams, fake utility narratives, and the technological veneer that often masks a simple reality. Speculation.</p>
             <p>Started as pure speculation and nothing else. In a few months, the project has shipped more than 99% of crypto projects ever will: a strong identity, an active community, <strong>987Track</strong>, <strong>987Buy</strong> and <strong>987News</strong>, all built entirely in-house.</p>
             <p>987NES promises. 987NES delivers. In an ecosystem obsessed with surface-level innovation, that's rare enough to be worth saying twice.</p>
           </div>
           <div class="bl fr" style="display:none">
             <p>Le nom dit tout. <strong>NineEightSeven</strong> : une séquence volontairement incomplète. Un compte à rebours permanent. Pas vers quelque chose de promis. Vers quelque chose de décidé.</p>
-            <p>987NES est né le 16 octobre 2025, en Suisse, <strong>en réaction</strong> : aux arnaques, aux faux récits d'utility et au vernis technologique qui masque souvent une réalité simple. La spéculation.</p>
+            <p>987NES, le <strong>memecoin crypto suisse</strong>, est né le 16 octobre 2025, en Suisse, <strong>en réaction</strong> : aux arnaques, aux faux récits d'utility et au vernis technologique qui masque souvent une réalité simple. La spéculation.</p>
             <p>Parti d'une spéculation pure et assumée. En quelques mois, le projet a livré plus que 99% des projets crypto : une identité forte, une communauté active, <strong>987Track</strong>, <strong>987Buy</strong> et <strong>987News</strong>, développés entièrement en interne.</p>
             <p>987NES promet. 987NES délivre. Dans un écosystème obsédé par la façade, c'est suffisamment rare pour mériter d'être dit.</p>
           </div>
           <div class="bl es" style="display:none">
             <p>El nombre lo dice todo. <strong>NineEightSeven</strong>: una secuencia deliberadamente incompleta. Una cuenta regresiva permanente.</p>
-            <p>987NES nació el 16 de octubre de 2025 en Suiza, <strong>como reacción</strong>: a las estafas, los falsos relatos de utilidad y el barniz tecnológico.</p>
+            <p>987NES, el <strong>memecoin cripto suizo</strong>, nació el 16 de octubre de 2025 en Suiza, <strong>como reacción</strong>: a las estafas, los falsos relatos de utilidad y el barniz tecnológico.</p>
             <p>Empezó como especulación pura. En pocos meses, el proyecto ha entregado más que el 99% de los proyectos cripto: <strong>987Track</strong>, <strong>987Buy</strong> y <strong>987News</strong>, construidos íntegramente de forma interna.</p>
             <p>987NES promete. 987NES entrega.</p>
           </div>
@@ -2475,13 +2703,6 @@ footer {
           </div>
         </div>
 
-        <div class="manifesto-block">
-          <p class="manifesto-text">
-            <span data-l="en">"Yes, the project is highly speculative. Yes, there will be winners and losers, but it's assumed and transparent from day one."</span>
-            <span data-l="fr">"Oui, le projet est hautement spéculatif. Oui, il y aura des gagnants et des perdants, mais c'est assumé et transparent depuis le premier jour."</span>
-            <span data-l="es">"Sí, el proyecto es altamente especulativo. Sí, habrá ganadores y perdedores, pero es asumido y transparente desde el primer día."</span>
-          </p>
-        </div>
       </div>
     </div>
   </div>
@@ -2499,20 +2720,10 @@ footer {
 
     <div class="token-top">
       <p class="token-body">
-        <span data-l="en">No fake promises. No hidden mechanism. No tax. No blacklist. The contract is readable and verifiable on-chain.<br><br>The team behind $NES: <strong>Dom, Paco and Luis</strong>. All wallets are public and fully trackable on Solscan. Liquidity is locked via <a href="https://solscan.io/tx/5wzHgHk72Yd9Jdxo6pVcfzuxtSNQpeCKvDncoiJydBw5X1Fjnkkk7YMGzHVXgQN6q8X14FqLkktrdUG7b1a3g8T" target="_blank" style="color:var(--nes-yellow)">TeamFinance</a>: zero rug risk.<br><br>The team has sold <strong>zero tokens to date</strong>. Full transparency from day one.</span>
-        <span data-l="fr">Pas de fausses promesses. Pas de mécanisme caché. Pas de taxe. Pas de blacklist. Le contrat est lisible et vérifiable on-chain.<br><br>La team derrière $NES : <strong>Dom, Paco et Luis</strong>. Tous les wallets sont publics et traçables sur Solscan. La liquidité est verrouillée via <a href="https://solscan.io/tx/5wzHgHk72Yd9Jdxo6pVcfzuxtSNQpeCKvDncoiJydBw5X1Fjnkkk7YMGzHVXgQN6q8X14FqLkktrdUG7b1a3g8T" target="_blank" style="color:var(--nes-yellow)">TeamFinance</a>: risque de rug zéro.<br><br>La team n'a vendu <strong>aucun token à ce jour</strong>. Transparence totale depuis le premier jour.</span>
-        <span data-l="es">Sin falsas promesas. Sin mecanismo oculto. Sin impuesto. Sin lista negra. El contrato es legible y verificable on-chain.<br><br>El equipo detrás de $NES: <strong>Dom, Paco y Luis</strong>. Todas las wallets son públicas y rastreables en Solscan. La liquidez está bloqueada vía <a href="https://solscan.io/tx/5wzHgHk72Yd9Jdxo6pVcfzuxtSNQpeCKvDncoiJydBw5X1Fjnkkk7YMGzHVXgQN6q8X14FqLkktrdUG7b1a3g8T" target="_blank" style="color:var(--nes-yellow)">TeamFinance</a>: riesgo de rug cero.<br><br>El equipo ha vendido <strong>cero tokens hasta la fecha</strong>. Transparencia total desde el primer día.</span>
+        <span data-l="en">No fake promises. No hidden mechanism. No tax. No blacklist. The contract is readable and verifiable on-chain.<br><br>All wallets are public and fully trackable on Solscan. Liquidity is locked via <a href="https://solscan.io/tx/5wzHgHk72Yd9Jdxo6pVcfzuxtSNQpeCKvDncoiJydBw5X1Fjnkkk7YMGzHVXgQN6q8X14FqLkktrdUG7b1a3g8T" target="_blank" style="color:var(--nes-yellow)">TeamFinance</a>: zero rug risk.<br><br>The team has sold <strong>zero tokens to date</strong>. Full transparency from day one.</span>
+        <span data-l="fr">Pas de fausses promesses. Pas de mécanisme caché. Pas de taxe. Pas de blacklist. Le contrat est lisible et vérifiable on-chain.<br><br>Tous les wallets sont publics et traçables sur Solscan. La liquidité est verrouillée via <a href="https://solscan.io/tx/5wzHgHk72Yd9Jdxo6pVcfzuxtSNQpeCKvDncoiJydBw5X1Fjnkkk7YMGzHVXgQN6q8X14FqLkktrdUG7b1a3g8T" target="_blank" style="color:var(--nes-yellow)">TeamFinance</a>: risque de rug zéro.<br><br>La team n'a vendu <strong>aucun token à ce jour</strong>. Transparence totale depuis le premier jour.</span>
+        <span data-l="es">Sin falsas promesas. Sin mecanismo oculto. Sin impuesto. Sin lista negra. El contrato es legible y verificable on-chain.<br><br>Todas las wallets son públicas y rastreables en Solscan. La liquidez está bloqueada vía <a href="https://solscan.io/tx/5wzHgHk72Yd9Jdxo6pVcfzuxtSNQpeCKvDncoiJydBw5X1Fjnkkk7YMGzHVXgQN6q8X14FqLkktrdUG7b1a3g8T" target="_blank" style="color:var(--nes-yellow)">TeamFinance</a>: riesgo de rug cero.<br><br>El equipo ha vendido <strong>cero tokens hasta la fecha</strong>. Transparencia total desde el primer día.</span>
       </p>
-
-      <!-- SLOGANS -->
-      <div class="slogans">
-        <div class="slogan-item">
-          <div class="slogan-text">Swiss Precision.<br>Memecoin Revolution.</div>
-        </div>
-        <div class="slogan-item">
-          <div class="slogan-text">Swiss Precision.<br>Degen Domination.</div>
-        </div>
-      </div>
 
       <div class="tokenomics-grid">
         <div class="toko-item">
@@ -2648,6 +2859,79 @@ footer {
     </div>
   </div>
 </section>
+
+<!-- TEAM -->
+<section id="team" class="reveal">
+  <div class="container sec">
+    <p class="lbl">
+      <span data-l="en">Fully Doxxed</span>
+      <span data-l="fr">Équipe Doxxée</span>
+      <span data-l="es">Totalmente Doxxed</span>
+    </p>
+    <h2 class="ttl">
+      <span data-l="en">The <span class="y">Team.</span></span>
+      <span data-l="fr">L'<span class="y">Équipe.</span></span>
+      <span data-l="es">El <span class="y">Equipo.</span></span>
+    </h2>
+
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-avatar">D</div>
+        <div class="team-name">Dom</div>
+        <div class="team-role">
+          <span data-l="en">Co-founder<br>Tech Lead &amp; Developer</span>
+          <span data-l="fr">Co-fondateur<br>Responsable technique &amp; Dev</span>
+          <span data-l="es">Co-fundador<br>Responsable técnico &amp; Dev</span>
+        </div>
+        <a class="team-linkedin" href="https://www.linkedin.com/in/dominique-schaerli-5a4806bb/" target="_blank" rel="noopener" aria-label="Dom on LinkedIn">
+          <svg viewBox="0 0 24 24"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+        </a>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">P</div>
+        <div class="team-name">Paco</div>
+        <div class="team-role">
+          <span data-l="en">Co-founder<br>Head of Marketing</span>
+          <span data-l="fr">Co-fondateur<br>Responsable Marketing</span>
+          <span data-l="es">Co-fundador<br>Responsable de Marketing</span>
+        </div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">F</div>
+        <div class="team-name">Flavien</div>
+        <div class="team-role">
+          <span data-l="en">Head of Business Development<br>Partners &amp; Investors</span>
+          <span data-l="fr">Head of Business Development<br>Partenaires &amp; Investisseurs</span>
+          <span data-l="es">Head of Business Development<br>Socios e Inversores</span>
+        </div>
+        <a class="team-linkedin" href="https://www.linkedin.com/in/flavien-nivelle-351a42a2/" target="_blank" rel="noopener" aria-label="Flavien on LinkedIn">
+          <svg viewBox="0 0 24 24"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+        </a>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">L</div>
+        <div class="team-name">Luis</div>
+        <div class="team-role">
+          <span data-l="en">Technical Advisor</span>
+          <span data-l="fr">Conseiller technique</span>
+          <span data-l="es">Asesor técnico</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="team-mottos">
+      <p class="team-mottos-label">
+        <span data-l="en">Our Mottos</span>
+        <span data-l="fr">Nos Devises</span>
+        <span data-l="es">Nuestros Lemas</span>
+      </p>
+      <div class="team-motto">Swiss Precision. <span class="y">Memecoin Revolution.</span></div>
+      <div class="team-motto">Swiss Precision. <span class="y">Degen Domination.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- TOOLS -->
 <section id="tools" class="reveal">
   <div class="container sec">
     <p class="lbl">
@@ -2666,7 +2950,7 @@ footer {
       <div class="tool-card">
         <div class="tool-num">01</div>
         <div class="tool-badge">X Automation · Conversational Visibility</div>
-        <div class="tool-name">987TRACK</div>
+        <div class="tool-name">987<span class="y">TRACK</span></div>
         <div class="tool-tagline">
           <span data-l="en">An execution architecture. Not a promise tool.</span>
           <span data-l="fr">Une architecture d'exécution. Pas un outil de promesse.</span>
@@ -2693,7 +2977,7 @@ footer {
       <div class="tool-card">
         <div class="tool-num">02</div>
         <div class="tool-badge">Telegram Bot · On-Chain Intelligence</div>
-        <div class="tool-name">987BUY</div>
+        <div class="tool-name">987<span class="y">BUY</span></div>
         <div class="tool-tagline">
           <span data-l="en">Every move. In real time. Know before anyone else.</span>
           <span data-l="fr">Chaque mouvement. En temps réel. Savoir avant tout le monde.</span>
@@ -2726,7 +3010,7 @@ footer {
       <div class="tool-card">
         <div class="tool-num">03</div>
         <div class="tool-badge">Telegram Bot · Real-Time News Aggregator</div>
-        <div class="tool-name">987NEWS</div>
+        <div class="tool-name">987<span class="y">NEWS</span></div>
         <div class="tool-tagline">
           <span data-l="en">24 sources. 3 priority tiers. Zero noise.</span>
           <span data-l="fr">24 sources. 3 niveaux de priorité. Zéro bruit.</span>
@@ -2759,7 +3043,7 @@ footer {
         <div class="tool-ribbon">In Dev</div>
         <div class="tool-num">04</div>
         <div class="tool-badge">Solana Smart Contract · AI-Powered Sniper</div>
-        <div class="tool-name">987SNIPE</div>
+        <div class="tool-name">987<span class="y">SNIPE</span></div>
         <div class="tool-tagline">
           <span data-l="en">Buy before graduation. Exit before the dump.</span>
           <span data-l="fr">Acheter avant la graduation. Sortir avant le dump.</span>
@@ -2788,7 +3072,7 @@ footer {
         <div class="tool-ribbon">In Dev</div>
         <div class="tool-num">05</div>
         <div class="tool-badge">Mobile App · Non-Custodial Portfolio Tracker</div>
-        <div class="tool-name">987STAT</div>
+        <div class="tool-name">987<span class="y">STAT</span></div>
         <div class="tool-tagline">
           <span data-l="en">Multiple wallets. Every chain. One app. Zero custody.</span>
           <span data-l="fr">Plusieurs portefeuilles. Toutes les chains. Une seule app. Zero custody.</span>
@@ -2830,9 +3114,9 @@ footer {
   <div class="container sec">
     <div class="htb-header">
       <p class="lbl">
-        <span data-l="en">Beginner Guide</span>
-        <span data-l="fr">Guide Debutant</span>
-        <span data-l="es">Guia Principiante</span>
+        <span data-l="en">Beginner Buying Guide</span>
+        <span data-l="fr">Guide d'achat débutant</span>
+        <span data-l="es">Guía de compra para principiantes</span>
       </p>
       <h2 class="ttl">
         <span data-l="en">How to Buy <span class="y">$NES</span></span>
@@ -2938,11 +3222,19 @@ footer {
           <span data-l="es">Siempre verifica la direccion del contrato $NES antes de cambiar. Cuidado con falsificaciones.</span>
         </li>
         <li>
-          <span data-l="en">Only buy what you can afford to lose. Memecoins are pure speculation.</span>
-          <span data-l="fr">N'achete que ce que tu peux te permettre de perdre. Les memecoins, c'est de la pure speculation.</span>
-          <span data-l="es">Solo compra lo que puedas permitirte perder. Los memecoins son pura especulacion.</span>
+          <span data-l="en">Only buy what you can afford to lose.</span>
+          <span data-l="fr">N'achète que ce que tu peux te permettre de perdre.</span>
+          <span data-l="es">Solo compra lo que puedas permitirte perder.</span>
         </li>
       </ul>
+    </div>
+
+    <div style="text-align:center; margin-top:40px;">
+      <a href="https://raydium.io/swap/?inputMint=DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t&outputMint=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" class="btn-primary" target="_blank" rel="noopener">
+        <span data-l="en">⚡ Buy $NES on Raydium</span>
+        <span data-l="fr">⚡ Acheter $NES sur Raydium</span>
+        <span data-l="es">⚡ Comprar $NES en Raydium</span>
+      </a>
     </div>
 
     <p class="htb-more">
@@ -3001,6 +3293,40 @@ footer {
   </div>
 </section>
 
+<!-- ARCADE (hidden for now) -->
+<section id="arcade" class="reveal" style="display:none">
+  <div class="container sec">
+    <div class="arcade-card">
+      <div class="arcade-visual">
+        <span class="arcade-badge">Beta</span>
+        <img src="game/dzo-front-a.png" alt="DZÔ, playable character of the 987NES arcade game" loading="lazy">
+      </div>
+      <div class="arcade-text">
+        <p class="arcade-eyebrow">
+          <span data-l="en">Arcade · Mini-Game</span>
+          <span data-l="fr">Arcade · Mini-Jeu</span>
+          <span data-l="es">Arcade · Mini-Juego</span>
+        </p>
+        <h2 class="arcade-title">
+          <span data-l="en">Play <span class="y">DZÔ Eats</span></span>
+          <span data-l="fr">Joue à <span class="y">DZÔ Eats</span></span>
+          <span data-l="es">Juega a <span class="y">DZÔ Eats</span></span>
+        </h2>
+        <p class="arcade-desc">
+          <span data-l="en">Guide DZÔ through the maze and chomp the rival memecoins. Multiple difficulty levels — reach the milestones to unlock a free $NES reward. No wallet needed to play.</span>
+          <span data-l="fr">Guide DZÔ dans le labyrinthe et dévore les memecoins rivales. Plusieurs niveaux de difficulté — atteins les paliers pour débloquer une récompense $NES gratuite. Aucun wallet requis pour jouer.</span>
+          <span data-l="es">Guía a DZÔ por el laberinto y devora las memecoins rivales. Varios niveles de dificultad — alcanza los hitos para desbloquear una recompensa $NES gratuita. No necesitas wallet para jugar.</span>
+        </p>
+        <a href="game/index.html" class="btn-primary">
+          <span data-l="en">▶ Play Now</span>
+          <span data-l="fr">▶ Jouer</span>
+          <span data-l="es">▶ Jugar</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- WHITEPAPER -->
 <section id="whitepaper" class="reveal" role="img" aria-label="DZO mascot with sunglasses, 987NES whitepaper section background">
   <div class="wp-bg-overlay"></div>
@@ -3013,9 +3339,9 @@ footer {
           <span data-l="es">Documentación</span>
         </p>
         <h2 class="ttl">
-          <span data-l="en">Read the<br><span class="y">Whitepaper.</span></span>
-          <span data-l="fr">Lire le<br><span class="y">Whitepaper.</span></span>
-          <span data-l="es">Leer el<br><span class="y">Whitepaper.</span></span>
+          <span data-l="en">Read the <span class="y">Whitepaper.</span></span>
+          <span data-l="fr">Lire le <span class="y">Whitepaper.</span></span>
+          <span data-l="es">Leer el <span class="y">Whitepaper.</span></span>
         </h2>
         <p class="wp-body">
           <span data-l="en">Everything you need to know about $NES. No inflation, no padding. Just the facts, from the <strong>team that built everything in-house</strong> and hasn't sold a single token.</span>
@@ -3047,9 +3373,9 @@ footer {
       <span data-l="es">Únete a la Comunidad</span>
     </p>
     <h2 class="ttl">
-      <span data-l="en"><span class="y">$NES</span> doesn't wait<br>to be found.</span>
-      <span data-l="fr"><span class="y">$NES</span> n'attend pas<br>d'être trouvé.</span>
-      <span data-l="es"><span class="y">$NES</span> no espera<br>a ser encontrado.</span>
+      <span data-l="en">$NES doesn't wait to be <span class="y">found.</span></span>
+      <span data-l="fr">$NES n'attend pas d'être <span class="y">trouvé.</span></span>
+      <span data-l="es">$NES no espera a ser <span class="y">encontrado.</span></span>
     </h2>
 
     <div class="comm-grid" style="grid-template-columns:repeat(3,1fr)">
@@ -3101,6 +3427,16 @@ footer {
           <span data-l="en">Open source · Verify everything</span>
           <span data-l="fr">Open source · Tout vérifier</span>
           <span data-l="es">Open source · Verifica todo</span>
+        </div>
+      </a>
+      <a href="https://www.linkedin.com/company/987nes" class="comm-card" target="_blank">
+        <div class="comm-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg></div>
+        <div class="comm-name">LinkedIn</div>
+        <div class="comm-handle">linkedin.com/company/987nes</div>
+        <div class="comm-desc">
+          <span data-l="en">The company · Official</span>
+          <span data-l="fr">L'entreprise · Officiel</span>
+          <span data-l="es">La empresa · Oficial</span>
         </div>
       </a>
       <a href="/cdn-cgi/l/email-protection#2e474048416e171619404b5d004d4143" class="comm-card">
@@ -3155,6 +3491,7 @@ footer {
           <li><a href="https://t.me/NES_987" target="_blank">Telegram Channel</a></li>
           <li><a href="https://t.me/NES_987_Chat" target="_blank">Telegram Chat</a></li>
           <li><a href="https://github.com/987nes" target="_blank">GitHub</a></li>
+          <li><a href="https://www.linkedin.com/company/987nes" target="_blank">LinkedIn</a></li>
           <li><a href="https://dexscreener.com/solana/eeebfw84r1vhzwv2feonzkmglhxf33ppxi7nmuvw588v" target="_blank">DEX Screener</a></li>
           <li><a href="https://raydium.io/swap/?inputMint=DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t" target="_blank">Raydium</a></li>
           <li><a href="/cdn-cgi/l/email-protection#d9b0b7bfb699e0e1eeb7bcaaf7bab6b4"><span class="__cf_email__" data-cfemail="fc95929a93bcc5c4cb92998fd29f9391">[email&#160;protected]</span></a></li>
