@@ -2138,6 +2138,41 @@ footer {
   .team-motto { font-size: 1.5rem; }
 }
 
+/* ===== WATCH / VIDEO ===== */
+#watch {
+  background: var(--black);
+  padding: 80px 0;
+  border-top: 1px solid rgba(14,95,160,0.15);
+}
+.watch-frame {
+  max-width: 900px;
+  margin: 36px auto 0;
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(14,95,160,0.35);
+  box-shadow: 0 0 60px rgba(14,95,160,0.18);
+  background: #000;
+  aspect-ratio: 1280 / 736;
+}
+.watch-video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+.watch-sub {
+  text-align: center;
+  font-family: var(--body);
+  font-size: 0.9rem;
+  color: var(--gray);
+  margin-top: 18px;
+}
+@media (max-width: 768px) {
+  #watch { padding: 56px 0; }
+  .watch-frame { margin-top: 24px; border-radius: 10px; }
+}
+
 </style>
 
 <!-- STRUCTURED DATA / JSON-LD -->
@@ -2645,6 +2680,33 @@ footer {
         <button type="button" class="news-dot" data-slide="1" aria-label="Slide 2"></button>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- WATCH -->
+<section id="watch" class="reveal">
+  <div class="container sec">
+    <p class="lbl">
+      <span data-l="en">Watch</span>
+      <span data-l="fr">Regarder</span>
+      <span data-l="es">Mirar</span>
+    </p>
+    <h2 class="ttl">
+      <span data-l="en">Don't be the one who <span class="y">regrets.</span></span>
+      <span data-l="fr">Ne sois pas celui qui <span class="y">regrette.</span></span>
+      <span data-l="es">No seas el que <span class="y">se arrepiente.</span></span>
+    </h2>
+    <div class="watch-frame">
+      <video class="watch-video" controls preload="metadata" playsinline poster="video/regret-poster.jpg">
+        <source src="video/regret.mp4" type="video/mp4">
+        <span data-l="en">Your browser does not support the video tag.</span>
+      </video>
+    </div>
+    <p class="watch-sub">
+      <span data-l="en">They should have listened. You still have time.</span>
+      <span data-l="fr">Ils auraient dû écouter. Toi, tu as encore le temps.</span>
+      <span data-l="es">Deberían haber escuchado. Tú aún estás a tiempo.</span>
+    </p>
   </div>
 </section>
 
