@@ -222,7 +222,7 @@ nav {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 120px 56px 80px;
+  padding: 52px 56px 80px;        /* nav is cleared by the top banner above */
   position: relative;
   overflow: hidden;
   background: url('dzo-0.png') right center / auto 100% no-repeat;
@@ -519,6 +519,39 @@ nav {
 .ticker-dot { width: 4px; height: 4px; background: var(--nes-yellow); border-radius: 50%; }
 
 @keyframes tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ===== TOP HYPE BANNER ===== */
+.hype-banner {
+  display: block;
+  margin-top: 68px;                 /* clears the fixed nav */
+  background: var(--nes-yellow);
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+  text-decoration: none;
+  border-bottom: 2px solid rgba(0,0,0,0.28);
+}
+.hype-track {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  padding: 13px 0;
+  animation: tick 26s linear infinite;
+}
+.hype-banner:hover .hype-track { animation-play-state: paused; }
+.hype-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 30px;
+  font-family: var(--display);
+  font-size: clamp(1.05rem, 2.3vw, 1.7rem);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--black);
+}
+.hype-pct { color: var(--nes-blue-deep); }
+.hype-sep { color: var(--nes-blue); font-size: 0.75em; }
 
 /* ===== SECTION BASE ===== */
 section { position: relative; z-index: 1; }
@@ -1432,7 +1465,7 @@ footer {
    ===================== */
 @media (max-width: 1024px) {
   nav { padding: 0 20px; }
-  .hero { padding: 100px 20px 60px; }
+  .hero { padding: 44px 20px 60px; }
   .hero-stats-float { display: none; }
   .container { padding: 0 20px; }
   .story-grid, .token-top, .dzo-layout, .wp-layout, .footer-layout { grid-template-columns: 1fr; }
@@ -1466,10 +1499,15 @@ footer {
     font-size: 0.52rem;
   }
 
+  /* Top banner sits under the (shorter) fixed nav on mobile */
+  .hype-banner { margin-top: 60px; }
+  .hype-track { padding: 9px 0; animation-duration: 18s; }
+  .hype-item { padding: 0 18px; gap: 12px; letter-spacing: 1px; }
+
   /* HERO — same mysterious DZÔ artwork as desktop, full-bleed */
   .hero {
-    padding: 96px 18px 54px;
-    min-height: 90vh;
+    padding: 40px 18px 54px;
+    min-height: 84vh;
     justify-content: flex-end;
     background: url('dzo-0.png') center 32% / cover no-repeat;
     text-align: left;
@@ -2353,6 +2391,40 @@ footer {
   </div>
 </nav>
 
+<!-- TOP HYPE BANNER -->
+<a href="#how-to-buy" class="hype-banner" aria-label="performance since launch - see the 5-minute buying guide">
+  <div class="hype-track" id="hype-track">
+    <span class="hype-item">
+      <span class="hype-pct">+1744%</span>
+      <span data-l="en">since launch. Still scrolling, or finally jumping in?</span>
+      <span data-l="fr">depuis le lancement. Tu continues à scroller ou tu te lances enfin ?</span>
+      <span data-l="es">desde el lanzamiento. ¿Sigues scrolleando o por fin te lanzas?</span>
+      <span class="hype-sep">◆</span>
+    </span>
+    <span class="hype-item">
+      <span class="hype-pct">+1744%</span>
+      <span data-l="en">since launch. Still scrolling, or finally jumping in?</span>
+      <span data-l="fr">depuis le lancement. Tu continues à scroller ou tu te lances enfin ?</span>
+      <span data-l="es">desde el lanzamiento. ¿Sigues scrolleando o por fin te lanzas?</span>
+      <span class="hype-sep">◆</span>
+    </span>
+    <span class="hype-item">
+      <span class="hype-pct">+1744%</span>
+      <span data-l="en">since launch. Still scrolling, or finally jumping in?</span>
+      <span data-l="fr">depuis le lancement. Tu continues à scroller ou tu te lances enfin ?</span>
+      <span data-l="es">desde el lanzamiento. ¿Sigues scrolleando o por fin te lanzas?</span>
+      <span class="hype-sep">◆</span>
+    </span>
+    <span class="hype-item">
+      <span class="hype-pct">+1744%</span>
+      <span data-l="en">since launch. Still scrolling, or finally jumping in?</span>
+      <span data-l="fr">depuis le lancement. Tu continues à scroller ou tu te lances enfin ?</span>
+      <span data-l="es">desde el lanzamiento. ¿Sigues scrolleando o por fin te lanzas?</span>
+      <span class="hype-sep">◆</span>
+    </span>
+  </div>
+</a>
+
 <!-- HERO -->
 <section class="hero" id="home" role="img" aria-label="DZO mascot, the official character of 987NES project">
   <div class="hero-bg-overlay"></div>
@@ -2384,9 +2456,9 @@ footer {
     </p>
 
     <p class="hero-sub">
-      <span data-l="en">More than a memecoin: a Swiss-built ecosystem with real in-house tools, locked liquidity and a fully doxxed team. Honest, transparent from day one — and we're only just getting started. Come grow with us.</span>
-      <span data-l="fr">Plus qu'un memecoin : un écosystème suisse avec de vrais outils maison, une liquidité verrouillée et une équipe entièrement doxxée. Honnête, transparent depuis le premier jour — et ce n'est que le début. Viens grandir avec nous.</span>
-      <span data-l="es">Más que un memecoin: un ecosistema hecho en Suiza, con herramientas propias reales, liquidez bloqueada y un equipo totalmente doxxed. Honesto, transparente desde el primer día — y esto apenas empieza. Crece con nosotros.</span>
+      <span data-l="en">More than a memecoin: a Swiss-built ecosystem with real in-house tools, locked liquidity and a fully doxxed team. Honest, transparent from day one. And we're only just getting started. Come grow with us.</span>
+      <span data-l="fr">Plus qu'un memecoin : un écosystème suisse avec de vrais outils maison, une liquidité verrouillée et une équipe entièrement doxxée. Honnête, transparent depuis le premier jour. Et ce n'est que le début. Viens grandir avec nous.</span>
+      <span data-l="es">Más que un memecoin: un ecosistema hecho en Suiza, con herramientas propias reales, liquidez bloqueada y un equipo totalmente doxxed. Honesto, transparente desde el primer día. Y esto apenas empieza. Crece con nosotros.</span>
     </p>
 
     <div class="hero-ctas">
@@ -3082,9 +3154,9 @@ footer {
           <span data-l="es">Juega a <span class="y">DZÔ Eats</span></span>
         </h2>
         <p class="arcade-desc">
-          <span data-l="en">Guide DZÔ through the maze and chomp the rival memecoins. Multiple difficulty levels — reach the milestones to unlock a free $NES reward. No wallet needed to play.</span>
-          <span data-l="fr">Guide DZÔ dans le labyrinthe et dévore les memecoins rivales. Plusieurs niveaux de difficulté — atteins les paliers pour débloquer une récompense $NES gratuite. Aucun wallet requis pour jouer.</span>
-          <span data-l="es">Guía a DZÔ por el laberinto y devora las memecoins rivales. Varios niveles de dificultad — alcanza los hitos para desbloquear una recompensa $NES gratuita. No necesitas wallet para jugar.</span>
+          <span data-l="en">Guide DZÔ through the maze and chomp the rival memecoins. 50 boards, harder and harder. Reach the milestones to unlock a free $NES reward. No wallet needed to play.</span>
+          <span data-l="fr">Guide DZÔ dans le labyrinthe et dévore les memecoins rivales. 50 tableaux, de plus en plus durs. Atteins les paliers pour débloquer une récompense $NES gratuite. Aucun wallet requis pour jouer.</span>
+          <span data-l="es">Guía a DZÔ por el laberinto y devora las memecoins rivales. 50 tableros, cada vez más difíciles. Alcanza los hitos para desbloquear una recompensa $NES gratuita. No necesitas wallet para jugar.</span>
         </p>
         <a href="game/index.html" class="btn-primary">
           <span data-l="en">▶ Play Now</span>
@@ -3379,6 +3451,39 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   }
 
   if (slides.length > 1) startAuto();
+})();
+
+/* ===== LIVE "since launch" banner (DexScreener) ===== */
+(function () {
+  // $NES USD price at launch (owner-confirmed). The % is computed live vs this.
+  var LAUNCH_PRICE_USD = 0.00001;
+  var CA = 'DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t';
+
+  function setPct(txt) {
+    document.querySelectorAll('.hype-pct').forEach(function (el) { el.textContent = txt; });
+  }
+  function fmt(pct) {
+    var sign = pct >= 0 ? '+' : '−';
+    var v = Math.abs(pct);
+    var s = v >= 1000 ? Math.round(v).toLocaleString('en-US') : v.toFixed(v < 100 ? 1 : 0);
+    return sign + s + '%';
+  }
+  function refresh() {
+    fetch('https://api.dexscreener.com/latest/dex/tokens/' + CA)
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var pairs = (d && d.pairs) || [];
+        if (!pairs.length) return;                       // keep static fallback
+        pairs.sort(function (a, b) { return ((b.liquidity || {}).usd || 0) - ((a.liquidity || {}).usd || 0); });
+        var price = parseFloat(pairs[0].priceUsd);
+        if (!price || !LAUNCH_PRICE_USD) return;
+        var pct = (price / LAUNCH_PRICE_USD - 1) * 100;
+        if (isFinite(pct)) setPct(fmt(pct));
+      })
+      .catch(function () { /* offline / API down -> static banner stays */ });
+  }
+  refresh();
+  setInterval(refresh, 60000);   // update every minute
 })();
 </script>
 </body>
