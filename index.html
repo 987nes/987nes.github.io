@@ -1972,6 +1972,28 @@ footer {
   text-transform: uppercase;
   font-weight: bold;
 }
+/* DZO-isation: the name chips */
+.dzo-names {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 6px 0 22px;
+}
+.dzo-name {
+  font-family: var(--display);
+  font-size: 1.55rem;
+  letter-spacing: 1.5px;
+  line-height: 1;
+  color: var(--white);
+  padding: 10px 16px;
+  border: 1px solid rgba(240,208,32,0.35);
+  background: rgba(240,208,32,0.05);
+  border-radius: var(--radius-sm);
+}
+.dzo-name .y { color: var(--nes-yellow); }
+@media (max-width: 768px) {
+  .dzo-name { font-size: 1.3rem; padding: 8px 12px; }
+}
 .news-proof-label {
   font-family: var(--body);
   font-size: 0.78rem;
@@ -2290,6 +2312,19 @@ footer {
         "@type": "SpeakableSpecification",
         "cssSelector": [".hero-tagline", ".hero-sub", "#news .news-card", "#story .container", "#token .container", "#how-to-buy .container"]
       }
+    },
+    {
+      "@type": "NewsArticle",
+      "@id": "https://987nes.com/#news-dzo-isation-2026",
+      "headline": "DZO-isation has begun",
+      "description": "DZO-nald Trump, DZO-Lensky, DZO-ctor, DZO-ro, DZO-cky, DZO-zilla. You know the original, now meet the DZO version. Same monster, different identity: if the name fits, DZO becomes it.",
+      "datePublished": "2026-09-07",
+      "dateModified": "2026-09-07",
+      "inLanguage": ["en", "fr", "es"],
+      "author": { "@type": "Organization", "name": "987NES Team", "url": "https://987nes.com" },
+      "publisher": { "@type": "Organization", "name": "987NES", "logo": { "@type": "ImageObject", "url": "https://987nes.com/favicon.png" } },
+      "image": "https://987nes.com/og-image.jpg",
+      "mainEntityOfPage": "https://987nes.com/#news"
     },
     {
       "@type": "NewsArticle",
@@ -2649,11 +2684,58 @@ footer {
       <div class="news-viewport">
         <div class="news-track" id="news-track">
 
-          <!-- Slide 1: New website look (newest) -->
+          <!-- Slide 1: DZO-isation (newest) -->
           <div class="news-slide">
             <div class="news-card">
               <div class="news-meta">
                 <span class="news-badge">NEW</span>
+                <span class="news-date">
+                  <span data-l="en">Mascot &middot; September 2026</span>
+                  <span data-l="fr">Mascotte &middot; Septembre 2026</span>
+                  <span data-l="es">Mascota &middot; Septiembre 2026</span>
+                </span>
+              </div>
+
+              <h2 class="news-title">
+                <span data-l="en">DZO-isation has <span class="y">begun.</span></span>
+                <span data-l="fr">La DZO-isation a <span class="y">commencé.</span></span>
+                <span data-l="es">La DZO-ización ha <span class="y">comenzado.</span></span>
+              </h2>
+
+              <div class="dzo-names" aria-label="DZO versions">
+                <span class="dzo-name"><span class="y">DZO</span>-nald Trump</span>
+                <span class="dzo-name"><span class="y">DZO</span>-Lensky</span>
+                <span class="dzo-name"><span class="y">DZO</span>-ctor</span>
+                <span class="dzo-name"><span class="y">DZO</span>-ro</span>
+                <span class="dzo-name"><span class="y">DZO</span>-cky</span>
+                <span class="dzo-name"><span class="y">DZO</span>-zilla</span>
+              </div>
+
+              <div class="news-body">
+                <p>
+                  <span data-l="en">You know the original. Now meet the DZO version.</span>
+                  <span data-l="fr">Tu connais l'original. Voici la version DZO.</span>
+                  <span data-l="es">Conoces el original. Ahora conoce la versión DZO.</span>
+                </p>
+                <p>
+                  <span data-l="en">Same monster. Different identity.</span>
+                  <span data-l="fr">Même monstre. Identité différente.</span>
+                  <span data-l="es">Mismo monstruo. Distinta identidad.</span>
+                </p>
+              </div>
+
+              <p class="news-tagline">
+                <span data-l="en">If the name fits, DZO becomes it.</span>
+                <span data-l="fr">Si le nom colle, DZO le devient.</span>
+                <span data-l="es">Si el nombre encaja, DZO se convierte en él.</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Slide 2: New website look -->
+          <div class="news-slide">
+            <div class="news-card">
+              <div class="news-meta">
                 <span class="news-date">
                   <span data-l="en">Website &middot; September 2026</span>
                   <span data-l="fr">Site Web &middot; Septembre 2026</span>
@@ -2688,7 +2770,7 @@ footer {
             </div>
           </div>
 
-          <!-- Slide 2: Flavien -->
+          <!-- Slide 3: Flavien -->
           <div class="news-slide">
             <div class="news-card">
               <div class="news-meta">
@@ -2726,7 +2808,7 @@ footer {
             </div>
           </div>
 
-          <!-- Slide 3: Team Tokens Locked -->
+          <!-- Slide 4: Team Tokens Locked -->
           <div class="news-slide">
             <div class="news-card">
               <div class="news-meta">
@@ -2784,6 +2866,7 @@ footer {
         <button type="button" class="news-dot active" data-slide="0" aria-label="Slide 1"></button>
         <button type="button" class="news-dot" data-slide="1" aria-label="Slide 2"></button>
         <button type="button" class="news-dot" data-slide="2" aria-label="Slide 3"></button>
+        <button type="button" class="news-dot" data-slide="3" aria-label="Slide 4"></button>
       </div>
     </div>
   </div>
