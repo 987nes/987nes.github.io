@@ -1671,8 +1671,11 @@ footer {
   .comm-grid { grid-template-columns: 1fr !important; }
   /* Compact lang switcher to keep it visible on phones */
   .nav-right { gap: 8px; }
-  .lang-btn { padding: 6px 7px; font-size: 10px; letter-spacing: 0.5px; }
-  .btn-nav-buy { padding: 9px 11px; font-size: 10px; letter-spacing: 0.5px; }
+  .lang-btn { padding: 6px 7px; font-size: 10px; letter-spacing: 0.5px; white-space: nowrap; }
+  .btn-nav-buy { padding: 9px 11px; font-size: 10px; letter-spacing: 0.5px; white-space: nowrap; }
+  .nav-right > div { display: flex; gap: 4px; flex-wrap: nowrap; }
+  .nav-brand-text { display: none; }   /* the round logo already reads "987NES"; frees room for one-row nav */
+  .hero-eyebrow { letter-spacing: 1.5px; }
 }
 
 /* ===== HOW TO BUY (PROTO) ===== */
