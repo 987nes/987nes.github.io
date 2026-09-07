@@ -9,7 +9,7 @@
 <meta name="description" content="987NES ($NES) is the Swiss Memecoin built on Solana. Born in Fribourg, Switzerland. Le memecoin suisse. LP locked. Team doxxed. 987 654 321 tokens. Meet DZO.">
 <meta name="keywords" content="Swiss memecoin, memecoin suisse, memecoin suizo, Solana memecoin, 987NES, NineEightSeven, $NES, DZO, crypto Fribourg, crypto Switzerland, how to buy 987NES, how to buy NES, buy NES Solana, comment acheter NES, como comprar NES, Phantom wallet guide">
 <meta name="author" content="987NES Team">
-<link rel="canonical" href="https://987nes.com">
+<link rel="canonical" href="https://987nes.com/">
 
 <!-- FAVICON -->
 <link rel="icon" type="image/png" href="favicon.png">
@@ -17,11 +17,11 @@
 
 <!-- OPEN GRAPH (Facebook, Telegram, Discord, LinkedIn...) -->
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://987nes.com">
+<meta property="og:url" content="https://987nes.com/">
 <meta property="og:site_name" content="987NES">
 <meta property="og:title" content="Swiss Memecoin on Solana | 987NES ($NES) - Born in Fribourg, Switzerland">
 <meta property="og:description" content="The Swiss Memecoin. Le Memecoin Suisse. Born in Fribourg. Built on Solana. LP locked. Team doxxed. 987 654 321 tokens. Meet DZO.">
-<meta property="og:image" content="https://987nes.com/og-image.png">
+<meta property="og:image" content="https://987nes.com/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="en_US">
@@ -34,7 +34,7 @@
 <meta name="twitter:creator" content="@987_nes">
 <meta name="twitter:title" content="Swiss Memecoin on Solana | 987NES ($NES) - Born in Fribourg, Switzerland">
 <meta name="twitter:description" content="The Swiss Memecoin. Le Memecoin Suisse. Born in Fribourg. Built on Solana. LP locked. Team doxxed. 987 654 321 tokens. Meet DZO.">
-<meta name="twitter:image" content="https://987nes.com/og-image.png">
+<meta name="twitter:image" content="https://987nes.com/og-image.jpg">
 
 <!-- HREFLANG (multilingual) -->
 <link rel="alternate" hreflang="en" href="https://987nes.com/">
@@ -49,7 +49,13 @@
 <meta name="theme-color" content="#07080a">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Fonts load without blocking first paint (display=swap keeps text visible) -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap"></noscript>
+<!-- LCP: preload the hero artwork for the current breakpoint -->
+<link rel="preload" as="image" type="image/webp" href="dzo-market.webp" media="(min-width: 769px)">
+<link rel="preload" as="image" type="image/webp" href="dzo-closeup-1200.webp" media="(max-width: 768px)">
 
 <style>
 :root {
@@ -225,13 +231,17 @@ nav {
   padding: 52px 56px 80px;        /* nav is cleared by the top banner above */
   position: relative;
   overflow: hidden;
-  background: url('dzo-0.png') right center / auto 100% no-repeat;
+  background: 58% center / cover no-repeat;
+  background-image: url('dzo-market.jpg');
+  background-image: image-set(url('dzo-market.webp') type('image/webp'), url('dzo-market.jpg') type('image/jpeg'));
 }
 
 .hero .hero-bg-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to right, var(--black) 28%, rgba(7,8,10,0.78) 50%, rgba(7,8,10,0.35) 72%, rgba(7,8,10,0.05) 100%);
+  background:
+    linear-gradient(to bottom, rgba(7,8,10,0.55) 0%, rgba(7,8,10,0) 30%, rgba(7,8,10,0) 70%, var(--black) 100%),
+    linear-gradient(to right, var(--black) 22%, rgba(7,8,10,0.86) 42%, rgba(7,8,10,0.40) 62%, rgba(7,8,10,0.05) 100%);
   z-index: 1;
 }
 
@@ -263,9 +273,6 @@ nav {
   z-index: 2;
   max-width: 900px;
 }
-
-/* Mascot image — desktop uses the background art, mobile uses this */
-.hero-mascot { display: none; }
 
 .hero-flag {
   display: flex;
@@ -585,15 +592,16 @@ section { position: relative; z-index: 1; }
 
 /* ===== STORY SECTION ===== */
 #story {
-  background: url('dzo-2.jpg') center center / cover no-repeat;
+  background: var(--dark);
   position: relative;
 }
 
 #story .story-bg-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, var(--dark) 0%, rgba(13,17,23,0.88) 20%, rgba(13,17,23,0.82) 80%, var(--dark) 100%);
+  background: radial-gradient(ellipse at 20% 0%, rgba(14,95,160,0.14) 0%, transparent 55%);
   z-index: 0;
+  pointer-events: none;
 }
 
 #story .container {
@@ -1063,8 +1071,11 @@ section { position: relative; z-index: 1; }
 
 .dzo-img img {
   width: 100%;
+  height: auto;
   display: block;
   border: 1px solid rgba(14,95,160,0.2);
+  border-radius: var(--radius);
+  box-shadow: 0 0 60px rgba(14,95,160,0.18);
   filter: contrast(1.05);
 }
 
@@ -1101,7 +1112,7 @@ section { position: relative; z-index: 1; }
 
 /* ===== WHITEPAPER ===== */
 #whitepaper {
-  background: url('dzo-3.jpg') center center / cover no-repeat;
+  background: var(--dark);
   border-top: 1px solid rgba(14,95,160,0.15);
   position: relative;
 }
@@ -1109,8 +1120,9 @@ section { position: relative; z-index: 1; }
 #whitepaper .wp-bg-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, var(--dark) 0%, rgba(13,17,23,0.88) 20%, rgba(13,17,23,0.82) 80%, var(--dark) 100%);
+  background: radial-gradient(ellipse at 80% 100%, rgba(240,208,32,0.06) 0%, transparent 55%);
   z-index: 0;
+  pointer-events: none;
 }
 
 #whitepaper .container {
@@ -1290,9 +1302,9 @@ footer {
 
 .f-ca {
   font-family: var(--code);
-  font-size: 0.55rem;
+  font-size: 0.62rem;
   letter-spacing: 1px;
-  color: rgba(240,208,32,0.3);
+  color: rgba(240,208,32,0.62);
   word-break: break-all;
   line-height: 1.8;
   padding: 12px 16px;
@@ -1300,7 +1312,7 @@ footer {
   background: rgba(240,208,32,0.02);
 }
 
-.f-col h4 {
+.f-col h3 {
   font-family: var(--body);
   font-size: 0.6rem;
   letter-spacing: 4px;
@@ -1342,9 +1354,9 @@ footer {
 
 .f-disc {
   font-family: var(--body);
-  font-size: 0.52rem;
+  font-size: 0.6rem;
   letter-spacing: 1px;
-  color: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.55);
   max-width: 500px;
   text-align: right;
   line-height: 1.8;
@@ -1504,18 +1516,19 @@ footer {
   .hype-track { padding: 9px 0; animation-duration: 18s; }
   .hype-item { padding: 0 18px; gap: 12px; letter-spacing: 1px; }
 
-  /* HERO — same mysterious DZÔ artwork as desktop, full-bleed */
+  /* HERO — DZÔ close-up ("Not recycled"), 4:3 source that crops cleanly into a portrait viewport */
   .hero {
     padding: 40px 18px 54px;
     min-height: 84vh;
     justify-content: flex-end;
-    background: url('dzo-0.png') center 32% / cover no-repeat;
+    background: 54% 40% / cover no-repeat;
+    background-image: url('dzo-closeup-1200.jpg');
+    background-image: image-set(url('dzo-closeup-1200.webp') type('image/webp'), url('dzo-closeup-1200.jpg') type('image/jpeg'));
     text-align: left;
   }
   .hero .hero-bg-overlay {
-    background: linear-gradient(to bottom, rgba(7,8,10,0.30) 0%, rgba(7,8,10,0.45) 38%, rgba(7,8,10,0.82) 72%, rgba(7,8,10,0.96) 100%);
+    background: linear-gradient(to bottom, rgba(7,8,10,0.30) 0%, rgba(7,8,10,0.40) 34%, rgba(7,8,10,0.84) 66%, rgba(7,8,10,0.97) 100%);
   }
-  .hero-mascot { display: none; }   /* mobile uses the atmospheric background, not a separate photo */
   .hero-title {
     font-size: clamp(4rem, 22vw, 7rem);
     letter-spacing: -2px;
@@ -1639,8 +1652,8 @@ footer {
   .comm-grid { grid-template-columns: 1fr !important; }
   /* Compact lang switcher to keep it visible on phones */
   .nav-right { gap: 8px; }
-  .lang-btn { padding: 3px 5px; font-size: 0.48rem; letter-spacing: 1px; }
-  .btn-nav-buy { padding: 7px 10px; font-size: 0.5rem; letter-spacing: 0.5px; }
+  .lang-btn { padding: 6px 7px; font-size: 10px; letter-spacing: 0.5px; }
+  .btn-nav-buy { padding: 9px 11px; font-size: 10px; letter-spacing: 0.5px; }
 }
 
 /* ===== HOW TO BUY (PROTO) ===== */
@@ -1866,7 +1879,10 @@ footer {
   cursor: pointer;
   transition: all 0.25s;
   padding: 0;
+  position: relative;
 }
+/* invisible 32px hit area around each dot (touch friendly, visual unchanged) */
+.news-dot::after { content: ''; position: absolute; inset: -11px; }
 .news-dot.active {
   background: var(--nes-yellow);
   transform: scale(1.4);
@@ -2138,41 +2154,56 @@ footer {
   .team-motto { font-size: 1.5rem; }
 }
 
-/* ===== WATCH / VIDEO ===== */
-#watch {
-  background: var(--black);
-  padding: 80px 0;
-  border-top: 1px solid rgba(14,95,160,0.15);
-}
-.watch-frame {
-  max-width: 900px;
-  margin: 36px auto 0;
+/* ===== CINE BANDS (full-bleed DZÔ artworks, shown uncropped on desktop) ===== */
+.cine {
   position: relative;
-  border-radius: 14px;
+  background: var(--black);
   overflow: hidden;
-  border: 1px solid rgba(14,95,160,0.35);
-  box-shadow: 0 0 60px rgba(14,95,160,0.18);
-  background: #000;
-  aspect-ratio: 1280 / 736;
+  line-height: 0;
 }
-.watch-video {
+.cine img {
   width: 100%;
-  height: 100%;
+  height: auto;
   display: block;
+  aspect-ratio: 2056 / 765;
   object-fit: cover;
+  object-position: 50% 50%;
 }
-.watch-sub {
-  text-align: center;
-  font-family: var(--body);
-  font-size: 0.9rem;
-  color: var(--gray);
-  margin-top: 18px;
+/* soft fade into the dark sections above/below */
+.cine::before,
+.cine::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 18%;
+  pointer-events: none;
+  z-index: 1;
 }
+.cine::before { top: 0;    background: linear-gradient(to bottom, var(--black), transparent); }
+.cine::after  { bottom: 0; background: linear-gradient(to top,   var(--dark),  transparent); }
 @media (max-width: 768px) {
-  #watch { padding: 56px 0; }
-  .watch-frame { margin-top: 24px; border-radius: 10px; }
+  /* keep the monster readable: taller crop centred on him, side captions are dropped */
+  .cine img { aspect-ratio: 4 / 3; }
+  .cine-execution img  { object-position: 52% 50%; }
+  .cine-nobullshit img { object-position: 47% 50%; }
 }
 
+/* Mobile legibility floor (no text under 11px) and 32px+ touch targets */
+@media (max-width: 768px) {
+  .lbl, .countdown-label, .countdown-sub, .supply-label, .supply-sub,
+  .toko-label, .toko-sub, .hero-full-name, .hero-trust, .dzo-patois,
+  .news-date, .wallet-note, .f-ca, .f-disc,
+  .hero-trust span, .ca-lbl, .ca-addr, .copy-btn, .buy-desc, .wallet-addr, .wallet-link,
+  .wallet-label, .wallet-sub, .toko-sub a, .htb-link, .wallet-type, .wallet-row span, .wallets-header-sub,
+  .wp-btn, .wp-btn span, .comm-handle, .comm-desc, .comm-desc span, .htb-ca { font-size: 11px; }
+  .lbl { letter-spacing: 4px; }
+  .toko-sub a, .wallet-note a, .htb-link, .wallet-link { display: inline-block; padding: 6px 0; }
+  .f-col h3, .f-col a, .f-copy, .f-copy span { font-size: 11px; }
+  .btn-primary, .btn-secondary { font-size: 11px; }
+  .hero-firsttime { padding: 8px 0; display: inline-block; }
+  .team-linkedin { width: 36px; height: 36px; }
+  .f-col a, .comm-handle { display: inline-block; padding: 5px 0; }
+}
 </style>
 
 <!-- STRUCTURED DATA / JSON-LD -->
@@ -2186,7 +2217,7 @@ footer {
       "alternateName": "NineEightSeven",
       "url": "https://987nes.com",
       "logo": "https://987nes.com/favicon.png",
-      "image": "https://987nes.com/og-image.png",
+      "image": "https://987nes.com/og-image.jpg",
       "description": "987NES ($NES) is the Swiss Memecoin built on Solana. Le memecoin suisse. El memecoin suizo. Born in Fribourg, Switzerland. LP locked. Team doxxed. 987 654 321 tokens.",
       "foundingLocation": {
         "@type": "Place",
@@ -2194,7 +2225,8 @@ footer {
       },
       "sameAs": [
         "https://x.com/987_nes",
-        "https://t.me/NineEightSeven987",
+        "https://t.me/NES_987",
+        "https://t.me/NES_987_Chat",
         "https://www.linkedin.com/company/987nes",
         "https://github.com/987nes"
       ]
@@ -2231,10 +2263,24 @@ footer {
       "url": "https://987nes.com",
       "inLanguage": ["en", "fr", "es"],
       "description": "Official website of the 987NES ecosystem - the Swiss Memecoin on Solana.",
+      "dateModified": "2026-09-07",
       "speakable": {
         "@type": "SpeakableSpecification",
         "cssSelector": [".hero-tagline", ".hero-sub", "#news .news-card", "#story .container", "#token .container", "#how-to-buy .container"]
       }
+    },
+    {
+      "@type": "NewsArticle",
+      "@id": "https://987nes.com/#news-new-look-2026",
+      "headline": "987nes.com Gets a New Look",
+      "description": "The 987NES website has been fully refreshed: new DZÔ artworks, cleaner layout, lighter and faster page. Nothing changes on-chain: same contract, locked liquidity and locked team allocation.",
+      "datePublished": "2026-09-07",
+      "dateModified": "2026-09-07",
+      "inLanguage": ["en", "fr", "es"],
+      "author": { "@type": "Organization", "name": "987NES Team", "url": "https://987nes.com" },
+      "publisher": { "@type": "Organization", "name": "987NES", "logo": { "@type": "ImageObject", "url": "https://987nes.com/favicon.png" } },
+      "image": "https://987nes.com/og-image.jpg",
+      "mainEntityOfPage": "https://987nes.com/#news"
     },
     {
       "@type": "NewsArticle",
@@ -2255,7 +2301,7 @@ footer {
           "url": "https://987nes.com/favicon.png"
         }
       },
-      "image": "https://987nes.com/og-image.png",
+      "image": "https://987nes.com/og-image.jpg",
       "mainEntityOfPage": {
         "@type": "WebPage",
         "@id": "https://987nes.com/#news"
@@ -2282,7 +2328,7 @@ footer {
           "url": "https://987nes.com/favicon.png"
         }
       },
-      "image": "https://987nes.com/og-image.png",
+      "image": "https://987nes.com/og-image.jpg",
       "mainEntityOfPage": {
         "@type": "WebPage",
         "@id": "https://987nes.com/#news"
@@ -2396,7 +2442,7 @@ footer {
 <!-- NAV -->
 <nav id="nav">
   <a href="#" class="nav-brand">
-    <img src="favicon.png" alt="987NES">
+    <img src="favicon.png" alt="" width="40" height="40">
     <span class="nav-brand-text">987<span class="y">NES</span></span>
   </a>
 
@@ -2427,31 +2473,31 @@ footer {
 </nav>
 
 <!-- TOP HYPE BANNER -->
-<a href="#how-to-buy" class="hype-banner" aria-label="performance since launch - see the 5-minute buying guide">
+<a href="#how-to-buy" class="hype-banner">
   <div class="hype-track" id="hype-track">
     <span class="hype-item">
-      <span class="hype-pct">+1744%</span>
+      <span class="hype-pct">+1500%</span>
       <span data-l="en">since launch. Still scrolling, or finally jumping in?</span>
       <span data-l="fr">depuis le lancement. Tu continues à scroller ou tu te lances enfin ?</span>
       <span data-l="es">desde el lanzamiento. ¿Sigues scrolleando o por fin te lanzas?</span>
       <span class="hype-sep">◆</span>
     </span>
     <span class="hype-item">
-      <span class="hype-pct">+1744%</span>
+      <span class="hype-pct">+1500%</span>
       <span data-l="en">since launch. Still scrolling, or finally jumping in?</span>
       <span data-l="fr">depuis le lancement. Tu continues à scroller ou tu te lances enfin ?</span>
       <span data-l="es">desde el lanzamiento. ¿Sigues scrolleando o por fin te lanzas?</span>
       <span class="hype-sep">◆</span>
     </span>
     <span class="hype-item">
-      <span class="hype-pct">+1744%</span>
+      <span class="hype-pct">+1500%</span>
       <span data-l="en">since launch. Still scrolling, or finally jumping in?</span>
       <span data-l="fr">depuis le lancement. Tu continues à scroller ou tu te lances enfin ?</span>
       <span data-l="es">desde el lanzamiento. ¿Sigues scrolleando o por fin te lanzas?</span>
       <span class="hype-sep">◆</span>
     </span>
     <span class="hype-item">
-      <span class="hype-pct">+1744%</span>
+      <span class="hype-pct">+1500%</span>
       <span data-l="en">since launch. Still scrolling, or finally jumping in?</span>
       <span data-l="fr">depuis le lancement. Tu continues à scroller ou tu te lances enfin ?</span>
       <span data-l="es">desde el lanzamiento. ¿Sigues scrolleando o por fin te lanzas?</span>
@@ -2461,10 +2507,9 @@ footer {
 </a>
 
 <!-- HERO -->
-<section class="hero" id="home" role="img" aria-label="DZO mascot, the official character of 987NES project">
+<section class="hero" id="home">
   <div class="hero-bg-overlay"></div>
   <div class="hero-inner">
-    <img src="dzo-1.png" alt="DZÔ, the official 987NES mascot" class="hero-mascot" loading="eager">
     <div class="hero-flag">
       <div class="swiss-flag"></div>
       <span class="hero-eyebrow">
@@ -2582,11 +2627,49 @@ footer {
       <div class="news-viewport">
         <div class="news-track" id="news-track">
 
-          <!-- Slide 1: Flavien (newest) -->
+          <!-- Slide 1: New website look (newest) -->
           <div class="news-slide">
             <div class="news-card">
               <div class="news-meta">
                 <span class="news-badge">NEW</span>
+                <span class="news-date">
+                  <span data-l="en">Website &middot; September 2026</span>
+                  <span data-l="fr">Site Web &middot; Septembre 2026</span>
+                  <span data-l="es">Sitio Web &middot; Septiembre 2026</span>
+                </span>
+              </div>
+
+              <h2 class="news-title">
+                <span data-l="en">987nes.com Gets a <span class="y">New Look</span></span>
+                <span data-l="fr">987nes.com fait <span class="y">peau neuve</span></span>
+                <span data-l="es">987nes.com se <span class="y">renueva</span></span>
+              </h2>
+
+              <div class="news-body">
+                <p>
+                  <span data-l="en">The website has been fully refreshed: new DZÔ artworks from top to bottom, a cleaner layout and a lighter, faster page. Same team, same values, sharper look.</span>
+                  <span data-l="fr">Le site a été entièrement rafraîchi : nouveaux visuels de DZÔ de haut en bas, mise en page épurée, page plus légère et plus rapide. Même équipe, mêmes valeurs, un look plus tranchant.</span>
+                  <span data-l="es">El sitio ha sido renovado por completo: nuevas ilustraciones de DZÔ de arriba abajo, un diseño más limpio y una página más ligera y rápida. Mismo equipo, mismos valores, un look más afilado.</span>
+                </p>
+                <p>
+                  <span data-l="en">Nothing changes on-chain: same contract, same locked liquidity, same locked team allocation.</span>
+                  <span data-l="fr">Rien ne change on-chain : même contrat, même liquidité verrouillée, même allocation d'équipe bloquée.</span>
+                  <span data-l="es">Nada cambia on-chain: mismo contrato, misma liquidez bloqueada, misma asignación del equipo bloqueada.</span>
+                </p>
+              </div>
+
+              <p class="news-tagline">
+                <span data-l="en">Not Recycled &middot; Execution over Promise</span>
+                <span data-l="fr">Pas Recyclé &middot; L'Exécution plutôt que la Promesse</span>
+                <span data-l="es">No Reciclado &middot; Ejecución antes que Promesa</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Slide 2: Flavien -->
+          <div class="news-slide">
+            <div class="news-card">
+              <div class="news-meta">
                 <span class="news-date">
                   <span data-l="en">Team Update &middot; June 2026</span>
                   <span data-l="fr">Update Equipe &middot; Juin 2026</span>
@@ -2621,7 +2704,7 @@ footer {
             </div>
           </div>
 
-          <!-- Slide 2: Team Tokens Locked -->
+          <!-- Slide 3: Team Tokens Locked -->
           <div class="news-slide">
             <div class="news-card">
               <div class="news-meta">
@@ -2678,40 +2761,23 @@ footer {
       <div class="news-dots" id="news-dots">
         <button type="button" class="news-dot active" data-slide="0" aria-label="Slide 1"></button>
         <button type="button" class="news-dot" data-slide="1" aria-label="Slide 2"></button>
+        <button type="button" class="news-dot" data-slide="2" aria-label="Slide 3"></button>
       </div>
     </div>
   </div>
 </section>
 
 <!-- WATCH -->
-<section id="watch" class="reveal">
-  <div class="container sec">
-    <p class="lbl">
-      <span data-l="en">Watch</span>
-      <span data-l="fr">Regarder</span>
-      <span data-l="es">Mirar</span>
-    </p>
-    <h2 class="ttl">
-      <span data-l="en">Don't be the one who <span class="y">regrets.</span></span>
-      <span data-l="fr">Ne sois pas celui qui <span class="y">regrette.</span></span>
-      <span data-l="es">No seas el que <span class="y">se arrepiente.</span></span>
-    </h2>
-    <div class="watch-frame">
-      <video class="watch-video" controls preload="metadata" playsinline poster="video/regret-poster.jpg">
-        <source src="video/regret.mp4" type="video/mp4">
-        <span data-l="en">Your browser does not support the video tag.</span>
-      </video>
-    </div>
-    <p class="watch-sub">
-      <span data-l="en">They should have listened. You still have time.</span>
-      <span data-l="fr">Ils auraient dû écouter. Toi, tu as encore le temps.</span>
-      <span data-l="es">Deberían haber escuchado. Tú aún estás a tiempo.</span>
-    </p>
-  </div>
-</section>
+<!-- CINE BAND · Execution over promise -->
+<div class="cine cine-execution">
+  <picture>
+          <source type="image/webp" srcset="dzo-execution-800.webp 800w, dzo-execution-1200.webp 1200w, dzo-execution.webp 2056w" sizes="100vw">
+          <img src="dzo-execution.jpg" srcset="dzo-execution-800.jpg 800w, dzo-execution-1200.jpg 1200w, dzo-execution.jpg 2056w" sizes="100vw" width="2056" height="765" alt="DZÔ, the 987NES blue monster, at work in a Fribourg workshop: Execution over promise. 0% tax, LP locked, public wallets, team doxxed, on-chain." loading="lazy" decoding="async">
+        </picture>
+</div>
 
 <!-- STORY -->
-<section id="story" class="reveal" role="img" aria-label="DZO mascot illustration, 987NES project story background">
+<section id="story" class="reveal">
   <div class="story-bg-overlay"></div>
   <div class="container sec">
     <div class="story-grid">
@@ -3154,7 +3220,10 @@ footer {
   <div class="container sec">
     <div class="dzo-layout">
       <div class="dzo-img">
-        <img src="dzo-1.png" alt="DZO, the official mascot of the 987NES Swiss memecoin project on Solana" loading="lazy">
+        <picture>
+          <source type="image/webp" srcset="dzo-flag-800.webp 800w, dzo-flag-1200.webp 1200w, dzo-flag.webp 1448w" sizes="(max-width: 1024px) 100vw, 610px">
+          <img src="dzo-flag.jpg" srcset="dzo-flag-800.jpg 800w, dzo-flag-1200.jpg 1200w, dzo-flag.jpg 1448w" sizes="(max-width: 1024px) 100vw, 610px" width="1448" height="1086" alt="DZÔ, the 987NES blue monster, planting the Swiss flag on a pile of recycled memecoins above Fribourg: not recycled, not a frog, not a dog, not a clown" loading="lazy" decoding="async">
+        </picture>
       </div>
       <div class="dzo-text">
         <p class="lbl">
@@ -3231,7 +3300,15 @@ footer {
 </section>
 
 <!-- WHITEPAPER -->
-<section id="whitepaper" class="reveal" role="img" aria-label="DZO mascot with sunglasses, 987NES whitepaper section background">
+<!-- CINE BAND · No bullshit -->
+<div class="cine cine-nobullshit">
+  <picture>
+          <source type="image/webp" srcset="dzo-nobullshit-800.webp 800w, dzo-nobullshit-1200.webp 1200w, dzo-nobullshit.webp 2056w" sizes="100vw">
+          <img src="dzo-nobullshit.jpg" srcset="dzo-nobullshit-800.jpg 800w, dzo-nobullshit-1200.jpg 1200w, dzo-nobullshit.jpg 2056w" sizes="100vw" width="2056" height="765" alt="DZÔ, the 987NES blue monster, tearing up memecoin bullshit: no bullshit, Swiss memecoin, real values. Fribourg builds different." loading="lazy" decoding="async">
+        </picture>
+</div>
+
+<section id="whitepaper" class="reveal">
   <div class="wp-bg-overlay"></div>
   <div class="container sec">
     <div class="wp-layout">
@@ -3375,7 +3452,7 @@ footer {
     <div class="footer-layout">
       <div class="f-brand">
         <a href="#" class="f-logo">
-          <img src="favicon.png" alt="987NES">
+          <img src="favicon.png" alt="" width="38" height="38">
           <span class="f-logo-text">987<span>NES</span></span>
         </a>
         <div class="f-tagline">
@@ -3388,7 +3465,7 @@ footer {
         </div>
       </div>
       <div class="f-col">
-        <h4>Links</h4>
+        <h3>Links</h3>
         <ul>
           <li><a href="https://x.com/987_nes" target="_blank">X / Twitter</a></li>
           <li><a href="https://t.me/NES_987" target="_blank">Telegram Channel</a></li>
@@ -3401,7 +3478,7 @@ footer {
         </ul>
       </div>
       <div class="f-col">
-        <h4>Docs</h4>
+        <h3>Docs</h3>
         <ul>
           <li><a href="https://raw.githubusercontent.com/987nes/misc/main/987NES-whitepaper-EN-V2.pdf" target="_blank">Whitepaper EN</a></li>
           <li><a href="https://raw.githubusercontent.com/987nes/misc/main/987NES-whitepaper-FR-V2.pdf" target="_blank">Whitepaper FR</a></li>
@@ -3515,8 +3592,12 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   if (slides.length > 1) startAuto();
 })();
 
-/* ===== LIVE "since launch" banner (DexScreener) ===== */
+/* ===== "since launch" banner ===== */
 (function () {
+  // Owner decision (Sept 2026): the banner shows a fixed +1500%. Set LIVE_PCT to true
+  // to compute it live from DexScreener against LAUNCH_PRICE_USD again.
+  var LIVE_PCT = false;
+  if (!LIVE_PCT) return;
   // $NES USD price at launch (owner-confirmed). The % is computed live vs this.
   var LAUNCH_PRICE_USD = 0.00001;
   var CA = 'DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t';

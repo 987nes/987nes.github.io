@@ -1,0 +1,27 @@
+# 987NES ($NES)
+
+> 987NES is a Swiss memecoin built on the Solana blockchain, born in Fribourg, Switzerland, on October 16, 2025. Ticker: $NES. Fixed supply of 987,654,321 tokens. 0% tax. Liquidity pool locked (TeamFinance). Team doxxed (Dom, Paco, Luis, Flavien). Team allocation (20%) locked until October 16, 2027 (Streamflow). Mascot: DZÔ, the blue monster ("Not recycled. Not a frog. Not a dog. Not a clown.").
+
+## Key facts
+- Contract address (Solana): DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t
+- Chain: Solana. Buy on Raydium or Jupiter with a Phantom wallet.
+- Name: NineEightSeven, a deliberately incomplete countdown. Motto: "Execution over promise."
+- In-house tools: 987Buy (Telegram transaction alerts), 987News (crypto news digest with AI summaries).
+- Languages: English, French, Spanish (same page, language switcher).
+
+## Pages
+- Home / everything: https://987nes.com/
+- Whitepaper EN: https://raw.githubusercontent.com/987nes/misc/main/987NES-whitepaper-EN-V2.pdf
+- Whitepaper FR: https://raw.githubusercontent.com/987nes/misc/main/987NES-whitepaper-FR-V2.pdf
+- Whitepaper ES: https://raw.githubusercontent.com/987nes/misc/main/987NES-whitepaper-ES-V2.pdf
+
+## Official channels
+- Telegram channel: https://t.me/NES_987
+- Telegram chat: https://t.me/NES_987_Chat
+- X / Twitter: https://x.com/987_nes
+- GitHub: https://github.com/987nes
+- LinkedIn: https://www.linkedin.com/company/987nes
+- Contact: info@987nes.com
+
+## Disclaimer
+$NES is a memecoin. Cryptocurrencies are volatile and speculative; nothing on 987nes.com is financial advice.
