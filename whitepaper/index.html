@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>987NES Whitepaper – Pure, Unapologetic Speculation | $NES Swiss Memecoin on Solana</title>
+<meta name="description" content="The official 987NES ($NES) whitepaper: executive summary, why 987NES, why Switzerland, tokenomics (987 654 321 supply, 0% tax, LP locked, team tokens locked until October 2027), objective, risks, legal disclaimer. In English, French and Spanish.">
+<meta name="author" content="987NES Team">
+<link rel="canonical" href="https://987nes.com/whitepaper/">
+<link rel="alternate" hreflang="en" href="https://987nes.com/whitepaper/?lang=en">
+<link rel="alternate" hreflang="fr" href="https://987nes.com/whitepaper/?lang=fr">
+<link rel="alternate" hreflang="es" href="https://987nes.com/whitepaper/?lang=es">
+<link rel="alternate" hreflang="x-default" href="https://987nes.com/whitepaper/">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#07080a">
+<link rel="icon" type="image/png" href="../favicon.png">
+<link rel="apple-touch-icon" href="../favicon.png">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://987nes.com/whitepaper/">
+<meta property="og:site_name" content="987NES">
+<meta property="og:title" content="987NES Whitepaper – Pure, Unapologetic Speculation">
+<meta property="og:description" content="100% Speculative. 0% Shame. The official $NES whitepaper: tokenomics, objective, risks, disclaimer. EN · FR · ES.">
+<meta property="og:image" content="https://987nes.com/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="fr_FR">
+<meta property="og:locale:alternate" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@987_nes">
+<meta name="twitter:title" content="987NES Whitepaper – Pure, Unapologetic Speculation">
+<meta name="twitter:description" content="100% Speculative. 0% Shame. The official $NES whitepaper. EN · FR · ES.">
+<meta name="twitter:image" content="https://987nes.com/og-image.jpg">
+
+<link rel="preload" as="font" type="font/woff2" href="../fonts/bebas-neue-400-latin.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="../fonts/syne-400-latin.woff2" crossorigin>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "@id": "https://987nes.com/whitepaper/#article",
+      "headline": "987NES Whitepaper – Pure, Unapologetic Speculation",
+      "alternativeHeadline": "100% Speculative. 0% Shame.",
+      "description": "The official 987NES ($NES) whitepaper: executive summary, why 987NES, why Switzerland, vision and mission, tokenomics, objective, risks, expected legacy, legal disclaimer and conclusion.",
+      "inLanguage": ["en", "fr", "es"],
+      "datePublished": "2025-10-16",
+      "dateModified": "2026-09-07",
+      "version": "3",
+      "url": "https://987nes.com/whitepaper/",
+      "mainEntityOfPage": "https://987nes.com/whitepaper/",
+      "image": "https://987nes.com/og-image.jpg",
+      "author": { "@type": "Organization", "name": "987NES Team", "url": "https://987nes.com" },
+      "publisher": { "@type": "Organization", "name": "987NES", "url": "https://987nes.com", "logo": { "@type": "ImageObject", "url": "https://987nes.com/favicon.png" } },
+      "about": { "@type": "Thing", "name": "$NES token", "description": "Swiss memecoin on Solana, contract DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t, fixed supply 987 654 321, 0% tax, LP locked, team allocation locked until 2027-10-16." },
+      "isPartOf": { "@type": "WebSite", "name": "987NES", "url": "https://987nes.com" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "987NES", "item": "https://987nes.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Whitepaper", "item": "https://987nes.com/whitepaper/" }
+      ]
+    }
+  ]
+}
+</script>
+
+<style>
+@font-face{font-family:'Bebas Neue';font-style:normal;font-weight:400;font-display:swap;src:url('../fonts/bebas-neue-400-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face{font-family:'Bebas Neue';font-style:normal;font-weight:400;font-display:swap;src:url('../fonts/bebas-neue-400-latin.woff2') format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'Space Mono';font-style:normal;font-weight:400;font-display:swap;src:url('../fonts/space-mono-400-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face{font-family:'Space Mono';font-style:normal;font-weight:400;font-display:swap;src:url('../fonts/space-mono-400-latin.woff2') format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'Space Mono';font-style:normal;font-weight:700;font-display:swap;src:url('../fonts/space-mono-700-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face{font-family:'Space Mono';font-style:normal;font-weight:700;font-display:swap;src:url('../fonts/space-mono-700-latin.woff2') format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'Syne';font-style:normal;font-weight:400;font-display:swap;src:url('../fonts/syne-400-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face{font-family:'Syne';font-style:normal;font-weight:400;font-display:swap;src:url('../fonts/syne-400-latin.woff2') format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'Syne';font-style:normal;font-weight:600;font-display:swap;src:url('../fonts/syne-600-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face{font-family:'Syne';font-style:normal;font-weight:600;font-display:swap;src:url('../fonts/syne-600-latin.woff2') format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'Syne';font-style:normal;font-weight:700;font-display:swap;src:url('../fonts/syne-700-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face{font-family:'Syne';font-style:normal;font-weight:700;font-display:swap;src:url('../fonts/syne-700-latin.woff2') format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'Syne';font-style:normal;font-weight:800;font-display:swap;src:url('../fonts/syne-800-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face{font-family:'Syne';font-style:normal;font-weight:800;font-display:swap;src:url('../fonts/syne-800-latin.woff2') format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+
+:root {
+  --nes-blue: #0e5fa0; --nes-blue-dark: #0a3d6b;
+  --nes-yellow: #f0d020; --nes-yellow-dim: #b89a18;
+  --black: #07080a; --dark: #0d1117; --dark2: #111722; --slate: #1c2535;
+  --white: #f4f6fa; --offwhite: #d8dce8; --gray: #7a8499; --gray-mid: #a0a8be;
+  --display: 'Bebas Neue', Impact, 'Arial Narrow', sans-serif;
+  --body: 'Syne', 'Segoe UI', Arial, sans-serif;
+  --code: 'Space Mono', Consolas, monospace;
+  --radius: 10px; --radius-sm: 7px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { background: var(--black); color: var(--white); font-family: var(--body); font-size: 17px; line-height: 1.7; overflow-x: hidden; }
+a { color: var(--nes-yellow); }
+[data-l] { display: none; } [data-l="en"] { display: inline; }
+.bl { display: none; } .bl.en { display: block; }
+
+/* NAV (same as home) */
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 900; background: rgba(7,8,10,0.97); border-bottom: 1px solid rgba(14,95,160,0.25); padding: 0 56px; display: flex; align-items: center; justify-content: space-between; height: 68px; }
+.nav-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.nav-brand img { width: 40px; height: 40px; border-radius: 50%; }
+.nav-brand-text { font-family: var(--display); font-size: 1.6rem; letter-spacing: 3px; color: var(--white); }
+.nav-brand-text .y { color: var(--nes-yellow); }
+.nav-back { font-family: var(--body); font-size: 0.66rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-mid); text-decoration: none; }
+.nav-back:hover { color: var(--white); }
+.nav-right { display: flex; align-items: center; gap: 18px; }
+.nav-right > div { display: flex; gap: 4px; }
+.lang-btn { font-family: var(--body); font-size: 0.62rem; font-weight: 700; letter-spacing: 1px; color: var(--gray); background: none; border: 1px solid var(--slate); padding: 5px 10px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.lang-btn.active, .lang-btn:hover { color: var(--nes-yellow); border-color: var(--nes-yellow-dim); }
+.btn-nav-buy { font-family: var(--body); font-size: 0.66rem; letter-spacing: 1px; text-transform: uppercase; color: var(--black); background: var(--nes-yellow); padding: 10px 22px; text-decoration: none; border-radius: var(--radius-sm); font-weight: 800; white-space: nowrap; transition: all 0.2s; }
+.btn-nav-buy:hover { background: var(--white); }
+
+/* HEADER */
+.wp-hero { position: relative; padding: 140px 56px 56px; overflow: hidden; background: var(--black); }
+.wp-hero::before { content: ''; position: absolute; inset: 0; background: url('../dzo-flag.jpg') 50% 25% / cover no-repeat; opacity: 0.32; }
+.wp-hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(7,8,10,0.55) 0%, rgba(7,8,10,0.35) 45%, var(--black) 100%); }
+.wp-hero .inner { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; }
+.lbl { font-family: var(--body); font-size: 0.62rem; letter-spacing: 6px; text-transform: uppercase; color: var(--nes-yellow); margin-bottom: 16px; display: flex; align-items: center; gap: 14px; }
+.lbl::before { content: ''; width: 28px; height: 1px; background: var(--nes-yellow); }
+h1 { font-family: var(--display); font-size: clamp(3.2rem, 8vw, 7.5rem); line-height: 0.9; letter-spacing: -1px; color: var(--white); }
+h1 .y { color: var(--nes-yellow); }
+.wp-slogan { font-size: clamp(1.1rem, 2vw, 1.5rem); color: var(--offwhite); margin-top: 22px; max-width: 34em; }
+.wp-slogan strong { color: var(--white); }
+.wp-badges { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+.badge { font-family: var(--display); font-size: 1.35rem; letter-spacing: 1.5px; line-height: 1; color: var(--white); padding: 10px 16px; border: 1px solid rgba(240,208,32,0.35); background: rgba(240,208,32,0.05); border-radius: var(--radius-sm); }
+.badge .y { color: var(--nes-yellow); }
+.wp-meta { margin-top: 30px; font-family: var(--code); font-size: 0.66rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); display: flex; flex-wrap: wrap; gap: 8px 26px; }
+
+/* LAYOUT */
+.wp-wrap { max-width: 1100px; margin: 0 auto; padding: 24px 56px 96px; display: grid; grid-template-columns: 230px 1fr; gap: 64px; align-items: start; }
+.toc { position: sticky; top: 92px; border-left: 1px solid rgba(14,95,160,0.25); padding-left: 18px; }
+.toc .lbl { margin-bottom: 12px; }
+.toc ol { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.toc a { font-family: var(--body); font-size: 0.78rem; letter-spacing: 0.5px; color: var(--gray-mid); text-decoration: none; display: inline-block; padding: 3px 0; }
+.toc a:hover { color: var(--white); }
+.toc-print { margin-top: 22px; }
+.btn-print { font-family: var(--body); font-size: 0.62rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--white); background: transparent; border: 1px solid rgba(14,95,160,0.5); padding: 9px 14px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; }
+.btn-print:hover { border-color: var(--nes-yellow); color: var(--nes-yellow); }
+
+article { max-width: 68ch; }
+article section { padding: 38px 0; border-top: 1px solid rgba(14,95,160,0.15); scroll-margin-top: 90px; }
+article section:first-of-type { border-top: 0; padding-top: 12px; }
+h2 { font-family: var(--display); font-size: clamp(2.1rem, 4vw, 3rem); line-height: 0.95; letter-spacing: 0.5px; color: var(--white); margin-bottom: 18px; text-wrap: balance; }
+h2 .y { color: var(--nes-yellow); }
+h3 { font-family: var(--body); font-size: 0.72rem; letter-spacing: 4px; text-transform: uppercase; color: var(--nes-yellow); margin: 26px 0 10px; }
+p { color: var(--offwhite); margin-bottom: 16px; font-size: 1.04rem; line-height: 1.85; }
+p strong, li strong { color: var(--white); font-weight: 700; }
+em { color: var(--nes-yellow); font-style: normal; font-weight: 600; }
+ul { list-style: none; display: flex; flex-direction: column; gap: 10px; margin: 6px 0 18px; }
+ul li { position: relative; padding-left: 22px; color: var(--offwhite); line-height: 1.75; }
+ul li::before { content: ''; position: absolute; left: 0; top: 0.72em; width: 8px; height: 8px; background: var(--nes-yellow); }
+.pull { font-family: var(--display); font-size: clamp(1.7rem, 3vw, 2.3rem); line-height: 1.1; color: var(--white); border-left: 4px solid var(--nes-yellow); padding: 14px 22px; margin: 22px 0; background: rgba(240,208,32,0.04); }
+.ca { font-family: var(--code); font-size: 0.78rem; letter-spacing: 0.5px; color: var(--nes-yellow); word-break: break-all; padding: 14px 16px; border: 1px solid rgba(240,208,32,0.25); background: rgba(240,208,32,0.03); border-radius: var(--radius-sm); margin: 6px 0 18px; }
+.ca span { display: block; font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); margin-bottom: 6px; }
+.tokenomics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(14,95,160,0.18); border: 1px solid rgba(14,95,160,0.18); margin: 8px 0 20px; }
+.tk { background: var(--dark); padding: 18px 18px; }
+.tk .n { font-family: var(--display); font-size: 2.6rem; line-height: 1; color: var(--nes-yellow); }
+.tk .t { font-family: var(--body); font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-mid); margin-top: 6px; }
+.tk .s { font-size: 0.86rem; color: var(--offwhite); margin-top: 8px; line-height: 1.5; }
+.disclaimer { border: 1px solid rgba(255,255,255,0.12); background: var(--dark); padding: 22px 24px; border-radius: var(--radius); }
+.disclaimer p { margin: 0; font-size: 0.95rem; color: var(--gray-mid); }
+.mottos { display: flex; flex-direction: column; gap: 6px; margin-top: 26px; font-family: var(--display); font-size: clamp(1.6rem, 3vw, 2.4rem); letter-spacing: 1px; line-height: 1.05; }
+.mottos .y { color: var(--nes-yellow); }
+.wp-end { margin-top: 40px; display: flex; flex-wrap: wrap; gap: 12px; }
+.btn-primary { font-family: var(--body); font-size: 0.7rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--black); background: var(--nes-yellow); padding: 15px 28px; text-decoration: none; border-radius: var(--radius); box-shadow: 0 0 24px rgba(240,208,32,0.2); }
+.btn-secondary { font-family: var(--body); font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--white); border: 1px solid rgba(255,255,255,0.3); padding: 15px 28px; text-decoration: none; border-radius: var(--radius); }
+.btn-primary:hover { background: var(--white); } .btn-secondary:hover { border-color: var(--nes-yellow); color: var(--nes-yellow); }
+
+footer { border-top: 1px solid rgba(14,95,160,0.15); padding: 32px 56px; font-family: var(--code); font-size: 0.62rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gray); display: flex; flex-wrap: wrap; gap: 10px 30px; justify-content: space-between; }
+footer a { color: var(--gray-mid); text-decoration: none; } footer a:hover { color: var(--white); }
+
+@media (max-width: 1024px) { .wp-wrap { grid-template-columns: 1fr; gap: 32px; } .toc { position: static; border-left: 0; padding-left: 0; border-bottom: 1px solid rgba(14,95,160,0.25); padding-bottom: 18px; } .toc ol { flex-direction: row; flex-wrap: wrap; gap: 6px 18px; } .toc-print { margin-top: 14px; } }
+@media (max-width: 768px) {
+  nav { padding: 0 16px; height: 60px; } .nav-back { display: none; }
+  .wp-hero { padding: 96px 18px 40px; } .wp-wrap { padding: 8px 16px 64px; } footer { padding: 28px 16px; }
+  .tokenomics { grid-template-columns: 1fr; }
+  p { font-size: 1rem; } .lbl { letter-spacing: 4px; font-size: 11px; } .toc a { font-size: 0.82rem; padding: 6px 0; }
+  .wp-meta { font-size: 11px; }
+}
+@media (max-width: 480px) {
+  .lang-btn { padding: 6px 7px; font-size: 10px; letter-spacing: 0.5px; } .btn-nav-buy { padding: 9px 11px; font-size: 10px; letter-spacing: 0.5px; }
+  .nav-brand-text { display: none; }
+}
+
+/* PRINT: "Print → Save as PDF" gives a clean document */
+@media print {
+  @page { margin: 18mm 16mm; }
+  body { background: #fff; color: #111; font-size: 11pt; }
+  nav, .toc, .wp-end, footer, .btn-print { display: none !important; }
+  .wp-hero { padding: 0 0 12mm; background: #fff; } .wp-hero::before, .wp-hero::after { display: none; }
+  h1, h2, .mottos, .pull, .tk .n, .badge { color: #111; } h1 .y, h2 .y, .mottos .y, .badge .y, em { color: #a07f00; }
+  .badge { border-color: #999; background: none; } .wp-slogan, p, ul li, .tk .s { color: #222; }
+  .wp-wrap { display: block; padding: 0; max-width: none; } article { max-width: none; }
+  article section { border-top: 1px solid #ddd; padding: 8mm 0; break-inside: avoid; }
+  .tokenomics { background: #ddd; border-color: #ddd; } .tk { background: #fff; } .tk .t { color: #555; }
+  .ca { color: #111; border-color: #999; background: none; } .ca span { color: #555; }
+  .pull { background: none; border-left-color: #a07f00; } .disclaimer { background: none; border-color: #999; } .disclaimer p { color: #333; }
+  h3, .lbl { color: #a07f00; } .lbl::before { background: #a07f00; } .wp-meta { color: #555; }
+  strong, p strong, li strong, .wp-slogan strong { color: #111; }
+  .wp-hero .inner { max-width: none; }
+  .tk .n { color: #a07f00; }
+  a { color: #111; text-decoration: none; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="../" class="nav-brand" aria-label="987NES">
+    <img src="../favicon.png" alt="" width="40" height="40">
+    <span class="nav-brand-text">987<span class="y">NES</span></span>
+  </a>
+  <a href="../" class="nav-back"><span data-l="en">← Back to 987nes.com</span><span data-l="fr">← Retour sur 987nes.com</span><span data-l="es">← Volver a 987nes.com</span></a>
+  <div class="nav-right">
+    <div>
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('fr')">FR</button>
+      <button class="lang-btn" onclick="setLang('es')">ES</button>
+    </div>
+    <a href="https://raydium.io/swap/?inputMint=DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t&outputMint=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" class="btn-nav-buy" target="_blank" rel="noopener">
+      <span data-l="en">⚡ Buy $NES</span><span data-l="fr">⚡ Acheter</span><span data-l="es">⚡ Comprar</span>
+    </a>
+  </div>
+</nav>
+
+<header class="wp-hero">
+  <div class="inner">
+    <p class="lbl"><span data-l="en">Official document · Version 3 · September 2026</span><span data-l="fr">Document officiel · Version 3 · Septembre 2026</span><span data-l="es">Documento oficial · Versión 3 · Septiembre 2026</span></p>
+    <h1>White Paper<br><span class="y">987NES.</span></h1>
+    <p class="wp-slogan">
+      <span data-l="en"><strong>Pure, unapologetic speculation.</strong> Slogan: Pump it. Flip it. Own it.</span>
+      <span data-l="fr"><strong>Spéculation pure et assumée.</strong> Slogan : Pump it. Flip it. Own it.</span>
+      <span data-l="es"><strong>Especulación pura y asumida.</strong> Slogan: Pump it. Flip it. Own it.</span>
+    </p>
+    <div class="wp-badges">
+      <span class="badge"><span class="y">100%</span> <span data-l="en">Speculative</span><span data-l="fr">Spéculatif</span><span data-l="es">Especulativo</span></span>
+      <span class="badge"><span class="y">0%</span> <span data-l="en">Shame</span><span data-l="fr">Honte</span><span data-l="es">Vergüenza</span></span>
+      <span class="badge"><span class="y">0%</span> <span data-l="en">Tax</span><span data-l="fr">Taxe</span><span data-l="es">Tax</span></span>
+      <span class="badge">LP <span class="y">Locked</span></span>
+    </div>
+    <div class="wp-meta">
+      <span>$NES · Solana</span><span>Fribourg · Switzerland</span><span><span data-l="en">Born</span><span data-l="fr">Né le</span><span data-l="es">Nacido el</span> 16.10.2025</span>
+    </div>
+  </div>
+</header>
+
+<div class="wp-wrap">
+  <aside class="toc">
+    <p class="lbl"><span data-l="en">Contents</span><span data-l="fr">Sommaire</span><span data-l="es">Contenido</span></p>
+    <ol>
+      <li><a href="#summary"><span data-l="en">Executive summary</span><span data-l="fr">Résumé exécutif</span><span data-l="es">Resumen ejecutivo</span></a></li>
+      <li><a href="#why"><span data-l="en">Why 987NES?</span><span data-l="fr">Pourquoi 987NES ?</span><span data-l="es">¿Por qué 987NES?</span></a></li>
+      <li><a href="#switzerland"><span data-l="en">Why Switzerland?</span><span data-l="fr">Pourquoi la Suisse ?</span><span data-l="es">¿Por qué Suiza?</span></a></li>
+      <li><a href="#vision"><span data-l="en">Vision &amp; mission</span><span data-l="fr">Vision &amp; mission</span><span data-l="es">Visión y misión</span></a></li>
+      <li><a href="#tokenomics">Tokenomics</a></li>
+      <li><a href="#objective"><span data-l="en">Objective</span><span data-l="fr">Objectif</span><span data-l="es">Objetivo</span></a></li>
+      <li><a href="#risks"><span data-l="en">Risks</span><span data-l="fr">Risques</span><span data-l="es">Riesgos</span></a></li>
+      <li><a href="#legacy"><span data-l="en">Expected legacy</span><span data-l="fr">Héritage attendu</span><span data-l="es">Legado esperado</span></a></li>
+      <li><a href="#disclaimer"><span data-l="en">Legal disclaimer</span><span data-l="fr">Disclaimer légal</span><span data-l="es">Descargo legal</span></a></li>
+      <li><a href="#conclusion">Conclusion</a></li>
+    </ol>
+    <div class="toc-print"><button type="button" class="btn-print" onclick="window.print()"><span data-l="en">🖨 Print / Save as PDF</span><span data-l="fr">🖨 Imprimer / Enregistrer en PDF</span><span data-l="es">🖨 Imprimir / Guardar en PDF</span></button></div>
+  </aside>
+
+  <!-- ===================== ENGLISH ===================== -->
+  <article class="bl en" lang="en">
+    <section id="summary">
+      <h2>Executive <span class="y">summary.</span></h2>
+      <p>Memecoins are pure bullshit: dogs, frogs, bananas worth billions, powered by collective energy while you're still broke in 2026, doom-scrolling rugs.</p>
+    </section>
+    <section id="why">
+      <h2>Why <span class="y">987NES?</span></h2>
+      <p>We push the madness to the max: zero utility (okay… not for long), zero promises, zero mercy. Just a token with a blue monster roasting you live while you panic and, once again, watch the train leave without you.</p>
+      <p><strong>Buy, hodl, sell, but don't miss it,</strong> or you'll regret it again.</p>
+      <p>LP locked day 1. Swiss precision. "We don't care, power 987." This is pure degen speculation.</p>
+      <p>It's an honest speculative experience: we embrace the void and honesty to celebrate human madness.</p>
+    </section>
+    <section id="switzerland">
+      <h2>Why <span class="y">Switzerland?</span></h2>
+      <p>For the style: neutrality, precision, Swiss trust… even when it's 100% absurd. Like a luxury watch that does nothing but hits hard. We put Swiss varnish on chaos so it stays honest and almost looks respectable.</p>
+    </section>
+    <section id="vision">
+      <h2>Vision &amp; <span class="y">mission.</span></h2>
+      <h3>Vision</h3>
+      <p>Become the most speculated memecoin in the world, proving the useless can shine through humor and community.</p>
+      <p>No lies, no absurd promises: just Swiss "watch-grade" bluff and hype in controlled skid mode all the way to the moon.</p>
+      <h3>Mission</h3>
+      <p>Offer a transparent degen adventure, no fake narrative, just cynical fun and serious potential.</p>
+    </section>
+    <section id="tokenomics">
+      <h2>Tokenomics <span class="y">(fully owned).</span></h2>
+      <p><strong>Total supply: 987 654 321 NES</strong> (987654321 is kinda cute, admit it).</p>
+      <div class="tokenomics">
+        <div class="tk"><div class="n">70%</div><div class="t">Market</div><div class="s">Thrown straight into the lion pit. Fight for it, there won't be enough for everyone.</div></div>
+        <div class="tk"><div class="n">20%</div><div class="t">Founders</div><div class="s">Locked until October 16, 2027. We take our cut, but we can't sell it before you.</div></div>
+        <div class="tk"><div class="n">10%</div><div class="t">Marketing</div><div class="s">Noise on X, TikTok, Insta to attract more degen bagholders.</div></div>
+      </div>
+      <p><strong>Burn:</strong> yeah, we'll burn for more scarcity and more speculative insanity. Some idiots already burned a few tokens.</p>
+      <div class="ca"><span>Contract address · Solana</span>DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t</div>
+      <p><strong>Zero tax. Zero blacklist.</strong> Total cynical freedom.</p>
+    </section>
+    <section id="objective">
+      <h2>The <span class="y">objective.</span></h2>
+      <p>Massive pump because <strong>you</strong> are the fuel: creative degens who take nothing, shake it violently, and turn it into a trend. We respect this generation: it bets on the improbable with a mix of cynicism, irony, and toxic faith in "it'll bounce."</p>
+      <p>And no, we're not "hard" on degens. We speak their language. Dark humor is just a bulletproof vest: underneath, it's pure admiration. Because let's be serious for two seconds: who else would turn a simple countdown into a collective frenzy… then a speculative revolution?</p>
+      <div class="pull">Final target: $1 / NES.</div>
+      <p>Not because it's "reasonable". Because it's absurd, and in crypto, absurd is often what performs. Pure FOMO. Organized madness.</p>
+    </section>
+    <section id="risks">
+      <h2>Risks <span class="y">(we'll tell you straight).</span></h2>
+      <ul>
+        <li><strong>Risk 1:</strong> you can lose everything, but at least it was fun.</li>
+        <li><strong>Risk 2:</strong> you can win big… but sell at the worst possible moment (classic degen).</li>
+        <li><strong>Risk 3:</strong> $NES drives everyone crazy, it pumps to the moon. We need to invent utility fast.</li>
+      </ul>
+    </section>
+    <section id="legacy">
+      <h2>Expected legacy: from joke to <span class="y">legend.</span></h2>
+      <ul>
+        <li>Breakdowns in crypto podcasts about "the bubble of nothing".</li>
+        <li>Mentions in behavioral economics theses.</li>
+        <li>Maybe a doc: "987NES: How Absurdity Conquered the Charts".</li>
+      </ul>
+      <p>We're the most honest memecoin in the game: others sell you dreams, we sell you the truth in HD and we charge admission.</p>
+    </section>
+    <section id="disclaimer">
+      <h2>Legal <span class="y">disclaimer.</span></h2>
+      <div class="disclaimer"><p>This is not an investment, not a financial security, not a promise. It's a voluntary speculative experience, inspired by Swiss trust applied to the intangible. Join if you dare and if you enjoy irony.</p></div>
+    </section>
+    <section id="conclusion">
+      <h2>Conclusion: buy it or <span class="y">regret it.</span></h2>
+      <p>987NES isn't a promise: it's a blue monster dominating the degen game. Unique, never tried: a Swiss-calibrated speculative bomb, built to wreck you or make you very rich.</p>
+      <div class="mottos"><span>Swiss Precision. <span class="y">Memecoin Revolution.</span></span><span>Swiss Precision. <span class="y">Degen Domination.</span></span></div>
+      <div class="wp-end"><a class="btn-primary" href="../#how-to-buy">How to buy $NES →</a><a class="btn-secondary" href="../">Back to 987nes.com</a></div>
+    </section>
+  </article>
+
+  <!-- ===================== FRANÇAIS ===================== -->
+  <article class="bl fr" lang="fr" style="display:none">
+    <section id="summary-fr">
+      <h2>Résumé <span class="y">exécutif.</span></h2>
+      <p>Les memecoins, c'est du bullshit pur : des chiens, des grenouilles, des bananes qui valent des milliards, portés par l'énergie collective pendant que toi, en 2026, t'es encore broke à scroller des rugs.</p>
+    </section>
+    <section id="why-fr">
+      <h2>Pourquoi <span class="y">987NES ?</span></h2>
+      <p>On pousse le délire au max : zéro utilité (enfin… c'est bientôt plus tout à fait le cas), zéro promesse, zéro pitié. Juste un token avec un monstre bleu qui te roast live pendant que tu flippes et que tu regardes, une fois de plus, le train partir sans toi.</p>
+      <p><strong>Achète, hodl, vends, mais ne passe pas à côté,</strong> sinon tu vas encore le regretter.</p>
+      <p>LP locked day 1. Swiss precision, « mais on s'en fout puissance 987 » : c'est de la pure spéculation degen.</p>
+      <p>C'est une expérience spéculative honnête : on assume le vide et l'honnêteté pour célébrer la folie humaine.</p>
+    </section>
+    <section id="switzerland-fr">
+      <h2>Pourquoi la <span class="y">Suisse ?</span></h2>
+      <p>Pour le style : neutralité, précision, confiance helvétique… même quand c'est 100 % absurde. Comme une montre de luxe qui ne sert à rien, mais qui claque. On met un vernis suisse sur le chaos pour que ce soit honnête et que ça ait l'air presque respectable.</p>
+    </section>
+    <section id="vision-fr">
+      <h2>Vision &amp; <span class="y">mission.</span></h2>
+      <h3>Vision</h3>
+      <p>Devenir le memecoin le plus spéculé au monde, en prouvant que l'inutile peut briller grâce à l'humour et à la communauté.</p>
+      <p>Pas de mensonges, pas de promesses absurdes : juste du bluff suisse « qualité horlogerie » et du hype en mode dérapage contrôlé jusqu'à la lune.</p>
+      <h3>Mission</h3>
+      <p>Offrir une aventure degen transparente, sans narratif trompeur, juste du fun cynique et un gros potentiel.</p>
+    </section>
+    <section id="tokenomics-fr">
+      <h2>Tokenomics <span class="y">assumés.</span></h2>
+      <p><strong>Supply totale : 987 654 321 NES</strong> (le 987654321 c'est cute, avoue).</p>
+      <div class="tokenomics">
+        <div class="tk"><div class="n">70%</div><div class="t">Marché</div><div class="s">Jetés direct dans la fosse aux lions. Battez-vous, y en aura pas pour tout le monde.</div></div>
+        <div class="tk"><div class="n">20%</div><div class="t">Fondateurs</div><div class="s">Verrouillés jusqu'au 16 octobre 2027. On prend notre part, mais on ne peut pas la vendre avant vous.</div></div>
+        <div class="tk"><div class="n">10%</div><div class="t">Marketing</div><div class="s">Buzz sur X, TikTok, Insta pour attirer plus de degen bagholders.</div></div>
+      </div>
+      <p><strong>Burn :</strong> ouais, on brûlera pour plus de rareté et de folie spéculative. Certains débiles ont déjà cramé quelques tokens.</p>
+      <div class="ca"><span>Contract address · Solana</span>DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t</div>
+      <p><strong>Zéro taxe. Zéro blacklist.</strong> Liberté cynique totale.</p>
+    </section>
+    <section id="objective-fr">
+      <h2>L'<span class="y">objectif.</span></h2>
+      <p>Pump massif parce que <strong>vous</strong> êtes le carburant : les degens créatifs capables de prendre du vide, de le secouer très fort, et d'en faire un trend. Cette génération, on la respecte : elle parie sur l'improbable avec un mélange de cynisme, d'ironie et de foi toxique dans « ça va remonter ».</p>
+      <p>Et non, on n'est pas « durs » avec les degens. On parle leur langue. L'humour noir, c'est juste un gilet pare-balles : derrière, c'est de l'admiration pure. Parce que soyons sérieux deux secondes : qui d'autre aurait l'idée de transformer un simple countdown en délire collectif… puis en révolution spéculative ?</p>
+      <div class="pull">Objectif final : 1 $ / NES.</div>
+      <p>Pas parce que c'est « raisonnable ». Parce que c'est absurde et qu'en crypto, l'absurde est souvent ce qui performe. Pure force de FOMO. Pure folie organisée.</p>
+    </section>
+    <section id="risks-fr">
+      <h2>Risques <span class="y">(on te les dit cash).</span></h2>
+      <ul>
+        <li><strong>Risque 1 :</strong> tu peux tout perdre, mais au moins c'était fun.</li>
+        <li><strong>Risque 2 :</strong> tu peux gagner gros… mais vendre au mauvais moment (classique degen).</li>
+        <li><strong>Risque 3 :</strong> $NES rend tout le monde fou, ça pump to the moon. On doit inventer une utilité vite.</li>
+      </ul>
+    </section>
+    <section id="legacy-fr">
+      <h2>Héritage attendu : de la blague à la <span class="y">légende.</span></h2>
+      <ul>
+        <li>Analyses dans des podcasts crypto sur « la bulle du rien ».</li>
+        <li>Mentions dans des thèses d'économie comportementale.</li>
+        <li>Peut-être un docu : « 987NES : comment l'absurde a conquis les charts ».</li>
+      </ul>
+      <p>On est le memecoin le plus honnête du game : les autres te vendent du rêve, nous on te vend la vérité en HD et on te fait payer l'entrée.</p>
+    </section>
+    <section id="disclaimer-fr">
+      <h2>Disclaimer <span class="y">légal.</span></h2>
+      <div class="disclaimer"><p>Ceci n'est pas un investissement, ni un titre financier, ni une promesse. C'est une expérience spéculative volontaire, inspirée de la confiance helvétique appliquée à l'intangible. Participe si tu oses et que tu kiffes l'ironie.</p></div>
+    </section>
+    <section id="conclusion-fr">
+      <h2>Conclusion : buy it or <span class="y">regret it.</span></h2>
+      <p>987NES n'est pas une promesse : c'est un monstre bleu qui domine le degen game. Unique, jamais tenté : une bombe suisse de spéculation, calibrée pour te détruire ou te rendre très riche.</p>
+      <div class="mottos"><span>Swiss Precision. <span class="y">Memecoin Revolution.</span></span><span>Swiss Precision. <span class="y">Degen Domination.</span></span></div>
+      <div class="wp-end"><a class="btn-primary" href="../#how-to-buy">Comment acheter $NES →</a><a class="btn-secondary" href="../">Retour sur 987nes.com</a></div>
+    </section>
+  </article>
+
+  <!-- ===================== ESPAÑOL ===================== -->
+  <article class="bl es" lang="es" style="display:none">
+    <section id="summary-es">
+      <h2>Resumen <span class="y">ejecutivo.</span></h2>
+      <p>Los memecoins son puro bullshit: perros, ranas, bananas que valen miles de millones, impulsados por la energía colectiva… mientras tú, en 2026, sigues broke haciendo scroll a rugs.</p>
+    </section>
+    <section id="why-es">
+      <h2>¿Por qué <span class="y">987NES?</span></h2>
+      <p>Llevamos la locura al máximo: cero utilidad (bueno… ya no por mucho), cero promesas, cero piedad. Solo un token con un monstruo azul que te roastea en vivo mientras entras en pánico y, otra vez, ves el tren irse sin ti.</p>
+      <p><strong>Compra, hodl, vende… pero no lo dejes pasar,</strong> o lo vas a volver a lamentar.</p>
+      <p>LP locked day 1. Swiss precision. «Nos da igual, potencia 987». Esto es especulación degen en estado puro.</p>
+      <p>Es una experiencia especulativa honesta: asumimos el vacío y la honestidad radical para celebrar la locura humana.</p>
+    </section>
+    <section id="switzerland-es">
+      <h2>¿Por qué <span class="y">Suiza?</span></h2>
+      <p>Por el estilo: neutralidad, precisión y confianza suiza… incluso cuando es 100% absurdo. Como un reloj de lujo que no sirve para nada, pero pega fuerte. Le ponemos barniz suizo al caos para que sea honesto y casi parezca respetable.</p>
+    </section>
+    <section id="vision-es">
+      <h2>Visión y <span class="y">misión.</span></h2>
+      <h3>Visión</h3>
+      <p>Convertirnos en el memecoin más especulado del mundo, demostrando que lo inútil puede brillar gracias al humor y a la comunidad.</p>
+      <p>Sin mentiras, sin promesas absurdas: puro bluff suizo «calidad relojera» y hype en modo derrape controlado hasta la luna.</p>
+      <h3>Misión</h3>
+      <p>Ofrecer una aventura degen transparente, sin narrativa engañosa: puro fun cínico y un potencial serio.</p>
+    </section>
+    <section id="tokenomics-es">
+      <h2>Tokenomics <span class="y">asumida.</span></h2>
+      <p><strong>Supply total: 987 654 321 NES</strong> (vamos… el 987654321 es cute, admítelo).</p>
+      <div class="tokenomics">
+        <div class="tk"><div class="n">70%</div><div class="t">Mercado</div><div class="s">Tirados directo al foso de los leones. Péguense: no va a alcanzar para todos.</div></div>
+        <div class="tk"><div class="n">20%</div><div class="t">Founders</div><div class="s">Bloqueados hasta el 16 de octubre de 2027. Tomamos nuestra parte, pero no podemos venderla antes que tú.</div></div>
+        <div class="tk"><div class="n">10%</div><div class="t">Marketing</div><div class="s">Ruido en X, TikTok, Insta para atraer más degen bagholders.</div></div>
+      </div>
+      <p><strong>Burn:</strong> sí, vamos a quemar para más escasez y más locura especulativa. Algunos idiotas ya quemaron unos cuantos tokens.</p>
+      <div class="ca"><span>Dirección del contrato · Solana</span>DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t</div>
+      <p><strong>Cero tax. Cero blacklist.</strong> Libertad cínica total.</p>
+    </section>
+    <section id="objective-es">
+      <h2>El <span class="y">objetivo.</span></h2>
+      <p>Pump masivo porque <strong>ustedes</strong> son el combustible: degens creativos capaces de agarrar el vacío, sacudirlo muy fuerte y convertirlo en tendencia. A esta generación la respetamos: apuesta por lo improbable con una mezcla de cinismo, ironía y fe tóxica en «va a rebotar».</p>
+      <p>Y no, no somos «duros» con los degens. Hablamos su idioma. El humor negro es solo un chaleco antibalas: debajo hay admiración pura. Porque seamos serios dos segundos: ¿quién más tendría la idea de convertir un simple countdown en delirio colectivo… y luego en revolución especulativa?</p>
+      <div class="pull">Objetivo final: 1 $ / NES.</div>
+      <p>No porque sea «razonable». Porque es absurdo y, en crypto, lo absurdo suele rendir. Pura fuerza de FOMO. Pura locura organizada.</p>
+    </section>
+    <section id="risks-es">
+      <h2>Riesgos <span class="y">(te lo decimos sin filtro).</span></h2>
+      <ul>
+        <li><strong>Riesgo 1:</strong> puedes perderlo todo, pero al menos fue divertido.</li>
+        <li><strong>Riesgo 2:</strong> puedes ganar en grande… y vender en el peor momento (clásico degen).</li>
+        <li><strong>Riesgo 3:</strong> $NES vuelve loco a todo el mundo y pumpea to the moon. Hay que inventar utilidad rápido.</li>
+      </ul>
+    </section>
+    <section id="legacy-es">
+      <h2>Legado esperado: de la broma a la <span class="y">leyenda.</span></h2>
+      <ul>
+        <li>Análisis en podcasts crypto sobre «la burbuja de la nada».</li>
+        <li>Menciones en tesis de economía conductual.</li>
+        <li>Quizá un docu: «987NES: cómo el absurdo conquistó los charts».</li>
+      </ul>
+      <p>Somos el memecoin más honesto del game: los otros te venden sueños; nosotros te vendemos la verdad en HD y te cobramos la entrada.</p>
+    </section>
+    <section id="disclaimer-es">
+      <h2>Descargo <span class="y">legal.</span></h2>
+      <div class="disclaimer"><p>Esto no es una inversión, ni un valor financiero, ni una promesa. Es una experiencia especulativa voluntaria, inspirada en la confianza suiza aplicada a lo intangible. Entra si te atreves y si te gusta la ironía.</p></div>
+    </section>
+    <section id="conclusion-es">
+      <h2>Conclusión: buy it or <span class="y">regret it.</span></h2>
+      <p>987NES no es una promesa: es un monstruo azul que domina el degen game. Único, nunca intentado: una bomba suiza de especulación, calibrada para destruirte… o para hacerte muy rico.</p>
+      <div class="mottos"><span>Swiss Precision. <span class="y">Memecoin Revolution.</span></span><span>Swiss Precision. <span class="y">Degen Domination.</span></span></div>
+      <div class="wp-end"><a class="btn-primary" href="../#how-to-buy">Cómo comprar $NES →</a><a class="btn-secondary" href="../">Volver a 987nes.com</a></div>
+    </section>
+  </article>
+</div>
+
+<footer>
+  <span>© 2025–2026 987NES · Fribourg · Switzerland</span>
+  <span><a href="../">987nes.com</a> · <a href="https://t.me/NES_987" target="_blank" rel="noopener">Telegram</a> · <a href="https://x.com/987_nes" target="_blank" rel="noopener">X</a> · <a href="mailto:info@987nes.com">info@987nes.com</a></span>
+</footer>
+
+<script>
+function setLang(l, push) {
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent.trim().toLowerCase() === l));
+  document.querySelectorAll('[data-l]').forEach(el => { el.style.display = el.getAttribute('data-l') === l ? 'inline' : 'none'; });
+  document.querySelectorAll('.bl').forEach(el => { el.style.display = el.classList.contains(l) ? 'block' : 'none'; });
+  document.documentElement.lang = l;
+  try { localStorage.setItem('nes_lang', l); } catch (e) {}
+  if (push !== false) { try { history.replaceState(null, '', '?lang=' + l + location.hash); } catch (e) {} }
+  // table of contents points at the section of the active language
+  document.querySelectorAll('.toc a').forEach(a => {
+    var base = a.getAttribute('href').replace(/-(fr|es)$/, '');
+    a.setAttribute('href', l === 'en' ? base : base + '-' + l);
+  });
+}
+(function () {
+  var q = new URLSearchParams(location.search).get('lang');
+  var saved = null; try { saved = localStorage.getItem('nes_lang'); } catch (e) {}
+  var nav = (navigator.language || 'en').slice(0, 2);
+  var l = ['en','fr','es'].indexOf(q) >= 0 ? q : (['en','fr','es'].indexOf(saved) >= 0 ? saved : (['fr','es'].indexOf(nav) >= 0 ? nav : 'en'));
+  setLang(l, !!q);
+})();
+</script>
+</body>
+</html>

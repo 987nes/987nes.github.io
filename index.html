@@ -1159,6 +1159,13 @@ section { position: relative; z-index: 1; }
 
 .wp-btns { display: flex; flex-direction: column; gap: 12px; }
 
+.wp-note {
+  font-family: var(--body);
+  font-size: 0.72rem;
+  letter-spacing: 0.5px;
+  color: var(--gray);
+  margin-top: 12px;
+}
 .wp-btn {
   font-family: var(--body);
   font-size: 0.72rem;
@@ -3435,15 +3442,14 @@ footer {
         </p>
       </div>
       <div class="wp-btns">
-        <a href="https://raw.githubusercontent.com/987nes/misc/main/987NES-whitepaper-EN-V2.pdf" class="wp-btn" target="_blank">
-          <span>📄 Whitepaper EN</span><span>→</span>
+        <a href="whitepaper/" class="wp-btn" data-wp>
+          <span><span data-l="en">📄 Read the Whitepaper</span><span data-l="fr">📄 Lire le Whitepaper</span><span data-l="es">📄 Leer el Whitepaper</span></span><span>→</span>
         </a>
-        <a href="https://raw.githubusercontent.com/987nes/misc/main/987NES-whitepaper-FR-V2.pdf" class="wp-btn" target="_blank">
-          <span>📄 Whitepaper FR</span><span>→</span>
-        </a>
-        <a href="https://raw.githubusercontent.com/987nes/misc/main/987NES-whitepaper-ES-V2.pdf" class="wp-btn" target="_blank">
-          <span>📄 Whitepaper ES</span><span>→</span>
-        </a>
+        <p class="wp-note">
+          <span data-l="en">Web version · EN, FR, ES · printable as PDF from the page</span>
+          <span data-l="fr">Version web · EN, FR, ES · imprimable en PDF depuis la page</span>
+          <span data-l="es">Versión web · EN, FR, ES · imprimible en PDF desde la página</span>
+        </p>
       </div>
     </div>
   </div>
@@ -3585,9 +3591,7 @@ footer {
       <div class="f-col">
         <h3>Docs</h3>
         <ul>
-          <li><a href="https://raw.githubusercontent.com/987nes/misc/main/987NES-whitepaper-EN-V2.pdf" target="_blank">Whitepaper EN</a></li>
-          <li><a href="https://raw.githubusercontent.com/987nes/misc/main/987NES-whitepaper-FR-V2.pdf" target="_blank">Whitepaper FR</a></li>
-          <li><a href="https://raw.githubusercontent.com/987nes/misc/main/987NES-whitepaper-ES-V2.pdf" target="_blank">Whitepaper ES</a></li>
+          <li><a href="whitepaper/?lang=en" data-wp>Whitepaper</a></li>
           <li><a href="mailto:info@987nes.com">info@987nes.com</a></li>
         </ul>
       </div>
@@ -3621,8 +3625,13 @@ function setLang(l) {
     el.style.display = el.classList.contains(l) ? 'block' : 'none';
   });
   document.documentElement.lang = l;
+  document.querySelectorAll('a[data-wp]').forEach(a => { a.href = 'whitepaper/?lang=' + l; });
+  try { localStorage.setItem('nes_lang', l); } catch (e) {}
 }
-setLang('en');
+(function () {
+  var saved = null; try { saved = localStorage.getItem('nes_lang'); } catch (e) {}
+  setLang(['en', 'fr', 'es'].indexOf(saved) >= 0 ? saved : 'en');
+})();
 
 const obs = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
