@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- PRIMARY SEO -->
-<title>Swiss Memecoin on Solana | 987NES ($NES) - Memecoin Suisse - Born in Fribourg</title>
-<meta name="description" content="987NES ($NES) is the Swiss Memecoin built on Solana. Born in Fribourg, Switzerland. Le memecoin suisse. LP locked. Team doxxed. 987 654 321 tokens. Meet DZO.">
-<meta name="keywords" content="Swiss memecoin, memecoin suisse, memecoin suizo, Solana memecoin, 987NES, NineEightSeven, $NES, DZO, crypto Fribourg, crypto Switzerland, how to buy 987NES, how to buy NES, buy NES Solana, comment acheter NES, como comprar NES, Phantom wallet guide">
+<title>987NES ($NES) · Swiss Memecoin on Solana · Memecoin Suisse</title>
+<meta name="description" content="987NES ($NES) is the Swiss memecoin on Solana, born in Fribourg. Mascot: DZÔ (DZO), the blue monster. 987,654,321 supply, 0% tax, LP locked, team doxxed.">
+<meta name="keywords" content="Swiss memecoin, memecoin suisse, memecoin suizo, Solana memecoin, 987NES, NineEightSeven, $NES, DZÔ, DZO, DZO memecoin, blue monster mascot, crypto Fribourg, crypto Switzerland, how to buy 987NES, how to buy NES, buy NES Solana, comment acheter NES, como comprar NES, Phantom wallet guide">
 <meta name="author" content="987NES Team">
 <link rel="canonical" href="https://987nes.com/">
 
@@ -20,7 +20,7 @@
 <meta property="og:url" content="https://987nes.com/">
 <meta property="og:site_name" content="987NES">
 <meta property="og:title" content="Swiss Memecoin on Solana | 987NES ($NES) - Born in Fribourg, Switzerland">
-<meta property="og:description" content="The Swiss Memecoin. Le Memecoin Suisse. Born in Fribourg. Built on Solana. LP locked. Team doxxed. 987 654 321 tokens. Meet DZO.">
+<meta property="og:description" content="The Swiss memecoin on Solana, born in Fribourg. Mascot: DZÔ (DZO), the blue monster. 987,654,321 $NES, 0% tax, LP locked, team doxxed.">
 <meta property="og:image" content="https://987nes.com/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -33,7 +33,7 @@
 <meta name="twitter:site" content="@987_nes">
 <meta name="twitter:creator" content="@987_nes">
 <meta name="twitter:title" content="Swiss Memecoin on Solana | 987NES ($NES) - Born in Fribourg, Switzerland">
-<meta name="twitter:description" content="The Swiss Memecoin. Le Memecoin Suisse. Born in Fribourg. Built on Solana. LP locked. Team doxxed. 987 654 321 tokens. Meet DZO.">
+<meta name="twitter:description" content="The Swiss memecoin on Solana, born in Fribourg. Mascot: DZÔ (DZO), the blue monster. 987,654,321 $NES, 0% tax, LP locked, team doxxed.">
 <meta name="twitter:image" content="https://987nes.com/og-image.jpg">
 
 <!-- HREFLANG (multilingual) -->
@@ -336,6 +336,7 @@ nav {
 .hero-title {
   font-family: var(--display);
   font-size: clamp(5rem, 13vw, 16rem);
+  font-weight: 700;                /* kept from its former <h1> styling */
   line-height: 0.82;
   letter-spacing: -3px;
   color: var(--white);
@@ -559,6 +560,7 @@ nav {
   animation: tick 26s linear infinite;
 }
 .hype-banner:hover .hype-track { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .hype-track, .ticker-track { animation: none; } }
 .hype-item {
   display: flex;
   align-items: center;
@@ -1383,7 +1385,7 @@ footer {
 }
 
 /* Off-screen sections are laid out only when they approach the viewport (big CPU saving on mobile) */
-#story, #token, #team, #how-to-buy, #dzo, #whitepaper, #community, footer {
+#story, #token, #team, #how-to-buy, #dzo, #whitepaper, #faq, #community, footer {
   content-visibility: auto;
   contain-intrinsic-size: auto 900px;
 }
@@ -2040,79 +2042,46 @@ footer {
   .news-tagline { font-size: 0.85rem; letter-spacing: 3px; }
 }
 
-/* ===== ARCADE TEASER ===== */
-#arcade { padding: 80px 0; background: var(--black); }
-.arcade-card {
-  max-width: 1000px;
-  margin: 0 auto;
+/* ===== FAQ (visible mirror of the FAQPage JSON-LD: keep both in sync) ===== */
+#faq { background: var(--black); border-top: 1px solid rgba(14,95,160,0.15); }
+.faq-grid {
   display: grid;
-  grid-template-columns: 0.8fr 1.2fr;
-  gap: 36px;
-  align-items: center;
-  padding: 44px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, rgba(14,95,160,0.12) 0%, rgba(240,208,32,0.06) 100%);
-  border: 1px solid rgba(14,95,160,0.25);
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 44px;
 }
-.arcade-visual {
-  position: relative;
-  aspect-ratio: 1;
+.faq-item {
+  background: var(--dark);
+  border: 1px solid rgba(14,95,160,0.22);
   border-radius: 14px;
-  background:
-    radial-gradient(circle at 50% 40%, rgba(14,95,160,0.35), transparent 70%),
-    var(--dark);
-  border: 1px solid rgba(14,95,160,0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+  padding: 28px 28px 24px;
 }
-.arcade-visual img { width: 70%; filter: drop-shadow(0 10px 24px rgba(0,0,0,0.5)); }
-.arcade-badge {
-  position: absolute;
-  top: 12px; left: 12px;
+.faq-item:last-child:nth-child(odd) { grid-column: 1 / -1; }   /* odd count: last card spans the row */
+.faq-item h3 {
   font-family: var(--body);
-  font-size: 0.62rem;
-  font-weight: 800;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--black);
-  background: var(--nes-yellow);
-  padding: 5px 11px;
-  border-radius: 6px;
-}
-.arcade-eyebrow {
-  font-family: var(--body);
-  font-size: var(--fs-2xs);
+  font-size: 1.05rem;
   font-weight: 700;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--nes-yellow);
-  margin-bottom: 14px;
-}
-.arcade-title {
-  font-family: var(--display);
-  font-size: var(--fs-3xl);
-  letter-spacing: 2px;
-  line-height: 1;
+  line-height: 1.4;
   color: var(--white);
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
-.arcade-title .y { color: var(--nes-yellow); }
-.arcade-desc {
-  font-family: var(--body);
-  font-size: var(--fs-sm);
-  line-height: 1.7;
+.faq-item p {
+  font-size: 0.95rem;
+  line-height: 1.75;
   color: var(--offwhite);
-  margin-bottom: 24px;
-  max-width: 460px;
 }
+.faq-item a { color: var(--nes-yellow); }
+.faq-item code {
+  font-family: var(--code);
+  font-size: 0.78em;
+  color: var(--nes-yellow);
+  word-break: break-all;
+}
+.dzo-more { margin-top: 22px; }
 @media (max-width: 768px) {
-  #arcade { padding: 56px 0; }
-  .arcade-card { grid-template-columns: 1fr; padding: 26px; gap: 24px; text-align: center; }
-  .arcade-visual { max-width: 240px; margin: 0 auto; }
-  .arcade-desc { margin-left: auto; margin-right: auto; }
-  .arcade-title { font-size: 2.4rem; }
+  .faq-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 32px; }
+  .faq-item { padding: 22px 18px 18px; }
+  .faq-item h3 { font-size: 1rem; }
 }
 
 /* ===== TEAM ===== */
@@ -2264,18 +2233,38 @@ footer {
   "@graph": [
     {
       "@type": "Organization",
+      "@id": "https://987nes.com/#organization",
       "name": "987NES",
-      "alternateName": "NineEightSeven",
-      "url": "https://987nes.com",
-      "logo": "https://987nes.com/favicon.png",
+      "alternateName": "987 NES",
+      "url": "https://987nes.com/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://987nes.com/favicon.png",
+        "width": 256,
+        "height": 256
+      },
       "image": "https://987nes.com/og-image.jpg",
-      "description": "987NES ($NES) is the Swiss Memecoin built on Solana. Le memecoin suisse. El memecoin suizo. Born in Fribourg, Switzerland. LP locked. Team doxxed. 987 654 321 tokens.",
+      "description": "987NES is a Swiss memecoin project born in Fribourg, Switzerland, on October 16, 2025; 987NES is also its domain name and its name on X and Instagram. Its token is NineEightSeven (acronym and ticker NES, written $NES) on the Solana blockchain, and its mascot is DZÔ (also written DZO), the blue monster. LP locked, team doxxed, 987,654,321 tokens.",
+      "slogan": "Execution over promise.",
+      "foundingDate": "2025-10-16",
       "foundingLocation": {
         "@type": "Place",
-        "name": "Fribourg, Switzerland"
+        "name": "Fribourg, Switzerland",
+        "sameAs": ["https://www.wikidata.org/wiki/Q36378", "https://en.wikipedia.org/wiki/Fribourg"]
       },
+      "founder": [
+        { "@id": "https://987nes.com/#dom" },
+        { "@id": "https://987nes.com/#paco" }
+      ],
+      "member": [
+        { "@id": "https://987nes.com/#dom" },
+        { "@id": "https://987nes.com/#paco" },
+        { "@id": "https://987nes.com/#flavien" },
+        { "@id": "https://987nes.com/#luis" }
+      ],
       "sameAs": [
         "https://x.com/987_nes",
+        "https://www.instagram.com/987_nes/",
         "https://t.me/NES_987",
         "https://t.me/NES_987_Chat",
         "https://www.linkedin.com/company/987nes",
@@ -2284,52 +2273,107 @@ footer {
     },
     {
       "@type": "Person",
+      "@id": "https://987nes.com/#dom",
       "name": "Dom",
       "jobTitle": "Co-founder, Tech Lead & Developer",
-      "worksFor": { "@type": "Organization", "name": "987NES" },
+      "worksFor": { "@id": "https://987nes.com/#organization" },
       "sameAs": ["https://www.linkedin.com/in/dominique-schaerli-5a4806bb/"]
     },
     {
       "@type": "Person",
+      "@id": "https://987nes.com/#paco",
       "name": "Paco",
       "jobTitle": "Co-founder, Head of Marketing",
-      "worksFor": { "@type": "Organization", "name": "987NES" }
+      "worksFor": { "@id": "https://987nes.com/#organization" }
     },
     {
       "@type": "Person",
+      "@id": "https://987nes.com/#flavien",
       "name": "Flavien",
       "jobTitle": "Head of Business Development",
-      "worksFor": { "@type": "Organization", "name": "987NES" },
+      "worksFor": { "@id": "https://987nes.com/#organization" },
       "sameAs": ["https://www.linkedin.com/in/flavien-nivelle-351a42a2/"]
     },
     {
       "@type": "Person",
+      "@id": "https://987nes.com/#luis",
       "name": "Luis",
       "jobTitle": "Technical Advisor",
-      "worksFor": { "@type": "Organization", "name": "987NES" }
+      "worksFor": { "@id": "https://987nes.com/#organization" }
+    },
+    {
+      "@type": "Thing",
+      "@id": "https://987nes.com/#nes",
+      "name": "NineEightSeven",
+      "alternateName": ["NES", "$NES"],
+      "additionalType": ["https://www.wikidata.org/wiki/Q109536316", "https://www.wikidata.org/wiki/Q13479982"],
+      "description": "NineEightSeven (acronym and ticker NES, written $NES) is the memecoin token of the 987NES project: an SPL token on the Solana blockchain launched on October 16, 2025, with a fixed supply of 987,654,321, 0% tax, liquidity locked via TeamFinance and the founders' 20% allocation locked until October 16, 2027 via Streamflow. Official contract address: DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t. Mascot: DZÔ (DZO), the blue monster.",
+      "identifier": [
+        { "@type": "PropertyValue", "propertyID": "ticker symbol", "value": "NES" },
+        { "@type": "PropertyValue", "propertyID": "Solana token mint address", "value": "DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t" }
+      ],
+      "url": "https://987nes.com/#token",
+      "sameAs": [
+        "https://solscan.io/token/DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t",
+        "https://dexscreener.com/solana/eeebfw84r1vhzwv2feonzkmglhxf33ppxi7nmuvw588v"
+      ]
+    },
+    {
+      "@type": "Thing",
+      "@id": "https://987nes.com/dzo/#dzo",
+      "name": "DZÔ",
+      "alternateName": ["DZO", "Dzô", "DZÔ the blue monster"],
+      "additionalType": "https://www.wikidata.org/wiki/Q386208",
+      "description": "DZÔ (also written DZO) is the blue monster mascot of 987NES, a Swiss memecoin project whose token is NineEightSeven ($NES) on Solana. DZÔ is a character, not a token: 987NES has no DZO coin, and DZÔ is unrelated to Degen Zoo (DZOO) and Dizocoin (DZO), which are other projects. The name comes from the old Fribourg patois, where it is a playful nickname for the people of Fribourg.",
+      "url": "https://987nes.com/dzo/",
+      "image": "https://987nes.com/dzo-flag.jpg"
     },
     {
       "@type": "WebSite",
+      "@id": "https://987nes.com/#website",
       "name": "987NES",
-      "url": "https://987nes.com",
+      "alternateName": ["987 NES", "987nes.com"],
+      "url": "https://987nes.com/",
       "inLanguage": ["en", "fr", "es"],
-      "description": "Official website of the 987NES ecosystem - the Swiss Memecoin on Solana.",
-      "dateModified": "2026-09-07",
+      "description": "Official website of 987NES, the Swiss memecoin project behind the NineEightSeven ($NES) token on Solana, and of its mascot DZÔ (DZO), the blue monster.",
+      "publisher": { "@id": "https://987nes.com/#organization" }
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://987nes.com/#webpage",
+      "url": "https://987nes.com/",
+      "name": "987NES ($NES) · Swiss Memecoin on Solana",
+      "isPartOf": { "@id": "https://987nes.com/#website" },
+      "about": [
+        { "@id": "https://987nes.com/#organization" },
+        { "@id": "https://987nes.com/#nes" }
+      ],
+      "mentions": { "@id": "https://987nes.com/dzo/#dzo" },
+      "primaryImageOfPage": {
+        "@type": "ImageObject",
+        "url": "https://987nes.com/og-image.jpg",
+        "width": 1200,
+        "height": 630
+      },
+      "inLanguage": "en",
+      "dateModified": "2026-09-15",
       "speakable": {
         "@type": "SpeakableSpecification",
-        "cssSelector": [".hero-tagline", ".hero-sub", "#news .news-card", "#story .container", "#token .container", "#how-to-buy .container"]
+        "cssSelector": [".hero-tagline", ".hero-sub", "#news .news-card", "#story .container", "#token .container", "#faq .container"]
       }
     },
     {
       "@type": "NewsArticle",
       "@id": "https://987nes.com/#news-dzo-isation-2026",
       "headline": "DZO-isation has begun",
-      "description": "DZO-nald Trump, DZO-Lensky, DZO-ctor, DZO-ro, DZO-cky, DZO-zilla. You know the original, now meet the DZO version. Same monster, different identity: if the name fits, DZO becomes it.",
+      "description": "A September 2026 parody meme series in which DZÔ (DZO), the blue monster mascot of the Swiss memecoin project 987NES, spoofs famous names. Same monster, different identity: if the name fits, DZO becomes it. These are memes, not tokens, and they are not affiliated with the people or works they reference; the only 987NES token is NineEightSeven ($NES) on Solana.",
       "datePublished": "2026-09-07",
-      "dateModified": "2026-09-07",
+      "dateModified": "2026-09-15",
       "inLanguage": ["en", "fr", "es"],
-      "author": { "@type": "Organization", "name": "987NES Team", "url": "https://987nes.com" },
-      "publisher": { "@type": "Organization", "name": "987NES", "logo": { "@type": "ImageObject", "url": "https://987nes.com/favicon.png" } },
+      "about": { "@id": "https://987nes.com/dzo/#dzo" },
+      "isPartOf": { "@id": "https://987nes.com/#webpage" },
+      "author": { "@id": "https://987nes.com/#organization" },
+      "publisher": { "@id": "https://987nes.com/#organization" },
       "image": "https://987nes.com/og-image.jpg",
       "mainEntityOfPage": "https://987nes.com/#news"
     },
@@ -2341,67 +2385,47 @@ footer {
       "datePublished": "2026-09-07",
       "dateModified": "2026-09-07",
       "inLanguage": ["en", "fr", "es"],
-      "author": { "@type": "Organization", "name": "987NES Team", "url": "https://987nes.com" },
-      "publisher": { "@type": "Organization", "name": "987NES", "logo": { "@type": "ImageObject", "url": "https://987nes.com/favicon.png" } },
+      "isPartOf": { "@id": "https://987nes.com/#webpage" },
+      "author": { "@id": "https://987nes.com/#organization" },
+      "publisher": { "@id": "https://987nes.com/#organization" },
       "image": "https://987nes.com/og-image.jpg",
       "mainEntityOfPage": "https://987nes.com/#news"
     },
     {
       "@type": "NewsArticle",
+      "@id": "https://987nes.com/#news-flavien-2026",
       "headline": "987NES is Growing - Flavien Joins the Team",
       "datePublished": "2026-06-09",
       "dateModified": "2026-06-09",
       "inLanguage": "en",
-      "author": {
-        "@type": "Organization",
-        "name": "987NES Team",
-        "url": "https://987nes.com"
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "987NES",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://987nes.com/favicon.png"
-        }
-      },
+      "about": { "@id": "https://987nes.com/#flavien" },
+      "isPartOf": { "@id": "https://987nes.com/#webpage" },
+      "author": { "@id": "https://987nes.com/#organization" },
+      "publisher": { "@id": "https://987nes.com/#organization" },
       "image": "https://987nes.com/og-image.jpg",
-      "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": "https://987nes.com/#news"
-      },
+      "mainEntityOfPage": "https://987nes.com/#news",
       "articleBody": "Flavien has officially joined the 987NES team. He will be in charge of prospecting new partners and investors for the project. This addition reinforces 987NES growing organization and its long-term commitment to building a Swiss memecoin ecosystem on Solana.",
       "keywords": "987NES, team growth, Flavien, partnerships, investors, Swiss memecoin"
     },
     {
       "@type": "NewsArticle",
+      "@id": "https://987nes.com/#news-team-lock-2026",
       "headline": "Team Tokens Locked Until October 2027",
       "datePublished": "2026-06-07",
       "dateModified": "2026-06-07",
       "inLanguage": "en",
-      "author": {
-        "@type": "Organization",
-        "name": "987NES Team",
-        "url": "https://987nes.com"
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "987NES",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://987nes.com/favicon.png"
-        }
-      },
+      "about": { "@id": "https://987nes.com/#nes" },
+      "isPartOf": { "@id": "https://987nes.com/#webpage" },
+      "author": { "@id": "https://987nes.com/#organization" },
+      "publisher": { "@id": "https://987nes.com/#organization" },
       "image": "https://987nes.com/og-image.jpg",
-      "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": "https://987nes.com/#news"
-      },
+      "mainEntityOfPage": "https://987nes.com/#news",
       "articleBody": "The 987NES team has decided to lock its 20% $NES allocation until October 16, 2027. As a result, no team sales will be possible before this date. This decision was made to once again reassure the community about our intentions and to send a strong signal: 987NES is here for the long term. On-chain proof is verifiable via Streamflow Finance contracts on Solana mainnet.",
       "keywords": "987NES, $NES, team tokens lock, Streamflow, Solana, memecoin transparency, vesting"
     },
     {
       "@type": "HowTo",
+      "@id": "https://987nes.com/#how-to-buy",
       "name": "How to Buy 987NES ($NES) - Beginner Guide",
       "description": "Complete beginner's guide to buying the $NES Swiss memecoin on Solana with a credit card. From zero crypto knowledge to holding $NES in your Phantom wallet in about 5 minutes.",
       "totalTime": "PT5M",
@@ -2452,45 +2476,63 @@ footer {
     },
     {
       "@type": "FAQPage",
+      "@id": "https://987nes.com/#faq",
+      "isPartOf": { "@id": "https://987nes.com/#webpage" },
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "What is 987NES?",
+          "name": "What is 987NES ($NES)?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "987NES is a Swiss memecoin project built on the Solana blockchain, born in Fribourg, Switzerland. The token $NES has a fixed supply of 987,654,321 tokens. The project features a mascot called DZO, a doxxed Swiss team and liquidity locked via TeamFinance."
+            "text": "987NES is a Swiss memecoin project on the Solana blockchain, launched on October 16, 2025 in Fribourg, Switzerland. Its token, NineEightSeven ($NES), has a fixed supply of 987,654,321 tokens, no transaction tax, liquidity locked via TeamFinance and a public, doxxed team: Dom, Paco, Luis and Flavien."
           }
         },
         {
           "@type": "Question",
-          "name": "What is the $NES token contract address?",
+          "name": "What is the DZO memecoin? Does 987NES have a DZO token?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "The $NES token contract address on Solana is DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t. The total supply is 987,654,321 tokens with LP locked via TeamFinance."
+            "text": "987NES has no DZO token. DZÔ, often typed DZO, is the blue monster mascot of 987NES, and the memecoin behind him is $NES on Solana. Tokens using the DZO or DZOO tickers, such as Dizocoin (DZO) or Degen Zoo (DZOO), are unrelated to 987NES."
           }
         },
         {
           "@type": "Question",
-          "name": "What is DZO?",
+          "name": "What does DZÔ mean?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "DZO is the official mascot of the 987NES project. It represents the spirit and identity of the community and appears throughout the 987NES branding and website."
+            "text": "DZÔ comes from the old Fribourg patois, the Franco-Provençal dialect of the Gruyère valleys, where it is a playful nickname for the people of Fribourg. The blue monster is an original 987NES character: not recycled, not a frog, not a dog, not a clown."
           }
         },
         {
           "@type": "Question",
-          "name": "Is the $NES liquidity pool safe?",
+          "name": "What is the official $NES contract address?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes, the $NES liquidity pool is locked via TeamFinance, meaning zero rug risk. The team is also doxxed. The lock transaction is publicly verifiable on Solscan."
+            "text": "The official $NES contract address on Solana is DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t. Always check it before swapping: fake tokens copy names and tickers."
           }
         },
         {
           "@type": "Question",
-          "name": "How do I buy 987NES ($NES)?",
+          "name": "Is the $NES liquidity locked? Are the team tokens locked?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "To buy $NES in about 5 minutes: 1) Install Phantom Wallet from phantom.com. 2) Buy SOL with your credit card directly inside Phantom via MoonPay or Coinbase Pay (KYC verification required the first time). 3) Swap SOL for $NES on Raydium or via Phantom's built-in swap using the contract address DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t. Always verify you are on the Solana network. See the complete beginner guide on 987nes.com."
+            "text": "The $NES liquidity pool is locked via TeamFinance, and the lock transaction is public on Solscan. The founders' 20% allocation is locked until October 16, 2027 via Streamflow, and the team had sold zero tokens as of September 2026."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I buy $NES?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Install the Phantom wallet, buy SOL inside Phantom with a card, then swap SOL for $NES on Raydium or Jupiter using the official contract address DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t. It takes about 5 minutes: follow the step-by-step beginner guide on 987nes.com."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "987NES, NineEightSeven, NES, DZÔ: what is what?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "987NES is the project: its name, its website 987nes.com and the name of its X and Instagram accounts. NineEightSeven is the full name of its token, and NES, written $NES, is the token's acronym and ticker. DZÔ, often typed DZO, is the mascot. The name plays on a deliberately incomplete countdown: 9, 8, 7. $NES is unrelated to the Nesa (NES) token."
           }
         }
       ]
@@ -2517,7 +2559,6 @@ footer {
     <li><a href="#team"><span data-l="en">Team</span><span data-l="fr">Équipe</span><span data-l="es">Equipo</span></a></li>
     <li><a href="#how-to-buy"><span data-l="en">How to Buy</span><span data-l="fr">Comment Acheter</span><span data-l="es">Cómo Comprar</span></a></li>
     <li><a href="#dzo">DZÔ</a></li>
-    <li style="display:none"><a href="#arcade"><span data-l="en">Arcade</span><span data-l="fr">Arcade</span><span data-l="es">Arcade</span></a></li>
     <li><a href="#whitepaper">White Paper</a></li>
     <li><a href="#community"><span data-l="en">Community</span><span data-l="fr">Communauté</span><span data-l="es">Comunidad</span></a></li>
   </ul>
@@ -2536,7 +2577,8 @@ footer {
   </div>
 </nav>
 
-<!-- TOP HYPE BANNER -->
+<!-- TOP HYPE BANNER: one item in the HTML (crawlers and AI readers see it once);
+     the copies the seamless loop needs are cloned right below -->
 <a href="#how-to-buy" class="hype-banner">
   <div class="hype-track" id="hype-track">
     <span class="hype-item">
@@ -2544,31 +2586,22 @@ footer {
       <span data-l="en">since launch. Still scrolling, or finally jumping in?</span>
       <span data-l="fr">depuis le lancement. Tu continues à scroller ou tu te lances enfin ?</span>
       <span data-l="es">desde el lanzamiento. ¿Sigues scrolleando o por fin te lanzas?</span>
-      <span class="hype-sep">◆</span>
-    </span>
-    <span class="hype-item">
-      <span class="hype-pct">+1500%</span>
-      <span data-l="en">since launch. Still scrolling, or finally jumping in?</span>
-      <span data-l="fr">depuis le lancement. Tu continues à scroller ou tu te lances enfin ?</span>
-      <span data-l="es">desde el lanzamiento. ¿Sigues scrolleando o por fin te lanzas?</span>
-      <span class="hype-sep">◆</span>
-    </span>
-    <span class="hype-item">
-      <span class="hype-pct">+1500%</span>
-      <span data-l="en">since launch. Still scrolling, or finally jumping in?</span>
-      <span data-l="fr">depuis le lancement. Tu continues à scroller ou tu te lances enfin ?</span>
-      <span data-l="es">desde el lanzamiento. ¿Sigues scrolleando o por fin te lanzas?</span>
-      <span class="hype-sep">◆</span>
-    </span>
-    <span class="hype-item">
-      <span class="hype-pct">+1500%</span>
-      <span data-l="en">since launch. Still scrolling, or finally jumping in?</span>
-      <span data-l="fr">depuis le lancement. Tu continues à scroller ou tu te lances enfin ?</span>
-      <span data-l="es">desde el lanzamiento. ¿Sigues scrolleando o por fin te lanzas?</span>
-      <span class="hype-sep">◆</span>
+      <span class="hype-sep" aria-hidden="true">◆</span>
     </span>
   </div>
 </a>
+<script>
+(function () {
+  var track = document.getElementById('hype-track');
+  var item = track && track.querySelector('.hype-item');
+  if (!item) return;
+  for (var i = 0; i < 3; i++) {
+    var copy = item.cloneNode(true);
+    copy.setAttribute('aria-hidden', 'true');
+    track.appendChild(copy);
+  }
+})();
+</script>
 
 <!-- HERO -->
 <section class="hero" id="home">
@@ -2583,9 +2616,10 @@ footer {
       </span>
     </div>
 
-    <h1 class="hero-title">
+    <!-- The big "$NES" is the visual title; the page's H1 is the descriptive tagline below (same look) -->
+    <div class="hero-title">
       <span class="nes">$NES</span>
-    </h1>
+    </div>
 
     <p class="hero-full-name">
       <span data-l="en">Nine · Eight · Seven. A permanent countdown.</span>
@@ -2593,11 +2627,11 @@ footer {
       <span data-l="es">Nine · Eight · Seven. Una cuenta regresiva permanente</span>
     </p>
 
-    <p class="hero-tagline">
+    <h1 class="hero-tagline">
       <span data-l="en">The Swiss Memecoin. A crypto token on <span class="accent">Solana.</span></span>
       <span data-l="fr">Le Memecoin Suisse. Un token crypto sur <span class="accent">Solana.</span></span>
       <span data-l="es">El Memecoin Suizo. Un token crypto en <span class="accent">Solana.</span></span>
-    </p>
+    </h1>
 
     <p class="hero-sub">
       <span data-l="en">More than a memecoin: a Swiss-built ecosystem with real in-house tools, locked liquidity and a fully doxxed team. Honest, transparent from day one. And we're only just getting started. Come grow with us.</span>
@@ -2697,9 +2731,9 @@ footer {
               <div class="news-meta">
                 <span class="news-badge">NEW</span>
                 <span class="news-date">
-                  <span data-l="en">Mascot &middot; September 2026</span>
-                  <span data-l="fr">Mascotte &middot; Septembre 2026</span>
-                  <span data-l="es">Mascota &middot; Septiembre 2026</span>
+                  <span data-l="en">DZÔ, the $NES mascot &middot; September 2026</span>
+                  <span data-l="fr">DZÔ, mascotte de $NES &middot; Septembre 2026</span>
+                  <span data-l="es">DZÔ, mascota de $NES &middot; Septiembre 2026</span>
                 </span>
               </div>
 
@@ -2709,13 +2743,13 @@ footer {
                 <span data-l="es">La DZO-ización ha <span class="y">comenzado.</span></span>
               </h2>
 
-              <div class="dzo-names" aria-label="DZO versions">
-                <span class="dzo-name"><span class="y">DZO</span>-nald Trump</span>
-                <span class="dzo-name"><span class="y">DZO</span>-Lensky</span>
-                <span class="dzo-name"><span class="y">DZO</span>-ctor</span>
-                <span class="dzo-name"><span class="y">DZO</span>-ro</span>
-                <span class="dzo-name"><span class="y">DZO</span>-cky</span>
-                <span class="dzo-name"><span class="y">DZO</span>-zilla</span>
+              <div class="dzo-names" role="list" aria-label="DZÔ parody names (memes, not tokens)">
+                <span class="dzo-name" role="listitem"><span class="y">DZO</span>-nald Trump</span>
+                <span class="dzo-name" role="listitem"><span class="y">DZO</span>-Lensky</span>
+                <span class="dzo-name" role="listitem"><span class="y">DZO</span>-ctor</span>
+                <span class="dzo-name" role="listitem"><span class="y">DZO</span>-ro</span>
+                <span class="dzo-name" role="listitem"><span class="y">DZO</span>-cky</span>
+                <span class="dzo-name" role="listitem"><span class="y">DZO</span>-zilla</span>
               </div>
 
               <div class="news-body">
@@ -3350,19 +3384,23 @@ footer {
         </h2>
 
         <div class="dzo-body">
-          <div class="bl en">
-            <p>DZÔ is the name of our mascot, the blue monster. From the <strong>old Fribourg patois</strong>, the Franco-Provençal dialect of the Gruyère valleys: the name the people of Fribourg gave themselves.</p>
+          <!-- First sentence is self-contained on purpose: search engines and AI answers quote it on its own -->
+          <div class="bl en" lang="en">
+            <p><strong>DZÔ</strong> (often typed DZO) is the blue monster mascot of 987NES, the Swiss memecoin <strong>$NES</strong> on Solana. His name comes from the <strong>old Fribourg patois</strong>, the Franco-Provençal dialect of the Gruyère valleys, where it is a playful nickname for the people of Fribourg.</p>
             <p>Not an animal you've seen before. Not a recycled meme. The blue monster became a strong, differentiating marker in a universe saturated with interchangeable symbols. Immediately identifiable. Impossible to confuse.</p>
             <p>He doesn't smile. He shows teeth. Not out of anger. Out of knowledge.</p>
+            <p>DZÔ has no token of his own: the monster's coin is $NES.</p>
           </div>
-          <div class="bl fr" style="display:none">
-            <p>DZÔ est le nom de notre mascotte, le monstre bleu. Du <strong>vieux patois fribourgeois</strong>, le dialecte francoprovençal des vallées de la Gruyère : le nom que les habitants de Fribourg se donnaient eux-mêmes.</p>
+          <div class="bl fr" lang="fr" style="display:none">
+            <p><strong>DZÔ</strong> (souvent écrit DZO) est le monstre bleu, mascotte de 987NES, le memecoin suisse <strong>$NES</strong> sur Solana. Son nom vient du <strong>vieux patois fribourgeois</strong>, le dialecte francoprovençal des vallées de la Gruyère, où c'est le surnom familier des Fribourgeois.</p>
             <p>Pas un animal déjà vu. Pas un mème recyclé. Le monstre bleu est devenu un marqueur fort et différenciant. Immédiatement identifiable. Impossible à confondre.</p>
             <p>Il ne sourit pas. Il montre les dents. Pas par colère. Par connaissance.</p>
+            <p>DZÔ n'a pas de token à lui : la crypto du monstre, c'est $NES.</p>
           </div>
-          <div class="bl es" style="display:none">
-            <p>DZÔ es el nombre de nuestra mascota, el monstruo azul. Del <strong>viejo patois friburgués</strong>: el nombre que los habitantes de Friburgo se daban a sí mismos.</p>
+          <div class="bl es" lang="es" style="display:none">
+            <p><strong>DZÔ</strong> (a menudo escrito DZO) es el monstruo azul, mascota de 987NES, el memecoin suizo <strong>$NES</strong> en Solana. Su nombre viene del <strong>viejo patois friburgués</strong>, donde es el apodo popular de los friburgueses.</p>
             <p>No un animal ya visto. No un meme reciclado. Inmediatamente identificable. Imposible de confundir.</p>
+            <p>DZÔ no tiene token propio: la cripto del monstruo es $NES.</p>
           </div>
         </div>
 
@@ -3372,40 +3410,7 @@ footer {
           <span data-l="es">"El mercado alimentó al monstruo.<br>Fribourg le dio sus dientes."</span>
         </div>
         <div class="dzo-patois">Patois Gruérien · Fribourg · Suisse</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ARCADE (hidden for now) -->
-<section id="arcade" class="reveal" style="display:none">
-  <div class="container sec">
-    <div class="arcade-card">
-      <div class="arcade-visual">
-        <span class="arcade-badge">Beta</span>
-        <img src="game/dzo-front-a.png" alt="DZÔ, playable character of the 987NES arcade game" loading="lazy">
-      </div>
-      <div class="arcade-text">
-        <p class="arcade-eyebrow">
-          <span data-l="en">Arcade · Mini-Game</span>
-          <span data-l="fr">Arcade · Mini-Jeu</span>
-          <span data-l="es">Arcade · Mini-Juego</span>
-        </p>
-        <h2 class="arcade-title">
-          <span data-l="en">Play <span class="y">DZÔ Eats</span></span>
-          <span data-l="fr">Joue à <span class="y">DZÔ Eats</span></span>
-          <span data-l="es">Juega a <span class="y">DZÔ Eats</span></span>
-        </h2>
-        <p class="arcade-desc">
-          <span data-l="en">Guide DZÔ through the maze and chomp the rival memecoins. 50 boards, harder and harder. Reach the milestones to unlock a free $NES reward. No wallet needed to play.</span>
-          <span data-l="fr">Guide DZÔ dans le labyrinthe et dévore les memecoins rivales. 50 tableaux, de plus en plus durs. Atteins les paliers pour débloquer une récompense $NES gratuite. Aucun wallet requis pour jouer.</span>
-          <span data-l="es">Guía a DZÔ por el laberinto y devora las memecoins rivales. 50 tableros, cada vez más difíciles. Alcanza los hitos para desbloquear una recompensa $NES gratuita. No necesitas wallet para jugar.</span>
-        </p>
-        <a href="game/index.html" class="btn-primary">
-          <span data-l="en">▶ Play Now</span>
-          <span data-l="fr">▶ Jouer</span>
-          <span data-l="es">▶ Jugar</span>
-        </a>
+        <a href="dzo/" class="htb-link dzo-more" data-lang-link="dzo/"><span data-l="en">Everything about DZÔ &#8594;</span><span data-l="fr">Tout sur DZÔ &#8594;</span><span data-l="es">Todo sobre DZÔ &#8594;</span></a>
       </div>
     </div>
   </div>
@@ -3442,7 +3447,7 @@ footer {
         </p>
       </div>
       <div class="wp-btns">
-        <a href="whitepaper/" class="wp-btn" data-wp>
+        <a href="whitepaper/" class="wp-btn" data-lang-link="whitepaper/">
           <span><span data-l="en">📄 Read the Whitepaper</span><span data-l="fr">📄 Lire le Whitepaper</span><span data-l="es">📄 Leer el Whitepaper</span></span><span>→</span>
         </a>
         <p class="wp-note">
@@ -3450,6 +3455,122 @@ footer {
           <span data-l="fr">Version web · EN, FR, ES · imprimable en PDF depuis la page</span>
           <span data-l="es">Versión web · EN, FR, ES · imprimible en PDF desde la página</span>
         </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ: one block per language, so each reads as a clean Q&A for search engines and AI answers.
+     The English block must stay identical to the FAQPage JSON-LD in <head>. -->
+<section id="faq" class="reveal">
+  <div class="container sec">
+    <p class="lbl">
+      <span data-l="en">Straight answers</span>
+      <span data-l="fr">Réponses directes</span>
+      <span data-l="es">Respuestas directas</span>
+    </p>
+    <h2 class="ttl">
+      <span data-l="en">Questions. <span class="y">Answers.</span></span>
+      <span data-l="fr">Questions. <span class="y">Réponses.</span></span>
+      <span data-l="es">Preguntas. <span class="y">Respuestas.</span></span>
+    </h2>
+
+    <div class="bl en" lang="en">
+      <div class="faq-grid">
+        <div class="faq-item">
+          <h3>What is 987NES ($NES)?</h3>
+          <p>987NES is a Swiss memecoin project on the Solana blockchain, launched on October 16, 2025 in Fribourg, Switzerland. Its token, NineEightSeven ($NES), has a fixed supply of 987,654,321 tokens, no transaction tax, liquidity locked via TeamFinance and a public, doxxed team: Dom, Paco, Luis and Flavien.</p>
+        </div>
+        <div class="faq-item">
+          <h3>What is the DZO memecoin? Does 987NES have a DZO token?</h3>
+          <p>987NES has no DZO token. DZÔ, often typed DZO, is the blue monster mascot of 987NES, and the memecoin behind him is $NES on Solana. Tokens using the DZO or DZOO tickers, such as Dizocoin (DZO) or Degen Zoo (DZOO), are unrelated to 987NES.</p>
+        </div>
+        <div class="faq-item">
+          <h3>What does DZÔ mean?</h3>
+          <p>DZÔ comes from the old Fribourg patois, the Franco-Provençal dialect of the Gruyère valleys, where it is a playful nickname for the people of Fribourg. The blue monster is an original 987NES character: not recycled, not a frog, not a dog, not a clown.</p>
+        </div>
+        <div class="faq-item">
+          <h3>What is the official $NES contract address?</h3>
+          <p>The official $NES contract address on Solana is <code>DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t</code>. Always check it before swapping: fake tokens copy names and tickers.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Is the $NES liquidity locked? Are the team tokens locked?</h3>
+          <p>The $NES liquidity pool is locked via TeamFinance, and the lock transaction is public on <a href="https://solscan.io/tx/5wzHgHk72Yd9Jdxo6pVcfzuxtSNQpeCKvDncoiJydBw5X1Fjnkkk7YMGzHVXgQN6q8X14FqLkktrdUG7b1a3g8T" target="_blank" rel="noopener">Solscan</a>. The founders' 20% allocation is locked until October 16, 2027 via Streamflow, and the team had sold zero tokens as of September 2026.</p>
+        </div>
+        <div class="faq-item">
+          <h3>How do I buy $NES?</h3>
+          <p>Install the Phantom wallet, buy SOL inside Phantom with a card, then swap SOL for $NES on Raydium or Jupiter using the official contract address <code>DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t</code>. It takes about 5 minutes: follow the step-by-step <a href="#how-to-buy">beginner guide</a> on 987nes.com.</p>
+        </div>
+        <div class="faq-item">
+          <h3>987NES, NineEightSeven, NES, DZÔ: what is what?</h3>
+          <p>987NES is the project: its name, its website 987nes.com and the name of its X and Instagram accounts. NineEightSeven is the full name of its token, and NES, written $NES, is the token's acronym and ticker. DZÔ, often typed DZO, is the mascot. The name plays on a deliberately incomplete countdown: 9, 8, 7. $NES is unrelated to the Nesa (NES) token.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bl fr" lang="fr" style="display:none">
+      <div class="faq-grid">
+        <div class="faq-item">
+          <h3>Qu'est-ce que 987NES ($NES) ?</h3>
+          <p>987NES est un projet de memecoin suisse sur la blockchain Solana, lancé le 16 octobre 2025 à Fribourg, en Suisse. Son token, NineEightSeven ($NES), a une offre fixe de 987 654 321 tokens, aucune taxe de transaction, une liquidité verrouillée via TeamFinance et une équipe publique et doxxée : Dom, Paco, Luis et Flavien.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Qu'est-ce que le memecoin DZO ? 987NES a-t-il un token DZO ?</h3>
+          <p>987NES n'a pas de token DZO. DZÔ, souvent écrit DZO, est le monstre bleu, mascotte de 987NES, et le memecoin qui l'accompagne est $NES sur Solana. Les tokens aux tickers DZO ou DZOO, comme Dizocoin (DZO) ou Degen Zoo (DZOO), n'ont aucun lien avec 987NES.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Que signifie DZÔ ?</h3>
+          <p>DZÔ vient du vieux patois fribourgeois, le dialecte francoprovençal des vallées de la Gruyère, où c'est le surnom familier des Fribourgeois. Le monstre bleu est un personnage original de 987NES : pas recyclé, pas une grenouille, pas un chien, pas un clown.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Quelle est l'adresse officielle du contrat $NES ?</h3>
+          <p>L'adresse officielle du contrat $NES sur Solana est <code>DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t</code>. Il faut toujours la vérifier avant un swap : les faux tokens copient les noms et les tickers.</p>
+        </div>
+        <div class="faq-item">
+          <h3>La liquidité est-elle verrouillée ? Les tokens de l'équipe sont-ils bloqués ?</h3>
+          <p>Le pool de liquidité $NES est verrouillé via TeamFinance, et la transaction de verrouillage est publique sur <a href="https://solscan.io/tx/5wzHgHk72Yd9Jdxo6pVcfzuxtSNQpeCKvDncoiJydBw5X1Fjnkkk7YMGzHVXgQN6q8X14FqLkktrdUG7b1a3g8T" target="_blank" rel="noopener">Solscan</a>. L'allocation des fondateurs (20 %) est bloquée jusqu'au 16 octobre 2027 via Streamflow, et l'équipe n'avait vendu aucun token en septembre 2026.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Comment acheter du $NES ?</h3>
+          <p>Installer le wallet Phantom, y acheter du SOL par carte, puis échanger le SOL contre du $NES sur Raydium ou Jupiter avec l'adresse officielle du contrat <code>DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t</code>. Environ 5 minutes : suivre le <a href="#how-to-buy">guide débutant</a> pas à pas sur 987nes.com.</p>
+        </div>
+        <div class="faq-item">
+          <h3>987NES, NineEightSeven, NES, DZÔ : qui est qui ?</h3>
+          <p>987NES est le projet : son nom, son site 987nes.com et le nom de ses comptes X et Instagram. NineEightSeven est le nom complet de son token, et NES, écrit $NES, en est l'acronyme et le ticker. DZÔ, souvent écrit DZO, est la mascotte. Le nom joue sur un compte à rebours volontairement incomplet : 9, 8, 7. $NES n'a aucun lien avec le token Nesa (NES).</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bl es" lang="es" style="display:none">
+      <div class="faq-grid">
+        <div class="faq-item">
+          <h3>¿Qué es 987NES ($NES)?</h3>
+          <p>987NES es un proyecto de memecoin suizo en la blockchain Solana, lanzado el 16 de octubre de 2025 en Friburgo (Fribourg), Suiza. Su token, NineEightSeven ($NES), tiene un suministro fijo de 987 654 321 tokens, 0 % de impuesto por transacción, liquidez bloqueada vía TeamFinance y un equipo público y doxxed: Dom, Paco, Luis y Flavien.</p>
+        </div>
+        <div class="faq-item">
+          <h3>¿Qué es el memecoin DZO? ¿Tiene 987NES un token DZO?</h3>
+          <p>987NES no tiene token DZO. DZÔ, a menudo escrito DZO, es el monstruo azul, mascota de 987NES, y el memecoin que lo acompaña es $NES en Solana. Los tokens con los tickers DZO o DZOO, como Dizocoin (DZO) o Degen Zoo (DZOO), no tienen relación con 987NES.</p>
+        </div>
+        <div class="faq-item">
+          <h3>¿Qué significa DZÔ?</h3>
+          <p>DZÔ viene del viejo patois friburgués, el dialecto francoprovenzal de los valles de la Gruyère, donde es el apodo popular de los friburgueses. El monstruo azul es un personaje original de 987NES: no reciclado, ni rana, ni perro, ni payaso.</p>
+        </div>
+        <div class="faq-item">
+          <h3>¿Cuál es la dirección oficial del contrato $NES?</h3>
+          <p>La dirección oficial del contrato $NES en Solana es <code>DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t</code>. Verifícala siempre antes de un swap: los tokens falsos copian nombres y tickers.</p>
+        </div>
+        <div class="faq-item">
+          <h3>¿La liquidez está bloqueada? ¿Están bloqueados los tokens del equipo?</h3>
+          <p>El pool de liquidez de $NES está bloqueado vía TeamFinance, con la transacción de bloqueo pública en <a href="https://solscan.io/tx/5wzHgHk72Yd9Jdxo6pVcfzuxtSNQpeCKvDncoiJydBw5X1Fjnkkk7YMGzHVXgQN6q8X14FqLkktrdUG7b1a3g8T" target="_blank" rel="noopener">Solscan</a>. La asignación de los fundadores (20 %) está bloqueada hasta el 16 de octubre de 2027 vía Streamflow, y el equipo no había vendido ningún token en septiembre de 2026.</p>
+        </div>
+        <div class="faq-item">
+          <h3>¿Cómo comprar $NES?</h3>
+          <p>Instala la wallet Phantom, compra SOL dentro de Phantom con tarjeta y luego cambia SOL por $NES en Raydium o Jupiter con la dirección oficial del contrato <code>DPQdhJF7MtwjFKwzg8QkWQcBF8aoJHDpA4gpCYvuFu4t</code>. Unos 5 minutos: sigue la <a href="#how-to-buy">guía para principiantes</a> paso a paso en 987nes.com.</p>
+        </div>
+        <div class="faq-item">
+          <h3>987NES, NineEightSeven, NES, DZÔ: ¿quién es quién?</h3>
+          <p>987NES es el proyecto: su nombre, su sitio 987nes.com y el nombre de sus cuentas de X e Instagram. NineEightSeven es el nombre completo de su token, y NES, escrito $NES, es su acrónimo y ticker. DZÔ, a menudo escrito DZO, es la mascota. El nombre juega con una cuenta regresiva deliberadamente incompleta: 9, 8, 7. $NES no tiene relación con el token Nesa (NES).</p>
+        </div>
       </div>
     </div>
   </div>
@@ -3478,6 +3599,16 @@ footer {
           <span data-l="en">Daily content · DZÔ army</span>
           <span data-l="fr">Contenu quotidien · Armée DZÔ</span>
           <span data-l="es">Contenido diario · Ejército DZÔ</span>
+        </div>
+      </a>
+      <a href="https://www.instagram.com/987_nes/" class="comm-card" target="_blank" rel="noopener">
+        <div class="comm-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></div>
+        <div class="comm-name">Instagram</div>
+        <div class="comm-handle">@987_nes</div>
+        <div class="comm-desc">
+          <span data-l="en">Visuals · Community</span>
+          <span data-l="fr">Visuels · Communauté</span>
+          <span data-l="es">Visuales · Comunidad</span>
         </div>
       </a>
       <a href="https://t.me/NES_987" class="comm-card" target="_blank">
@@ -3579,6 +3710,7 @@ footer {
         <h3>Links</h3>
         <ul>
           <li><a href="https://x.com/987_nes" target="_blank">X / Twitter</a></li>
+          <li><a href="https://www.instagram.com/987_nes/" target="_blank" rel="noopener">Instagram</a></li>
           <li><a href="https://t.me/NES_987" target="_blank">Telegram Channel</a></li>
           <li><a href="https://t.me/NES_987_Chat" target="_blank">Telegram Chat</a></li>
           <li><a href="https://github.com/987nes" target="_blank">GitHub</a></li>
@@ -3591,7 +3723,9 @@ footer {
       <div class="f-col">
         <h3>Docs</h3>
         <ul>
-          <li><a href="whitepaper/?lang=en" data-wp>Whitepaper</a></li>
+          <li><a href="whitepaper/" data-lang-link="whitepaper/">Whitepaper</a></li>
+          <li><a href="dzo/" data-lang-link="dzo/"><span data-l="en">DZÔ (DZO), the mascot</span><span data-l="fr">DZÔ (DZO), la mascotte</span><span data-l="es">DZÔ (DZO), la mascota</span></a></li>
+          <li><a href="#faq">FAQ</a></li>
           <li><a href="mailto:info@987nes.com">info@987nes.com</a></li>
         </ul>
       </div>
@@ -3625,7 +3759,10 @@ function setLang(l) {
     el.style.display = el.classList.contains(l) ? 'block' : 'none';
   });
   document.documentElement.lang = l;
-  document.querySelectorAll('a[data-wp]').forEach(a => { a.href = 'whitepaper/?lang=' + l; });
+  // sub-pages open in the chosen language; English keeps the clean URL that search engines index
+  document.querySelectorAll('a[data-lang-link]').forEach(a => {
+    a.href = a.getAttribute('data-lang-link') + (l === 'en' ? '' : '?lang=' + l);
+  });
   try { localStorage.setItem('nes_lang', l); } catch (e) {}
 }
 (function () {
