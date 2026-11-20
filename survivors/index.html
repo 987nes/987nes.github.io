@@ -8273,7 +8273,7 @@ function margesOrdi(mw){
   cx.globalAlpha=0.8;ttFit(T('slogan.1'),0,580,14,290,C.creme,'center',0,false);ttFit(T('slogan.2'),0,599,14,290,C.creme,'center',0,false);
   cx.globalAlpha=1;
   cx.setTransform(K*f,0,0,K*f,OX+360*K+OX/2,OY+yo*K*f);
-  if(ecran==='titre')margeMenagerie();else if(ecran==='fin')margeCarte();else margeBuild();
+  if(ecran==='titre'||!S)margeMenagerie();else if(ecran==='fin')margeCarte();else margeBuild();
   cx.globalAlpha=1;
 }
 function blocDecret(k,y){
