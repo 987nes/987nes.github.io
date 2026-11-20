@@ -5,6 +5,22 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#0D0914">
 <meta name="robots" content="noindex,nofollow">
+<script data-role="config">
+/* ===== CONFIGURATION DE MISE EN SERVICE (à remplir par le propriétaire ; rien d'autre à toucher) =====
+   API_URL       adresse du serveur de scores, sans / final, ex. 'https://scores.987nes.com'.
+                 Vide : le jeu reste hors ligne (essais, record et série en local, rien n'est classé).
+   BOT_NOM       nom du bot Telegram sans @ (Login Widget de la page web, commande /boost@BOT dans le groupe).
+   TG_GROUPE_URL lien du groupe Telegram de la communauté (boost Telegram), ex. 'https://t.me/987nes'.
+   PARTAGE_URL   base des cartes de partage X (dossier partage/ publié), avec / final.
+   URL_JEU       adresse publique du jeu (repli des posts si PARTAGE_URL est vide). */
+window.DZO_CONFIG={
+  API_URL:'https://api.987nes.com',
+  BOT_NOM:'DZOSurvivors_bot',
+  TG_GROUPE_URL:'https://t.me/NES_987_Chat',
+  PARTAGE_URL:'https://987nes.com/survivors/partage/',
+  URL_JEU:'https://987nes.com/survivors/'
+};
+</script>
 <script data-role="telegram">window.__tgInit=function(){try{var w=window.Telegram&&Telegram.WebApp;if(!w)return;w.ready();w.expand();if(w.disableVerticalSwipes)w.disableVerticalSwipes();if(w.setHeaderColor)w.setHeaderColor('#0D0914');if(w.setBackgroundColor)w.setBackgroundColor('#0D0914');}catch(e){}};</script>
 <script async src="https://telegram.org/js/telegram-web-app.js" onload="window.__tgInit()"></script>
 <title>DZÔ Survivors</title>
@@ -2026,6 +2042,204 @@ LANGUES.fr={
 "panneau.vide.1":"",
 "panneau.vide.2":"",
 "panneau.grenouilles.1":"Défense de nourrir",
+/* 0.7 : serveur de scores, écran d'entrée, boosts, classement, revoir */
+"menu.retour":"‹ RETOUR",
+"entree.touche":"TOUCHE POUR ENTRER",
+"entree.clic":"CLIQUE POUR ENTRER",
+"entree.son":"Monte le son : l'hymne de la vieille ville t'attend.",
+"titre.essaisCnx":"Connecte-toi pour jouer classé",
+"titre.scoreJour":"Meilleur du jour : {0}",
+"titre.connecteToi":"Connecte-toi pour l'essai classé",
+"titre.decretSecret":"Décret du jour : surprise",
+"titre.hordeEssai":"Une horde différente à chaque essai",
+"titre.decretSurprise":"Le décret se révèle en partie.",
+"titre.connexion":"Connexion au serveur…",
+"titre.perimee":"Nouvelle version : recharge",
+"titre.debut":"La horde se prépare…",
+"titre.compte":"Nouvelle horde dans {0} (à {1}, ton heure)",
+"titre.compteMinuit":"Nouvelle horde dans {0}, à minuit",
+"x.score":"Score : {0}.",
+"x.boostScore":"J'ai fait {0} points dans la horde du jour de DZÔ Survivors. À toi.",
+"x.boostSans":"Je défends Fribourg dans DZÔ Survivors. Viens mordre la horde du jour.",
+"net.horsLigne":"Hors ligne : score non classé",
+"net.bientot":"Bientôt : classement en ligne",
+"net.bientotTexte":"Le serveur des scores arrive. En attendant, tes essais, ton record et ta série restent sur ce téléphone.",
+"net.injoignable":"Serveur injoignable",
+"net.injoignableTexte":"Tu peux jouer quand même : ces parties ne sont pas classées. Le jeu réessaie tout seul.",
+"net.reessayer":"RÉESSAYER",
+"net.nonClasse":"Partie non classée (serveur injoignable au départ)",
+"net.verif":"Le serveur rejoue ta partie…",
+"net.valide":"Score validé par le serveur",
+"net.valideRang":"Validé · n° {0} du jour ({1})",
+"net.refusee":"Partie refusée :",
+"net.enAttente":"Envoi en attente : réessai automatique, même plus tard",
+"net.envoyee":"Partie précédente validée : {0}",
+"cnx.titre":"CONNEXION",
+"cnx.bouton":"SE CONNECTER",
+"cnx.invite":"Connecte-toi avec Telegram pour jouer classé, garder ton score et viser le classement. Sans connexion, l'entraînement reste ouvert.",
+"cnx.pourquoi":"Le classement a besoin de savoir qui mord. Ton compte Telegram suffit : pas de mot de passe.",
+"cnx.lu":"Le jeu ne reçoit que ton identifiant, ton prénom et ton nom d'utilisateur Telegram.",
+"cnx.widgetAide":"Le bouton n'apparaît pas ? Ouvre le jeu depuis le bot Telegram.",
+"cnx.ouvrirTg":"OUVRIR DANS TELEGRAM",
+"cnx.pasDeBot":"Connexion pas encore configurée sur cette page.",
+"cnx.dev":"Identité de développement n° {0} (local)",
+"cnx.bienvenue":"Bienvenue, {0}. La horde t'attend.",
+"profil.titre":"PROFIL",
+"profil.pseudo":"PSEUDO DU CLASSEMENT",
+"profil.pseudoAide":"ton pseudo",
+"profil.pseudoRegle":"3 à 16 caractères : lettres, chiffres, _ . -",
+"profil.wallet":"WALLET SOLANA (FACULTATIF)",
+"profil.walletAide":"adresse publique",
+"profil.walletAvert":"Uniquement pour recevoir un lot. Ne donne jamais ta phrase secrète : personne ne te la demandera.",
+"profil.x":"COMPTE X (POUR LE BOOST)",
+"profil.xAide":"Le boost X vérifie que le post vient de ce compte.",
+"profil.enregistrer":"ENREGISTRER",
+"profil.envoi":"Enregistrement…",
+"profil.ok":"Profil enregistré.",
+"profil.rien":"Rien n'a changé.",
+"profil.deconnecter":"SE DÉCONNECTER",
+"profil.deconnecte":"Déconnecté. L'entraînement reste ouvert.",
+"profil.bientot":"Pseudo, wallet et compte X : avec le classement en ligne.",
+"boost.titre":"BOOSTS",
+"boost.regle":"Chaque boost donne +1 essai classé aujourd'hui.",
+"boost.code":"CODE DU JOUR",
+"boost.copier":"COPIER",
+"boost.copie":"Copié.",
+"boost.aucun":"Pas de boost aujourd'hui.",
+"boost.x":"Boost X",
+"boost.tg":"Boost Telegram",
+"boost.obtenu":"obtenu ✓",
+"boost.plusUn":"+1 essai",
+"boost.xProfil":"D'abord, indique ton compte X dans le profil.",
+"boost.etape1":"1. Poste depuis @{0} (le code est déjà dans le texte)",
+"boost.poster":"POSTER SUR X",
+"boost.posterSimule":"POST X SIMULÉ (LOCAL)",
+"boost.etape2":"2. Colle le lien de ton post",
+"boost.verifier":"VÉRIFIER",
+"boost.xRegle":"Post public du jour, avec #987NES et le code.",
+"boost.tgRegle":"Poste ce message dans le groupe de la communauté, puis touche Vérifier.",
+"boost.groupe":"OUVRIR LE GROUPE",
+"boost.colle":"Colle d'abord le lien de ton post.",
+"boost.verif":"Vérification…",
+"boost.okX":"Boost X obtenu : +1 essai aujourd'hui.",
+"boost.okTg":"Boost Telegram obtenu : +1 essai aujourd'hui.",
+"boost.simule":"Post simulé créé (rien n'est envoyé à X). Touche Vérifier.",
+"boost.local":"Boost du jour",
+"boost.localTexte":"Partage ta partie sur X : +1 essai aujourd'hui, compté sur ce téléphone.",
+"cl.titre":"CLASSEMENT",
+"cl.jour":"Jour",
+"cl.hier":"Hier",
+"cl.semaine":"Semaine",
+"cl.mois":"Mois",
+"cl.du":"du {0} au {1}",
+"cl.modeMeilleur":"meilleur essai",
+"cl.modeCumul":"cumul des meilleurs du jour",
+"cl.charge":"Chargement…",
+"cl.vide":"Personne encore. Le premier score sera le tien.",
+"cl.moi":"Toi : n° {0} · {1} · {2} partie(s)",
+"cl.moiRien":"Toi : pas encore classé sur cette période",
+"cl.public":"Connecte-toi pour voir ta place et revoir tes parties.",
+"cl.chargeRevoir":"Chargement de la partie…",
+"cl.local":"SUR CE TÉLÉPHONE",
+"revoir.maj":"REVOIR",
+"revoir.de":"Partie de {0}",
+"revoir.encore":"REVOIR ENCORE",
+"revoir.bandeau":"Revoir : la partie de {0}",
+"revoir.version":"Partie jouée en {0} : le rejeu peut différer.",
+"revoir.fin":"Fin de la partie revue.",
+"err.inconnu":"Le serveur a répondu quelque chose d'inattendu. Réessaie.",
+"err.reseau":"Pas de réseau, ou serveur injoignable.",
+"err.hors_ligne":"Hors ligne.",
+"err.interne":"Incident du serveur. Réessaie dans un moment.",
+"err.serveur_occupe":"Serveur très occupé. Réessaie dans un instant.",
+"err.trop_de_requetes":"Trop de demandes. Respire, puis réessaie.",
+"err.origine_refusee":"Cette page n'est pas autorisée par le serveur.",
+"err.methode_refusee":"Demande refusée par le serveur.",
+"err.introuvable":"Introuvable.",
+"err.json_invalide":"Demande illisible pour le serveur.",
+"err.requete_invalide":"Demande invalide.",
+"err.corps_trop_grand":"Données trop volumineuses.",
+"err.type_contenu_invalide":"Format de demande refusé.",
+"err.identite_absente":"Connexion Telegram manquante.",
+"err.init_data_absente":"Ouvre le jeu depuis Telegram pour te connecter.",
+"err.init_data_expiree":"Connexion Telegram expirée : rouvre le jeu depuis le bot.",
+"err.init_data_invalide":"Connexion Telegram invalide : rouvre le jeu depuis le bot.",
+"err.init_data_signature":"Signature Telegram refusée : rouvre le jeu depuis le bot.",
+"err.init_data_sans_utilisateur":"Telegram n'a pas transmis ton compte : rouvre le jeu depuis le bot.",
+"err.login_absent":"Connexion Telegram manquante.",
+"err.login_expire":"Connexion Telegram trop ancienne : reconnecte-toi.",
+"err.login_invalide":"Connexion Telegram invalide : réessaie.",
+"err.login_signature":"Signature Telegram refusée : réessaie.",
+"err.compte_bot":"Les comptes de bot ne jouent pas.",
+"err.dev_refuse":"Identité de développement refusée (pas en local).",
+"err.dev_invalide":"Identité de développement invalide.",
+"err.session_absente":"Connecte-toi d'abord.",
+"err.session_invalide":"Session expirée : reconnecte-toi.",
+"err.joueur_inconnu":"Joueur inconnu : reconnecte-toi.",
+"err.joueur_exclu":"Ce compte est exclu du classement.",
+"err.joueur_suspendu":"Ce compte est suspendu pour vérification.",
+"err.admin_refuse":"Réservé à l'organisateur.",
+"err.webhook_refuse":"Demande refusée.",
+"err.version_absente":"Version du jeu manquante : recharge la page.",
+"err.version_inconnue":"Version du jeu inconnue du serveur : recharge la page.",
+"err.version_perimee":"Nouvelle version du jeu : la page se recharge.",
+"err.version_differente":"Partie commencée avec une autre version du jeu.",
+"err.essais_epuises":"Essais classés épuisés pour aujourd'hui. Reviens demain, ou prends un boost.",
+"err.parties_en_attente":"Une partie est encore en cours d'envoi. Un instant.",
+"err.jour_change":"Minuit est passé : nouvelle horde. Relance un essai.",
+"err.jeton_inconnu":"Partie inconnue du serveur.",
+"err.jeton_invalide":"Jeton de partie invalide.",
+"err.jeton_expire":"Partie commencée il y a trop longtemps.",
+"err.jeton_deja_utilise":"Cette partie a déjà été envoyée.",
+"err.journal_invalide":"Partie illisible pour le serveur.",
+"err.n_pas_invalide":"Durée de partie invalide.",
+"err.choix_invalides":"Choix de cartes illisibles.",
+"err.choix_incoherents":"Les choix de cartes ne collent pas à la partie.",
+"err.partie_incoherente":"Le serveur n'a pas retrouvé la même partie.",
+"err.partie_copiee":"Cette partie ressemble trop à une autre.",
+"err.partie_trop_rapide":"Partie envoyée plus vite qu'elle n'a pu être jouée.",
+"err.partie_trop_tardive":"Partie envoyée trop tard.",
+"err.partie_inconnue":"Partie introuvable.",
+"err.partie_non_relancable":"Cette partie ne peut pas être relancée.",
+"err.rejeu_delai":"Le serveur a mis trop de temps à rejouer ta partie. Elle est gardée.",
+"err.rejeu_echec":"Le serveur n'a pas pu rejouer ta partie. Elle est gardée.",
+"err.rejeu_apres_cloture":"Cette partie sera visible après la clôture du jour.",
+"err.rejeu_apres_cloture_h":"Cette partie sera visible à {0}.",
+"err.jour_non_clos":"Ce jour n'est pas encore clos.",
+"err.periode_invalide":"Période inconnue.",
+"err.date_invalide":"Date invalide.",
+"err.limite_invalide":"Nombre de lignes invalide.",
+"err.id_invalide":"Identifiant invalide.",
+"err.statut_invalide":"Statut invalide.",
+"err.pseudo_invalide":"Pseudo : 3 à 16 caractères, lettres, chiffres, _ . -",
+"err.pseudo_interdit":"Ce pseudo n'est pas accepté.",
+"err.pseudo_pris":"Ce pseudo est déjà pris.",
+"err.wallet_invalide":"Adresse Solana invalide (une adresse publique, pas une phrase).",
+"err.wallet_deja_lie":"Ce wallet est déjà lié à un autre joueur.",
+"err.x_invalide":"Compte X invalide (1 à 15 caractères : lettres, chiffres, _).",
+"err.x_deja_lie":"Ce compte X est déjà lié à un autre joueur.",
+"err.x_deja_lie_reprenable":"Ce compte X est lié à un autre joueur. Prouve qu'il est à toi avec un boost X : il passera sur ton profil.",
+"err.x_non_renseigne":"Indique d'abord ton compte X dans le profil.",
+"err.boost_inactif":"Ce boost n'est pas proposé aujourd'hui.",
+"err.boost_deja_obtenu":"Boost déjà obtenu aujourd'hui.",
+"err.boost_tg_par_groupe":"Pas encore vu dans le groupe : poste le message avec le code, puis vérifie.",
+"err.post_url_invalide":"Ce n'est pas un lien de post X.",
+"err.post_introuvable":"Post introuvable : public et pas supprimé ?",
+"err.post_mauvais_auteur":"Ce post ne vient pas du compte X de ton profil.",
+"err.post_pas_du_jour":"Ce post n'est pas d'aujourd'hui.",
+"err.post_sans_code":"Le code du jour manque dans le post.",
+"err.post_sans_hashtag":"#987NES manque dans le post.",
+"err.post_deja_utilise":"Ce post a déjà servi pour un boost.",
+"err.preuve_invalide":"Preuve invalide.",
+"err.preuve_deja_utilisee":"Preuve déjà utilisée.",
+"err.verification_indisponible":"Vérification indisponible pour l'instant. Réessaie plus tard.",
+/* 0.7 : serveur de scores, écran d'entrée, boosts, classement, revoir */
+"partage.titre":"DZÔ Survivors · {0}",
+"partage.victoire":"10:00 tenues",
+"partage.descPalier":"Palier « {0} » atteint face à la horde du jour. Défends Fribourg à ton tour.",
+"partage.descRepas":"Le repas de Bénichon servi à toute la horde. DZÔ a encore faim.",
+"partage.descVictoire":"Dix minutes tenues dans la vieille ville. La bougie de clôture est verte.",
+"partage.desc":"DZÔ face à la horde dans la vieille ville de Fribourg. Une horde par jour, trois essais. Viens mordre.",
 "panneau.grenouilles.2":"les grenouilles"
 };
 LANGUES.de={
@@ -2486,6 +2700,204 @@ LANGUES.de={
 "panneau.vide.1":"",
 "panneau.vide.2":"",
 "panneau.grenouilles.1":"Frösche füttern",
+/* 0.7 : serveur de scores, écran d'entrée, boosts, classement, revoir */
+"menu.retour":"‹ ZURÜCK",
+"entree.touche":"TIPPEN ZUM EINTRETEN",
+"entree.clic":"KLICKEN ZUM EINTRETEN",
+"entree.son":"Ton an: Die Hymne der Altstadt wartet.",
+"titre.essaisCnx":"Melde dich an für die Wertung",
+"titre.scoreJour":"Tagesbestwert: {0}",
+"titre.connecteToi":"Für die Wertung anmelden",
+"titre.decretSecret":"Dekret des Tages: Überraschung",
+"titre.hordeEssai":"Bei jedem Versuch eine andere Horde",
+"titre.decretSurprise":"Das Dekret zeigt sich im Spiel.",
+"titre.connexion":"Verbindung zum Server…",
+"titre.perimee":"Neue Version: neu laden",
+"titre.debut":"Die Horde macht sich bereit…",
+"titre.compte":"Neue Horde in {0} (um {1}, deine Zeit)",
+"titre.compteMinuit":"Neue Horde in {0}, um Mitternacht",
+"x.score":"Punkte: {0}.",
+"x.boostScore":"{0} Punkte in der Tageshorde von DZÔ Survivors. Du bist dran.",
+"x.boostSans":"Ich verteidige Freiburg in DZÔ Survivors. Komm, beiss in die Tageshorde.",
+"net.horsLigne":"Offline: Punkte nicht gewertet",
+"net.bientot":"Bald: Online-Rangliste",
+"net.bientotTexte":"Der Punkteserver kommt bald. Bis dahin bleiben Versuche, Rekord und Serie auf diesem Telefon.",
+"net.injoignable":"Server nicht erreichbar",
+"net.injoignableTexte":"Du kannst trotzdem spielen: Diese Runden werden nicht gewertet. Das Spiel versucht es selbst erneut.",
+"net.reessayer":"ERNEUT",
+"net.nonClasse":"Nicht gewertet (Server beim Start nicht erreichbar)",
+"net.verif":"Der Server spielt deine Runde nach…",
+"net.valide":"Punkte vom Server bestätigt",
+"net.valideRang":"Bestätigt · Platz {0} heute ({1})",
+"net.refusee":"Runde abgelehnt:",
+"net.enAttente":"Senden ausstehend: neuer Versuch automatisch, auch später",
+"net.envoyee":"Vorherige Runde bestätigt: {0}",
+"cnx.titre":"ANMELDEN",
+"cnx.bouton":"ANMELDEN",
+"cnx.invite":"Melde dich mit Telegram an, um gewertet zu spielen und in die Rangliste zu kommen. Ohne Anmeldung bleibt das Training offen.",
+"cnx.pourquoi":"Die Rangliste muss wissen, wer beisst. Dein Telegram-Konto genügt: kein Passwort.",
+"cnx.lu":"Das Spiel erhält nur deine Telegram-ID, deinen Vornamen und Benutzernamen.",
+"cnx.widgetAide":"Kein Knopf? Öffne das Spiel über den Telegram-Bot.",
+"cnx.ouvrirTg":"IN TELEGRAM ÖFFNEN",
+"cnx.pasDeBot":"Anmeldung auf dieser Seite noch nicht eingerichtet.",
+"cnx.dev":"Entwickler-Identität Nr. {0} (lokal)",
+"cnx.bienvenue":"Willkommen, {0}. Die Horde wartet.",
+"profil.titre":"PROFIL",
+"profil.pseudo":"NAME IN DER RANGLISTE",
+"profil.pseudoAide":"dein Name",
+"profil.pseudoRegle":"3 bis 16 Zeichen: Buchstaben, Ziffern, _ . -",
+"profil.wallet":"SOLANA-WALLET (FREIWILLIG)",
+"profil.walletAide":"öffentliche Adresse",
+"profil.walletAvert":"Nur um einen Preis zu erhalten. Gib nie deine geheime Wortfolge weiter: niemand wird danach fragen.",
+"profil.x":"X-KONTO (FÜR DEN BOOST)",
+"profil.xAide":"Der X-Boost prüft, ob der Post von diesem Konto stammt.",
+"profil.enregistrer":"SPEICHERN",
+"profil.envoi":"Speichern…",
+"profil.ok":"Profil gespeichert.",
+"profil.rien":"Nichts geändert.",
+"profil.deconnecter":"ABMELDEN",
+"profil.deconnecte":"Abgemeldet. Das Training bleibt offen.",
+"profil.bientot":"Name, Wallet und X-Konto: mit der Online-Rangliste.",
+"boost.titre":"BOOSTS",
+"boost.regle":"Jeder Boost gibt heute +1 gewerteten Versuch.",
+"boost.code":"CODE DES TAGES",
+"boost.copier":"KOPIEREN",
+"boost.copie":"Kopiert.",
+"boost.aucun":"Heute kein Boost.",
+"boost.x":"Boost X",
+"boost.tg":"Boost Telegram",
+"boost.obtenu":"erhalten ✓",
+"boost.plusUn":"+1 Versuch",
+"boost.xProfil":"Gib zuerst dein X-Konto im Profil an.",
+"boost.etape1":"1. Poste von @{0} (der Code steht schon im Text)",
+"boost.poster":"AUF X POSTEN",
+"boost.posterSimule":"SIMULIERTER X-POST (LOKAL)",
+"boost.etape2":"2. Füge den Link deines Posts ein",
+"boost.verifier":"PRÜFEN",
+"boost.xRegle":"Öffentlicher Post von heute, mit #987NES und dem Code.",
+"boost.tgRegle":"Poste diese Nachricht in der Community-Gruppe und tippe dann auf Prüfen.",
+"boost.groupe":"GRUPPE ÖFFNEN",
+"boost.colle":"Füge zuerst den Link deines Posts ein.",
+"boost.verif":"Prüfung…",
+"boost.okX":"X-Boost erhalten: +1 Versuch heute.",
+"boost.okTg":"Telegram-Boost erhalten: +1 Versuch heute.",
+"boost.simule":"Simulierter Post erstellt (nichts geht an X). Tippe auf Prüfen.",
+"boost.local":"Boost des Tages",
+"boost.localTexte":"Teile deine Runde auf X: +1 Versuch heute, auf diesem Telefon gezählt.",
+"cl.titre":"RANGLISTE",
+"cl.jour":"Tag",
+"cl.hier":"Gestern",
+"cl.semaine":"Woche",
+"cl.mois":"Monat",
+"cl.du":"vom {0} bis {1}",
+"cl.modeMeilleur":"bester Versuch",
+"cl.modeCumul":"Summe der Tagesbesten",
+"cl.charge":"Laden…",
+"cl.vide":"Noch niemand. Die erste Punktzahl wird deine sein.",
+"cl.moi":"Du: Platz {0} · {1} · {2} Runde(n)",
+"cl.moiRien":"Du: in diesem Zeitraum noch nicht gewertet",
+"cl.public":"Melde dich an, um deinen Platz zu sehen.",
+"cl.chargeRevoir":"Runde wird geladen…",
+"cl.local":"AUF DIESEM TELEFON",
+"revoir.maj":"WIEDERHOLUNG",
+"revoir.de":"Runde von {0}",
+"revoir.encore":"NOCHMAL ANSEHEN",
+"revoir.bandeau":"Wiederholung: Runde von {0}",
+"revoir.version":"In {0} gespielt: die Wiederholung kann abweichen.",
+"revoir.fin":"Ende der Wiederholung.",
+"err.inconnu":"Unerwartete Antwort des Servers. Versuch es nochmal.",
+"err.reseau":"Kein Netz oder Server nicht erreichbar.",
+"err.hors_ligne":"Offline.",
+"err.interne":"Serverstörung. Versuch es gleich nochmal.",
+"err.serveur_occupe":"Server stark ausgelastet. Gleich nochmal.",
+"err.trop_de_requetes":"Zu viele Anfragen. Kurz durchatmen, dann nochmal.",
+"err.origine_refusee":"Diese Seite ist vom Server nicht zugelassen.",
+"err.methode_refusee":"Anfrage vom Server abgelehnt.",
+"err.introuvable":"Nicht gefunden.",
+"err.json_invalide":"Anfrage für den Server unlesbar.",
+"err.requete_invalide":"Ungültige Anfrage.",
+"err.corps_trop_grand":"Daten zu gross.",
+"err.type_contenu_invalide":"Anfrageformat abgelehnt.",
+"err.identite_absente":"Telegram-Anmeldung fehlt.",
+"err.init_data_absente":"Öffne das Spiel aus Telegram, um dich anzumelden.",
+"err.init_data_expiree":"Telegram-Anmeldung abgelaufen: öffne das Spiel erneut über den Bot.",
+"err.init_data_invalide":"Ungültige Telegram-Anmeldung: öffne das Spiel erneut über den Bot.",
+"err.init_data_signature":"Telegram-Signatur abgelehnt: öffne das Spiel erneut über den Bot.",
+"err.init_data_sans_utilisateur":"Telegram hat dein Konto nicht übermittelt: öffne das Spiel über den Bot.",
+"err.login_absent":"Telegram-Anmeldung fehlt.",
+"err.login_expire":"Telegram-Anmeldung zu alt: melde dich neu an.",
+"err.login_invalide":"Ungültige Telegram-Anmeldung: nochmal versuchen.",
+"err.login_signature":"Telegram-Signatur abgelehnt: nochmal versuchen.",
+"err.compte_bot":"Bot-Konten spielen nicht.",
+"err.dev_refuse":"Entwickler-Identität abgelehnt (nicht lokal).",
+"err.dev_invalide":"Ungültige Entwickler-Identität.",
+"err.session_absente":"Melde dich zuerst an.",
+"err.session_invalide":"Sitzung abgelaufen: melde dich neu an.",
+"err.joueur_inconnu":"Unbekannter Spieler: melde dich neu an.",
+"err.joueur_exclu":"Dieses Konto ist von der Rangliste ausgeschlossen.",
+"err.joueur_suspendu":"Dieses Konto ist zur Prüfung gesperrt.",
+"err.admin_refuse":"Nur für den Veranstalter.",
+"err.webhook_refuse":"Anfrage abgelehnt.",
+"err.version_absente":"Spielversion fehlt: Seite neu laden.",
+"err.version_inconnue":"Spielversion dem Server unbekannt: Seite neu laden.",
+"err.version_perimee":"Neue Spielversion: die Seite lädt neu.",
+"err.version_differente":"Runde mit einer anderen Spielversion begonnen.",
+"err.essais_epuises":"Gewertete Versuche für heute aufgebraucht. Morgen wieder, oder hol dir einen Boost.",
+"err.parties_en_attente":"Eine Runde wird noch gesendet. Einen Moment.",
+"err.jour_change":"Mitternacht vorbei: neue Horde. Starte einen neuen Versuch.",
+"err.jeton_inconnu":"Runde dem Server unbekannt.",
+"err.jeton_invalide":"Ungültiges Runden-Token.",
+"err.jeton_expire":"Runde vor zu langer Zeit begonnen.",
+"err.jeton_deja_utilise":"Diese Runde wurde schon gesendet.",
+"err.journal_invalide":"Runde für den Server unlesbar.",
+"err.n_pas_invalide":"Ungültige Rundendauer.",
+"err.choix_invalides":"Kartenwahl unlesbar.",
+"err.choix_incoherents":"Die Kartenwahl passt nicht zur Runde.",
+"err.partie_incoherente":"Der Server fand nicht dieselbe Runde.",
+"err.partie_copiee":"Diese Runde gleicht zu sehr einer anderen.",
+"err.partie_trop_rapide":"Runde schneller gesendet als spielbar.",
+"err.partie_trop_tardive":"Runde zu spät gesendet.",
+"err.partie_inconnue":"Runde nicht gefunden.",
+"err.partie_non_relancable":"Diese Runde kann nicht neu gestartet werden.",
+"err.rejeu_delai":"Der Server brauchte zu lange zum Nachspielen. Die Runde ist gespeichert.",
+"err.rejeu_echec":"Der Server konnte die Runde nicht nachspielen. Sie ist gespeichert.",
+"err.rejeu_apres_cloture":"Diese Runde ist nach Tagesschluss sichtbar.",
+"err.rejeu_apres_cloture_h":"Diese Runde ist ab {0} sichtbar.",
+"err.jour_non_clos":"Dieser Tag ist noch nicht abgeschlossen.",
+"err.periode_invalide":"Unbekannter Zeitraum.",
+"err.date_invalide":"Ungültiges Datum.",
+"err.limite_invalide":"Ungültige Zeilenanzahl.",
+"err.id_invalide":"Ungültige Kennung.",
+"err.statut_invalide":"Ungültiger Status.",
+"err.pseudo_invalide":"Name: 3 bis 16 Zeichen, Buchstaben, Ziffern, _ . -",
+"err.pseudo_interdit":"Dieser Name ist nicht erlaubt.",
+"err.pseudo_pris":"Dieser Name ist schon vergeben.",
+"err.wallet_invalide":"Ungültige Solana-Adresse (öffentliche Adresse, keine Wortfolge).",
+"err.wallet_deja_lie":"Diese Wallet ist schon mit einem anderen Spieler verknüpft.",
+"err.x_invalide":"Ungültiges X-Konto (1 bis 15 Zeichen: Buchstaben, Ziffern, _).",
+"err.x_deja_lie":"Dieses X-Konto ist schon mit einem anderen Spieler verknüpft.",
+"err.x_deja_lie_reprenable":"Dieses X-Konto gehört zu einem anderen Spieler. Beweise mit einem X-Boost, dass es deins ist.",
+"err.x_non_renseigne":"Gib zuerst dein X-Konto im Profil an.",
+"err.boost_inactif":"Dieser Boost ist heute nicht verfügbar.",
+"err.boost_deja_obtenu":"Boost heute schon erhalten.",
+"err.boost_tg_par_groupe":"Noch nicht in der Gruppe gesehen: poste die Nachricht mit dem Code, dann prüfen.",
+"err.post_url_invalide":"Das ist kein X-Post-Link.",
+"err.post_introuvable":"Post nicht gefunden: öffentlich und nicht gelöscht?",
+"err.post_mauvais_auteur":"Dieser Post stammt nicht vom X-Konto deines Profils.",
+"err.post_pas_du_jour":"Dieser Post ist nicht von heute.",
+"err.post_sans_code":"Der Code des Tages fehlt im Post.",
+"err.post_sans_hashtag":"#987NES fehlt im Post.",
+"err.post_deja_utilise":"Dieser Post wurde schon für einen Boost verwendet.",
+"err.preuve_invalide":"Ungültiger Nachweis.",
+"err.preuve_deja_utilisee":"Nachweis schon verwendet.",
+"err.verification_indisponible":"Prüfung gerade nicht verfügbar. Später nochmal.",
+/* 0.7 : serveur de scores, écran d'entrée, boosts, classement, revoir */
+"partage.titre":"DZÔ Survivors · {0}",
+"partage.victoire":"10:00 durchgehalten",
+"partage.descPalier":"Stufe «{0}» gegen die Tageshorde erreicht. Verteidige Freiburg auch du.",
+"partage.descRepas":"Das Bénichon-Essen für die ganze Horde serviert. DZÔ hat noch Hunger.",
+"partage.descVictoire":"Zehn Minuten in der Altstadt durchgehalten. Die Schlusskerze ist grün.",
+"partage.desc":"DZÔ gegen die Horde in der Freiburger Altstadt. Eine Horde pro Tag, drei Versuche. Komm beissen.",
 "panneau.grenouilles.2":"verboten"
 };
 LANGUES.it={
@@ -2946,6 +3358,204 @@ LANGUES.it={
 "panneau.vide.1":"",
 "panneau.vide.2":"",
 "panneau.grenouilles.1":"Vietato nutrire",
+/* 0.7 : serveur de scores, écran d'entrée, boosts, classement, revoir */
+"menu.retour":"‹ INDIETRO",
+"entree.touche":"TOCCA PER ENTRARE",
+"entree.clic":"CLICCA PER ENTRARE",
+"entree.son":"Alza il volume: l'inno della città vecchia ti aspetta.",
+"titre.essaisCnx":"Accedi per la classifica",
+"titre.scoreJour":"Migliore di oggi: {0}",
+"titre.connecteToi":"Accedi per il tentativo in classifica",
+"titre.decretSecret":"Decreto del giorno: sorpresa",
+"titre.hordeEssai":"Un'orda diversa a ogni tentativo",
+"titre.decretSurprise":"Il decreto si svela in partita.",
+"titre.connexion":"Connessione al server…",
+"titre.perimee":"Nuova versione: ricarica",
+"titre.debut":"L'orda si prepara…",
+"titre.compte":"Nuova orda tra {0} (alle {1}, ora tua)",
+"titre.compteMinuit":"Nuova orda tra {0}, a mezzanotte",
+"x.score":"Punteggio: {0}.",
+"x.boostScore":"Ho fatto {0} punti nell'orda del giorno di DZÔ Survivors. Tocca a te.",
+"x.boostSans":"Difendo Friburgo in DZÔ Survivors. Vieni a mordere l'orda del giorno.",
+"net.horsLigne":"Offline: punteggio non in classifica",
+"net.bientot":"Presto: classifica online",
+"net.bientotTexte":"Il server dei punteggi sta arrivando. Intanto tentativi, record e serie restano su questo telefono.",
+"net.injoignable":"Server non raggiungibile",
+"net.injoignableTexte":"Puoi giocare lo stesso: queste partite non vanno in classifica. Il gioco riprova da solo.",
+"net.reessayer":"RIPROVA",
+"net.nonClasse":"Partita non in classifica (server irraggiungibile all'avvio)",
+"net.verif":"Il server rigioca la tua partita…",
+"net.valide":"Punteggio convalidato dal server",
+"net.valideRang":"Convalidato · {0}° di oggi ({1})",
+"net.refusee":"Partita rifiutata:",
+"net.enAttente":"Invio in attesa: nuovo tentativo automatico, anche più tardi",
+"net.envoyee":"Partita precedente convalidata: {0}",
+"cnx.titre":"ACCESSO",
+"cnx.bouton":"ACCEDI",
+"cnx.invite":"Accedi con Telegram per giocare in classifica e tenere il tuo punteggio. Senza accesso, l'allenamento resta aperto.",
+"cnx.pourquoi":"La classifica deve sapere chi morde. Basta il tuo account Telegram: nessuna password.",
+"cnx.lu":"Il gioco riceve solo il tuo ID, nome e nome utente Telegram.",
+"cnx.widgetAide":"Il pulsante non compare? Apri il gioco dal bot Telegram.",
+"cnx.ouvrirTg":"APRI IN TELEGRAM",
+"cnx.pasDeBot":"Accesso non ancora configurato su questa pagina.",
+"cnx.dev":"Identità di sviluppo n. {0} (locale)",
+"cnx.bienvenue":"Benvenuto, {0}. L'orda ti aspetta.",
+"profil.titre":"PROFILO",
+"profil.pseudo":"NOME IN CLASSIFICA",
+"profil.pseudoAide":"il tuo nome",
+"profil.pseudoRegle":"Da 3 a 16 caratteri: lettere, cifre, _ . -",
+"profil.wallet":"WALLET SOLANA (FACOLTATIVO)",
+"profil.walletAide":"indirizzo pubblico",
+"profil.walletAvert":"Solo per ricevere un premio. Non dare mai la tua frase segreta: nessuno te la chiederà.",
+"profil.x":"ACCOUNT X (PER IL BOOST)",
+"profil.xAide":"Il boost X verifica che il post venga da questo account.",
+"profil.enregistrer":"SALVA",
+"profil.envoi":"Salvataggio…",
+"profil.ok":"Profilo salvato.",
+"profil.rien":"Nulla è cambiato.",
+"profil.deconnecter":"ESCI",
+"profil.deconnecte":"Disconnesso. L'allenamento resta aperto.",
+"profil.bientot":"Nome, wallet e account X: con la classifica online.",
+"boost.titre":"BOOST",
+"boost.regle":"Ogni boost dà +1 tentativo in classifica oggi.",
+"boost.code":"CODICE DEL GIORNO",
+"boost.copier":"COPIA",
+"boost.copie":"Copiato.",
+"boost.aucun":"Nessun boost oggi.",
+"boost.x":"Boost X",
+"boost.tg":"Boost Telegram",
+"boost.obtenu":"ottenuto ✓",
+"boost.plusUn":"+1 tentativo",
+"boost.xProfil":"Prima indica il tuo account X nel profilo.",
+"boost.etape1":"1. Pubblica da @{0} (il codice è già nel testo)",
+"boost.poster":"PUBBLICA SU X",
+"boost.posterSimule":"POST X SIMULATO (LOCALE)",
+"boost.etape2":"2. Incolla il link del tuo post",
+"boost.verifier":"VERIFICA",
+"boost.xRegle":"Post pubblico di oggi, con #987NES e il codice.",
+"boost.tgRegle":"Pubblica questo messaggio nel gruppo della community, poi tocca Verifica.",
+"boost.groupe":"APRI IL GRUPPO",
+"boost.colle":"Incolla prima il link del tuo post.",
+"boost.verif":"Verifica…",
+"boost.okX":"Boost X ottenuto: +1 tentativo oggi.",
+"boost.okTg":"Boost Telegram ottenuto: +1 tentativo oggi.",
+"boost.simule":"Post simulato creato (niente va a X). Tocca Verifica.",
+"boost.local":"Boost del giorno",
+"boost.localTexte":"Condividi la tua partita su X: +1 tentativo oggi, contato su questo telefono.",
+"cl.titre":"CLASSIFICA",
+"cl.jour":"Giorno",
+"cl.hier":"Ieri",
+"cl.semaine":"Settimana",
+"cl.mois":"Mese",
+"cl.du":"dal {0} al {1}",
+"cl.modeMeilleur":"miglior tentativo",
+"cl.modeCumul":"somma dei migliori del giorno",
+"cl.charge":"Caricamento…",
+"cl.vide":"Ancora nessuno. Il primo punteggio sarà il tuo.",
+"cl.moi":"Tu: {0}° · {1} · {2} partita/e",
+"cl.moiRien":"Tu: non ancora in classifica in questo periodo",
+"cl.public":"Accedi per vedere il tuo posto e rivedere le partite.",
+"cl.chargeRevoir":"Caricamento della partita…",
+"cl.local":"SU QUESTO TELEFONO",
+"revoir.maj":"REPLAY",
+"revoir.de":"Partita di {0}",
+"revoir.encore":"RIVEDI ANCORA",
+"revoir.bandeau":"Replay: la partita di {0}",
+"revoir.version":"Partita giocata in {0}: il replay può differire.",
+"revoir.fin":"Fine del replay.",
+"err.inconnu":"Il server ha risposto qualcosa di inatteso. Riprova.",
+"err.reseau":"Nessuna rete, o server irraggiungibile.",
+"err.hors_ligne":"Offline.",
+"err.interne":"Problema del server. Riprova tra poco.",
+"err.serveur_occupe":"Server molto occupato. Riprova tra un attimo.",
+"err.trop_de_requetes":"Troppe richieste. Respira, poi riprova.",
+"err.origine_refusee":"Questa pagina non è autorizzata dal server.",
+"err.methode_refusee":"Richiesta rifiutata dal server.",
+"err.introuvable":"Non trovato.",
+"err.json_invalide":"Richiesta illeggibile per il server.",
+"err.requete_invalide":"Richiesta non valida.",
+"err.corps_trop_grand":"Dati troppo grandi.",
+"err.type_contenu_invalide":"Formato della richiesta rifiutato.",
+"err.identite_absente":"Accesso Telegram mancante.",
+"err.init_data_absente":"Apri il gioco da Telegram per accedere.",
+"err.init_data_expiree":"Accesso Telegram scaduto: riapri il gioco dal bot.",
+"err.init_data_invalide":"Accesso Telegram non valido: riapri il gioco dal bot.",
+"err.init_data_signature":"Firma Telegram rifiutata: riapri il gioco dal bot.",
+"err.init_data_sans_utilisateur":"Telegram non ha trasmesso il tuo account: riapri il gioco dal bot.",
+"err.login_absent":"Accesso Telegram mancante.",
+"err.login_expire":"Accesso Telegram troppo vecchio: accedi di nuovo.",
+"err.login_invalide":"Accesso Telegram non valido: riprova.",
+"err.login_signature":"Firma Telegram rifiutata: riprova.",
+"err.compte_bot":"Gli account bot non giocano.",
+"err.dev_refuse":"Identità di sviluppo rifiutata (non in locale).",
+"err.dev_invalide":"Identità di sviluppo non valida.",
+"err.session_absente":"Accedi prima.",
+"err.session_invalide":"Sessione scaduta: accedi di nuovo.",
+"err.joueur_inconnu":"Giocatore sconosciuto: accedi di nuovo.",
+"err.joueur_exclu":"Questo account è escluso dalla classifica.",
+"err.joueur_suspendu":"Questo account è sospeso per verifica.",
+"err.admin_refuse":"Riservato all'organizzatore.",
+"err.webhook_refuse":"Richiesta rifiutata.",
+"err.version_absente":"Versione del gioco mancante: ricarica la pagina.",
+"err.version_inconnue":"Versione del gioco sconosciuta al server: ricarica la pagina.",
+"err.version_perimee":"Nuova versione del gioco: la pagina si ricarica.",
+"err.version_differente":"Partita iniziata con un'altra versione del gioco.",
+"err.essais_epuises":"Tentativi in classifica esauriti per oggi. Torna domani, o prendi un boost.",
+"err.parties_en_attente":"Una partita è ancora in invio. Un attimo.",
+"err.jour_change":"È passata mezzanotte: nuova orda. Rilancia un tentativo.",
+"err.jeton_inconnu":"Partita sconosciuta al server.",
+"err.jeton_invalide":"Gettone di partita non valido.",
+"err.jeton_expire":"Partita iniziata troppo tempo fa.",
+"err.jeton_deja_utilise":"Questa partita è già stata inviata.",
+"err.journal_invalide":"Partita illeggibile per il server.",
+"err.n_pas_invalide":"Durata della partita non valida.",
+"err.choix_invalides":"Scelte delle carte illeggibili.",
+"err.choix_incoherents":"Le scelte delle carte non corrispondono alla partita.",
+"err.partie_incoherente":"Il server non ha ritrovato la stessa partita.",
+"err.partie_copiee":"Questa partita somiglia troppo a un'altra.",
+"err.partie_trop_rapide":"Partita inviata più in fretta di quanto potesse essere giocata.",
+"err.partie_trop_tardive":"Partita inviata troppo tardi.",
+"err.partie_inconnue":"Partita non trovata.",
+"err.partie_non_relancable":"Questa partita non può essere rilanciata.",
+"err.rejeu_delai":"Il server ha impiegato troppo a rigiocare la partita. È conservata.",
+"err.rejeu_echec":"Il server non ha potuto rigiocare la partita. È conservata.",
+"err.rejeu_apres_cloture":"Questa partita sarà visibile dopo la chiusura del giorno.",
+"err.rejeu_apres_cloture_h":"Questa partita sarà visibile alle {0}.",
+"err.jour_non_clos":"Questo giorno non è ancora chiuso.",
+"err.periode_invalide":"Periodo sconosciuto.",
+"err.date_invalide":"Data non valida.",
+"err.limite_invalide":"Numero di righe non valido.",
+"err.id_invalide":"Identificativo non valido.",
+"err.statut_invalide":"Stato non valido.",
+"err.pseudo_invalide":"Nome: da 3 a 16 caratteri, lettere, cifre, _ . -",
+"err.pseudo_interdit":"Questo nome non è accettato.",
+"err.pseudo_pris":"Questo nome è già preso.",
+"err.wallet_invalide":"Indirizzo Solana non valido (un indirizzo pubblico, non una frase).",
+"err.wallet_deja_lie":"Questo wallet è già collegato a un altro giocatore.",
+"err.x_invalide":"Account X non valido (da 1 a 15 caratteri: lettere, cifre, _).",
+"err.x_deja_lie":"Questo account X è già collegato a un altro giocatore.",
+"err.x_deja_lie_reprenable":"Questo account X è collegato a un altro giocatore. Dimostra che è tuo con un boost X.",
+"err.x_non_renseigne":"Indica prima il tuo account X nel profilo.",
+"err.boost_inactif":"Questo boost non è disponibile oggi.",
+"err.boost_deja_obtenu":"Boost già ottenuto oggi.",
+"err.boost_tg_par_groupe":"Non ancora visto nel gruppo: pubblica il messaggio con il codice, poi verifica.",
+"err.post_url_invalide":"Non è un link di un post X.",
+"err.post_introuvable":"Post non trovato: è pubblico e non cancellato?",
+"err.post_mauvais_auteur":"Questo post non viene dall'account X del tuo profilo.",
+"err.post_pas_du_jour":"Questo post non è di oggi.",
+"err.post_sans_code":"Nel post manca il codice del giorno.",
+"err.post_sans_hashtag":"Nel post manca #987NES.",
+"err.post_deja_utilise":"Questo post è già servito per un boost.",
+"err.preuve_invalide":"Prova non valida.",
+"err.preuve_deja_utilisee":"Prova già usata.",
+"err.verification_indisponible":"Verifica non disponibile al momento. Riprova più tardi.",
+/* 0.7 : serveur de scores, écran d'entrée, boosts, classement, revoir */
+"partage.titre":"DZÔ Survivors · {0}",
+"partage.victoire":"10:00 resistiti",
+"partage.descPalier":"Livello «{0}» raggiunto contro l'orda del giorno. Difendi Friburgo anche tu.",
+"partage.descRepas":"Il pranzo della Bénichon servito a tutta l'orda. DZÔ ha ancora fame.",
+"partage.descVictoire":"Dieci minuti resistiti nella città vecchia. La candela di chiusura è verde.",
+"partage.desc":"DZÔ contro l'orda nella città vecchia di Friburgo. Un'orda al giorno, tre tentativi. Vieni a mordere.",
 "panneau.grenouilles.2":"le rane"
 };
 LANGUES.es={
@@ -3406,6 +4016,204 @@ LANGUES.es={
 "panneau.vide.1":"",
 "panneau.vide.2":"",
 "panneau.grenouilles.1":"Prohibido alimentar",
+/* 0.7 : serveur de scores, écran d'entrée, boosts, classement, revoir */
+"menu.retour":"‹ VOLVER",
+"entree.touche":"TOCA PARA ENTRAR",
+"entree.clic":"HAZ CLIC PARA ENTRAR",
+"entree.son":"Sube el volumen: el himno del casco antiguo te espera.",
+"titre.essaisCnx":"Conéctate para el ranking",
+"titre.scoreJour":"Mejor del día: {0}",
+"titre.connecteToi":"Conéctate para el intento clasificado",
+"titre.decretSecret":"Decreto del día: sorpresa",
+"titre.hordeEssai":"Una horda distinta en cada intento",
+"titre.decretSurprise":"El decreto se revela en la partida.",
+"titre.connexion":"Conectando con el servidor…",
+"titre.perimee":"Nueva versión: recarga",
+"titre.debut":"La horda se prepara…",
+"titre.compte":"Nueva horda en {0} (a las {1}, tu hora)",
+"titre.compteMinuit":"Nueva horda en {0}, a medianoche",
+"x.score":"Puntos: {0}.",
+"x.boostScore":"He hecho {0} puntos en la horda del día de DZÔ Survivors. Te toca.",
+"x.boostSans":"Defiendo Friburgo en DZÔ Survivors. Ven a morder la horda del día.",
+"net.horsLigne":"Sin conexión: puntuación no clasificada",
+"net.bientot":"Pronto: ranking en línea",
+"net.bientotTexte":"El servidor de puntuaciones llega pronto. Mientras tanto, tus intentos, récord y racha se quedan en este teléfono.",
+"net.injoignable":"Servidor inaccesible",
+"net.injoignableTexte":"Puedes jugar igual: estas partidas no se clasifican. El juego lo reintenta solo.",
+"net.reessayer":"REINTENTAR",
+"net.nonClasse":"Partida no clasificada (servidor inaccesible al empezar)",
+"net.verif":"El servidor repite tu partida…",
+"net.valide":"Puntuación validada por el servidor",
+"net.valideRang":"Validado · {0}.º del día ({1})",
+"net.refusee":"Partida rechazada:",
+"net.enAttente":"Envío pendiente: reintento automático, incluso más tarde",
+"net.envoyee":"Partida anterior validada: {0}",
+"cnx.titre":"CONEXIÓN",
+"cnx.bouton":"CONECTARSE",
+"cnx.invite":"Conéctate con Telegram para jugar clasificado y guardar tu puntuación. Sin conexión, el entrenamiento sigue abierto.",
+"cnx.pourquoi":"El ranking necesita saber quién muerde. Basta tu cuenta de Telegram: sin contraseña.",
+"cnx.lu":"El juego solo recibe tu ID, nombre y nombre de usuario de Telegram.",
+"cnx.widgetAide":"¿No aparece el botón? Abre el juego desde el bot de Telegram.",
+"cnx.ouvrirTg":"ABRIR EN TELEGRAM",
+"cnx.pasDeBot":"Conexión aún no configurada en esta página.",
+"cnx.dev":"Identidad de desarrollo n.º {0} (local)",
+"cnx.bienvenue":"Bienvenido, {0}. La horda te espera.",
+"profil.titre":"PERFIL",
+"profil.pseudo":"NOMBRE EN EL RANKING",
+"profil.pseudoAide":"tu nombre",
+"profil.pseudoRegle":"De 3 a 16 caracteres: letras, cifras, _ . -",
+"profil.wallet":"WALLET SOLANA (OPCIONAL)",
+"profil.walletAide":"dirección pública",
+"profil.walletAvert":"Solo para recibir un premio. Nunca des tu frase secreta: nadie te la pedirá.",
+"profil.x":"CUENTA DE X (PARA EL BOOST)",
+"profil.xAide":"El boost de X comprueba que el post viene de esta cuenta.",
+"profil.enregistrer":"GUARDAR",
+"profil.envoi":"Guardando…",
+"profil.ok":"Perfil guardado.",
+"profil.rien":"No ha cambiado nada.",
+"profil.deconnecter":"CERRAR SESIÓN",
+"profil.deconnecte":"Sesión cerrada. El entrenamiento sigue abierto.",
+"profil.bientot":"Nombre, wallet y cuenta de X: con el ranking en línea.",
+"boost.titre":"BOOSTS",
+"boost.regle":"Cada boost da +1 intento clasificado hoy.",
+"boost.code":"CÓDIGO DEL DÍA",
+"boost.copier":"COPIAR",
+"boost.copie":"Copiado.",
+"boost.aucun":"Hoy no hay boost.",
+"boost.x":"Boost X",
+"boost.tg":"Boost Telegram",
+"boost.obtenu":"conseguido ✓",
+"boost.plusUn":"+1 intento",
+"boost.xProfil":"Primero indica tu cuenta de X en el perfil.",
+"boost.etape1":"1. Publica desde @{0} (el código ya está en el texto)",
+"boost.poster":"PUBLICAR EN X",
+"boost.posterSimule":"POST DE X SIMULADO (LOCAL)",
+"boost.etape2":"2. Pega el enlace de tu post",
+"boost.verifier":"VERIFICAR",
+"boost.xRegle":"Post público de hoy, con #987NES y el código.",
+"boost.tgRegle":"Publica este mensaje en el grupo de la comunidad y luego toca Verificar.",
+"boost.groupe":"ABRIR EL GRUPO",
+"boost.colle":"Pega primero el enlace de tu post.",
+"boost.verif":"Verificando…",
+"boost.okX":"Boost de X conseguido: +1 intento hoy.",
+"boost.okTg":"Boost de Telegram conseguido: +1 intento hoy.",
+"boost.simule":"Post simulado creado (no se envía nada a X). Toca Verificar.",
+"boost.local":"Boost del día",
+"boost.localTexte":"Comparte tu partida en X: +1 intento hoy, contado en este teléfono.",
+"cl.titre":"RANKING",
+"cl.jour":"Día",
+"cl.hier":"Ayer",
+"cl.semaine":"Semana",
+"cl.mois":"Mes",
+"cl.du":"del {0} al {1}",
+"cl.modeMeilleur":"mejor intento",
+"cl.modeCumul":"suma de los mejores del día",
+"cl.charge":"Cargando…",
+"cl.vide":"Aún nadie. La primera puntuación será la tuya.",
+"cl.moi":"Tú: {0}.º · {1} · {2} partida(s)",
+"cl.moiRien":"Tú: aún sin clasificar en este periodo",
+"cl.public":"Conéctate para ver tu puesto y repetir tus partidas.",
+"cl.chargeRevoir":"Cargando la partida…",
+"cl.local":"EN ESTE TELÉFONO",
+"revoir.maj":"REPETICIÓN",
+"revoir.de":"Partida de {0}",
+"revoir.encore":"VER OTRA VEZ",
+"revoir.bandeau":"Repetición: la partida de {0}",
+"revoir.version":"Partida jugada en {0}: la repetición puede variar.",
+"revoir.fin":"Fin de la repetición.",
+"err.inconnu":"El servidor respondió algo inesperado. Vuelve a intentarlo.",
+"err.reseau":"Sin red, o servidor inaccesible.",
+"err.hors_ligne":"Sin conexión.",
+"err.interne":"Incidente del servidor. Inténtalo en un momento.",
+"err.serveur_occupe":"Servidor muy ocupado. Inténtalo en un instante.",
+"err.trop_de_requetes":"Demasiadas peticiones. Respira y vuelve a intentarlo.",
+"err.origine_refusee":"Esta página no está autorizada por el servidor.",
+"err.methode_refusee":"Petición rechazada por el servidor.",
+"err.introuvable":"No encontrado.",
+"err.json_invalide":"Petición ilegible para el servidor.",
+"err.requete_invalide":"Petición no válida.",
+"err.corps_trop_grand":"Datos demasiado grandes.",
+"err.type_contenu_invalide":"Formato de petición rechazado.",
+"err.identite_absente":"Falta la conexión de Telegram.",
+"err.init_data_absente":"Abre el juego desde Telegram para conectarte.",
+"err.init_data_expiree":"Conexión de Telegram caducada: vuelve a abrir el juego desde el bot.",
+"err.init_data_invalide":"Conexión de Telegram no válida: vuelve a abrir el juego desde el bot.",
+"err.init_data_signature":"Firma de Telegram rechazada: vuelve a abrir el juego desde el bot.",
+"err.init_data_sans_utilisateur":"Telegram no transmitió tu cuenta: vuelve a abrir el juego desde el bot.",
+"err.login_absent":"Falta la conexión de Telegram.",
+"err.login_expire":"Conexión de Telegram demasiado antigua: vuelve a conectarte.",
+"err.login_invalide":"Conexión de Telegram no válida: vuelve a intentarlo.",
+"err.login_signature":"Firma de Telegram rechazada: vuelve a intentarlo.",
+"err.compte_bot":"Las cuentas de bot no juegan.",
+"err.dev_refuse":"Identidad de desarrollo rechazada (no local).",
+"err.dev_invalide":"Identidad de desarrollo no válida.",
+"err.session_absente":"Conéctate primero.",
+"err.session_invalide":"Sesión caducada: vuelve a conectarte.",
+"err.joueur_inconnu":"Jugador desconocido: vuelve a conectarte.",
+"err.joueur_exclu":"Esta cuenta está excluida del ranking.",
+"err.joueur_suspendu":"Esta cuenta está suspendida para verificación.",
+"err.admin_refuse":"Reservado al organizador.",
+"err.webhook_refuse":"Petición rechazada.",
+"err.version_absente":"Falta la versión del juego: recarga la página.",
+"err.version_inconnue":"Versión del juego desconocida para el servidor: recarga la página.",
+"err.version_perimee":"Nueva versión del juego: la página se recarga.",
+"err.version_differente":"Partida empezada con otra versión del juego.",
+"err.essais_epuises":"Intentos clasificados agotados por hoy. Vuelve mañana o consigue un boost.",
+"err.parties_en_attente":"Una partida aún se está enviando. Un momento.",
+"err.jour_change":"Pasó la medianoche: nueva horda. Lanza otro intento.",
+"err.jeton_inconnu":"Partida desconocida para el servidor.",
+"err.jeton_invalide":"Ficha de partida no válida.",
+"err.jeton_expire":"Partida empezada hace demasiado.",
+"err.jeton_deja_utilise":"Esta partida ya se envió.",
+"err.journal_invalide":"Partida ilegible para el servidor.",
+"err.n_pas_invalide":"Duración de partida no válida.",
+"err.choix_invalides":"Elección de cartas ilegible.",
+"err.choix_incoherents":"Las elecciones de cartas no encajan con la partida.",
+"err.partie_incoherente":"El servidor no encontró la misma partida.",
+"err.partie_copiee":"Esta partida se parece demasiado a otra.",
+"err.partie_trop_rapide":"Partida enviada más rápido de lo que pudo jugarse.",
+"err.partie_trop_tardive":"Partida enviada demasiado tarde.",
+"err.partie_inconnue":"Partida no encontrada.",
+"err.partie_non_relancable":"Esta partida no se puede relanzar.",
+"err.rejeu_delai":"El servidor tardó demasiado en repetir tu partida. Se conserva.",
+"err.rejeu_echec":"El servidor no pudo repetir tu partida. Se conserva.",
+"err.rejeu_apres_cloture":"Esta partida será visible tras el cierre del día.",
+"err.rejeu_apres_cloture_h":"Esta partida será visible a las {0}.",
+"err.jour_non_clos":"Este día aún no está cerrado.",
+"err.periode_invalide":"Periodo desconocido.",
+"err.date_invalide":"Fecha no válida.",
+"err.limite_invalide":"Número de filas no válido.",
+"err.id_invalide":"Identificador no válido.",
+"err.statut_invalide":"Estado no válido.",
+"err.pseudo_invalide":"Nombre: de 3 a 16 caracteres, letras, cifras, _ . -",
+"err.pseudo_interdit":"Este nombre no se acepta.",
+"err.pseudo_pris":"Este nombre ya está cogido.",
+"err.wallet_invalide":"Dirección Solana no válida (una dirección pública, no una frase).",
+"err.wallet_deja_lie":"Este wallet ya está vinculado a otro jugador.",
+"err.x_invalide":"Cuenta de X no válida (de 1 a 15 caracteres: letras, cifras, _).",
+"err.x_deja_lie":"Esta cuenta de X ya está vinculada a otro jugador.",
+"err.x_deja_lie_reprenable":"Esta cuenta de X está vinculada a otro jugador. Demuestra que es tuya con un boost de X.",
+"err.x_non_renseigne":"Indica primero tu cuenta de X en el perfil.",
+"err.boost_inactif":"Este boost no está disponible hoy.",
+"err.boost_deja_obtenu":"Boost ya conseguido hoy.",
+"err.boost_tg_par_groupe":"Aún no visto en el grupo: publica el mensaje con el código y luego verifica.",
+"err.post_url_invalide":"No es un enlace de post de X.",
+"err.post_introuvable":"Post no encontrado: ¿público y sin borrar?",
+"err.post_mauvais_auteur":"Este post no viene de la cuenta de X de tu perfil.",
+"err.post_pas_du_jour":"Este post no es de hoy.",
+"err.post_sans_code":"Falta el código del día en el post.",
+"err.post_sans_hashtag":"Falta #987NES en el post.",
+"err.post_deja_utilise":"Este post ya se usó para un boost.",
+"err.preuve_invalide":"Prueba no válida.",
+"err.preuve_deja_utilisee":"Prueba ya usada.",
+"err.verification_indisponible":"Verificación no disponible por ahora. Vuelve a intentarlo luego.",
+/* 0.7 : serveur de scores, écran d'entrée, boosts, classement, revoir */
+"partage.titre":"DZÔ Survivors · {0}",
+"partage.victoire":"10:00 aguantados",
+"partage.descPalier":"Nivel «{0}» alcanzado contra la horda del día. Defiende Friburgo tú también.",
+"partage.descRepas":"El banquete de la Bénichon servido a toda la horda. DZÔ aún tiene hambre.",
+"partage.descVictoire":"Diez minutos aguantados en el casco antiguo. La vela de cierre es verde.",
+"partage.desc":"DZÔ contra la horda en el casco antiguo de Friburgo. Una horda al día, tres intentos. Ven a morder.",
 "panneau.grenouilles.2":"a las ranas"
 };
 LANGUES.en={
@@ -3866,6 +4674,204 @@ LANGUES.en={
 "panneau.vide.1":"",
 "panneau.vide.2":"",
 "panneau.grenouilles.1":"Do not feed",
+/* 0.7 : serveur de scores, écran d'entrée, boosts, classement, revoir */
+"menu.retour":"‹ BACK",
+"entree.touche":"TAP TO ENTER",
+"entree.clic":"CLICK TO ENTER",
+"entree.son":"Sound on: the old town anthem is waiting.",
+"titre.essaisCnx":"Log in to play ranked",
+"titre.scoreJour":"Best today: {0}",
+"titre.connecteToi":"Log in for a ranked try",
+"titre.decretSecret":"Decree of the day: surprise",
+"titre.hordeEssai":"A different horde every try",
+"titre.decretSurprise":"The decree shows itself in game.",
+"titre.connexion":"Connecting to the server…",
+"titre.perimee":"New version: reload",
+"titre.debut":"The horde is getting ready…",
+"titre.compte":"New horde in {0} (at {1}, your time)",
+"titre.compteMinuit":"New horde in {0}, at midnight",
+"x.score":"Score: {0}.",
+"x.boostScore":"I scored {0} in today's DZÔ Survivors horde. Your turn.",
+"x.boostSans":"I defend Fribourg in DZÔ Survivors. Come bite today's horde.",
+"net.horsLigne":"Offline: score not ranked",
+"net.bientot":"Coming soon: online ranking",
+"net.bientotTexte":"The score server is on its way. Until then, your tries, record and streak stay on this phone.",
+"net.injoignable":"Server unreachable",
+"net.injoignableTexte":"You can still play: these runs are not ranked. The game retries on its own.",
+"net.reessayer":"RETRY",
+"net.nonClasse":"Run not ranked (server unreachable at start)",
+"net.verif":"The server is replaying your run…",
+"net.valide":"Score confirmed by the server",
+"net.valideRang":"Confirmed · #{0} today ({1})",
+"net.refusee":"Run rejected:",
+"net.enAttente":"Sending pending: retried automatically, even later",
+"net.envoyee":"Previous run confirmed: {0}",
+"cnx.titre":"LOG IN",
+"cnx.bouton":"LOG IN",
+"cnx.invite":"Log in with Telegram to play ranked and keep your score. Without logging in, training stays open.",
+"cnx.pourquoi":"The ranking needs to know who bites. Your Telegram account is enough: no password.",
+"cnx.lu":"The game only gets your Telegram ID, first name and username.",
+"cnx.widgetAide":"No button? Open the game from the Telegram bot.",
+"cnx.ouvrirTg":"OPEN IN TELEGRAM",
+"cnx.pasDeBot":"Login not set up on this page yet.",
+"cnx.dev":"Development identity #{0} (local)",
+"cnx.bienvenue":"Welcome, {0}. The horde awaits.",
+"profil.titre":"PROFILE",
+"profil.pseudo":"RANKING NAME",
+"profil.pseudoAide":"your name",
+"profil.pseudoRegle":"3 to 16 characters: letters, digits, _ . -",
+"profil.wallet":"SOLANA WALLET (OPTIONAL)",
+"profil.walletAide":"public address",
+"profil.walletAvert":"Only to receive a prize. Never give your secret phrase: nobody will ever ask for it.",
+"profil.x":"X ACCOUNT (FOR THE BOOST)",
+"profil.xAide":"The X boost checks that the post comes from this account.",
+"profil.enregistrer":"SAVE",
+"profil.envoi":"Saving…",
+"profil.ok":"Profile saved.",
+"profil.rien":"Nothing changed.",
+"profil.deconnecter":"LOG OUT",
+"profil.deconnecte":"Logged out. Training stays open.",
+"profil.bientot":"Name, wallet and X account: with the online ranking.",
+"boost.titre":"BOOSTS",
+"boost.regle":"Each boost gives +1 ranked try today.",
+"boost.code":"CODE OF THE DAY",
+"boost.copier":"COPY",
+"boost.copie":"Copied.",
+"boost.aucun":"No boost today.",
+"boost.x":"X boost",
+"boost.tg":"Telegram boost",
+"boost.obtenu":"earned ✓",
+"boost.plusUn":"+1 try",
+"boost.xProfil":"First, add your X account in your profile.",
+"boost.etape1":"1. Post from @{0} (the code is already in the text)",
+"boost.poster":"POST ON X",
+"boost.posterSimule":"SIMULATED X POST (LOCAL)",
+"boost.etape2":"2. Paste the link to your post",
+"boost.verifier":"CHECK",
+"boost.xRegle":"Public post from today, with #987NES and the code.",
+"boost.tgRegle":"Post this message in the community group, then tap Check.",
+"boost.groupe":"OPEN THE GROUP",
+"boost.colle":"Paste your post's link first.",
+"boost.verif":"Checking…",
+"boost.okX":"X boost earned: +1 try today.",
+"boost.okTg":"Telegram boost earned: +1 try today.",
+"boost.simule":"Simulated post created (nothing sent to X). Tap Check.",
+"boost.local":"Daily boost",
+"boost.localTexte":"Share your run on X: +1 try today, counted on this phone.",
+"cl.titre":"RANKING",
+"cl.jour":"Day",
+"cl.hier":"Yesterday",
+"cl.semaine":"Week",
+"cl.mois":"Month",
+"cl.du":"{0} to {1}",
+"cl.modeMeilleur":"best try",
+"cl.modeCumul":"sum of daily bests",
+"cl.charge":"Loading…",
+"cl.vide":"Nobody yet. The first score will be yours.",
+"cl.moi":"You: #{0} · {1} · {2} run(s)",
+"cl.moiRien":"You: not ranked yet for this period",
+"cl.public":"Log in to see your place and replay your runs.",
+"cl.chargeRevoir":"Loading the run…",
+"cl.local":"ON THIS PHONE",
+"revoir.maj":"REPLAY",
+"revoir.de":"{0}'s run",
+"revoir.encore":"WATCH AGAIN",
+"revoir.bandeau":"Replay: {0}'s run",
+"revoir.version":"Run played in {0}: the replay may differ.",
+"revoir.fin":"End of the replay.",
+"err.inconnu":"The server replied something unexpected. Try again.",
+"err.reseau":"No network, or server unreachable.",
+"err.hors_ligne":"Offline.",
+"err.interne":"Server incident. Try again in a moment.",
+"err.serveur_occupe":"Server very busy. Try again shortly.",
+"err.trop_de_requetes":"Too many requests. Breathe, then try again.",
+"err.origine_refusee":"This page is not allowed by the server.",
+"err.methode_refusee":"Request refused by the server.",
+"err.introuvable":"Not found.",
+"err.json_invalide":"Request unreadable for the server.",
+"err.requete_invalide":"Invalid request.",
+"err.corps_trop_grand":"Data too large.",
+"err.type_contenu_invalide":"Request format refused.",
+"err.identite_absente":"Telegram login missing.",
+"err.init_data_absente":"Open the game from Telegram to log in.",
+"err.init_data_expiree":"Telegram login expired: reopen the game from the bot.",
+"err.init_data_invalide":"Invalid Telegram login: reopen the game from the bot.",
+"err.init_data_signature":"Telegram signature refused: reopen the game from the bot.",
+"err.init_data_sans_utilisateur":"Telegram did not send your account: reopen the game from the bot.",
+"err.login_absent":"Telegram login missing.",
+"err.login_expire":"Telegram login too old: log in again.",
+"err.login_invalide":"Invalid Telegram login: try again.",
+"err.login_signature":"Telegram signature refused: try again.",
+"err.compte_bot":"Bot accounts don't play.",
+"err.dev_refuse":"Development identity refused (not local).",
+"err.dev_invalide":"Invalid development identity.",
+"err.session_absente":"Log in first.",
+"err.session_invalide":"Session expired: log in again.",
+"err.joueur_inconnu":"Unknown player: log in again.",
+"err.joueur_exclu":"This account is excluded from the ranking.",
+"err.joueur_suspendu":"This account is suspended for review.",
+"err.admin_refuse":"Organizer only.",
+"err.webhook_refuse":"Request refused.",
+"err.version_absente":"Game version missing: reload the page.",
+"err.version_inconnue":"Game version unknown to the server: reload the page.",
+"err.version_perimee":"New game version: the page is reloading.",
+"err.version_differente":"Run started with another game version.",
+"err.essais_epuises":"Ranked tries used up for today. Come back tomorrow, or get a boost.",
+"err.parties_en_attente":"A run is still being sent. One moment.",
+"err.jour_change":"Midnight has passed: new horde. Start a new try.",
+"err.jeton_inconnu":"Run unknown to the server.",
+"err.jeton_invalide":"Invalid run token.",
+"err.jeton_expire":"Run started too long ago.",
+"err.jeton_deja_utilise":"This run was already sent.",
+"err.journal_invalide":"Run unreadable for the server.",
+"err.n_pas_invalide":"Invalid run length.",
+"err.choix_invalides":"Card choices unreadable.",
+"err.choix_incoherents":"Card choices don't match the run.",
+"err.partie_incoherente":"The server did not find the same run.",
+"err.partie_copiee":"This run looks too much like another.",
+"err.partie_trop_rapide":"Run sent faster than it could be played.",
+"err.partie_trop_tardive":"Run sent too late.",
+"err.partie_inconnue":"Run not found.",
+"err.partie_non_relancable":"This run cannot be rerun.",
+"err.rejeu_delai":"The server took too long to replay your run. It is kept.",
+"err.rejeu_echec":"The server could not replay your run. It is kept.",
+"err.rejeu_apres_cloture":"This run will be visible after the day closes.",
+"err.rejeu_apres_cloture_h":"This run will be visible at {0}.",
+"err.jour_non_clos":"This day is not closed yet.",
+"err.periode_invalide":"Unknown period.",
+"err.date_invalide":"Invalid date.",
+"err.limite_invalide":"Invalid number of rows.",
+"err.id_invalide":"Invalid identifier.",
+"err.statut_invalide":"Invalid status.",
+"err.pseudo_invalide":"Name: 3 to 16 characters, letters, digits, _ . -",
+"err.pseudo_interdit":"This name is not allowed.",
+"err.pseudo_pris":"This name is already taken.",
+"err.wallet_invalide":"Invalid Solana address (a public address, not a phrase).",
+"err.wallet_deja_lie":"This wallet is already linked to another player.",
+"err.x_invalide":"Invalid X account (1 to 15 characters: letters, digits, _).",
+"err.x_deja_lie":"This X account is already linked to another player.",
+"err.x_deja_lie_reprenable":"This X account is linked to another player. Prove it's yours with an X boost: it will move to your profile.",
+"err.x_non_renseigne":"Add your X account in your profile first.",
+"err.boost_inactif":"This boost is not available today.",
+"err.boost_deja_obtenu":"Boost already earned today.",
+"err.boost_tg_par_groupe":"Not seen in the group yet: post the message with the code, then check.",
+"err.post_url_invalide":"That is not an X post link.",
+"err.post_introuvable":"Post not found: public and not deleted?",
+"err.post_mauvais_auteur":"This post is not from the X account in your profile.",
+"err.post_pas_du_jour":"This post is not from today.",
+"err.post_sans_code":"The code of the day is missing from the post.",
+"err.post_sans_hashtag":"#987NES is missing from the post.",
+"err.post_deja_utilise":"This post was already used for a boost.",
+"err.preuve_invalide":"Invalid proof.",
+"err.preuve_deja_utilisee":"Proof already used.",
+"err.verification_indisponible":"Check unavailable right now. Try again later.",
+/* 0.7 : serveur de scores, écran d'entrée, boosts, classement, revoir */
+"partage.titre":"DZÔ Survivors · {0}",
+"partage.victoire":"10:00 survived",
+"partage.descPalier":"Reached the “{0}” tier against today's horde. Defend Fribourg too.",
+"partage.descRepas":"The Bénichon feast served to the whole horde. DZÔ is still hungry.",
+"partage.descVictoire":"Ten minutes held in the old town. The closing candle is green.",
+"partage.desc":"DZÔ against the horde in Fribourg's old town. One horde a day, three tries. Come bite.",
 "panneau.grenouilles.2":"the frogs"
 };
 SIM.LANGUES=LANGUES;
@@ -3876,8 +4882,8 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.6.0-proto';
-var URL_JEU='';
+var VERSION='0.7.0-proto';
+var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
 var JOUR_1='2026-11-23';
 var EV=SIM.EV,ENN=SIM.ENN,ARMES=SIM.ARMES,PASSIFS=SIM.PASSIFS,TRESORS=SIM.TRESORS,COLLECTIONS=SIM.COLLECTIONS;
 var I_ENN=SIM.I_ENN,I_ARME=SIM.I_ARME,I_TRES=SIM.I_TRES,I_PASSIF=SIM.I_PASSIF;
@@ -6001,7 +7007,9 @@ function dessinMoleson(g){
 /* textes des panneaux : clés déclarées par le tableau (SIM.TABLEAUX[t].panneaux), dans la langue courante */
 function txtPanneau(v){var P=SIM.TABLEAUX[tableauDecor()].panneaux||[],c=P[v];return c?[T('panneau.'+c+'.1'),T('panneau.'+c+'.2')]:['',''];}
 function nbPanneaux(){return(SIM.TABLEAUX[tableauDecor()].panneaux||[]).length;}
-function tableauDecor(){return S&&S.M?S.tableau:(TAB_FORCE>=0?TAB_FORCE:SIM.tableauDe(SIM.fnv1a('DZO-'+JOUR)));}
+function tableauDecor(){return S&&S.M?S.tableau:(TAB_FORCE>=0?TAB_FORCE:tableauDuJour());}
+/* 0.7 : la graine du jour est secrète ; le tableau du jour vient du serveur (horde), sinon celui de l'ancienne graine publique (hors ligne) */
+function tableauDuJour(){if(NET.horde&&NET.horde.tableau>=0&&NET.horde.tableau<SIM.TABLEAUX.length)return NET.horde.tableau;return SIM.tableauDe(SIM.fnv1a('DZO-'+JOUR));}
 function dessinPanneau(g,v){
   var t=txtPanneau(v);
   g.fillStyle='#3A3A42';g.fillRect(-1.5,-30,3,32);
@@ -6528,9 +7536,6 @@ function jourZurich(){
 function joursEntre(a,b){var x=a.split('-'),y=b.split('-');return Math.round((Date.UTC(+y[0],+y[1]-1,+y[2])-Date.UTC(+x[0],+x[1]-1,+x[2]))/864e5);}
 var JOUR='',NUM_JOUR=1;
 function majJour(){var j=jourZurich();JOUR=j;NUM_JOUR=joursEntre(JOUR_1,j)+1;if(SAUV.jour!==j){SAUV.jour=j;SAUV.essais=0;SAUV.record=0;sauver();}}
-function essaisMax(){return 3+(SAUV.boost===JOUR?1:0);}
-function essaisRestants(){return Math.max(0,essaisMax()-SAUV.essais);}
-function boostActif(){return SAUV.boost===JOUR;}
 function libelleJour(){return NUM_JOUR>=1?T('jour.horde',NUM_JOUR):T('jour.avant',1-NUM_JOUR);}
 function etiquetteJour(){return'DZÔ #'+(NUM_JOUR>=1?NUM_JOUR:'J−'+(1-NUM_JOUR));}
 function serieAffichee(){if(!SAUV.dernier)return 0;return joursEntre(SAUV.dernier,JOUR)<=1?SAUV.serie:0;}
@@ -6645,6 +7650,7 @@ function jouerSon(nom,p,t){
    0:00 caisse + basse · 1:00 charleston · 2:00 arpège · 3:30 Bull Run transposé · 4:00 caisse claire · boss et Liquidation : voix. */
 function musique(){
   var c=AU.c;if(!c||c.state!=='running'||!AU.joue||!SAUV.son)return;
+  if(hymneEntendu()){AU.prochain=c.currentTime+0.05;return;}
   var dur=60/118/2,t,k,j,deg,o,f,g,fr,sec=S?S.n/60:0,tr=(sec>=210&&sec<225)?1.1225:1,dec,cible=musBaisse>0?0.10:0.25;
   if(cible!==AU.niv){AU.niv=cible;try{AU.mus.gain.setTargetAtTime(cible,c.currentTime,0.04);}catch(e){}}
   if(AU.prochain<c.currentTime)AU.prochain=c.currentTime+0.04;
@@ -6697,16 +7703,23 @@ function piloter(d){var garde=joy.actif&&joy.dir>0;joy.actif=true;joy.id=d.id;jo
 function lacherDoigts(){doigts.length=0;joy.actif=false;joy.dir=0;joy.garde=false;joy.id=-1;}
 function installerEntrees(){
   var opt={passive:false};
+  /* 0.7 : les champs de saisie et le bouton Telegram posés sur le canevas gardent leur comportement normal */
+  function horsCanevas(e){var t=e&&e.target;return!!(t&&t!==cv&&t.tagName&&t.tagName!=='CANVAS'&&t.tagName!=='BODY'&&t.tagName!=='HTML');}
   window.addEventListener('pointerdown',function(e){
     if(e.pointerType==='touch')tactile=true;
-    e.preventDefault();audioInit();
+    audioInit();hymneDebloquer();
+    if(horsCanevas(e))return;
+    e.preventDefault();
+    try{var ae=document.activeElement;if(ae&&ae.tagName==='INPUT')ae.blur();}catch(x){}
+    if(ecran==='entree'){entrer();return;}
     /* écran de fin : 0,9 s de verrou, pour qu'un appui réflexe ne relance pas un essai */
     if(ecran==='fin'&&tEcran<0.9)return;
     versLog(e);
     var b=boutonSous(LX,LY);
     if(b){if(presse===null){presse=b.id;pressePtr=e.pointerId;ptr.x=LX;ptr.y=LY;}return;}
     if(e.pointerType==='mouse'){ptr.x=LX;ptr.y=LY;}
-    if(ecran==='jeu'&&!BOT){
+    if(ecran==='classement'){clGlisse={id:e.pointerId,y:LY,d:NET.cl.defil};return;}
+    if(ecran==='jeu'&&!BOT&&!REVOIR){
       /* premier contact (aucun autre doigt sur l'écran) : on oublie les doigts dont la levée se serait perdue */
       if(e.isPrimary&&e.pointerType==='touch')lacherDoigts();
       var k=doigtIdx(e.pointerId),d;if(k>=0)doigts.splice(k,1);
@@ -6717,9 +7730,11 @@ function installerEntrees(){
     versLog(e);
     if(e.pointerType==='mouse'||e.pointerId===pressePtr){ptr.x=LX;ptr.y=LY;}
     var k=doigtIdx(e.pointerId);if(k>=0){doigts[k].x=LX;doigts[k].y=LY;}
+    if(clGlisse&&clGlisse.id===e.pointerId){NET.cl.defil=clGlisse.d-(LY-clGlisse.y);}
     if(joy.actif&&e.pointerId===joy.id){e.preventDefault();joy.x=LX;joy.y=LY;majJoy();}
   },opt);
   function fin(e){
+    if(clGlisse&&clGlisse.id===e.pointerId)clGlisse=null;
     var k=doigtIdx(e.pointerId);if(k>=0)doigts.splice(k,1);
     if(joy.actif&&e.pointerId===joy.id){
       if(doigts.length>0)piloter(doigts[doigts.length-1]);
@@ -6732,13 +7747,17 @@ function installerEntrees(){
     }
   }
   window.addEventListener('pointerup',fin,opt);window.addEventListener('pointercancel',fin,opt);
-  ['contextmenu','gesturestart','gesturechange','dblclick','selectstart','dragstart'].forEach(function(n){window.addEventListener(n,function(e){e.preventDefault();},opt);});
-  window.addEventListener('touchmove',function(e){e.preventDefault();},opt);
-  window.addEventListener('wheel',function(e){if(e.ctrlKey)e.preventDefault();},opt);
+  ['contextmenu','gesturestart','gesturechange','dblclick','selectstart','dragstart'].forEach(function(n){window.addEventListener(n,function(e){if(!horsCanevas(e))e.preventDefault();},opt);});
+  window.addEventListener('touchmove',function(e){if(!horsCanevas(e))e.preventDefault();},opt);
+  window.addEventListener('wheel',function(e){if(e.ctrlKey)e.preventDefault();if(ecran==='classement')NET.cl.defil+=(e.deltaY||0)/Math.max(0.1,ECH);},opt);
   window.addEventListener('keydown',function(e){
     var k=e.key,c=e.code,bas=true;
     if(e.ctrlKey||e.metaKey||e.altKey)return;
-    audioInit();
+    audioInit();hymneDebloquer();
+    if(horsCanevas(e)&&e.target.tagName==='INPUT')return;
+    if(ecran==='entree'){if(!e.repeat)entrer();return;}
+    if(ecran==='connexion'||ecran==='profil'||ecran==='boosts'||ecran==='classement'){if(k==='Escape')allerEcran('titre');return;}
+    if(REVOIR&&ecran==='jeu'){if(k==='Escape')quitterRevoir();return;}
     if(k==='ArrowUp'||k==='z'||k==='Z'||k==='w'||k==='W')touches.h=bas;
     else if(k==='ArrowDown'||k==='s'||k==='S')touches.b=bas;
     else if(k==='ArrowLeft'||k==='q'||k==='Q'||k==='a'||k==='A')touches.g=bas;
@@ -6751,7 +7770,7 @@ function installerEntrees(){
     else if(sous==='pause'){if(k==='Escape'||k==='p'||k==='P'||k==='Enter'||k===' ')reprendre();}
     else if(ecran==='jeu'&&!sous){if(k==='Escape'||k==='p'||k==='P')mettreEnPause();}
     else if(ecran==='titre'){if(k==='Enter'||k===' ')demarrer(true);else if(k==='e'||k==='E')demarrer(false);}
-    else if(ecran==='fin'){if((k==='Enter'||k===' ')&&tEcran>0.9)rejouer();}
+    else if(ecran==='fin'){if((k==='Enter'||k===' ')&&tEcran>0.9){if(REVOIR)lancerRevoir(REVOIR);else rejouer();}}
     if(k==='m'||k==='M'){SAUV.son=SAUV.son?0:1;sauver();reglerSon();}
   });
   window.addEventListener('keyup',function(e){
@@ -6763,7 +7782,7 @@ function installerEntrees(){
   });
   function perteFocus(){touches.h=touches.b=touches.g=touches.d=false;lacherDoigts();presse=null;pressePtr=-1;if(!BOT)mettreEnPause();}
   window.addEventListener('blur',perteFocus);
-  document.addEventListener('visibilitychange',function(){if(document.hidden)perteFocus();});
+  document.addEventListener('visibilitychange',function(){if(document.hidden){perteFocus();hymneArreterTout();}else if(connecte()&&Date.now()-NET.majT>10000)rafraichir();});
   window.addEventListener('resize',redim);window.addEventListener('orientationchange',redim);
 }
 
@@ -6771,19 +7790,37 @@ function installerEntrees(){
 var TITRES_FIN=['fin.titre.panache','fin.titre.consolide','fin.titre.rug'];
 var departRang=false;
 /* Transition du titre : DZÔ ouvre grand, fondu au blanc, puis la partie démarre. */
-function demarrer(rang){if(tDepart>=0||ecran!=='titre')return;audioInit();tDepart=0;departRang=!!rang;}
-function lancer(rang,graineForcee){
+/* 0.7 : en ligne, un essai classé commence par /api/partie/debut (graine du serveur) ; ?bot=1, ?vite=N et ?tableau= ne l'appellent jamais */
+function demarrer(rang){
+  if(tDepart>=0||ecran!=='titre'||NET.debutEnCours)return;audioInit();
+  if(rang&&!HORS_RANG&&!premiereFois()){
+    if(NET.actif&&NET.etat==='attente'){NET.departAttente=true;return;}
+    if(modeServeur()){
+      if(!versionOk()){afficherMsg(T('err.version_perimee'),C.danger);setTimeout(function(){try{location.reload();}catch(e){}},1500);return;}
+      if(connecte()&&essaisRestants()>0){debutServeur(function(){if(ecran==='titre'&&tDepart<0){tDepart=0;departRang=true;}});return;}
+      rang=false;
+    }
+  }
+  tDepart=0;departRang=!!rang;
+}
+var partieSrv=null;
+function lancer(rang,graineForcee,o){
   audioInit();majJour();motifDuJour();
   /* première partie de l'appareil : échauffement hors classement, les essais restent intacts */
-  echauffement=false;
+  echauffement=false;REVOIR=null;
   /* 0.6 : ?bot=1, ?vite=N ou ?tableau=… ne lancent jamais une partie classée (ni échauffement, ni essai décompté) */
   if(BOT||VITESSE>1||TAB_FORCE>=0)rang=false;
-  if(rang&&premiereFois()){rang=false;echauffement=true;}
-  if(rang&&essaisRestants()<=0)rang=false;
-  classee=!!rang;
-  if(classee){SAUV.essais++;essaiNo=SAUV.essais;sauver();graineCourante=SIM.fnv1a('DZO-'+JOUR);}
+  /* 0.7 : partie donnée par le serveur (/api/partie/debut) ; sans elle, pas de partie classée en ligne */
+  var srv=rang&&!HORS_RANG?NET.partie:null;NET.partie=null;NET.fin=null;
+  if(rang&&!srv&&premiereFois()){rang=false;echauffement=true;}
+  if(rang&&!srv&&modeServeur())rang=false;
+  if(rang&&!srv&&essaisRestants()<=0)rang=false;
+  classee=!!rang;partieSrv=classee?srv:null;
+  if(partieSrv){essaiNo=partieSrv.essai;graineCourante=partieSrv.graine>>>0;}
+  else if(classee){SAUV.essais++;essaiNo=SAUV.essais;sauver();graineCourante=SIM.fnv1a('DZO-'+JOUR);}
   else graineCourante=graineForcee!==undefined?(graineForcee>>>0):SIM.melange(Date.now()&0x7fffffff,(Math.random()*1e9)|0);
-  S=SIM.creer(graineCourante,classee?undefined:(TAB_FORCE>=0?TAB_FORCE:SIM.tableauDe(SIM.fnv1a('DZO-'+JOUR))));
+  /* partie classée ou revue : le tableau de sa graine (comme le serveur, qui rejoue avec quatre arguments) */
+  S=SIM.creer(graineCourante,classee||(o&&o.revoir)?undefined:(TAB_FORCE>=0?TAB_FORCE:tableauDuJour()));
   viderEffets();ecran='jeu';sous='';tSous=0;tEcran=0;accu=0;gel=0;ralentiT=0;trauma=0;tMort=-1;tVict=-1;tTouche=9;bordRouge=0;eclairBlanc=0;eclairRouge=0;camDY=0;zoom=1.6;tJeu=0;chaineGemme=0;
   xpEclat=0;dzoEch=1;carteChoisie=-1;musBaisse=0;apercuCarte=null;tDepart=-1;regretFin='';tueurFin=-1;tueurVFin=0;dernierPas=0;aideGemme=false;aideTresor=false;aideT=-1;
   lacherDoigts();presse=null;pressePtr=-1;
@@ -6791,7 +7828,7 @@ function lancer(rang,graineForcee){
   bandeau(T('bandeau.decret',nomDecret(S.decret).toUpperCase()),4);
   son('depart');AU.joue=true;AU.pas=0;
 }
-function rejouer(){lancer((classee||echauffement)&&essaisRestants()>0);}
+function rejouer(){if((classee||echauffement)&&essaisRestants()>0)lancerClasse('fin');else lancer(false);}
 function possedePassif(id){for(var k=0;k<S.nPa;k++)if(S.passifs[k].id===id)return true;return false;}
 var JALONS=[[3600,'jalon.meute'],[5400,'jalon.elite1'],[9000,'jalon.elite2'],[12600,'jalon.bull'],[14400,'jalon.elite3'],[18000,'jalon.duo'],[21600,'jalon.dev'],[28800,'jalon.liq'],[36000,'jalon.cloture']];
 /* Ce que le joueur a raté de peu : la phrase qui donne envie de relancer. */
@@ -6812,6 +7849,9 @@ function finDePartie(){
   if(ecran!=='jeu'||!S)return;
   var sc=SIM.score(S);
   ecran='fin';sous='';tEcran=0;AU.joue=false;lacherDoigts();presse=null;pressePtr=-1;finTampon=0;apercuCarte=null;
+  if(REVOIR){recordAvant=0;nouveauRecord=false;titreFin=S.victoire?(S.bossTue?'fin.titre.victoire':'fin.titre.cloture'):'revoir.fin';tueurFin=S.victoire?-1:S.tueur;tueurVFin=S.tueurV||0;regretFin='';return;}
+  /* 0.7 : partie classée en ligne : envoi du journal (gardé en stockage local jusqu'à la réponse du serveur) */
+  if(classee&&partieSrv)finServeur(partieSrv);
   /* record du jour pour une partie classée, record personnel sinon */
   recordAvant=classee?SAUV.record:SAUV.meilleur;nouveauRecord=sc>recordAvant&&sc>0;
   if(classee){
@@ -6828,7 +7868,7 @@ function finDePartie(){
 }
 function mettreEnPause(){if(ecran==='jeu'&&!sous&&S&&!S.fini){sous='pause';tSous=0;lacherDoigts();}}
 function reprendre(){if(sous==='pause'){sous='';}}
-function abandonner(){if(!S||ecran!=='jeu')return;S.fini=1;S.victoire=0;S.tueur=-1;finDePartie();titreFin='fin.titre.abandon';regretFin='';tueurFin=-1;}
+function abandonner(){if(REVOIR){quitterRevoir();return;}if(!S||ecran!=='jeu')return;S.fini=1;S.victoire=0;S.tueur=-1;finDePartie();titreFin='fin.titre.abandon';regretFin='';tueurFin=-1;}
 /* Le choix se joue en deux temps : 220 ms de mise en scène (carte qui gonfle, les autres tombent), puis la simulation applique. */
 function choisirCarte(i){
   if(sous!=='cartes'||tSous<0.7||!S||S.modal!==SIM.M_CARTE)return;
@@ -6853,13 +7893,14 @@ function voterClient(oui){
   if(sous==='vote'){sous='';}
 }
 function pasJeu(){
-  SIM.pas(S,BOT?SIM.botDir(S):dirEntree());
+  SIM.pas(S,BOT?SIM.botDir(S):(REVOIR?REVOIR.j[S.n]:dirEntree()));
   traiterEv();
   if(S.modal===SIM.M_VOTE&&sous!=='vote'){sous='vote';tSous=0;son('vote');}
   else if(S.modal===SIM.M_CARTE&&sous!=='cartes'&&sous!=='coffre'&&sous!=='niveau'&&sous!=='choix'){sous='cartes';tSous=0.3;}
 }
 function maj(dt){
-  tEcran+=dt;tSous+=dt;tTouche+=dt;
+  tEcran+=dt;tSous+=dt;tTouche+=dt;NET.msgT+=dt;
+  majReseau();majHymne(dt);majRevoir();
   if(trauma>0){trauma-=dt*1.8;if(trauma<0)trauma=0;}
   if(xpEclat>0)xpEclat-=dt;
   if(musBaisse>0)musBaisse-=dt;
@@ -6877,8 +7918,8 @@ function maj(dt){
       if(gel>0){gel-=dt;}
       else if(!S.fini){
         var e=1;if(ralentiT>0){ralentiT-=dt;e=ralentiV;}
-        accu+=dt*e*VITESSE;var n=0,mx=5*VITESSE;
-        while(accu>=1/60&&n<mx){accu-=1/60;n++;pasJeu();if(sous||S.fini)break;}
+        accu+=dt*e*VITESSE*(REVOIR?REVOIR.vit:1);var n=0,mx=5*VITESSE*(REVOIR?REVOIR.vit:1);
+        while(accu>=1/60&&n<mx){if(REVOIR&&S.n>=REVOIR.nPas&&!S.modal)break;accu-=1/60;n++;pasJeu();if(sous||S.fini)break;}
         if(n>=mx)accu=0;
         tJeu+=dt*e;
         /* deux bouffées de poussière à chaque appui */
@@ -6898,12 +7939,14 @@ function maj(dt){
         /* 0.4 : évolution : ralenti, rayon de lumière sur DZÔ, nom de l'évolution en grand */
         if(coffreInfo.genre===0){evoT=0;evoId=coffreInfo.a;ralentiT=1.3;ralentiV=0.25;mot(nomArme(evoId,1).toUpperCase(),C.or,nomArme(evoId,1).length>16?24:30);son('evolution');eclairBlanc=0.6;secouer(0.4);anneauFx(S.px,S.py,300,0.6,2);anneauFx(S.px,S.py,180,0.45,0);budgetPart+=60;gerbe(S.px,S.py-30,40,1,380,9,0.9);}
         if(S.modal===SIM.M_CARTE){sous='cartes';tSous=0.3;}}
+    }else if(REVOIR){
     }else if(BOT&&tSous>ATTENTE_BOT){
       if(sous==='cartes'){SIM.botChoix(S);traiterEv();if(S.modal!==SIM.M_CARTE){sous='';}else tSous=0.3;}
       else if(sous==='vote'){SIM.botChoix(S);traiterEv();sous='';}
     }
     majParticules(sous==='pause'?0:(sous==='niveau'?dt*0.35:dt));
   }else if(ecran==='fin'){majParticules(dt);if(BOT&&params.get('boucle')==='1'&&tEcran>4)lancer(false);}
+  else if(ecran!=='jeu'&&ecran!=='fin'&&ecran!=='titre'){if(((tReel*2)|0)%20===0)majJour();}
   else if(ecran==='titre'){
     /* Telegram charge son script après nous : sa langue arrive parfois une ou deux secondes plus tard */
     if(attenteTg&&!SAUV.langue){var lt=langueTelegram();if(lt){attenteTg=false;if(lt!==LANGUE)appliquerLangue(lt,true);}else if(tReel>6)attenteTg=false;}
@@ -7004,7 +8047,9 @@ function rendreHUD(dt){
   y=hy+74;m=S.mult+S.bonusSC;
   if(S.xpMult>1){pastille(352,y,T('xpX',S.xpMult),C.or);y+=19;}
   if(m>1.001){pastille(352,y,T(S.bonusSC>0?'sansCoupX':'scoreX',fr(Math.round(m*10)/10)),C.cyan);y+=19;}
-  if(echauffement){pastille(352,y,T('echauffement.maj'),C.vert);y+=19;}
+  if(REVOIR){pastille(352,y,T('revoir.maj'),C.cyan);y+=19;
+    var rv=REVOIR;bouton('rvVit',300,y+2,52,24,'×'+rv.vit,3,function(){rv.vit=rv.vit>=4?1:rv.vit*2;},null,12);y+=30;}
+  else if(echauffement){pastille(352,y,T('echauffement.maj'),C.vert);y+=19;}
   else if(!classee){pastille(352,y,T('entrainement.maj'),'rgba(246,241,231,0.85)');y+=19;}
   if(BOT){pastille(352,y,T('robotX',VITESSE),'#8E6BFF');}
   /* build */
@@ -7270,7 +8315,7 @@ function margeMenagerie(){
     cx.fillStyle='rgba(13,9,20,0.5)';cx.beginPath();rrect(cx,x,y,138,80,10);cx.fill();
     cx.drawImage(SPR.ombre,x+69-w*0.4,y+54,w*0.8,10);cx.drawImage(s.c,x+69-w/2,y+60-w-bob,w,w);
     ttFit(nomEnn(k,vv),x+69,y+70,11,130,C.creme,'center',0,false);}
-  blocDecret(SIM.decretDe(SIM.fnv1a('DZO-'+JOUR)),468);
+  if(decretConnu()>=0)blocDecret(decretConnu(),468);
   ttFit(T('memeHorde'),0,560,12.5,290,'rgba(246,241,231,0.85)','center',2,false);ttFit(T('troisEssais'),0,578,12.5,290,'rgba(246,241,231,0.85)','center',2,false);
 }
 function margeCarte(){
@@ -7560,7 +8605,7 @@ function rendreFond(vx,vy,sombreur){
 function rendreTitre(){
   nBT=0;
   rendreFond(9,6,0.6);
-  var i,o,a,k,s,w,x,restants=essaisRestants(),t=tReel,dep=tDepart>=0?Math.min(1,tDepart/0.18):0,dj=SIM.decretDe(SIM.fnv1a('DZO-'+JOUR)),prem=premiereFois(),horsRang=BOT||VITESSE>1||TAB_FORCE>=0;
+  var i,o,a,k,s,w,x,restants=essaisRestants(),t=tReel,dep=tDepart>=0?Math.min(1,tDepart/0.18):0,dj=decretConnu(),prem=premiereFois(),horsRang=HORS_RANG;
   /* yeux idiots qui s'allument dans le noir */
   for(i=0;i<yeuxTitre.length;i++){o=yeuxTitre[i];k=((t+o.p)%o.d)/o.d;a=k<0.15?k/0.15:(k>0.8?(1-k)/0.2:1);if(k>0.45&&k<0.5)a=0;if(a<=0)continue;
     cx.globalAlpha=a*0.85;var col=TEINTES[o.c===5||o.c===6||o.c===9?0:o.c],r=9*o.e;
@@ -7590,22 +8635,29 @@ function rendreTitre(){
   /* bouton principal */
   k=1+Math.sin(t*4)*0.018;
   cx.save();cx.translate(180,455);cx.scale(k,k);cx.translate(-180,-455);
-  bouton('mordre',52,424,256,62,T('titre.mordre'),0,function(){demarrer(true);},horsRang?T('fin.entrainement'):(prem?T('titre.echauffement'):(restants>0?T('titre.essai',SAUV.essais+1,essaisMax()):T('titre.epuise'))),30);
-  cx.restore();
-  if(restants<=0)ttFit(T('titre.demain'),180,412,12,340,C.or,'center',0,true);
-  ttFit(T('slogan'),180,504,13,344,C.creme,'center',0,true);
-  /* infos du jour : horde, essais, record, série, décret */
-  panneau(14,518,332,72,10,'rgba(38,27,54,0.92)','rgba(20,13,32,0.92)','rgba(246,241,231,0.18)',1);
-  ttFit(libelleJour(),26,531,12.5,180,C.creme,'left',0,false);ttFit(T('titre.essais',restants,essaisMax()),334,531,12.5,120,restants>0?C.cyan:C.danger,'right',0,false);
-  ttFit(T('titre.record',fmtNb(SAUV.record)),26,547,12.5,180,C.or,'left',1,false);ttFit(T('titre.serie',serieAffichee()),334,547,12.5,120,C.creme,'right',1,false);
-  cx.fillStyle='rgba(246,241,231,0.14)';cx.fillRect(26,557,308,1);
-  ttFit(T('decretDuJour.ligne',nomDecret(dj)),180,568,12,308,C.or,'center',0,false);
-  ttFit(ligneDecret(dj),180,582,10.5,312,'rgba(246,241,231,0.85)','center',2,false);
+  if(NET.debutEnCours||NET.departAttente)cx.globalAlpha=0.6;
+  bouton('mordre',52,424,256,62,T('titre.mordre'),0,function(){demarrer(true);},sousMordre(horsRang,prem,restants),30);
+  cx.globalAlpha=1;cx.restore();
+  if(restants<=0&&!horsRang&&!(modeServeur()&&!connecte()))ttFit(T('titre.demain'),180,412,12,340,C.or,'center',0,true);
+  ttFit(T('slogan'),180,499,12,344,C.creme,'center',0,true);
+  /* infos du jour : horde, essais, record, série, compte à rebours, décret (0.7 : celui du serveur, sinon un texte neutre) */
+  var enl=connecte(),y0=510;
+  panneau(14,y0,332,88,10,'rgba(38,27,54,0.92)','rgba(20,13,32,0.92)','rgba(246,241,231,0.18)',1);
+  ttFit(libelleJour(),26,y0+12,12.5,180,C.creme,'left',0,false);
+  if(modeServeur()&&!enl)ttFit(T('titre.essaisCnx'),334,y0+12,11,140,C.or,'right',0,false);
+  else ttFit(T('titre.essais',restants,essaisMax()),334,y0+12,12.5,120,restants>0?C.cyan:C.danger,'right',0,false);
+  ttFit(enl?T('titre.scoreJour',fmtNb(NET.jour.scoreJour)):T('titre.record',fmtNb(SAUV.record)),26,y0+28,12.5,190,C.or,'left',1,false);ttFit(T('titre.serie',serieAffichee()),334,y0+28,12.5,120,C.creme,'right',1,false);
+  ttFit(texteCompte(),180,y0+43,10.5,316,C.cyan,'center',2,false);
+  cx.fillStyle='rgba(246,241,231,0.14)';cx.fillRect(26,y0+52,308,1);
+  if(dj>=0){ttFit(T('decretDuJour.ligne',nomDecret(dj)),180,y0+63,12,308,C.or,'center',0,false);ttFit(ligneDecret(dj),180,y0+77,10.5,312,'rgba(246,241,231,0.85)','center',2,false);}
+  else{var nl=texteNeutre();ttFit(nl[0],180,y0+63,12,308,C.or,'center',0,false);ttFit(nl[1],180,y0+77,10.5,312,'rgba(246,241,231,0.85)','center',2,false);}
   /* boutons secondaires */
-  bouton('boost',14,596,134,34,T(boostActif()?'titre.boostActif':'titre.boost'),2,boostDuJour,T(boostActif()?'titre.boostActifSous':'titre.boostSous'),12.5);
-  bouton('entr',152,596,112,34,T('titre.entrainement'),1,function(){demarrer(false);},null,12.5);
-  bouton('langue',268,596,38,34,T('langue.code'),1,changerLangue,null,12);
-  bouton('son',310,596,36,34,SAUV.son?'♪':'×',1,function(){SAUV.son=SAUV.son?0:1;sauver();reglerSon();},null,18);
+  bouton('boost',14,604,134,32,T(boostActif()?'titre.boostActif':'titre.boost'),2,function(){allerEcran(modeServeur()&&!connecte()?'connexion':'boosts');},T(boostActif()?'titre.boostActifSous':'titre.boostSous'),12.5);
+  bouton('entr',152,604,112,32,T('titre.entrainement'),1,function(){demarrer(false);},null,12.5);
+  bouton('langue',268,604,38,32,T('langue.code'),1,changerLangue,null,12);
+  bouton('son',310,604,36,32,SAUV.son?'♪':'×',1,function(){SAUV.son=SAUV.son?0:1;sauver();reglerSon();},null,18);
+  /* 0.7 : classement et profil (en ligne), ou la mention « hors ligne » */
+  barreCompte();
   if(!DZO.pret&&DZO_TENTE)tn(T('titre.secours'),180,416,10,'rgba(246,241,231,0.5)','center',2);
   /* fondu au blanc avant la partie */
   if(tDepart>0.18){cx.fillStyle='rgba(255,255,255,'+Math.min(1,(tDepart-0.18)/0.12).toFixed(2)+')';cx.fillRect(0,0,360,640);}
@@ -7622,12 +8674,12 @@ function rendreFin(){
   nBT=0;
   if(S){rendreMonde(0);}else rendreFond(9,6,0.6);
   colonne();
-  var t=tEcran,k=Math.min(1,t/0.3),sc=SIM.score(S),i,j,x,y,ys,yl,n,e,a,w,s,aff,hh,ww,px,txt,cl,pal=SIM.palier(sc,S),PL=SIM.PALIERS,vic=!!S.victoire;
+  var t=tEcran,k=Math.min(1,t/0.3),sc=scoreFin(),i,j,x,y,ys,yl,n,e,a,w,s,aff,hh,ww,px,txt,cl,pal=SIM.palier(sc,S),PL=SIM.PALIERS,vic=!!S.victoire,lsrv=ligneServeur();
   cx.fillStyle='rgba(13,9,20,'+(0.82*k).toFixed(3)+')';cx.fillRect(0,0,360,640);
   y=SAFE_H;
   var L=titreEquilibre(T(titreFin),336,21);for(i=0;i<L.length;i++)tt(L[i],180,y+46+i*25,21,vic?C.vert:C.creme,'center',0);
   y+=L.length>1?94:70;
-  ttFit(classee?T('essaiDe',libelleJour(),essaiNo,essaisMax()):T(echauffement?'fin.echauffement':'fin.entrainement'),180,y,11,340,'rgba(246,241,231,0.75)','center',2,true);
+  ttFit(REVOIR?T('revoir.de',REVOIR.pseudo):(classee?T('essaiDe',libelleJour(),essaiNo,essaisMax()):T(echauffement?'fin.echauffement':'fin.entrainement')),180,y,11,340,'rgba(246,241,231,0.75)','center',2,true);
   /* temps tenu, niveau, éliminés par archétype */
   e=Math.min(1,t/0.4);
   panneau(20,y+10,320,160,12,'rgba(46,33,70,0.94)','rgba(26,18,40,0.94)','rgba(246,241,231,0.2)',1);
@@ -7665,7 +8717,7 @@ function rendreFin(){
     if(finTampon===0){finTampon=1;son('tampon');secouer(0.35);}
     /* tampon : au coin bas droit du panneau, réservé aux parties classées */
     cx.save();cx.translate(292,ys-22);cx.rotate(-0.2);cx.scale(1+(1-e)*1.4,1+(1-e)*1.4);cx.globalAlpha=e;
-    txt=T(classee?(nouveauRecord?'fin.pasRecycle':'fin.recycle'):(echauffement?'echauffement.maj':'entrainement.maj'));cl=classee?(nouveauRecord?C.vert:C.danger):C.creme;cx.font=police(13,0);var tw=cx.measureText(txt).width+16;
+    txt=REVOIR?T('revoir.maj'):T(classee?(nouveauRecord?'fin.pasRecycle':'fin.recycle'):(echauffement?'echauffement.maj':'entrainement.maj'));cl=classee?(nouveauRecord?C.vert:C.danger):C.creme;cx.font=police(13,0);var tw=cx.measureText(txt).width+16;
     cx.fillStyle='rgba(13,9,20,0.85)';cx.beginPath();rrect(cx,-tw/2,-12,tw,24,4);cx.fill();cx.strokeStyle=cl;cx.lineWidth=2.4;cx.stroke();tn(txt,0,1,13,cl,'center',0);
     cx.restore();cx.globalAlpha=1;
     if(t>2.25){
@@ -7677,10 +8729,12 @@ function rendreFin(){
       else ttFit(T('fin.palierMax'),340,ys+104,10.5,190,C.creme,'right',2,true);
       /* pourquoi on est mort, ce qu'on a raté de peu */
       yl=ys+140;
+      /* 0.7 : ce que dit le serveur (vérification, score validé et rang du jour, refus, envoi en attente) */
+      if(lsrv){ttFit(lsrv[0],180,yl,12,336,lsrv[1],'center',2,true);yl+=17;}
       if(tueurFin>=0){txt=T('fin.liquidePar',nomEnn(tueurFin,tueurVFin));cx.font=police(12,2);w=Math.min(300,cx.measureText(txt).width);s=SPR.ennV[tueurFin][tueurVFin]||SPR.enn[tueurFin];cx.drawImage(s.c,180-w/2-26,yl-11,22,22);ttFit(txt,180+11,yl,12,300,C.creme,'center',2,true);yl+=17;}
       if(regretFin){ttFit(regretFin,180,yl,12,336,C.cyan,'center',2,true);yl+=17;}
       if(S.repasFait){ttFit(T('fin.repas'),180,yl,11.5,336,C.or,'center',0,true);yl+=16;}
-      ttFit(T(classee?'fin.recordJour':'fin.recordPerso',fmtNb(classee?SAUV.record:SAUV.meilleur))+(nouveauRecord?T('fin.nouveau'):''),180,yl,11.5,336,C.or,'center',1,true);
+      if(!REVOIR)ttFit(T(classee?'fin.recordJour':'fin.recordPerso',fmtNb(classee?SAUV.record:SAUV.meilleur))+(nouveauRecord?T('fin.nouveau'):''),180,yl,11.5,336,C.or,'center',1,true);
       yl+=12;
       if(yl+30<496){n=S.nA+S.nPa;
         for(i=0;i<S.nA;i++)caseBuild(180-n*15+i*30,yl,SPR.icoArme[S.armes[i].id],S.armes[i].evo?'★':''+S.armes[i].niv,S.armes[i].evo?C.or:C.creme,false);
@@ -7691,21 +8745,64 @@ function rendreFin(){
   var restants=essaisRestants(),rang=(classee||echauffement)&&restants>0;
   if(t<0.9)cx.globalAlpha=0.35+0.65*(t/0.9);
   if(BOT||VITESSE>1||TAB_FORCE>=0)rang=false;
-  bouton('rejouer',40,500,280,64,T(echauffement&&rang?'fin.defi':'fin.rejouer'),0,rejouer,rang?(echauffement?T('fin.essaiClasse',SAUV.essais+1,essaisMax()):T('fin.essai',SAUV.essais+1,essaisMax())):T(classee?'fin.epuise':'entrainement'),28);
-  bouton('partager',40,580,134,42,T('fin.partager'),2,partager,null,14);
-  if(classee||echauffement||restants<=0||BOT||VITESSE>1||TAB_FORCE>=0)bouton('fentr',186,580,134,42,T('titre.entrainement'),1,function(){lancer(false);},null,12.5);
-  else bouton('fdefi',186,580,134,42,T('fin.defi'),1,function(){lancer(true);},T('fin.essai',SAUV.essais+1,essaisMax()),12.5);
-  bouton('fmenu',6,SAFE_H+5,52,24,T('fin.menu'),1,function(){ecran='titre';tEcran=0;tDepart=-1;majJour();},null,10);
+  if(modeServeur()&&!connecte())rang=false;
+  if(REVOIR){
+    bouton('rejouer',40,500,280,64,T('revoir.encore'),0,function(){lancerRevoir(REVOIR);},T('revoir.de',REVOIR.pseudo),26);
+    bouton('fcl',40,580,280,42,T('cl.titre'),3,quitterRevoir,null,14);
+  }else{
+    if(NET.debutEnCours)cx.globalAlpha=0.6;
+    bouton('rejouer',40,500,280,64,T(echauffement&&rang?'fin.defi':'fin.rejouer'),0,rejouer,rang?(echauffement?T('fin.essaiClasse',essaisUtil()+1,essaisMax()):T('fin.essai',essaisUtil()+1,essaisMax())):(modeServeur()&&!connecte()?T('titre.connecteToi'):T(classee?'fin.epuise':'entrainement')),28);
+    bouton('partager',40,580,134,42,T('fin.partager'),2,partager,null,14);
+    if(modeServeur()&&!connecte()&&!HORS_RANG)bouton('fcnx',186,580,134,42,T('cnx.bouton'),3,function(){allerEcran('connexion');},null,12.5);
+    else if(classee||echauffement||restants<=0||BOT||VITESSE>1||TAB_FORCE>=0)bouton('fentr',186,580,134,42,T('titre.entrainement'),1,function(){lancer(false);},null,12.5);
+    else bouton('fdefi',186,580,134,42,T('fin.defi'),1,function(){lancerClasse('fin');},T('fin.essai',essaisUtil()+1,essaisMax()),12.5);
+  }
+  bouton('fmenu',6,SAFE_H+5,52,24,T('fin.menu'),1,function(){allerEcran('titre');majJour();},null,10);
   cx.globalAlpha=1;
 }
 var finTampon=0;
 
 /* ---------- partage ---------- */
+/* 0.7 : le lien partagé est celui d'une carte de partage (son image s'affiche sous le post), choisie selon le résultat */
 function texteX(k){
   var s=k===1?(S&&S.repasFait?T('x.repas'):T('x.tenu',fmtTemps(S?S.n:0),S?S.tuesType[I_ENN.grenouille]:0)):T('x.jour',Math.max(1,serieAffichee()));
-  return s+' '+etiquetteJour()+(URL_JEU?' '+URL_JEU:'');
+  if(k===1&&S)s+=' '+T('x.score',fmtNb(scoreFin()));
+  var lien=k===1?lienCarte(carteDeLaPartie()):lienCarte(carteDuScore(SAUV.record,false,false));
+  return s+' '+etiquetteJour()+' #987NES'+(lien?' '+lien:'');
 }
-function ouvrirX(txt){try{var w=dansTelegram();if(w&&w.openLink){w.openLink('https://x.com/intent/post?text='+encodeURIComponent(txt));return;}window.open('https://x.com/intent/post?text='+encodeURIComponent(txt),'_blank','noopener');}catch(e){}}
+function ouvrirX(txt){var u='https://x.com/intent/tweet?text='+encodeURIComponent(txt);try{var w=dansTelegram();if(w&&w.openLink){w.openLink(u);return;}window.open(u,'_blank','noopener');}catch(e){}}
+/* score affiché en fin de partie : celui du serveur une fois validé (normalement identique) */
+function scoreFin(){if(REVOIR)return SIM.score(S);if(classee&&partieSrv&&NET.fin&&NET.fin.statut==='validee'&&typeof NET.fin.score==='number')return NET.fin.score;return SIM.score(S);}
+function decretConnu(){
+  if(!NET.actif)return SIM.decretDe(SIM.fnv1a('DZO-'+JOUR));
+  if(NET.horde&&NET.horde.jour===(NET.jour?NET.jour.jour:JOUR)&&NET.horde.decret>=0&&NET.horde.decret<SIM.DECRETS.length&&modeServeur()&&NET.modeGraine==='jour')return NET.horde.decret;
+  return-1;
+}
+function texteNeutre(){
+  if(!modeServeur())return[T('titre.decretSecret'),T('net.horsLigne')];
+  if(NET.modeGraine==='essai')return[T('titre.hordeEssai'),T('titre.decretSurprise')];
+  return[T('titre.decretSecret'),T('memeHorde')];
+}
+function sousMordre(horsRang,prem,restants){
+  if(horsRang)return T('fin.entrainement');
+  if(prem)return T('titre.echauffement');
+  if(NET.actif&&(NET.etat==='attente'||NET.departAttente))return T('titre.connexion');
+  if(modeServeur()){
+    if(!connecte())return T('titre.connecteToi');
+    if(!versionOk())return T('titre.perimee');
+    if(NET.debutEnCours)return T('titre.debut');
+  }
+  return restants>0?T('titre.essai',essaisUtil()+1,essaisMax()):T('titre.epuise');
+}
+function barreCompte(){
+  if(HORS_RANG)return;
+  bouton('tcl',6,SAFE_H+4,100,26,T('cl.titre'),3,function(){allerEcran('classement');},null,11);
+  if(!modeServeur()){
+    bouton('tprofil',254,SAFE_H+4,100,26,T('profil.titre'),1,function(){allerEcran('profil');},null,11);
+    ttFit(NET.actif&&NET.etat==='attente'?T('titre.connexion'):T('net.horsLigne'),180,SAFE_H+144,10,300,'rgba(246,241,231,0.7)','center',2,true);return;}
+  if(connecte())bouton('tprofil',254,SAFE_H+4,100,26,'● '+NET.joueur.pseudo,1,function(){allerEcran('profil');},null,11);
+  else bouton('tcnx',254,SAFE_H+4,100,26,T('cnx.bouton'),2,function(){allerEcran('connexion');},null,11);
+}
 function boostDuJour(){
   majJour();ouvrirX(texteX(2));
   if(SAUV.boost!==JOUR){SAUV.boost=JOUR;sauver();}
@@ -7747,11 +8844,784 @@ function partager(){
   }catch(e){repli(null);}
 }
 
+/* =====================================================================
+   0.7 : SERVEUR DE SCORES
+   Identité Telegram (Mini App ou Login Widget), parties classées (graine du
+   serveur, journal renvoyé, score rejoué par le serveur), classement, profil,
+   boosts. Rien ici ne touche la simulation.
+   Sans API_URL, ou serveur injoignable : le jeu reste celui de la 0.6
+   (essais, record et série en local), avec la mention « hors ligne ».
+   ===================================================================== */
+var CFG=(function(){try{return window.DZO_CONFIG||{};}catch(e){return{};}})();
+function hoteLocal(){try{var h=location.hostname;return h==='localhost'||h==='127.0.0.1'||h==='[::1]';}catch(e){return false;}}
+/* ?api= et ?dev= ne sont lus que sur la machine du développeur : ailleurs, un lien piégé pourrait envoyer l'identité Telegram à un autre serveur */
+var API_URL=String((hoteLocal()&&params.get('api'))||CFG.API_URL||'').replace(/\/+$/,'');
+var BOT_NOM=String(CFG.BOT_NOM||'').replace(/^@/,'').replace(/[^A-Za-z0-9_]/g,'');
+var TG_GROUPE_URL=/^https:\/\/t\.me\/[A-Za-z0-9_+\/-]+$/.test(String(CFG.TG_GROUPE_URL||''))?String(CFG.TG_GROUPE_URL):'';
+var PARTAGE_URL=String(CFG.PARTAGE_URL===undefined?'https://987nes.com/survivors/partage/':CFG.PARTAGE_URL);
+var DEV_ID=hoteLocal()&&params.get('dev')?(parseInt(params.get('dev'),10)||1001):0;
+var HORS_RANG=BOT||VITESSE>1||TAB_FORCE>=0;
+var NET={actif:!!API_URL&&typeof fetch==='function',etat:'',jeton:'',expire:0,mode:'',joueur:null,jour:null,regles:null,versions:null,modeGraine:'jour',horde:null,
+  decalage:0,prochainJour:0,majT:0,debutEnCours:false,departAttente:false,partie:null,fin:null,tmaTente:false,tmaRetente:false,enVol:{},
+  code:null,codeT:0,attente:false,cl:{periode:'jour',donnees:null,charge:false,erreur:'',defil:0,cle:''},msg:'',msgT:-9,msgCoul:'',
+  profilMsg:'',profilCoul:'',boostMsg:'',boostCoul:'',widget:false,widgetT:0,revoirCharge:false};
+var REVOIR=null;
+
+function modeServeur(){return NET.actif&&NET.etat==='ok';}
+function connecte(){return modeServeur()&&!!NET.jeton&&!!NET.joueur&&!!NET.jour;}
+function versionOk(){return!NET.versions||NET.versions.indexOf(VERSION)>=0;}
+function boostsActifs(){return NET.regles&&NET.regles.boostsActifs?NET.regles.boostsActifs:[];}
+function afficherMsg(s,coul){NET.msg=s;NET.msgT=0;NET.msgCoul=coul||C.creme;}
+
+/* ---- appels ---- */
+function apiAppel(methode,chemin,corps,o){
+  o=o||{};
+  if(!NET.actif)return Promise.resolve({statut:0,json:{erreur:'reseau'}});
+  var h={},ctrl=null,minu=0;
+  if(corps!==undefined)h['Content-Type']='application/json';
+  if(o.auth)h.Authorization=o.auth;else if(NET.jeton)h.Authorization='Bearer '+NET.jeton;
+  try{ctrl=new AbortController();minu=setTimeout(function(){try{ctrl.abort();}catch(e){}},o.delai||9000);}catch(e){ctrl=null;}
+  var p;
+  try{p=fetch(API_URL+chemin,{method:methode,headers:h,body:corps===undefined?undefined:JSON.stringify(corps),signal:ctrl?ctrl.signal:undefined,cache:'no-store',credentials:'omit'});}
+  catch(e){p=Promise.reject(e);}
+  return p.then(function(r){return r.text().then(function(t){var j=null;try{j=JSON.parse(t);}catch(e){}return{statut:r.status,json:j&&typeof j==='object'?j:{erreur:'interne'}};});})
+    .catch(function(){return{statut:0,json:{erreur:'reseau'}};})
+    .then(function(r){
+      if(minu)clearTimeout(minu);
+      if(r.statut===401&&!o.auth&&NET.jeton&&(r.json.erreur==='session_invalide'||r.json.erreur==='session_absente'))oublierSession();
+      if(r.statut===403&&r.json.erreur==='joueur_exclu')oublierSession();
+      if(r.statut>0&&r.statut<500&&r.json.erreur!=='origine_refusee'&&NET.etat!=='ok'&&NET.etat!=='attente')NET.etat='ok';
+      return r;});
+}
+function initDataTg(){try{var w=window.Telegram&&Telegram.WebApp;return w&&typeof w.initData==='string'&&w.initData.length>10?w.initData:'';}catch(e){return'';}}
+function sessionStockee(){try{var o=JSON.parse(window.localStorage.getItem('dzo.session')||'null');if(o&&typeof o.j==='string'&&o.e>Date.now()+60000)return o;}catch(e){}return null;}
+function garderSession(){try{if(NET.jeton)window.localStorage.setItem('dzo.session',JSON.stringify({j:NET.jeton,e:NET.expire,m:NET.mode,id:NET.joueur?NET.joueur.id:0}));else window.localStorage.removeItem('dzo.session');}catch(e){}}
+function oublierSession(){NET.jeton='';NET.expire=0;NET.mode='';NET.joueur=null;NET.jour=null;NET.code=null;garderSession();}
+function appliquerSession(j){
+  if(!j||!j.joueur||!j.jour)return;
+  if(j.session){NET.jeton=j.session.jeton;NET.expire=j.session.expire;NET.mode=j.session.mode;}
+  if(NET.jour&&NET.jour.jour!==j.jour.jour)NET.code=null;
+  NET.joueur=j.joueur;NET.jour=j.jour;NET.regles=j.regles||null;NET.versions=j.versions||NET.versions;
+  NET.modeGraine=j.modeGraine||(j.regles&&j.regles.modeGraine)||'jour';NET.horde=j.horde||null;
+  if(j.serveur&&typeof j.serveur.maintenant==='number'){NET.decalage=j.serveur.maintenant-Date.now();NET.prochainJour=j.serveur.prochainJour||0;}
+  NET.etat='ok';NET.majT=Date.now();garderSession();
+  /* la langue de Telegram sert de langue par défaut tant que le joueur n'en a pas choisi */
+  if(!SAUV.langue&&NET.joueur.langue){var l=langueDe(NET.joueur.langue);if(l&&l!==LANGUE)appliquerLangue(l,true);}
+  envoyerAttentes();
+}
+function finSession(r){
+  NET.majT=Date.now();
+  if(r.statut===200){appliquerSession(r.json);return r;}
+  if(r.statut===0||r.statut>=500||r.json.erreur==='origine_refusee'){NET.etat='hors';return r;}
+  NET.etat='ok';afficherMsg(texteErreur(r.json),C.danger);return r;
+}
+function ouvrirSession(){
+  if(!NET.actif)return Promise.resolve(null);
+  var tma=initDataTg(),st=sessionStockee();
+  NET.etat='attente';NET.majT=Date.now();
+  if(tma){NET.tmaTente=true;return apiAppel('POST','/api/session',{version:VERSION},{auth:'tma '+tma}).then(finSession);}
+  if(st){NET.jeton=st.j;NET.expire=st.e;NET.mode=st.m||'';return rafraichir();}
+  return apiAppel('GET','/api/sante').then(function(r){NET.majT=Date.now();NET.etat=r.statut===200?'ok':'hors';if(r.statut===200&&r.json.versions)NET.versions=r.json.versions;return r;});
+}
+function rafraichir(){
+  if(!NET.jeton)return Promise.resolve(null);
+  NET.majT=Date.now();
+  return apiAppel('POST','/api/session',{version:VERSION}).then(function(r){
+    NET.majT=Date.now();
+    if(r.statut===200){appliquerSession(r.json);return r;}
+    if(r.statut===0||r.statut>=500){if(NET.etat==='attente')NET.etat='hors';return r;}
+    /* session expirée : dans Telegram, une nouvelle avec l'initData (s'il a moins d'une heure) */
+    var tma=initDataTg();
+    if(r.statut===401&&tma&&!NET.tmaRetente){NET.tmaRetente=true;return apiAppel('POST','/api/session',{version:VERSION},{auth:'tma '+tma}).then(finSession);}
+    NET.etat='ok';return r;});
+}
+function connexionDev(){
+  if(!DEV_ID)return;
+  apiAppel('POST','/api/session',{dev:{id:DEV_ID,prenom:'Dev'+DEV_ID,username:'dev'+DEV_ID,langue:LANGUE},version:VERSION}).then(function(r){finSession(r);if(r.statut===200)apresConnexion();});
+}
+function apresConnexion(){afficherMsg(T('cnx.bienvenue',NET.joueur.pseudo),C.vert);allerEcran('titre');}
+/* rappel du Telegram Login Widget : l'objet reçu est transmis tel quel */
+window.__dzoTgAuth=function(user){
+  apiAppel('POST','/api/session',{widget:user,version:VERSION}).then(function(r){finSession(r);if(r.statut===200)apresConnexion();});
+};
+function deconnecter(){oublierSession();afficherMsg(T('profil.deconnecte'),C.creme);allerEcran('titre');}
+
+/* ---- traduction des codes du serveur ---- */
+function texteErreur(e){
+  var c=String(e&&typeof e==='object'?e.erreur:(e||''));
+  if(c==='x_deja_lie'&&e&&e.reprenable)return T('err.x_deja_lie_reprenable');
+  if(c==='rejeu_apres_cloture'&&e&&e.disponible)return T('err.rejeu_apres_cloture_h',heureLocale(e.disponible-NET.decalage));
+  if(c&&(DICO['err.'+c]!==undefined||LANGUES.fr['err.'+c]!==undefined))return T('err.'+c);
+  try{if(window.console)console.warn('DZÔ : code du serveur inconnu',c);}catch(x){}
+  return T('err.inconnu');
+}
+function heureLocale(ms){var d=new Date(ms);return('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);}
+
+/* ---- essais : ceux du serveur une fois connecté, sinon le compte local de la 0.6 ---- */
+function essaisMax(){if(connecte())return NET.jour.essaisMax;return 3+(SAUV.boost===JOUR?1:0);}
+function essaisUtil(){return connecte()?NET.jour.essaisUtilises:SAUV.essais;}
+function essaisRestants(){return Math.max(0,essaisMax()-essaisUtil());}
+function boostActif(){return connecte()?NET.jour.boosts.length>0:SAUV.boost===JOUR;}
+
+/* ---- compte à rebours : minuit à Zurich, affiché à l'heure de l'appareil ---- */
+var cacheMinuit={j:'',t:0};
+function decalageZurich(t){
+  try{var o={};new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Zurich',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(new Date(t)).forEach(function(q){o[q.type]=q.value;});
+    return Date.UTC(+o.year,+o.month-1,+o.day,+o.hour%24,+o.minute,+o.second)-Math.floor(t/1000)*1000;}catch(e){return 3600e3;}
+}
+function prochainMinuit(){
+  var ms=Date.now()+NET.decalage;
+  if(NET.prochainJour&&NET.prochainJour>ms-2000)return NET.prochainJour;
+  if(cacheMinuit.j===JOUR&&cacheMinuit.t>ms-2000)return cacheMinuit.t;
+  var p=JOUR.split('-'),u=Date.UTC(+p[0],+p[1]-1,+p[2]+1),x=u-3600e3;
+  x=u-decalageZurich(x);x=u-decalageZurich(x);
+  cacheMinuit={j:JOUR,t:x};return x;
+}
+function texteCompte(){
+  var fin=prochainMinuit(),r=Math.max(0,Math.floor((fin-(Date.now()+NET.decalage))/1000)),h=Math.floor(r/3600),m=Math.floor(r/60)%60,s=r%60;
+  var d=h+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s,loc=heureLocale(fin-NET.decalage);
+  return loc==='00:00'?T('titre.compteMinuit',d):T('titre.compte',d,loc);
+}
+
+/* ---- partie classée : début ---- */
+function debutServeur(suite){
+  if(NET.debutEnCours)return;NET.debutEnCours=true;
+  apiAppel('POST','/api/partie/debut',{version:VERSION}).then(function(r){
+    NET.debutEnCours=false;var e=r.json||{};
+    if(r.statut===200&&typeof e.graine==='number'&&typeof e.jeton==='string'){
+      NET.partie={jeton:e.jeton,graine:e.graine>>>0,essai:e.essai,essaisMax:e.essaisMax,jour:e.jour,debut:e.debut,joueur:NET.joueur.id};
+      if(NET.jour){NET.jour.essaisUtilises=e.essai;NET.jour.essaisMax=e.essaisMax;}
+      suite();return;}
+    if(e.erreur==='essais_epuises'&&NET.jour){NET.jour.essaisUtilises=e.essaisUtilises;NET.jour.essaisMax=e.essaisMax;}
+    if(e.erreur==='version_perimee'&&e.versions)NET.versions=e.versions;
+    if(r.statut===0||r.statut>=500&&e.erreur!=='serveur_occupe'){NET.etat='hors';afficherMsg(T('net.horsLigne'),C.danger);return;}
+    afficherMsg(texteErreur(e),C.danger);
+  });
+}
+/* lancer un essai classé : par le serveur si l'on est en ligne, sinon comme en 0.6 */
+function lancerClasse(depuis){
+  if(HORS_RANG){lancer(false);return;}
+  if(modeServeur()){
+    if(!versionOk()){afficherMsg(T('err.version_perimee'),C.danger);setTimeout(function(){try{location.reload();}catch(e){}},1500);return;}
+    if(!connecte()||essaisRestants()<=0){lancer(false);return;}
+    debutServeur(function(){if(ecran===depuis)lancer(true);});return;
+  }
+  lancer(true);
+}
+
+/* ---- partie classée : fin (envoi fiable, gardé en stockage local jusqu'à une réponse définitive) ---- */
+function lireAttentes(){try{var a=JSON.parse(window.localStorage.getItem('dzo.attente')||'[]');return Array.isArray(a)?a:[];}catch(e){return[];}}
+function ecrireAttentes(a){try{window.localStorage.setItem('dzo.attente',JSON.stringify(a.slice(-6)));}catch(e){}}
+function retirerAttente(k){ecrireAttentes(lireAttentes().filter(function(x){return x.k!==k;}));}
+function finServeur(p){
+  var it={k:p.jeton.slice(0,24),joueur:p.joueur,t:Date.now(),jour:p.jour,essai:p.essai,score:SIM.score(S),
+    corps:{jeton:p.jeton,version:VERSION,nPas:S.n,journal:SIM.compresser(S),choix:Array.from(S.choix)}};
+  var a=lireAttentes();a.push(it);ecrireAttentes(a);
+  NET.fin={k:it.k,statut:'envoi',score:it.score};
+  envoyerFin(it);
+}
+function envoyerAttentes(){
+  if(!connecte())return;
+  var a=lireAttentes(),garde=[],i,it;
+  for(i=0;i<a.length;i++){it=a[i];if(!it||!it.corps||Date.now()-it.t>26*3600e3)continue;garde.push(it);if(it.joueur===NET.joueur.id)envoyerFin(it);}
+  if(garde.length!==a.length)ecrireAttentes(garde);
+}
+function majFin(it,o){if(NET.fin&&NET.fin.k===it.k)for(var c in o)NET.fin[c]=o[c];}
+function envoyerFin(it){
+  if(NET.enVol[it.k])return;NET.enVol[it.k]=1;majFin(it,{statut:'envoi'});
+  apiAppel('POST','/api/partie/fin',it.corps,{delai:30000}).then(function(r){NET.enVol[it.k]=0;resultatFin(it,r);});
+}
+function resultatFin(it,r){
+  var e=r.json||{},c=e.erreur,courant=NET.fin&&NET.fin.k===it.k;
+  if(r.statut===200&&e.statut==='validee'){
+    retirerAttente(it.k);majFin(it,{statut:'validee',score:e.score,rangJour:e.rangJour,scoreJour:e.scoreJour});
+    if(!courant)afficherMsg(T('net.envoyee',fmtNb(e.score)),C.vert);
+    rafraichir();return;}
+  if(r.statut===202||(r.statut===200&&e.statut==='en_attente')){majFin(it,{statut:'verif'});setTimeout(function(){sonder(it,e.partie,0);},e.reessayerDans||3000);return;}
+  if(r.statut===401){majFin(it,{statut:'reseau',erreur:c});var tma=initDataTg();if(tma)apiAppel('POST','/api/session',{version:VERSION},{auth:'tma '+tma}).then(finSession);return;}
+  if(r.statut===0||r.statut===429||(r.statut>=500&&c!=='rejeu_delai'&&c!=='rejeu_echec')){majFin(it,{statut:'reseau',erreur:c});reessayer(it);return;}
+  /* réponse définitive : refus, ou incident du serveur (la partie y est conservée, l'organisateur peut la relancer) */
+  retirerAttente(it.k);majFin(it,{statut:r.statut>=500?'incident':'refusee',erreur:c});
+  if(!courant)afficherMsg(T('net.refusee')+' '+texteErreur(e),C.danger);
+  rafraichir();
+}
+function sonder(it,id,n){
+  apiAppel('GET','/api/partie/'+id).then(function(r){var e=r.json||{};
+    if(r.statut===200&&e.statut==='en_attente'){if(n<200)setTimeout(function(){sonder(it,id,n+1);},3000);return;}
+    if(r.statut===200&&e.statut==='validee'){resultatFin(it,{statut:200,json:e});return;}
+    if(r.statut===200){resultatFin(it,{statut:e.statut==='erreur'?503:422,json:{erreur:e.erreur}});return;}
+    majFin(it,{statut:'reseau',erreur:e.erreur});reessayer(it);});
+}
+function reessayer(it){
+  it.n=(it.n||0)+1;var d=Math.min(60000,3000*Math.pow(2,Math.min(5,it.n)));
+  setTimeout(function(){if(connecte()&&lireAttentes().some(function(x){return x.k===it.k;}))envoyerFin(it);},d);
+}
+/* ligne d'état de la partie terminée, sur l'écran de fin */
+function ligneServeur(){
+  if(REVOIR)return null;
+  if(!classee)return null;
+  if(!partieSrv)return[T('net.nonClasse'),'rgba(246,241,231,0.6)'];
+  var f=NET.fin;if(!f)return null;
+  if(f.statut==='validee')return[f.rangJour?T('net.valideRang',f.rangJour,fmtNb(f.scoreJour||f.score)):T('net.valide'),C.vert];
+  if(f.statut==='refusee')return[T('net.refusee')+' '+texteErreur(f.erreur),C.danger];
+  if(f.statut==='incident')return[texteErreur(f.erreur),C.or];
+  if(f.statut==='reseau')return[T('net.enAttente'),C.or];
+  return[T('net.verif'),C.cyan];
+}
+
+/* ---- navigation entre écrans ---- */
+function allerEcran(e){
+  if(e==='titre'&&ecran!=='titre'&&connecte()&&Date.now()-NET.majT>3000)rafraichir();
+  if(e==='titre')setTimeout(verifierVersion,0);
+  if(e==='profil'){var j=NET.joueur||{};NET.profilMsg='';profilVal={pseudo:j.pseudo||'',wallet:j.wallet||'',x:j.x?'@'+j.x:''};profilInit=true;}
+  if(e==='boosts'){NET.boostMsg='';chargerCode();}
+  if(e==='classement'){NET.cl.defil=0;chargerClassement(NET.cl.periode);}
+  if(e==='connexion'){NET.widgetT=0;}
+  REVOIR=e==='jeu'?REVOIR:null;
+  ecran=e;sous='';tEcran=0;tDepart=-1;presse=null;pressePtr=-1;
+}
+function entete(titre){
+  bouton('retour',6,SAFE_H+6,70,30,T('menu.retour'),1,function(){allerEcran('titre');},null,12);
+  ttFit(titre,190,SAFE_H+22,22,220,C.creme,'center',0,true);
+}
+function fondMenu(){nBT=0;rendreFond(5,3,0.8);}
+function inviterConnexion(y){
+  para(T('cnx.invite'),180,y,300,13,C.creme,'center',2,18,true);
+  bouton('cnxInv',70,y+44,220,48,T('cnx.bouton'),2,function(){allerEcran('connexion');},null,18);
+}
+
+/* ---- champs de saisie : éléments HTML posés sur le canevas (clavier du téléphone) ---- */
+var CHAMPS={},champsVus={},profilVal={pseudo:'',wallet:'',x:''},profilInit=false;
+function champ(id,x,y,w,h,o){
+  var c=CHAMPS[id],el,st;
+  if(!c){
+    try{
+      el=document.createElement(o.div?'div':'input');st=el.style||{};
+      if(!o.div){el.type='text';el.autocomplete='off';el.spellcheck=false;el.maxLength=o.max||64;el.placeholder=o.aide||'';
+        try{el.setAttribute('autocapitalize','off');el.setAttribute('autocorrect','off');el.setAttribute('enterkeyhint','done');el.setAttribute('aria-label',o.aide||id);}catch(e){}
+        st.background='#1A1228';st.color='#F6F1E7';st.border='2px solid rgba(111,230,255,0.55)';st.borderRadius='10px';st.padding='0 10px';st.outline='none';
+        st.fontFamily='ui-monospace,Menlo,Consolas,monospace';st.boxSizing='border-box';
+        if(el.addEventListener)el.addEventListener('keydown',function(ev){if(ev.key==='Enter'){try{el.blur();}catch(e){}}});}
+      else{st.display='flex';st.alignItems='center';st.justifyContent='center';st.overflow='hidden';}
+      st.position='fixed';st.zIndex='5';st.margin='0';st.userSelect='text';st.webkitUserSelect='text';st.touchAction='auto';
+      el.className='dzo-champ';document.body.appendChild(el);
+    }catch(e){return null;}
+    c=CHAMPS[id]={el:el,cle:'',cache:false};
+    if(o.valeur!==undefined)el.value=o.valeur;
+  }
+  champsVus[id]=1;
+  var l=Math.round((OX+x*K)/DPR),t=Math.round((OY+y*K)/DPR),ww=Math.round(w*K/DPR),hh=Math.round(h*K/DPR),cle=l+','+t+','+ww+','+hh;
+  if(c.cle!==cle){c.cle=cle;st=c.el.style;st.left=l+'px';st.top=t+'px';st.width=ww+'px';st.height=hh+'px';if(!o.div)st.fontSize=Math.max(16,Math.round(hh*0.42))+'px';}
+  if(c.cache){c.cache=false;c.el.style.display=o.div?'flex':'block';}
+  return c.el;
+}
+function finChamps(){
+  for(var id in CHAMPS){var c=CHAMPS[id];if(!champsVus[id]&&!c.cache){c.cache=true;c.el.style.display='none';try{c.el.blur();}catch(e){}}}
+  champsVus={};
+}
+function valeurChamp(id){var c=CHAMPS[id];return c&&typeof c.el.value==='string'?c.el.value:'';}
+function poserChamp(id,v){var c=CHAMPS[id];if(c)c.el.value=v;}
+function cadreChamp(lib,x,y,w,h){tn(lib,x,y-9,10.5,C.cyan,'left',0);cx.fillStyle='rgba(13,9,20,0.6)';cx.beginPath();rrect(cx,x-2,y-2,w+4,h+4,12);cx.fill();}
+function copier(txt){
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){afficherMsg(T('boost.copie'),C.vert);},function(){afficherMsg(txt,C.creme);});return;}}catch(e){}
+  afficherMsg(txt,C.creme);
+}
+function ouvrirLien(u){try{var w=dansTelegram();if(w&&w.openTelegramLink&&/^https:\/\/t\.me\//.test(u)){w.openTelegramLink(u);return;}if(w&&w.openLink){w.openLink(u);return;}window.open(u,'_blank','noopener');}catch(e){}}
+
+/* ---- écran de connexion ---- */
+function rendreConnexion(){
+  fondMenu();entete(T('cnx.titre'));
+  var s=DZO.grand,y=SAFE_H;
+  if(!modeServeur()&&!(NET.actif&&NET.etat==='attente')){bientot(y+120);return;}
+  if(s){var hh=150,ww=hh*s.w/s.h;cx.drawImage(SPR.ombre,180-60,y+212,120,18);cx.drawImage(s.c,180-ww*s.ax/s.w,y+220-hh*s.ay/s.h,ww,hh);}
+  panneau(16,y+236,328,104,12,'rgba(38,27,54,0.94)','rgba(20,13,32,0.94)','rgba(246,241,231,0.18)',1);
+  para(T('cnx.pourquoi'),180,y+256,300,13,C.creme,'center',2,17,false);
+  para(T('cnx.lu'),180,y+300,300,11.5,'rgba(246,241,231,0.75)','center',2,15,false);
+  y+=356;
+  if(!NET.actif||NET.etat==='hors'){ttFit(T('net.horsLigne'),180,y+20,13,320,C.danger,'center',2,true);return;}
+  if(BOT_NOM){
+    var el=champ('widget',40,y,280,56,{div:true});
+    if(el&&!NET.widget){NET.widget=true;
+      try{var sc=document.createElement('script');sc.async=true;sc.src='https://telegram.org/js/telegram-widget.js?22';
+        sc.setAttribute('data-telegram-login',BOT_NOM);sc.setAttribute('data-size','large');sc.setAttribute('data-radius','12');
+        sc.setAttribute('data-onauth','__dzoTgAuth(user)');sc.setAttribute('data-lang',LANGUE);el.appendChild(sc);}catch(e){}}
+    NET.widgetT+=1/60;
+    if(NET.widgetT>5)para(T('cnx.widgetAide'),180,y+74,300,11,'rgba(246,241,231,0.7)','center',2,14,false);
+    bouton('ouvrirTg',60,y+112,240,44,T('cnx.ouvrirTg'),3,function(){ouvrirLien('https://t.me/'+BOT_NOM);},null,15);
+  }else para(T('cnx.pasDeBot'),180,y+20,300,12,'rgba(246,241,231,0.8)','center',2,16,true);
+  if(DEV_ID)bouton('dev',40,y+170,280,40,T('cnx.dev',DEV_ID),1,connexionDev,null,13);
+}
+
+/* ---- profil ---- */
+function sauverProfil(){
+  if(!connecte())return;
+  var j=NET.joueur,c={},p=valeurChamp('pseudo').trim(),w=valeurChamp('wallet').trim(),x=valeurChamp('x').trim().replace(/^@/,'');
+  if(p!==j.pseudo)c.pseudo=p;
+  if(w!==(j.wallet||''))c.wallet=w;
+  if(x!==(j.x||''))c.x=x;
+  if(!Object.keys(c).length){NET.profilMsg=T('profil.rien');NET.profilCoul=C.creme;return;}
+  NET.profilErr='';NET.profilMsg=T('profil.envoi');NET.profilCoul=C.cyan;
+  apiAppel('POST','/api/profil',c).then(function(r){
+    if(r.statut===200&&r.json.joueur){NET.joueur=r.json.joueur;garderSession();NET.profilMsg=T('profil.ok');NET.profilCoul=C.vert;
+      poserChamp('pseudo',NET.joueur.pseudo);poserChamp('wallet',NET.joueur.wallet||'');poserChamp('x',NET.joueur.x?'@'+NET.joueur.x:'');}
+    else{NET.profilMsg=texteErreur(r.json);NET.profilCoul=C.danger;NET.profilErr=r.json&&r.json.reprenable?'reprenable':String((r.json&&r.json.erreur)||'');}
+  });
+}
+function rendreProfil(){
+  fondMenu();entete(T('profil.titre'));
+  var y=SAFE_H+56,j=NET.joueur;
+  if(!modeServeur()){profilLocal(bientot(y+40));return;}
+  if(!connecte()){inviterConnexion(y+120);return;}
+  if(profilInit){profilInit=false;['pseudo','wallet','x'].forEach(function(k){if(CHAMPS[k])poserChamp(k,profilVal[k]);});}
+  panneau(12,y,336,388,14,'rgba(38,27,54,0.95)','rgba(20,13,32,0.95)','rgba(246,241,231,0.18)',1);
+  cadreChamp(T('profil.pseudo'),28,y+30,304,40);champ('pseudo',28,y+30,304,40,{max:16,aide:T('profil.pseudoAide'),valeur:profilVal.pseudo});
+  tn(T('profil.pseudoRegle'),30,y+84,10,'rgba(246,241,231,0.65)','left',2);
+  cadreChamp(T('profil.wallet'),28,y+118,304,40);champ('wallet',28,y+118,304,40,{max:64,aide:T('profil.walletAide'),valeur:profilVal.wallet});
+  para(T('profil.walletAvert'),30,y+172,300,10.5,C.or,'left',2,13,false);
+  cadreChamp(T('profil.x'),28,y+218,304,40);champ('x',28,y+218,304,40,{max:16,aide:'@compte',valeur:profilVal.x});
+  para(T('profil.xAide'),30,y+272,300,10,'rgba(246,241,231,0.65)','left',2,13,false);
+  bouton('psauver',60,y+310,240,50,T('profil.enregistrer'),0,sauverProfil,null,20);
+  if(NET.profilMsg)ttFit(NET.profilMsg,180,y+378,12,320,NET.profilCoul||C.creme,'center',2,true);
+  if(j&&NET.mode!=='miniapp')bouton('pdeco',100,y+400,160,32,T('profil.deconnecter'),1,deconnecter,null,11);
+  if(NET.profilMsg&&/reprenable/.test(NET.profilErr||''))bouton('pboost',100,y+440,160,32,T('boost.titre'),2,function(){allerEcran('boosts');},null,11);
+}
+
+/* ---- boosts ---- */
+function chargerCode(){
+  if(!connecte())return;
+  apiAppel('GET','/api/boost/code').then(function(r){if(r.statut===200)NET.code=r.json;else{NET.boostMsg=texteErreur(r.json);NET.boostCoul=C.danger;}});
+}
+function scorePartage(){return connecte()?Math.max(NET.jour.meilleurJour||0,0):(SAUV.record||0);}
+function texteBoostX(){
+  var sc=scorePartage(),code=NET.code?NET.code.code:'';
+  var s=sc>0?T('x.boostScore',fmtNb(sc)):T('x.boostSans');
+  return s+' '+code+' #987NES '+lienCarte(carteDuScore(sc,false,false));
+}
+function posterBoostX(){
+  if(!NET.code)return;
+  if(NET.mode==='dev'){ /* développement local : post simulé, rien n'est envoyé à X */
+    apiAppel('POST','/api/dev/post-x',{texte:texteBoostX()}).then(function(r){if(r.statut===200){poserChamp('lienX',r.json.url);NET.boostMsg=T('boost.simule');NET.boostCoul=C.cyan;}else{NET.boostMsg=texteErreur(r.json);NET.boostCoul=C.danger;}});
+    return;}
+  ouvrirX(texteBoostX());
+}
+function verifierX(){
+  var u=valeurChamp('lienX').trim();if(!u){NET.boostMsg=T('boost.colle');NET.boostCoul=C.or;return;}
+  NET.boostMsg=T('boost.verif');NET.boostCoul=C.cyan;
+  apiAppel('POST','/api/boost/x',{url:u},{delai:20000}).then(function(r){
+    if(r.statut===200){if(r.json.jour)NET.jour=r.json.jour;if(r.json.joueur)NET.joueur=r.json.joueur;NET.boostMsg=T('boost.okX');NET.boostCoul=C.vert;poserChamp('lienX','');chargerCode();son('nouvelle');}
+    else{NET.boostMsg=texteErreur(r.json);NET.boostCoul=C.danger;}});
+}
+function verifierTg(){
+  NET.boostMsg=T('boost.verif');NET.boostCoul=C.cyan;
+  rafraichir().then(function(){
+    var ok=NET.jour&&NET.jour.boosts.indexOf('tg')>=0;
+    NET.boostMsg=ok?T('boost.okTg'):T('err.boost_tg_par_groupe');NET.boostCoul=ok?C.vert:C.or;if(ok){chargerCode();son('nouvelle');}});
+}
+function rendreBoosts(){
+  fondMenu();entete(T('boost.titre'));
+  var y=SAFE_H+50,act=boostsActifs(),ob=NET.jour?NET.jour.boosts:[],code=NET.code?NET.code.code:'…',k;
+  if(!modeServeur()){boostLocal(bientot(y+30)+10);return;}
+  if(!connecte()){inviterConnexion(y+140);return;}
+  ttFit(T('boost.regle'),180,y+8,12,330,C.creme,'center',2,true);
+  ttFit(T('titre.essais',essaisRestants(),essaisMax()),180,y+26,13,330,essaisRestants()>0?C.cyan:C.danger,'center',0,true);
+  /* code du jour */
+  panneau(40,y+40,280,56,12,'rgba(58,40,18,0.95)','rgba(30,20,10,0.95)','rgba(255,210,63,0.5)',1.5);
+  tn(T('boost.code'),56,y+52,9.5,C.or,'left',0);
+  tt(code,140,y+76,22,C.or,'center',1);
+  bouton('copierCode',236,y+56,76,30,T('boost.copier'),2,function(){if(NET.code)copier(NET.code.code);},null,11);
+  if(!act.length){ttFit(T('boost.aucun'),180,y+130,13,320,C.creme,'center',2,true);}
+  y+=108;
+  if(act.indexOf('x')>=0){var okX=ob.indexOf('x')>=0;
+    panneau(12,y,336,okX?60:196,12,'rgba(23,40,58,0.95)','rgba(12,22,34,0.95)','rgba(111,230,255,0.4)',1);
+    tt(T('boost.x'),24,y+16,15,C.cyan,'left',0);tn(okX?T('boost.obtenu'):T('boost.plusUn'),336,y+16,11,okX?C.vert:C.creme,'right',0);
+    if(okX){ttFit(T('boost.okX'),180,y+42,12,310,C.vert,'center',2,false);y+=70;}
+    else{
+      if(!NET.joueur.x){para(T('boost.xProfil'),24,y+38,310,11,C.or,'left',2,14,false);bouton('xprofil',24,y+62,150,32,T('profil.titre'),1,function(){allerEcran('profil');},null,12);}
+      else{tn(T('boost.etape1',NET.joueur.x),24,y+38,11,C.creme,'left',2);
+        bouton('posterX',24,y+50,312,40,NET.mode==='dev'?T('boost.posterSimule'):T('boost.poster'),3,posterBoostX,null,15);}
+      tn(T('boost.etape2'),24,y+108,11,C.creme,'left',2);
+      cadreChamp('',24,y+120,224,36);champ('lienX',24,y+120,224,36,{max:300,aide:'https://x.com/…/status/…'});
+      bouton('verifX',256,y+120,80,36,T('boost.verifier'),0,verifierX,null,12);
+      tn(T('boost.xRegle'),24,y+172,9.5,'rgba(246,241,231,0.6)','left',2);
+      y+=206;}
+  }
+  if(act.indexOf('tg')>=0){var okT=ob.indexOf('tg')>=0,msgTg=(BOT_NOM?'/boost@'+BOT_NOM+' ':'')+code;
+    panneau(12,y,336,okT?60:158,12,'rgba(23,40,58,0.95)','rgba(12,22,34,0.95)','rgba(111,230,255,0.4)',1);
+    tt(T('boost.tg'),24,y+16,15,C.cyan,'left',0);tn(okT?T('boost.obtenu'):T('boost.plusUn'),336,y+16,11,okT?C.vert:C.creme,'right',0);
+    if(okT){ttFit(T('boost.okTg'),180,y+42,12,310,C.vert,'center',2,false);y+=70;}
+    else{
+      para(T('boost.tgRegle'),24,y+38,312,11,C.creme,'left',2,14,false);
+      cx.fillStyle='rgba(13,9,20,0.7)';cx.beginPath();rrect(cx,24,y+62,228,30,8);cx.fill();ttFit(msgTg,32,y+77,12.5,212,C.or,'left',1,false);
+      bouton('copierTg',258,y+62,78,30,T('boost.copier'),2,function(){copier(msgTg);},null,11);
+      if(TG_GROUPE_URL)bouton('groupe',24,y+104,150,40,T('boost.groupe'),3,function(){ouvrirLien(TG_GROUPE_URL);},null,13);
+      bouton('verifTg',TG_GROUPE_URL?186:24,y+104,TG_GROUPE_URL?150:312,40,T('boost.verifier'),0,verifierTg,null,14);
+      y+=168;}
+  }
+  if(NET.boostMsg)para(NET.boostMsg,180,Math.min(y+8,606),330,12,NET.boostCoul||C.creme,'center',2,15,true);
+}
+
+/* ---- classement ---- */
+var PERIODES=[['jour','cl.jour'],['hier','cl.hier'],['semaine','cl.semaine'],['mois','cl.mois']];
+function dateHier(){var p=(NET.jour?NET.jour.jour:JOUR).split('-'),d=new Date(Date.UTC(+p[0],+p[1]-1,+p[2]-1));return d.getUTCFullYear()+'-'+('0'+(d.getUTCMonth()+1)).slice(-2)+'-'+('0'+d.getUTCDate()).slice(-2);}
+function chargerClassement(per){
+  var cl=NET.cl,cle=per+'|'+Date.now();cl.periode=per;cl.charge=true;cl.erreur='';cl.donnees=null;cl.defil=0;cl.cle=cle;
+  if(!modeServeur()){cl.charge=false;cl.erreur=T('net.horsLigne');return;}
+  var ch=connecte()?'/api/classement?periode='+(per==='hier'?'jour&date='+dateHier():per):'/api/public/classement?periode='+(per==='hier'?'jour':per)+'&limite=100';
+  apiAppel('GET',ch).then(function(r){if(cl.cle!==cle)return;cl.charge=false;if(r.statut===200)cl.donnees=r.json;else cl.erreur=texteErreur(r.json);});
+}
+var CL_Y0=118,CL_H=26,clGlisse=null;
+function rendreClassement(){
+  fondMenu();entete(T('cl.titre'));
+  var cl=NET.cl,y=SAFE_H+44,i,d=cl.donnees,x,e,ys,y0=SAFE_H+CL_Y0,y1=connecte()?586:560,per=connecte()?PERIODES:PERIODES.filter(function(p){return p[0]!=='hier';}),lw=Math.floor(344/per.length);
+  if(!modeServeur()){classementLocal(bientot(y+60)+14);return;}
+  for(i=0;i<per.length;i++)(function(p,i){bouton('cl_'+p[0],8+i*lw,y,lw-4,30,T(p[1]),cl.periode===p[0]?3:1,function(){chargerClassement(p[0]);},null,12);})(per[i],i);
+  if(d){var m=T(d.mode==='meilleur'?'cl.modeMeilleur':'cl.modeCumul');
+    ttFit((d.debut===d.fin?fmtDate(d.debut):T('cl.du',fmtDate(d.debut),fmtDate(d.fin)))+' · '+m,180,y+50,11,340,'rgba(246,241,231,0.75)','center',2,true);}
+  cx.fillStyle='rgba(13,9,20,0.72)';cx.beginPath();rrect(cx,8,y0-6,344,y1-y0+12,12);cx.fill();
+  if(cl.charge){ttFit(T('cl.charge'),180,y0+40,13,320,C.cyan,'center',2,true);}
+  else if(cl.erreur){para(cl.erreur,180,y0+40,320,12.5,C.danger,'center',2,16,true);}
+  else if(d){
+    var top=d.top||[],hTot=top.length*CL_H,vis=y1-y0;
+    cl.defil=Math.max(0,Math.min(cl.defil,Math.max(0,hTot-vis)));
+    if(!top.length)para(T('cl.vide'),180,y0+40,300,13,C.creme,'center',2,17,true);
+    cx.save();cx.beginPath();cx.rect(8,y0-4,344,vis+8);cx.clip();
+    for(i=0;i<top.length;i++){e=top[i];ys=y0+i*CL_H-cl.defil;if(ys<y0-CL_H||ys>y1)continue;
+      if(e.moi){cx.fillStyle='rgba(255,210,63,0.22)';cx.fillRect(10,ys,340,CL_H-2);}
+      else if(i%2){cx.fillStyle='rgba(246,241,231,0.05)';cx.fillRect(10,ys,340,CL_H-2);}
+      var cr=e.rang===1?C.or:(e.rang<=3?'#D9DDE8':(e.rang<=10?C.cyan:'rgba(246,241,231,0.8)'));
+      tn(''+e.rang,44,ys+12,12,cr,'right',1);
+      ttFit(e.pseudo,54,ys+12,12.5,150,e.moi?C.or:C.creme,'left',2,false);
+      tn(fmtNb(e.score),e.revoir?300:340,ys+12,12,e.moi?C.or:C.creme,'right',1);
+      if(e.revoir&&ys>=y0-2&&ys+CL_H<=y1+2)(function(e){var enf=zone('rv'+e.partie,306,ys,44,CL_H-2,function(){chargerRevoir(e.partie,e.pseudo);});
+        cx.fillStyle=enf?'rgba(111,230,255,0.5)':'rgba(111,230,255,0.22)';cx.beginPath();rrect(cx,310,ys+2,36,CL_H-6,6);cx.fill();tn('▶',328,ys+12,11,C.creme,'center',2);})(e);
+    }
+    cx.restore();
+    if(hTot>vis){var hb=Math.max(20,vis*vis/hTot),yb=y0+(vis-hb)*cl.defil/Math.max(1,hTot-vis);cx.fillStyle='rgba(111,230,255,0.4)';cx.fillRect(351,yb,3,hb);}
+    if(connecte()){var mo=d.moi;
+      panneau(8,596,344,30,8,'rgba(58,40,18,0.95)','rgba(30,20,10,0.95)','rgba(255,210,63,0.5)',1);
+      ttFit(mo?T('cl.moi',mo.rang,fmtNb(mo.score),mo.parties):T('cl.moiRien'),180,611,12,330,C.or,'center',2,false);}
+  }
+  if(!connecte()&&modeServeur()){ttFit(T('cl.public'),180,574,11,330,'rgba(246,241,231,0.8)','center',2,true);bouton('clcnx',90,592,180,34,T('cnx.bouton'),2,function(){allerEcran('connexion');},null,13);}
+  if(NET.revoirCharge)ttFit(T('cl.chargeRevoir'),180,y0+120,14,320,C.cyan,'center',0,true);
+}
+/* hors ligne : ce que ce téléphone sait (record du jour, meilleur score, série) */
+function classementLocal(y){
+  panneau(20,y,320,96,12,'rgba(58,40,18,0.92)','rgba(30,20,10,0.92)','rgba(255,210,63,0.45)',1);
+  ttFit(T('cl.local'),180,y+18,13,296,C.or,'center',0,true);
+  ttFit(T('fin.recordJour',fmtNb(SAUV.record)),180,y+42,13,296,C.creme,'center',1,true);
+  ttFit(T('fin.recordPerso',fmtNb(SAUV.meilleur||0)),180,y+62,12,296,C.creme,'center',1,true);
+  ttFit(T('titre.serie',serieAffichee()),180,y+82,12,296,C.creme,'center',1,true);
+}
+function profilLocal(y){
+  ttFit(T('profil.bientot'),180,y+6,12,320,'rgba(246,241,231,0.75)','center',2,true);
+  classementLocal(y+28);
+}
+function fmtDate(j){var p=String(j||'').split('-');return p.length===3?p[2]+'.'+p[1]+'.':j;}
+
+/* ---- revoir une partie du classement : le journal rejoué pas à pas dans le jeu ---- */
+function decompresserJournal(t,n){
+  if(typeof t!=='string'||!(n>0))return null;var j=new Uint8Array(n),k=0,el=t.split('.'),i,v,c,q;
+  for(i=0;i<el.length;i++){if(!el[i])return null;v=parseInt(el[i][0],36);c=el[i].length>1?parseInt(el[i].slice(1),10):1;if(!(v>=0&&v<=16)||!(c>=1)||k+c>n)return null;for(q=0;q<c;q++)j[k++]=v;}
+  return k===n?j:null;
+}
+function chargerRevoir(id,pseudo){
+  if(NET.revoirCharge)return;NET.revoirCharge=true;
+  apiAppel('GET','/api/rejeu/'+id,undefined,{delai:20000}).then(function(r){NET.revoirCharge=false;
+    if(r.statut!==200){afficherMsg(texteErreur(r.json),C.danger);return;}
+    var d=r.json,j=decompresserJournal(d.journal,d.nPas);
+    if(!j||!Array.isArray(d.choix)){afficherMsg(T('err.journal_invalide'),C.danger);return;}
+    lancerRevoir({graine:d.graine>>>0,j:j,choix:d.choix,nPas:d.nPas,pseudo:d.pseudo||pseudo||'',version:d.version,score:d.score,partie:id});});
+}
+function lancerRevoir(R){
+  lancer(false,R.graine,{revoir:true});
+  REVOIR={graine:R.graine,j:R.j,choix:R.choix,ic:0,nPas:R.nPas,pseudo:R.pseudo,version:R.version,score:R.score,vit:1,partie:R.partie};
+  bandeau(T('revoir.bandeau',R.pseudo),4);
+  if(R.version&&R.version!==VERSION)afficherMsg(T('revoir.version',R.version),C.or);
+}
+function quitterRevoir(){REVOIR=null;allerEcran('classement');}
+/* pas à pas : direction lue dans le journal ; cartes, relances et votes appliqués au même pas que la partie d'origine */
+function majRevoir(){
+  if(!REVOIR||ecran!=='jeu'||!S)return;
+  if(!S.fini&&S.n>=REVOIR.nPas&&!S.modal&&tMort<0&&tVict<0){S.fini=1;finDePartie();return;}
+  if((sous==='cartes'||sous==='vote')&&tSous>0.9/REVOIR.vit+0.2){
+    var c=REVOIR.choix[REVOIR.ic+1];REVOIR.ic+=2;
+    if(c===undefined){S.fini=1;finDePartie();return;}
+    tSous=1;if(c<=2)choisirCarte(c);else if(c===3)relancerCartes();else voterClient(c===5);
+  }
+}
+
+/* =====================================================================
+   0.7 : L'HYMNE (fichiers audio en flux, facultatifs)
+   Titre et menus : hymne.m4a en boucle ; fin de partie : hymne-fin.m4a ;
+   victoire : hymne-victoire.m4a. Démarrage au premier toucher, fondu à
+   l'entrée en partie, jamais en même temps que la musique générée,
+   coupé avec le son et quand la page passe en arrière-plan.
+   ===================================================================== */
+var HYMNE_VOL=0.6,HY={el:{},g:{},vol:{titre:0,fin:0,victoire:0},fini:{},absent:{},debloque:false,dern:''};
+var HY_FICHIERS={titre:'assets/hymne.m4a',fin:'assets/hymne-fin.m4a',victoire:'assets/hymne-victoire.m4a'};
+function hymneEl(k){
+  if(HY.absent[k])return null;if(HY.el[k])return HY.el[k];
+  var a;try{if(typeof Audio==='undefined')throw 0;a=new Audio();}catch(e){HY.absent[k]=1;return null;}
+  try{
+    a.preload=k==='titre'?'auto':'metadata';a.loop=k==='titre';a.src=HY_FICHIERS[k];
+    if(a.addEventListener){a.addEventListener('error',function(){HY.absent[k]=1;});a.addEventListener('ended',function(){HY.fini[k]=1;});}
+    /* volume par Web Audio quand c'est possible (iOS ignore le volume d'un élément audio) */
+    if(AU.c&&AU.c.createMediaElementSource){try{var s=AU.c.createMediaElementSource(a),g=AU.c.createGain();g.gain.value=0;s.connect(g);g.connect(AU.c.destination);HY.g[k]=g;}catch(e){}}
+    if(!HY.g[k])a.volume=0;
+  }catch(e){HY.absent[k]=1;return null;}
+  HY.el[k]=a;return a;
+}
+/* premier geste : les trois éléments sont « débloqués » (lecture lancée dans le geste, puis arrêtée) */
+function hymneDebloquer(){
+  if(HY.debloque)return;HY.debloque=true;
+  ['titre','fin','victoire'].forEach(function(k){var a=hymneEl(k);if(!a||k===hymneVoulu())return;
+    try{var p=a.play();if(p&&p.then)p.then(function(){if(hymneVoulu()!==k){a.pause();try{a.currentTime=0;}catch(e){}}},function(){});}catch(e){}});
+  majHymne(0);
+}
+function hymneVoulu(){
+  if(!HY.debloque||!SAUV.son)return'';
+  try{if(document.hidden)return'';}catch(e){}
+  if(ecran==='entree'||ecran==='titre'||ecran==='connexion'||ecran==='profil'||ecran==='boosts'||ecran==='classement')return tDepart>=0?'':'titre';
+  if(ecran==='fin'&&!REVOIR&&S)return S.victoire?'victoire':'fin';
+  return'';
+}
+function hymneVolume(k,v){var g=HY.g[k];try{if(g)g.gain.value=v;else if(HY.el[k])HY.el[k].volume=Math.max(0,Math.min(1,v));}catch(e){}}
+function majHymne(dt){
+  var v=hymneVoulu(),k,a,c;
+  if(v!==HY.dern){if(v==='fin'||v==='victoire'){HY.fini[v]=0;a=hymneEl(v);if(a){try{a.currentTime=0;}catch(e){}}}HY.dern=v;}
+  for(k in HY_FICHIERS){
+    a=HY.el[k];if(!a&&k!==v)continue;if(!a)a=hymneEl(k);if(!a)continue;
+    if(!HY.g[k]&&AU.c&&AU.c.state==='running'&&AU.c.createMediaElementSource&&!HY.sansWA)brancherHymne(k,a);
+    c=(k===v&&!HY.fini[k])?HYMNE_VOL:0;
+    if(HY.vol[k]<c)HY.vol[k]=Math.min(c,HY.vol[k]+dt/1.2*HYMNE_VOL);else if(HY.vol[k]>c)HY.vol[k]=Math.max(c,HY.vol[k]-dt/0.6*HYMNE_VOL);
+    hymneVolume(k,HY.vol[k]);
+    if(c>0&&a.paused&&!HY.fini[k]){try{var p=a.play();if(p&&p.catch)p.catch(function(){});}catch(e){}}
+    else if(HY.vol[k]<=0.001&&!a.paused&&!(k==='titre'&&HY.autoEnCours)){try{a.pause();}catch(e){}}
+  }
+}
+/* élément créé avant le contexte audio (lecture automatique) : branché sur Web Audio dès qu'il tourne */
+function brancherHymne(k,a){try{var s=AU.c.createMediaElementSource(a),g=AU.c.createGain();g.gain.value=HY.vol[k];s.connect(g);g.connect(AU.c.destination);HY.g[k]=g;a.volume=1;}catch(e){HY.sansWA=true;}}
+/* au chargement : si le navigateur autorise la lecture automatique, l'hymne démarre sans attendre le toucher */
+function hymneEssaiAuto(){
+  if(HY.debloque||!SAUV.son)return;
+  var a=hymneEl('titre');if(!a)return;
+  try{a.volume=0;HY.autoEnCours=true;var p=a.play();if(p&&p.then)p.then(function(){HY.autoEnCours=false;if(!HY.debloque){HY.debloque=true;HY.auto=true;}},function(){HY.autoEnCours=false;try{a.pause();}catch(e){}});else HY.autoEnCours=false;}catch(e){HY.autoEnCours=false;}
+}
+function hymneEntendu(){for(var k in HY.vol)if(HY.vol[k]>0.02&&HY.el[k]&&!HY.el[k].paused)return true;return false;}
+function hymneArreterTout(){for(var k in HY.el){try{HY.el[k].pause();}catch(e){}HY.vol[k]=0;hymneVolume(k,0);}}
+
+/* =====================================================================
+   0.7 : CARTES DE PARTAGE POUR X
+   Un lien d'intention X ne joint pas d'image : X affiche la « carte » de
+   l'URL partagée. Chaque carte est une page statique de partage/<langue>/
+   (balises twitter:card, og:image…) qui renvoie vers le jeu, avec son image
+   1200 × 675 dans partage/img/. Les images sont dessinées ici (?cartes=1),
+   puis enregistrées par outils/cartes-partage.js (Chrome sans tête).
+   ===================================================================== */
+function carteDuScore(sc,victoire,repas){
+  if(victoire)return'victoire';if(repas)return'repas';
+  if(!(sc>0))return'ambiance-1';
+  return'palier-'+SIM.PALIERS[SIM.palier(sc)][1];
+}
+function lienCarte(nom){
+  if(!PARTAGE_URL)return URL_JEU;
+  return PARTAGE_URL.replace(/\/*$/,'/')+LANGUE+'/'+nom+'.html';
+}
+function carteDeLaPartie(){if(!S)return'ambiance-1';var sc=SIM.score(S);return carteDuScore(sc,!!S.victoire,!!S.repasFait);}
+/* créature dessinée en vecteur à la taille voulue (net à toute échelle) : pieds en (x, y), regard vers sens (1 droite, -1 gauche) */
+function dessinCreature(g,t,v,x,y,taille,sens,ombre){
+  var V=VAR[t][v]||VAR[t][0],f=V.o===0?1:V.o*sens;
+  if(ombre!==false){g.globalAlpha=0.9;g.drawImage(SPR.ombre,x-taille*0.42,y-taille*0.08,taille*0.84,taille*0.16);g.globalAlpha=1;}
+  g.save();g.translate(x,y);g.scale(f*taille/96,taille/96);g.translate(-48,-90);V.d(g);g.restore();
+}
+/* la vieille ville (sol, maisons, monuments, lampes) dans une toile quelconque : réutilise le rendu du jeu */
+function dessinerVille(g,w,h,cxw,cyw,za,graine){
+  var sv=[cx,OX,OY,K,A,TX,TY,camX,camY,RPX,RPY,IA,S],m=SIM.mondeDe(graine>>>0,tableauDecor()),i,x,y,q,k;
+  changerMonde(m);
+  var F={M:m,tre:{on:false},nE:0,E:[],nG:0,G:[],nR:0,R:[],cas:new Int32Array(m.cobj.length),fon:new Float64Array(m.fobj.length).fill(MOND.FONT_MAX),n:600,pv:1,pvMax:1};
+  try{
+    cx=g;OX=0;OY=0;K=Math.max(w/360,h/640);S=F;camX=cxw;camY=cyw;A=za;TX=w/2-camX*A;TY=h/2-camY*A;IA=1;RPX=camX;RPY=camY+99999;
+    rendreSolMonde();
+    cx.save();monde();
+    var vw=w/2/A+80,vh=h/2/A+160;rendreSolDecor(vw,vh);triN=0;lampN=0;
+    for(i=0;i<NOBJ;i++){if(i<MW.n){x=wxU(MW.ox[i]);y=wyV(MW.oy[i]);}else{x=wxU(MW.dx[i-MW.n]);y=wyV(MW.dy[i-MW.n]);}
+      if(x+OBX1[i]<camX-vw||x+OBX0[i]>camX+vw||y+OBY1[i]<camY-vh||y+OBY0[i]>camY+vh)continue;OWX[i]=x;OWY[i]=y;triAjout(60000+i,y+OFR[i],camY-vh,vh*2/160);}
+    triFaire();for(q=0;q<triN;q++){k=triOrd[q];monde();dessinerObjet(k-60000,1);}
+    monde();if(lampN){cx.globalCompositeOperation='lighter';for(i=0;i<lampN;i++){cx.globalAlpha=0.4;cx.drawImage(SPR.haloOr,lampX[i]-36,lampY[i]-90,72,72);}cx.globalAlpha=1;cx.globalCompositeOperation='source-over';}
+    cx.restore();
+  }finally{cx=sv[0];OX=sv[1];OY=sv[2];K=sv[3];A=sv[4];TX=sv[5];TY=sv[6];camX=sv[7];camY=sv[8];RPX=sv[9];RPY=sv[10];IA=sv[11];S=sv[12];}
+  return m;
+}
+/* position (dans le repère de la caméra) du premier objet d'une sorte donnée */
+function objetMonde(m,kind,rang){var n=0;for(var o=0;o<m.n;o++)if(m.ok[o]===kind&&(n++)===(rang||0))return[SIM.wr(m.ox[o]-m.ofu),SIM.wr(m.oy[o]-m.ofv)];return[0,0];}
+function texteCarte(g,s,x,y,px,coul,al,ep){g.font='900 italic '+px+'px '+F_TITRE;g.textAlign=al||'center';g.textBaseline='middle';g.lineJoin='round';g.lineWidth=ep||px*0.2;g.strokeStyle=C.encre;g.strokeText(s,x,y+px*0.08);g.strokeText(s,x,y);g.fillStyle=coul;g.fillText(s,x,y);}
+var GRAINE_CARTES=2026112;
+/* chaque carte : décor (sorte d'objet visée, décalage, zoom), horde [clé, variante, x, y, taille], DZÔ, teinte */
+var CARTES_PARTAGE=[
+  {nom:'palier-touriste',cam:['CATH',0,-40,190],dzo:[330,1],teinte:'#6FE6FF',horde:[['grenouille',0,820,560,120],['grenouille',0,960,600,110],['grenouille',0,1090,540,100],['piece',0,900,470,90]]},
+  {nom:'palier-pendulaire',cam:['STH',0,30,170],dzo:[330,1],teinte:'#6FE6FF',horde:[['toutou',0,780,590,120],['toutou',1,920,520,110],['grenouille',0,1060,600,120],['toutou',3,1110,480,100],['piece2',0,860,440,84],['grenouille',0,690,480,90]]},
+  {nom:'palier-armailli',cam:['VACHE',0,-10,180],dzo:[340,1],teinte:'#7DFF9A',horde:[['pingouin',0,800,600,120],['clown',0,940,520,120],['toutou',2,1080,600,120],['grenouille',0,1130,470,100],['pingouin',0,700,480,90],['piece3',0,880,430,84]]},
+  {nom:'palier-hallebardier',cam:['TOURR',0,10,175],dzo:[340,1],teinte:'#FFD23F',horde:[['chat',1,860,590,150],['clown',0,1040,600,120],['vendeur',0,1120,500,110],['toutou',4,720,600,110],['grenouille',0,960,470,100],['pingouin',0,690,470,90]]},
+  {nom:'palier-taureau',cam:['MORAT',0,20,170],dzo:[350,1],teinte:'#FF7AB8',horde:[['baleine',0,900,580,170],['chat',2,1090,610,140],['clown',0,730,610,110],['bulle',0,1110,450,100],['vendeur',0,700,470,100],['toutou',0,880,450,90],['grenouille',0,1010,470,90]]},
+  {nom:'palier-moleson',cam:['MOLESON',0,40,165],dzo:[350,1],teinte:'#FFD23F',horde:[['chat',3,850,610,150],['baleine',1,1040,600,150],['bulle',0,1140,470,100],['vendeur',0,700,600,110],['clown',0,960,460,100],['chapeau',0,760,470,90],['grenouille',0,1150,610,90]]},
+  {nom:'palier-nes',cam:['CATH',0,60,170],dzo:[360,2],teinte:'#FFD23F',boss:1,horde:[['boss',0,920,600,280],['chat',4,700,620,120],['chat',0,1140,620,120],['grenouille',0,1150,470,80],['toutou',1,690,480,80]]},
+  {nom:'repas',cam:['FONT',0,0,170],dzo:[340,2],teinte:'#FFD23F',repas:1,horde:[['grenouille',0,1090,610,96],['toutou',2,1150,500,90],['pingouin',0,700,470,80]]},
+  {nom:'victoire',cam:['CATH',0,90,165],dzo:[370,2],teinte:'#3DFF8F',victoire:1,horde:[]},
+  {nom:'ambiance-1',cam:['CATH',0,-20,180],dzo:[340,1],teinte:'#6FE6FF',nuit:1,horde:[['grenouille',0,800,600,120],['toutou',0,930,540,110],['clown',0,1060,600,120],['pingouin',0,1130,470,100],['vendeur',0,720,470,100],['chat',1,880,430,100],['bulle',0,1010,420,84],['grenouille',0,1170,600,100]]},
+  {nom:'ambiance-2',cam:['FONT',1,0,175],dzo:[340,0],teinte:'#8E6BFF',nuit:1,yeux:1,horde:[['grenouille',0,140,620,110],['toutou',3,1060,610,120],['clown',0,1150,500,100],['pingouin',0,80,480,90],['vendeur',0,1080,420,90]]},
+  {nom:'ambiance-3',cam:['STB',0,0,170],dzo:[340,1],teinte:'#6FE6FF',horde:[['baleine',0,880,600,150],['grenouille',0,1050,620,110],['toutou',4,1140,520,100],['bulle',0,740,470,90],['pingouin',0,980,450,90],['piece',0,1150,640,70]]}
+];
+function dessinerCartePartage(def){
+  var W_=1200,H_=675,c=toile(W_,H_),g=c.getContext('2d'),i,k,o,gr,x,y,s,hh,ww;
+  g.fillStyle='#0D0914';g.fillRect(0,0,W_,H_);
+  /* décor : la vieille ville autour d'un monument */
+  var m=SIM.mondeDe(GRAINE_CARTES,tableauDecor()),cible=objetMonde(m,MK[def.cam[0]],def.cam[1]);
+  dessinerVille(g,W_,H_,cible[0]+def.cam[2],cible[1]+(def.cam[3]||0)-120,1.85,GRAINE_CARTES);
+  /* étalonnage : nuit violette, vignette, lumière derrière DZÔ */
+  g.globalCompositeOperation='multiply';g.fillStyle=def.nuit?'rgba(70,50,130,0.85)':'rgba(90,70,140,0.7)';g.fillRect(0,0,W_,H_);g.globalCompositeOperation='source-over';
+  gr=g.createLinearGradient(0,0,0,H_);gr.addColorStop(0,'rgba(13,9,20,0.75)');gr.addColorStop(0.35,'rgba(13,9,20,0.15)');gr.addColorStop(0.75,'rgba(13,9,20,0.25)');gr.addColorStop(1,'rgba(13,9,20,0.85)');g.fillStyle=gr;g.fillRect(0,0,W_,H_);
+  gr=g.createRadialGradient(600,360,200,600,360,780);gr.addColorStop(0,'rgba(13,9,20,0)');gr.addColorStop(1,'rgba(13,9,20,0.75)');g.fillStyle=gr;g.fillRect(0,0,W_,H_);
+  g.globalCompositeOperation='lighter';g.globalAlpha=0.9;g.drawImage(SPR.lumiere,def.dzo[0]-330,330-300,660,660);
+  if(def.victoire||def.repas||def.boss){g.globalAlpha=0.55;g.drawImage(SPR.haloOr,def.dzo[0]-320,360-320,640,640);}
+  g.globalAlpha=1;g.globalCompositeOperation='source-over';
+  /* yeux dans le noir (ambiance) */
+  if(def.yeux){var r=SIM.mulberry32(77);for(i=0;i<14;i++){x=420+r()*740;y=120+r()*300;var e=9+r()*7;g.globalCompositeOperation='lighter';g.globalAlpha=0.5;g.drawImage(SPR.haloBlanc,x-e*5,y-e*3.4,e*10,e*7);g.globalAlpha=1;g.globalCompositeOperation='source-over';
+    g.fillStyle='#F6F1E7';g.beginPath();g.ellipse(x-e*1.25,y,e,e*1.15,0,0,PI2);g.ellipse(x+e*1.25,y+e*0.2,e*1.15,e*1.3,0,0,PI2);g.fill();g.fillStyle='#0D0914';g.beginPath();g.arc(x-e*1.0,y+e*0.2,e*0.4,0,PI2);g.arc(x+e*1.0,y,e*0.4,0,PI2);g.fill();}}
+  /* rayons dorés derrière le boss ou la victoire */
+  if(def.boss||def.victoire){g.save();g.translate(def.victoire?def.dzo[0]:920,def.victoire?330:420);g.globalCompositeOperation='lighter';
+    for(i=0;i<18;i++){g.rotate(PI2/18);g.fillStyle='rgba(255,210,63,'+(i%2?0.07:0.12)+')';g.beginPath();g.moveTo(0,0);g.lineTo(900,-70);g.lineTo(900,70);g.closePath();g.fill();}g.restore();}
+  /* la horde : les plus lointaines d'abord */
+  var H2=def.horde.slice().sort(function(a,b){return a[3]-b[3];});
+  for(i=0;i<H2.length;i++){o=H2[i];var t=I_ENN[o[0]];if(t===undefined)continue;dessinCreature(g,t,o[1]%VAR[t].length,o[2],o[3],o[4],o[2]>def.dzo[0]?-1:1);}
+  /* le repas de Bénichon : nappe à carreaux et desserts */
+  if(def.repas){
+    g.save();g.translate(800,560);g.transform(1,0,-0.35,0.42,0,0);
+    for(i=-6;i<6;i++)for(k=-4;k<4;k++){g.fillStyle=(i+k)&1?'#E3001B':'#F6F1E7';g.fillRect(i*46,k*46,46,46);}
+    g.restore();
+    var plats=['meringueGruyere','bricelet','vincuit'],P=SPR.tresors||[];
+    for(i=0;i<plats.length;i++){k=I_TRES[plats[i]];if(k===undefined||!P[k])continue;s=P[k];g.drawImage(s.c,700+i*150-55,470+(i%2)*40-55,110,110);}
+    if(SPR.icoArme&&I_ARME.jambon!==undefined){s=SPR.icoArme[I_ARME.jambon];g.drawImage(s.c,1040,470,120,120);}
+    var rr=SIM.mulberry32(5);for(i=0;i<60;i++){g.fillStyle=[C.or,C.creme,'#FF7AB8',C.rouge][i%4];g.save();g.translate(560+rr()*620,40+rr()*380);g.rotate(rr()*6);g.fillRect(-5,-2.5,10,5);g.restore();}
+  }
+  if(def.victoire){
+    var r2=SIM.mulberry32(9);for(i=0;i<110;i++){g.fillStyle=[C.or,C.vert,C.cyan,C.creme,C.rouge][i%5];g.save();g.translate(r2()*1200,r2()*600);g.rotate(r2()*6);g.fillRect(-7,-3,14,6);g.restore();}
+    /* l'horloge de clôture : 10:00 */
+    g.save();g.translate(860,395);
+    g.fillStyle='rgba(13,9,20,0.85)';g.beginPath();rrect(g,-235,-92,470,184,36);g.fill();g.strokeStyle=C.or;g.lineWidth=8;g.stroke();
+    g.font='700 128px '+F_CHIFFRE;g.textAlign='center';g.textBaseline='middle';g.lineWidth=14;g.strokeStyle=C.encre;g.strokeText('10:00',0,8);g.fillStyle=C.or;g.fillText('10:00',0,8);
+    g.restore();
+  }
+  /* DZÔ, l'officiel */
+  s=def.dzo[2]===2?(DZO.grandB||DZO.grand):DZO.grand;
+  if(def.dzo[2]===0)s=DZO.grand;
+  if(s){hh=Math.min(405,s.h)*1.0;hh=400;ww=hh*s.w/s.h;x=def.dzo[0];y=650;
+    g.drawImage(SPR.ombre,x-150,y-26,300,44);g.drawImage(s.c,x-ww*s.ax/s.w,y-hh*s.ay/s.h,ww,hh);}
+  /* titre et mot-dièse */
+  if(SPR.logo){var lw=500,lh=lw*SPR.logo.h/SPR.logo.w;g.drawImage(SPR.logo.c,def.victoire||def.repas?1200-lw-30:1200-lw-24,14,lw,lh);}
+  g.fillStyle='rgba(13,9,20,0.82)';g.beginPath();rrect(g,1200-262,675-74,240,54,16);g.fill();g.strokeStyle=def.teinte;g.lineWidth=3;g.stroke();
+  texteCarte(g,'#987NES',1200-142,675-46,34,C.creme,'center',6);
+  /* cadre */
+  g.strokeStyle=def.teinte;g.lineWidth=6;g.globalAlpha=0.8;g.strokeRect(3,3,W_-6,H_-6);g.globalAlpha=1;
+  return c;
+}
+/* mode d'export (?cartes=1) : toutes les cartes à l'écran, et __dzo.cartesPartage() pour les enregistrer */
+var MODE_CARTES=params.get('cartes')==='1',cartesFaites=null,cartesVue=0;
+function rendreCartesPartage(){
+  cx.setTransform(1,0,0,1,0,0);cx.fillStyle='#0D0914';cx.fillRect(0,0,BW,BH);
+  if(!DZO_TENTE){colonne();tn('…',180,320,20,C.creme,'center',0);return;}
+  if(!cartesFaites){cartesFaites=CARTES_PARTAGE.map(function(d){return{nom:d.nom,c:dessinerCartePartage(d)};});}
+  var n=cartesFaites.length,col=BW>BH?3:2,lg=Math.floor((BW-20*(col+1))/col),ht=Math.round(lg*675/1200),i;
+  for(i=0;i<n;i++){var x=20+(i%col)*(lg+20),y=20+Math.floor(i/col)*(ht+40);cx.drawImage(cartesFaites[i].c,x,y,lg,ht);cx.fillStyle=C.creme;cx.font='700 '+Math.max(12,Math.round(14*DPR))+'px '+F_CORPS;cx.textAlign='left';cx.textBaseline='top';cx.fillText(cartesFaites[i].nom,x,y+ht+6);}
+}
+
+/* ---------- 0.7 : écran d'entrée (premier toucher : son débloqué, hymne lancé) ---------- */
+function entrer(){if(ecran!=='entree')return;ecran='titre';tEcran=0;tDepart=-1;presse=null;pressePtr=-1;verifierVersion();}
+function rendreEntree(){
+  nBT=0;rendreFond(9,6,0.75);
+  var t=tReel,s=DZO.grand,k,a=Math.min(1,tEcran/0.6);
+  cx.globalAlpha=a;
+  cx.globalCompositeOperation='lighter';cx.globalAlpha=0.85*a;cx.drawImage(SPR.lumiere,180-250,330-250,500,500);cx.globalCompositeOperation='source-over';cx.globalAlpha=a;
+  if(s){var hh=380,ww=hh*s.w/s.h,resp=1+Math.sin(t*1.2*PI2*0.5)*0.014;
+    cx.drawImage(SPR.ombre,180-110,500,220,36);
+    cx.save();cx.translate(186,516);cx.scale(2-resp,resp);cx.drawImage(s.c,-ww*s.ax/s.w,-hh*s.ay/s.h,ww,hh);cx.restore();}
+  if(SPR.logo){k=1+Math.sin(t*2.1)*0.012;cx.save();cx.translate(180,92+SAFE_H);cx.scale(k*1.08,k*1.08);spr(SPR.logo,0,0);cx.restore();}
+  k=0.55+0.45*Math.abs(Math.sin(t*2.4));
+  cx.globalAlpha=a*k;ttFit(T(tactile?'entree.touche':'entree.clic'),180,574,22,330,C.or,'center',0,true);
+  cx.globalAlpha=a*0.7;ttFit(T('entree.son'),180,602,11,330,C.creme,'center',2,true);
+  cx.globalAlpha=a*0.45;tn('v'+VERSION,352,630,9,C.creme,'right',2);
+  cx.globalAlpha=1;
+}
+/* ---------- 0.7 : mise à jour automatique (cache du site et du navigateur de Telegram) ----------
+   Au chargement et à chaque retour à l'écran titre (jamais pendant une partie) : version.json voisin ;
+   si sa version diffère, rechargement avec ?v=<version>, une seule tentative par version. */
+var VERIF_V={t:0,enCours:false};
+function verifierVersion(){
+  if(BOT||MODE_CARTES||VITESSE>1||typeof fetch!=='function')return;
+  var now=Date.now();if(VERIF_V.enCours||ecran==='jeu'||now-VERIF_V.t<15000)return;
+  try{if(!/^https?:$/.test(location.protocol))return;}catch(e){return;}
+  VERIF_V.t=now;VERIF_V.enCours=true;
+  var fini=function(){VERIF_V.enCours=false;};
+  try{
+    fetch('version.json?t='+now,{cache:'no-store',credentials:'omit'}).then(function(r){return r.ok?r.json():null;}).then(function(j){fini();
+      var v=j&&typeof j.version==='string'?j.version.trim():'';
+      if(!v||v===VERSION||!/^[0-9A-Za-z._-]{1,40}$/.test(v))return;
+      var deja='';try{deja=window.localStorage.getItem('dzo.majTentee')||'';}catch(e){}
+      if(deja===v)return;
+      if(ecran==='jeu'||tDepart>=0||NET.debutEnCours)return;
+      try{window.localStorage.setItem('dzo.majTentee',v);}catch(e){}
+      try{var u=new URL(location.href);u.searchParams.set('v',v);location.replace(u.toString());}catch(e){}
+    },fini);
+  }catch(e){fini();}
+}
+/* ---------- 0.7 : sans serveur de scores, les écrans en ligne l'annoncent proprement ---------- */
+function bientot(y){
+  var titre=NET.actif?T('net.injoignable'):T('net.bientot'),txt=NET.actif?T('net.injoignableTexte'):T('net.bientotTexte');
+  panneau(20,y,320,122,14,'rgba(38,27,54,0.95)','rgba(20,13,32,0.95)','rgba(111,230,255,0.45)',1.5);
+  ttFit(titre,180,y+26,17,296,C.cyan,'center',0,true);
+  cx.fillStyle='rgba(246,241,231,0.14)';cx.fillRect(40,y+44,280,1);
+  para(txt,180,y+64,290,12.5,C.creme,'center',2,17,false);
+  if(NET.actif&&NET.etat==='hors')bouton('reessayerNet',110,y+132,140,34,T('net.reessayer'),3,function(){ouvrirSession();},null,13);
+  return y+(NET.actif?176:134);
+}
+function boostLocal(y){
+  /* le boost de la 0.6 : partager sur X donne un essai de plus aujourd'hui, compté sur ce téléphone */
+  var ok=SAUV.boost===JOUR;
+  panneau(12,y,336,ok?96:132,12,'rgba(58,40,18,0.95)','rgba(30,20,10,0.95)','rgba(255,210,63,0.5)',1.5);
+  tt(T('boost.local'),24,y+18,15,C.or,'left',0);tn(ok?T('boost.obtenu'):T('boost.plusUn'),336,y+18,11,ok?C.vert:C.creme,'right',0);
+  para(T(ok?'titre.boostActifSous':'boost.localTexte'),24,y+40,312,11.5,C.creme,'left',2,15,false);
+  bouton('boostLocal',24,ok?y+56:y+84,312,36,T('boost.poster'),3,boostDuJour,null,14);
+  ttFit(T('titre.essais',essaisRestants(),essaisMax()),180,y+(ok?110:146),12,320,essaisRestants()>0?C.cyan:C.danger,'center',2,true);
+}
+
+/* ---------- 0.7 : tâches du réseau à chaque image ---------- */
+function majReseau(){
+  if(!NET.actif||HORS_RANG||MODE_CARTES)return;
+  var now=Date.now();
+  /* le script Telegram arrive parfois après nous : l'initData de la Mini App aussi */
+  if(!NET.tmaTente&&!NET.jeton&&NET.etat!=='attente'&&initDataTg()){ouvrirSession();return;}
+  if(NET.departAttente&&NET.etat!=='attente'){NET.departAttente=false;if(ecran==='titre')demarrer(true);}
+  if(NET.etat==='hors'&&now-NET.majT>30000&&ecran!=='jeu'){ouvrirSession();return;}
+  if(connecte()&&NET.prochainJour&&now+NET.decalage>=NET.prochainJour+1500&&now-NET.majT>8000&&ecran!=='jeu')rafraichir();
+}
+
 /* ---------- boucle principale ---------- */
 var tPrec=0,DZO_TENTE=false,msImage=0,fige=false,regardX=null,regardY=0;
 function rendre(dt){
+  if(MODE_CARTES){rendreCartesPartage();return;}
+  rendreEcran(dt);
+  if(NET.msg&&NET.msgT<4.5){colonne();cx.globalAlpha=Math.min(1,(4.5-NET.msgT)/0.4);var lm=lignes(NET.msg,300,12,2),hm=lm.length*16+14,ym=SAFE_H+40;
+    cx.fillStyle='rgba(13,9,20,0.92)';cx.beginPath();rrect(cx,20,ym,320,hm,10);cx.fill();cx.strokeStyle=NET.msgCoul||C.creme;cx.lineWidth=1.5;cx.stroke();
+    para(NET.msg,180,ym+14,300,12,NET.msgCoul||C.creme,'center',2,16,false);cx.globalAlpha=1;}
+  finChamps();
+}
+function rendreEcran(dt){
+  if(ecran==='entree'){rendreEntree();rendreMarges();return;}
   if(ecran==='titre'){rendreTitre();rendreMarges();return;}
   if(ecran==='fin'){rendreFin();rendreMarges();return;}
+  if(ecran==='connexion'){rendreConnexion();rendreMarges();return;}
+  if(ecran==='profil'){rendreProfil();rendreMarges();return;}
+  if(ecran==='boosts'){rendreBoosts();rendreMarges();return;}
+  if(ecran==='classement'){rendreClassement();rendreMarges();return;}
   nBT=0;
   rendreMonde(sous==='pause'?0:(sous==='niveau'?dt*0.35:dt));
   rendreHUD(sous==='pause'?0:dt);
@@ -7772,8 +9642,14 @@ function init(){
   construireSprites();
   construireHalos();
   construireDecor();
+  if(MODE_CARTES){RES=4;TRES=2;construireSprites();construireHalos();construireDecor();}
   faireLogo();dzoSecours();chargerDzo();
   installerEntrees();
+  /* 0.7 : session du serveur de scores, sans rien attendre (le jeu est jouable tout de suite) */
+  if(NET.actif&&!HORS_RANG&&!MODE_CARTES)ouvrirSession();
+  /* 0.7 : écran d'entrée (sauf ?bot=1, ?vite=N, ?tableau=, ?cartes=1 ou ?entree=0), lecture automatique tentée, version vérifiée */
+  if(!HORS_RANG&&!MODE_CARTES&&params.get('entree')!=='0'){ecran='entree';tEcran=0;hymneEssaiAuto();}
+  verifierVersion();
   window.requestAnimationFrame(function(ts){tPrec=ts/1000;window.requestAnimationFrame(boucle);});
 }
 window.__dzo={
@@ -7787,6 +9663,16 @@ window.__dzo={
     return o;
   },
   demarrer:function(graine){lancer(false,graine===undefined?undefined:graine>>>0);return window.__dzo.etat();},
+  /* 0.7 : état du réseau, écrans, cartes de partage */
+  reseau:function(){return{actif:NET.actif,etat:NET.etat,connecte:connecte(),mode:NET.mode,joueur:NET.joueur,jour:NET.jour,horde:NET.horde,modeGraine:NET.modeGraine,fin:NET.fin,partieSrv:!!partieSrv,classee:classee,attentes:lireAttentes().length,msg:NET.msg,profilMsg:NET.profilMsg,boostMsg:NET.boostMsg,cl:NET.cl.donnees,code:NET.code,revoir:!!REVOIR,api:API_URL};},
+  ecran:function(e){if(e==='titre'&&ecran==='entree')entrer();else if(e)allerEcran(e);return ecran;},
+  /* centre d'un bouton de la dernière image, en pixels CSS (pour cliquer dans les essais automatiques) */
+  bouton:function(id){for(var i=0;i<nBT;i++)if(BT[i].id===id){var b=BT[i];return{x:Math.round((OX+(b.x+b.w/2)*K)/DPR),y:Math.round((OY+(b.y+b.h/2)*K)/DPR)};}return null;},
+  champ:function(id,v){if(v!==undefined)poserChamp(id,v);return valeurChamp(id);},
+  hymne:function(){var o={debloque:HY.debloque,voulu:hymneVoulu(),absent:HY.absent,vol:HY.vol,lecture:{}};for(var k in HY.el)o.lecture[k]=!HY.el[k].paused;return o;},
+  cartesPartage:function(){if(!DZO_TENTE)return null;return CARTES_PARTAGE.map(function(d){return{nom:d.nom,png:dessinerCartePartage(d).toDataURL('image/png')};});},
+  dessinerCarte:function(nom){for(var i=0;i<CARTES_PARTAGE.length;i++)if(CARTES_PARTAGE[i].nom===nom)return dessinerCartePartage(CARTES_PARTAGE[i]);return null;},
+  carteDuResultat:function(){return carteDeLaPartie();},lienCarte:lienCarte,
   carte:function(){return carteScore();},texteX:texteX,
   testSons:function(){var r=[];if(!AU.c)audioInit();if(!AU.c)return['pas de contexte audio'];NOMS_SONS.forEach(function(n){try{jouerSon(n,3,AU.c.currentTime+0.05);}catch(e){r.push(n+': '+e.message);}});try{var j=AU.joue;AU.joue=true;AU.prochain=0;musique();AU.joue=j;}catch(e){r.push('musique: '+e.message);}r.push('etat '+AU.c.state);return r;},
   choisir:function(i){tSous=1;choisirCarte(i);if(sous==='choix')finirChoix();},
