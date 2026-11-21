@@ -3843,9 +3843,9 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   function nextSlide() { go(current + 1); }
   function prevSlide() { go(current - 1); }
 
+  /* Rotation automatique coupée : l'actu du jeu reste en tête ; flèches et points servent à voir les autres. */
   function startAuto() {
     stopAuto();
-    autoTimer = setInterval(nextSlide, AUTO_INTERVAL);
   }
   function stopAuto() {
     if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
