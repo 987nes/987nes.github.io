@@ -23,7 +23,7 @@
 - 100% of the liquidity permanently locked via Raydium Burn & Earn since October 18, 2026 (proof: https://solscan.io/tx/4E1nXxWYL7PCtwjBD14opsZR6tJvQ17B5npP73xctMqH3Xf8w5xEpwYmsM2vHN9JyyZF1haSy25tiH2hE77PaXaM). As of September 2026 the team had sold zero tokens.
 - Buy: Phantom wallet, then swap SOL for $NES on Raydium or Jupiter with the contract address above.
 - Name: NineEightSeven plays on a deliberately incomplete countdown (9, 8, 7). $NES is unrelated to the Nesa (NES) token.
-- Motto: "Execution over promise." In-house tools: 987Buy (Telegram transaction alerts), 987News (crypto news digest with AI summaries).
+- Motto: "Execution over promise."
 
 ## Pages
 - Home (token, team, how to buy, FAQ): https://987nes.com/

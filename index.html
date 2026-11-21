@@ -898,179 +898,6 @@ section { position: relative; z-index: 1; }
 }
 .buy-card:hover .buy-arr { transform: translateX(6px); }
 
-/* ===== TRACK SECTION ===== */
-#tools { background: var(--dark); }
-
-.tools-slogan {
-  font-family: var(--body);
-  font-size: 1.1rem;
-  color: var(--gray-mid);
-  font-style: italic;
-  letter-spacing: 1px;
-  margin-top: 12px;
-}
-
-.tools-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2px;
-  margin-top: 60px;
-  background: rgba(14,95,160,0.08);
-}
-
-.tool-card {
-  background: var(--black);
-  padding: 56px;
-  position: relative;
-  overflow: hidden;
-  transition: background 0.3s;
-}
-.tool-card:hover { background: #0b0d10; }
-
-.tool-num {
-  font-family: var(--display);
-  font-size: 9rem;
-  color: rgba(14,95,160,0.07);
-  position: absolute;
-  right: 24px; top: 8px;
-  line-height: 1;
-}
-
-.tool-badge {
-  font-family: var(--body);
-  font-size: 0.58rem;
-  letter-spacing: 5px;
-  color: var(--nes-yellow);
-  text-transform: uppercase;
-  margin-bottom: 18px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.tool-badge::before { content: ''; width: 18px; height: 1px; background: var(--nes-yellow); }
-
-.tool-name {
-  font-family: var(--display);
-  font-size: 3rem;
-  letter-spacing: 3px;
-  color: var(--white);
-  margin-bottom: 8px;
-}
-.tool-name .y { color: var(--nes-yellow); }
-
-.tool-tagline {
-  font-size: 1rem;
-  color: var(--gray-mid);
-  font-style: italic;
-  margin-bottom: 28px;
-}
-
-.tool-desc {
-  font-size: 1rem;
-  color: var(--offwhite);
-  line-height: 1.85;
-  margin-bottom: 28px;
-}
-
-.tool-feats {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 32px;
-}
-
-.tool-feats li {
-  font-family: var(--body);
-  font-size: 0.65rem;
-  letter-spacing: 1px;
-  color: var(--gray-mid);
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  text-transform: uppercase;
-}
-
-.tool-feats li::before { content: ''; width: 18px; height: 1px; background: var(--nes-blue); flex-shrink: 0; }
-
-.tool-tiers {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 28px;
-}
-.tool-tiers li {
-  font-size: 0.85rem;
-  color: var(--offwhite);
-  line-height: 1.5;
-  padding-left: 4px;
-}
-
-.tool-ribbon {
-  position: absolute;
-  top: 28px;
-  right: -35px;
-  background: var(--nes-yellow);
-  color: var(--black);
-  font-family: var(--body);
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  padding: 6px 40px;
-  transform: rotate(45deg);
-  z-index: 2;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-}
-
-.tool-emoji-feats {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 28px;
-}
-.tool-emoji-feats li {
-  font-size: 0.85rem;
-  color: var(--offwhite);
-  line-height: 1.5;
-  padding-left: 4px;
-}
-
-.tool-closer {
-  font-family: var(--body);
-  font-size: 0.85rem;
-  color: rgba(255,255,255,0.5);
-  font-style: italic;
-  margin-top: 20px;
-}
-
-.tool-note {
-  font-family: var(--body);
-  font-size: 0.7rem;
-  color: rgba(255,255,255,0.35);
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(255,255,255,0.06);
-  letter-spacing: 0.3px;
-  line-height: 1.5;
-}
-
-.tool-access {
-  font-family: var(--body);
-  font-size: 0.62rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--nes-yellow);
-  padding: 14px 18px;
-  border: 1px solid rgba(240,208,32,0.2);
-  background: rgba(240,208,32,0.04);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
 /* ===== DZÔ SECTION ===== */
 #dzo {
   background: var(--black);
@@ -1509,7 +1336,6 @@ footer {
   .hero-stats-float { display: none; }
   .container { padding: 0 20px; }
   .story-grid, .token-top, .dzo-layout, .wp-layout, .footer-layout { grid-template-columns: 1fr; }
-  .tools-grid { grid-template-columns: 1fr; }
   .comm-grid { grid-template-columns: repeat(2, 1fr) !important; }
   .buy-grid { grid-template-columns: 1fr; }
   .tokenomics-grid { grid-template-columns: 1fr 1fr; }
@@ -1637,12 +1463,6 @@ footer {
   .slogans { flex-direction: column; gap: 2px; margin-top: 28px; }
   .slogan-item { padding: 18px 20px; }
   .slogan-text { font-size: 1.2rem; }
-
-  /* TOOLS */
-  .tools-grid { gap: 2px; }
-  .tool-card { padding: 32px 20px; }
-  .tool-num { font-size: 6rem; right: 12px; top: 4px; }
-  .tool-name { font-size: 2.2rem; }
 
   /* DZÔ */
   .dzo-layout { gap: 32px; }
@@ -2651,9 +2471,9 @@ footer {
     </h1>
 
     <p class="hero-sub">
-      <span data-l="en">More than a memecoin: a Swiss-built ecosystem with real in-house tools, locked liquidity and a fully doxxed team. Honest, transparent from day one. And we're only just getting started. Come grow with us.</span>
-      <span data-l="fr">Plus qu'un memecoin : un écosystème suisse avec de vrais outils maison, une liquidité verrouillée et une équipe entièrement doxxée. Honnête, transparent depuis le premier jour. Et ce n'est que le début. Viens grandir avec nous.</span>
-      <span data-l="es">Más que un memecoin: un ecosistema hecho en Suiza, con herramientas propias reales, liquidez bloqueada y un equipo totalmente doxxed. Honesto, transparente desde el primer día. Y esto apenas empieza. Crece con nosotros.</span>
+      <span data-l="en">A Swiss memecoin, and proud of it: liquidity locked forever, a fully doxxed team, 0% tax. Honest, transparent from day one. And we're only just getting started. Come grow with us.</span>
+      <span data-l="fr">Un memecoin suisse, et fier de l'être : liquidité verrouillée pour toujours, équipe entièrement doxxée, 0 % de taxe. Honnête, transparent depuis le premier jour. Et ce n'est que le début. Viens grandir avec nous.</span>
+      <span data-l="es">Un memecoin suizo, y orgulloso de serlo: liquidez bloqueada para siempre, un equipo totalmente doxxed, 0 % de impuestos. Honesto, transparente desde el primer día. Y esto apenas empieza. Crece con nosotros.</span>
     </p>
 
     <div class="hero-ctas">
@@ -3009,19 +2829,19 @@ footer {
           <div class="bl en">
             <p>The name says everything. <strong>NineEightSeven</strong>: a deliberately incomplete sequence. A permanent countdown. Not toward something promised. Toward something decided.</p>
             <p>987NES, the <strong>Swiss crypto memecoin</strong>, was born on October 16, 2025, in Switzerland, <strong>in reaction</strong>: to scams, fake utility narratives, and the technological veneer that often masks a simple reality. Speculation.</p>
-            <p>Started as pure speculation and nothing else. In a few months, the project has shipped more than 99% of crypto projects ever will: a strong identity, an active community, <strong>987Buy</strong> and <strong>987News</strong>, all built entirely in-house.</p>
+            <p>Started as pure speculation and nothing else. In a few months, the project has built what most memecoins never do: a strong identity, an active community, liquidity locked forever and a team that shows its face.</p>
             <p>987NES promises. 987NES delivers. In an ecosystem obsessed with surface-level innovation, that's rare enough to be worth saying twice.</p>
           </div>
           <div class="bl fr" style="display:none">
             <p>Le nom dit tout. <strong>NineEightSeven</strong> : une séquence volontairement incomplète. Un compte à rebours permanent. Pas vers quelque chose de promis. Vers quelque chose de décidé.</p>
             <p>987NES, le <strong>memecoin crypto suisse</strong>, est né le 16 octobre 2025, en Suisse, <strong>en réaction</strong> : aux arnaques, aux faux récits d'utility et au vernis technologique qui masque souvent une réalité simple. La spéculation.</p>
-            <p>Parti d'une spéculation pure et assumée. En quelques mois, le projet a livré plus que 99% des projets crypto : une identité forte, une communauté active, <strong>987Buy</strong> et <strong>987News</strong>, développés entièrement en interne.</p>
+            <p>Parti d'une spéculation pure et assumée. En quelques mois, le projet a construit ce que la plupart des memecoins n'ont jamais : une identité forte, une communauté active, une liquidité verrouillée pour toujours et une équipe à visage découvert.</p>
             <p>987NES promet. 987NES délivre. Dans un écosystème obsédé par la façade, c'est suffisamment rare pour mériter d'être dit.</p>
           </div>
           <div class="bl es" style="display:none">
             <p>El nombre lo dice todo. <strong>NineEightSeven</strong>: una secuencia deliberadamente incompleta. Una cuenta regresiva permanente.</p>
             <p>987NES, el <strong>memecoin cripto suizo</strong>, nació el 16 de octubre de 2025 en Suiza, <strong>como reacción</strong>: a las estafas, los falsos relatos de utilidad y el barniz tecnológico.</p>
-            <p>Empezó como especulación pura. En pocos meses, el proyecto ha entregado más que el 99% de los proyectos cripto: <strong>987Buy</strong> y <strong>987News</strong>, construidos íntegramente de forma interna.</p>
+            <p>Empezó como especulación pura. En pocos meses, el proyecto ha construido lo que la mayoría de los memecoins nunca tienen: una identidad fuerte, una comunidad activa, liquidez bloqueada para siempre y un equipo que da la cara.</p>
             <p>987NES promete. 987NES entrega.</p>
           </div>
         </div>
@@ -3507,9 +3327,9 @@ footer {
           <span data-l="es">Leer el <span class="y">Whitepaper.</span></span>
         </h2>
         <p class="wp-body">
-          <span data-l="en">Everything you need to know about $NES. No inflation, no padding. Just the facts, from the <strong>team that built everything in-house</strong> and hasn't sold a single token.</span>
-          <span data-l="fr">Tout ce que vous devez savoir sur $NES. Sans inflation, sans rembourrage. Juste les faits, de la <strong>team qui a tout construit en interne</strong> et n'a pas vendu un seul token.</span>
-          <span data-l="es">Todo lo que necesitas saber sobre $NES. Sin inflación, sin relleno. Solo los hechos, del <strong>equipo que construyó todo internamente</strong> y no ha vendido ni un solo token.</span>
+          <span data-l="en">Everything you need to know about $NES. No inflation, no padding. Just the facts, from a <strong>fully doxxed team</strong> that hasn't sold a single token.</span>
+          <span data-l="fr">Tout ce que vous devez savoir sur $NES. Sans inflation, sans rembourrage. Juste les faits, d'une <strong>team entièrement doxxée</strong> qui n'a pas vendu un seul token.</span>
+          <span data-l="es">Todo lo que necesitas saber sobre $NES. Sin inflación, sin relleno. Solo los hechos, de un <strong>equipo totalmente doxxed</strong> que no ha vendido ni un solo token.</span>
         </p>
       </div>
       <div class="wp-btns">
