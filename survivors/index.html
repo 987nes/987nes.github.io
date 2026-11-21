@@ -5330,7 +5330,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.9.1-proto';
+var VERSION='0.9.2-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -9269,7 +9269,8 @@ function ouvrirX(txt){
     var ua=navigator.userAgent||'';
     var ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
     if(/Android/.test(ua)&&ua.indexOf('; wv)')<0){
-      location.href='intent://post?message='+e+'#Intent;scheme=twitter;package=com.twitter.android;S.browser_fallback_url='+encodeURIComponent(u)+';end';
+      /* le lien web de rédaction, remis directement à l'app : c'est lui qui préremplit le texte (twitter://post ne le fait pas) */
+      location.href='intent://twitter.com/intent/tweet?text='+e+'#Intent;scheme=https;package=com.twitter.android;S.browser_fallback_url='+encodeURIComponent(u)+';end';
       return;
     }
     if(ios){
@@ -9922,7 +9923,7 @@ function verifierTg(){
   var avant=boostEtat('tg');
   rafraichir().then(function(){
     var e=boostEtat('tg'),ok=e.v08?e.compte>avant.compte:(NET.jour&&NET.jour.boosts.indexOf('tg')>=0);
-    NET.boostMsg=ok?T(e.v08?'boost.okTgVie':'boost.okTg'):T(BOT_NOM?'boost.tgPasVuCmd':'err.boost_tg_par_groupe');NET.boostCoul=ok?C.vert:C.or;if(ok){chargerCode();son('nouvelle');}});
+    NET.boostMsg=ok?T(e.v08?'boost.okTgVie':'boost.okTg'):T('err.boost_tg_par_groupe');NET.boostCoul=ok?C.vert:C.or;if(ok){chargerCode();son('nouvelle');}});
 }
 /* 0.8 : boosts d'un canal aujourd'hui (plusieurs par jour, dans les plafonds du concours : par canal et total).
    Serveur d'avant la 0.8 : un boost par canal (fini dès qu'il est obtenu). */
@@ -9962,16 +9963,16 @@ function rendreBoosts(){
       tn(T('boost.xRegle'),24,y+172,9.5,'rgba(246,241,231,0.6)','left',2);
       y+=206;}
   }
-  if(act.indexOf('tg')>=0){var okT=eT.fini,msgTg=(BOT_NOM?'/boost@'+BOT_NOM+' ':'')+code;
+  if(act.indexOf('tg')>=0){var okT=eT.fini,msgTg=texteBoostX();
     panneau(12,y,336,okT?60:158,12,'rgba(23,40,58,0.95)','rgba(12,22,34,0.95)','rgba(111,230,255,0.4)',1);
     tt(T('boost.tg'),24,y+16,15,C.cyan,'left',0);tn(eT.v08?(okT?T('boost.plafond'):T('boost.canal',eT.compte,eT.max)):(okT?T('boost.obtenu'):T('boost.plusUn')),336,y+16,11,okT?C.vert:C.creme,'right',0);
     if(okT){ttFit(eT.v08?T('boost.canal',eT.compte,eT.max):T('boost.okTg'),180,y+42,12,310,C.vert,'center',2,false);y+=70;}
     else{
-      /* mode confidentialité du bot : dans le groupe, il ne reçoit que les commandes qui lui sont adressées (/boost@bot) */
-      para(T(BOT_NOM?'boost.tgRegleCmd':'boost.tgRegle'),24,y+38,312,11,C.creme,'left',2,14,false);
+      /* 0.9.2 : un vrai message (score, code, #987NES, lien avec image), prérempli dans le groupe ; le bot, administrateur du groupe, lit tous les messages */
+      para(T('boost.tgRegle'),24,y+38,312,11,C.creme,'left',2,14,false);
       cx.fillStyle='rgba(13,9,20,0.7)';cx.beginPath();rrect(cx,24,y+62,228,30,8);cx.fill();ttFit(msgTg,32,y+77,12.5,212,C.or,'left',1,false);
       bouton('copierTg',258,y+62,78,30,T('boost.copier'),2,function(){copier(msgTg);},null,11);
-      if(TG_GROUPE_URL)bouton('groupe',24,y+104,150,40,T('boost.groupe'),3,function(){ouvrirLien(TG_GROUPE_URL);},null,13);
+      if(TG_GROUPE_URL)bouton('groupe',24,y+104,150,40,T('boost.groupe'),3,function(){ouvrirLien(TG_GROUPE_URL+'?text='+encodeURIComponent(msgTg));},null,13);
       bouton('verifTg',TG_GROUPE_URL?186:24,y+104,TG_GROUPE_URL?150:312,40,T('boost.verifier'),0,verifierTg,null,14);
       y+=168;}
   }
