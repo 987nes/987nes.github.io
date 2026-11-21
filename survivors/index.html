@@ -5330,7 +5330,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.9.0-proto';
+var VERSION='0.9.1-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -9259,7 +9259,29 @@ function texteX(k){
   var lien=k===1?lienCarte(carteDeLaPartie()):lienCarte(carteDuScore(SAUV.record,false,false));
   return s+' '+etiquetteJour()+' #987NES'+(lien?' '+lien:'');
 }
-function ouvrirX(txt){var u='https://x.com/intent/tweet?text='+encodeURIComponent(txt);try{var w=dansTelegram();if(w&&w.openLink){w.openLink(u);return;}window.open(u,'_blank','noopener');}catch(e){}}
+/* Ouvre la rédaction d'un post : l'app X si elle est installée (téléphone), sinon le site.
+   Android : lien intent:// avec repli automatique vers le site. iPhone/iPad : schéma twitter://, puis le site
+   si la page est toujours visible après 1,5 s. Vues web intégrées (dont Telegram) et ordinateur : le site. */
+function ouvrirX(txt){
+  var e=encodeURIComponent(txt),u='https://x.com/intent/post?text='+e;
+  try{
+    var w=dansTelegram();if(w&&w.openLink){w.openLink(u);return;}
+    var ua=navigator.userAgent||'';
+    var ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
+    if(/Android/.test(ua)&&ua.indexOf('; wv)')<0){
+      location.href='intent://post?message='+e+'#Intent;scheme=twitter;package=com.twitter.android;S.browser_fallback_url='+encodeURIComponent(u)+';end';
+      return;
+    }
+    if(ios){
+      var parti=false,vu=function(){if(document.hidden)parti=true;};
+      document.addEventListener('visibilitychange',vu);
+      setTimeout(function(){document.removeEventListener('visibilitychange',vu);if(!parti&&!document.hidden)location.href=u;},1500);
+      location.href='twitter://post?message='+e;
+      return;
+    }
+    window.open(u,'_blank','noopener');
+  }catch(err){try{window.open(u,'_blank','noopener');}catch(e2){}}
+}
 /* score affiché en fin de partie : celui du serveur une fois validé (normalement identique) */
 function scoreFin(){if(REVOIR)return SIM.score(S);if(classee&&partieSrv&&NET.fin&&NET.fin.statut==='validee'&&typeof NET.fin.score==='number')return NET.fin.score;return SIM.score(S);}
 function decretConnu(){
