@@ -26,13 +26,20 @@
    BOT_NOM       nom du bot Telegram sans @ (Login Widget de la page web, commande /boost@BOT dans le groupe).
    TG_GROUPE_URL lien du groupe Telegram de la communauté (boost Telegram), ex. 'https://t.me/987nes'.
    PARTAGE_URL   base des cartes de partage X (dossier partage/ publié), avec / final.
-   URL_JEU       adresse publique du jeu (repli des posts si PARTAGE_URL est vide). */
+   URL_JEU       adresse publique du jeu (repli des posts si PARTAGE_URL est vide).
+   URL_SITE, URL_X, URL_TG (0.9) : liens du panneau « 987NES » (site, compte X, canal Telegram), en https://.
+   PUBLIC        (0.9) false : prototype (mention « proto » affichée). true le jour de la publication large
+                 (voir conception/ajouter-du-contenu.md : retirer aussi la balise robots noindex à la main). */
 window.DZO_CONFIG={
   API_URL:'https://api.987nes.com',
   BOT_NOM:'DZOSurvivors_bot',
   TG_GROUPE_URL:'https://t.me/NES_987_Chat',
   PARTAGE_URL:'https://987nes.com/survivors/partage/',
-  URL_JEU:'https://987nes.com/survivors/'
+  URL_JEU:'https://987nes.com/survivors/',
+  URL_SITE:'https://987nes.com/',
+  URL_X:'https://x.com/987_nes',
+  URL_TG:'https://t.me/NES_987',
+  PUBLIC:false
 };
 </script>
 <script data-role="telegram">window.__tgInit=function(){try{var w=window.Telegram&&Telegram.WebApp;if(!w)return;w.ready();w.expand();if(w.disableVerticalSwipes)w.disableVerticalSwipes();if(w.setHeaderColor)w.setHeaderColor('#0D0914');if(w.setBackgroundColor)w.setBackgroundColor('#0D0914');}catch(e){}};</script>
@@ -2183,7 +2190,7 @@ LANGUES.fr={
 "cl.vide":"Personne encore. Le premier score sera le tien.",
 "cl.moi":"Toi : n° {0} · {1} · {2} partie(s)",
 "cl.moiRien":"Toi : pas encore classé sur cette période",
-"cl.public":"Connecte-toi pour voir ta place et revoir tes parties.",
+"cl.public":"Connecte-toi pour entrer au classement.",
 "cl.chargeRevoir":"Chargement de la partie…",
 "cl.local":"SUR CE TÉLÉPHONE",
 "revoir.maj":"REVOIR",
@@ -2281,10 +2288,10 @@ LANGUES.fr={
 /* 0.7 : serveur de scores, écran d'entrée, boosts, classement, revoir */
 "partage.titre":"DZÔ Survivors · {0}",
 "partage.victoire":"10:00 tenues",
-"partage.descPalier":"Palier « {0} » atteint face à la horde du jour. Défends Fribourg à ton tour.",
+"partage.descPalier":"Palier « {0} » atteint face à la horde. Défends Fribourg à ton tour.",
 "partage.descRepas":"Le repas de Bénichon servi à toute la horde. DZÔ a encore faim.",
 "partage.descVictoire":"Dix minutes tenues dans la vieille ville. La bougie de clôture est verte.",
-"partage.desc":"DZÔ face à la horde dans la vieille ville de Fribourg. Une horde par jour, trois essais. Viens mordre.",
+"partage.desc":"DZÔ face à la horde dans la vieille ville de Fribourg. Une horde neuve à chaque essai. Viens mordre.",
 "concours.bandeau":"CONCOURS : {0} — jusqu'au {1}",
 "concours.reste":"Fin dans {0} · touche pour les lots ▸",
 "concours.entrainement":"ENTRAÎNEMENT — prochain concours : {0}",
@@ -2325,6 +2332,22 @@ LANGUES.fr={
 "err.concours_change":"Le concours vient de commencer ou de se terminer : réessaie.",
 "err.concours_aucun":"Pas de concours pour le moment.",
 "err.concours_inconnu":"Concours introuvable.",
+/* 0.9 : 987NES (signature, panneau, liens), podium du jour, boost selon la situation, partage */
+"nes.signature":"987NES — Le memecoin suisse · $NES sur Solana",
+"nes.titre":"987NES",
+"nes.texte":"Le memecoin suisse, né à Fribourg. 0 % de taxe, liquidité verrouillée pour toujours, équipe à visage découvert.",
+"nes.site":"LE SITE 987NES.COM",
+"nes.x":"987NES SUR X",
+"nes.tg":"987NES SUR TELEGRAM",
+"nes.ouvre":"S'ouvre dans un nouvel onglet.",
+"nes.fermer":"FERMER",
+"nes.bouton":"987NES",
+"nes.sous":"$NES · Solana",
+"podium.titre":"PODIUM DU JOUR",
+"podium.vide":"Personne encore aujourd'hui",
+"titre.boostSousConcours":"+1 vie par post",
+"titre.boostSousEntr":"Posts : en concours seulement",
+"partage.nes":"987NES, le memecoin suisse sur Solana.",
 "panneau.grenouilles.2":"les grenouilles"
 };
 LANGUES.de={
@@ -2910,7 +2933,7 @@ LANGUES.de={
 "cl.vide":"Noch niemand. Die erste Punktzahl wird deine sein.",
 "cl.moi":"Du: Platz {0} · {1} · {2} Runde(n)",
 "cl.moiRien":"Du: in diesem Zeitraum noch nicht gewertet",
-"cl.public":"Melde dich an, um deinen Platz zu sehen.",
+"cl.public":"Melde dich an, um in die Rangliste zu kommen.",
 "cl.chargeRevoir":"Runde wird geladen…",
 "cl.local":"AUF DIESEM TELEFON",
 "revoir.maj":"WIEDERHOLUNG",
@@ -3008,10 +3031,10 @@ LANGUES.de={
 /* 0.7 : serveur de scores, écran d'entrée, boosts, classement, revoir */
 "partage.titre":"DZÔ Survivors · {0}",
 "partage.victoire":"10:00 durchgehalten",
-"partage.descPalier":"Stufe «{0}» gegen die Tageshorde erreicht. Verteidige Freiburg auch du.",
+"partage.descPalier":"Stufe «{0}» gegen die Horde erreicht. Verteidige Freiburg auch du.",
 "partage.descRepas":"Das Bénichon-Essen für die ganze Horde serviert. DZÔ hat noch Hunger.",
 "partage.descVictoire":"Zehn Minuten in der Altstadt durchgehalten. Die Schlusskerze ist grün.",
-"partage.desc":"DZÔ gegen die Horde in der Freiburger Altstadt. Eine Horde pro Tag, drei Versuche. Komm beissen.",
+"partage.desc":"DZÔ gegen die Horde in der Freiburger Altstadt. Bei jedem Versuch eine neue Horde. Komm beissen.",
 "concours.bandeau":"WETTBEWERB: {0} — bis {1}",
 "concours.reste":"Ende in {0} · tippen für die Preise ▸",
 "concours.entrainement":"TRAINING — nächster Wettbewerb: {0}",
@@ -3052,6 +3075,22 @@ LANGUES.de={
 "err.concours_change":"Der Wettbewerb hat gerade begonnen oder geendet: versuch es nochmal.",
 "err.concours_aucun":"Im Moment kein Wettbewerb.",
 "err.concours_inconnu":"Wettbewerb nicht gefunden.",
+/* 0.9 : 987NES (signature, panneau, liens), podium du jour, boost selon la situation, partage */
+"nes.signature":"987NES — Der Schweizer Memecoin · $NES auf Solana",
+"nes.titre":"987NES",
+"nes.texte":"Der Schweizer Memecoin, geboren in Freiburg. 0 % Steuer, Liquidität für immer gesperrt, ein Team, das sein Gesicht zeigt.",
+"nes.site":"WEBSITE 987NES.COM",
+"nes.x":"987NES AUF X",
+"nes.tg":"987NES AUF TELEGRAM",
+"nes.ouvre":"Öffnet sich in einem neuen Tab.",
+"nes.fermer":"SCHLIESSEN",
+"nes.bouton":"987NES",
+"nes.sous":"$NES · Solana",
+"podium.titre":"PODIUM DES TAGES",
+"podium.vide":"Heute noch niemand",
+"titre.boostSousConcours":"+1 Leben pro Post",
+"titre.boostSousEntr":"Posts: nur im Wettbewerb",
+"partage.nes":"987NES, der Schweizer Memecoin auf Solana.",
 "panneau.grenouilles.2":"verboten"
 };
 LANGUES.it={
@@ -3637,7 +3676,7 @@ LANGUES.it={
 "cl.vide":"Ancora nessuno. Il primo punteggio sarà il tuo.",
 "cl.moi":"Tu: {0}° · {1} · {2} partita/e",
 "cl.moiRien":"Tu: non ancora in classifica in questo periodo",
-"cl.public":"Accedi per vedere il tuo posto e rivedere le partite.",
+"cl.public":"Accedi per entrare in classifica.",
 "cl.chargeRevoir":"Caricamento della partita…",
 "cl.local":"SU QUESTO TELEFONO",
 "revoir.maj":"REPLAY",
@@ -3735,10 +3774,10 @@ LANGUES.it={
 /* 0.7 : serveur de scores, écran d'entrée, boosts, classement, revoir */
 "partage.titre":"DZÔ Survivors · {0}",
 "partage.victoire":"10:00 resistiti",
-"partage.descPalier":"Livello «{0}» raggiunto contro l'orda del giorno. Difendi Friburgo anche tu.",
+"partage.descPalier":"Livello «{0}» raggiunto contro l'orda. Difendi Friburgo anche tu.",
 "partage.descRepas":"Il pranzo della Bénichon servito a tutta l'orda. DZÔ ha ancora fame.",
 "partage.descVictoire":"Dieci minuti resistiti nella città vecchia. La candela di chiusura è verde.",
-"partage.desc":"DZÔ contro l'orda nella città vecchia di Friburgo. Un'orda al giorno, tre tentativi. Vieni a mordere.",
+"partage.desc":"DZÔ contro l'orda nella città vecchia di Friburgo. Un'orda nuova a ogni tentativo. Vieni a mordere.",
 "concours.bandeau":"CONCORSO: {0} — fino al {1}",
 "concours.reste":"Fine tra {0} · tocca per i premi ▸",
 "concours.entrainement":"ALLENAMENTO — prossimo concorso: {0}",
@@ -3779,6 +3818,22 @@ LANGUES.it={
 "err.concours_change":"Il concorso è appena iniziato o finito: riprova.",
 "err.concours_aucun":"Nessun concorso per ora.",
 "err.concours_inconnu":"Concorso non trovato.",
+/* 0.9 : 987NES (signature, panneau, liens), podium du jour, boost selon la situation, partage */
+"nes.signature":"987NES — Il memecoin svizzero · $NES su Solana",
+"nes.titre":"987NES",
+"nes.texte":"Il memecoin svizzero, nato a Friburgo. 0 % di tasse, liquidità bloccata per sempre, squadra a volto scoperto.",
+"nes.site":"IL SITO 987NES.COM",
+"nes.x":"987NES SU X",
+"nes.tg":"987NES SU TELEGRAM",
+"nes.ouvre":"Si apre in una nuova scheda.",
+"nes.fermer":"CHIUDI",
+"nes.bouton":"987NES",
+"nes.sous":"$NES · Solana",
+"podium.titre":"PODIO DI OGGI",
+"podium.vide":"Ancora nessuno oggi",
+"titre.boostSousConcours":"+1 vita per post",
+"titre.boostSousEntr":"Post: solo nei concorsi",
+"partage.nes":"987NES, il memecoin svizzero su Solana.",
 "panneau.grenouilles.2":"le rane"
 };
 LANGUES.es={
@@ -4364,7 +4419,7 @@ LANGUES.es={
 "cl.vide":"Aún nadie. La primera puntuación será la tuya.",
 "cl.moi":"Tú: {0}.º · {1} · {2} partida(s)",
 "cl.moiRien":"Tú: aún sin clasificar en este periodo",
-"cl.public":"Conéctate para ver tu puesto y repetir tus partidas.",
+"cl.public":"Conéctate para entrar en el ranking.",
 "cl.chargeRevoir":"Cargando la partida…",
 "cl.local":"EN ESTE TELÉFONO",
 "revoir.maj":"REPETICIÓN",
@@ -4462,10 +4517,10 @@ LANGUES.es={
 /* 0.7 : serveur de scores, écran d'entrée, boosts, classement, revoir */
 "partage.titre":"DZÔ Survivors · {0}",
 "partage.victoire":"10:00 aguantados",
-"partage.descPalier":"Nivel «{0}» alcanzado contra la horda del día. Defiende Friburgo tú también.",
+"partage.descPalier":"Nivel «{0}» alcanzado contra la horda. Defiende Friburgo tú también.",
 "partage.descRepas":"El banquete de la Bénichon servido a toda la horda. DZÔ aún tiene hambre.",
 "partage.descVictoire":"Diez minutos aguantados en el casco antiguo. La vela de cierre es verde.",
-"partage.desc":"DZÔ contra la horda en el casco antiguo de Friburgo. Una horda al día, tres intentos. Ven a morder.",
+"partage.desc":"DZÔ contra la horda en el casco antiguo de Friburgo. Una horda nueva en cada intento. Ven a morder.",
 "concours.bandeau":"CONCURSO: {0} — hasta el {1}",
 "concours.reste":"Termina en {0} · toca para ver los premios ▸",
 "concours.entrainement":"ENTRENAMIENTO — próximo concurso: {0}",
@@ -4506,6 +4561,22 @@ LANGUES.es={
 "err.concours_change":"El concurso acaba de empezar o de terminar: inténtalo de nuevo.",
 "err.concours_aucun":"No hay concurso por ahora.",
 "err.concours_inconnu":"Concurso no encontrado.",
+/* 0.9 : 987NES (signature, panneau, liens), podium du jour, boost selon la situation, partage */
+"nes.signature":"987NES — La memecoin suiza · $NES en Solana",
+"nes.titre":"987NES",
+"nes.texte":"La memecoin suiza, nacida en Friburgo. 0 % de impuestos, liquidez bloqueada para siempre, equipo a cara descubierta.",
+"nes.site":"LA WEB 987NES.COM",
+"nes.x":"987NES EN X",
+"nes.tg":"987NES EN TELEGRAM",
+"nes.ouvre":"Se abre en una pestaña nueva.",
+"nes.fermer":"CERRAR",
+"nes.bouton":"987NES",
+"nes.sous":"$NES · Solana",
+"podium.titre":"PODIO DE HOY",
+"podium.vide":"Aún nadie hoy",
+"titre.boostSousConcours":"+1 vida por post",
+"titre.boostSousEntr":"Posts: solo en concursos",
+"partage.nes":"987NES, la memecoin suiza en Solana.",
 "panneau.grenouilles.2":"a las ranas"
 };
 LANGUES.en={
@@ -5091,7 +5162,7 @@ LANGUES.en={
 "cl.vide":"Nobody yet. The first score will be yours.",
 "cl.moi":"You: #{0} · {1} · {2} run(s)",
 "cl.moiRien":"You: not ranked yet for this period",
-"cl.public":"Log in to see your place and replay your runs.",
+"cl.public":"Log in to get on the leaderboard.",
 "cl.chargeRevoir":"Loading the run…",
 "cl.local":"ON THIS PHONE",
 "revoir.maj":"REPLAY",
@@ -5189,10 +5260,10 @@ LANGUES.en={
 /* 0.7 : serveur de scores, écran d'entrée, boosts, classement, revoir */
 "partage.titre":"DZÔ Survivors · {0}",
 "partage.victoire":"10:00 survived",
-"partage.descPalier":"Reached the “{0}” tier against today's horde. Defend Fribourg too.",
+"partage.descPalier":"Reached the “{0}” tier against the horde. Defend Fribourg too.",
 "partage.descRepas":"The Bénichon feast served to the whole horde. DZÔ is still hungry.",
 "partage.descVictoire":"Ten minutes held in the old town. The closing candle is green.",
-"partage.desc":"DZÔ against the horde in Fribourg's old town. One horde a day, three tries. Come bite.",
+"partage.desc":"DZÔ against the horde in Fribourg's old town. A fresh horde every try. Come bite.",
 "concours.bandeau":"CONTEST: {0} — until {1}",
 "concours.reste":"Ends in {0} · tap for the prizes ▸",
 "concours.entrainement":"TRAINING — next contest: {0}",
@@ -5233,6 +5304,22 @@ LANGUES.en={
 "err.concours_change":"The contest just started or ended: try again.",
 "err.concours_aucun":"No contest at the moment.",
 "err.concours_inconnu":"Contest not found.",
+/* 0.9 : 987NES (signature, panneau, liens), podium du jour, boost selon la situation, partage */
+"nes.signature":"987NES — The Swiss Memecoin · $NES on Solana",
+"nes.titre":"987NES",
+"nes.texte":"The Swiss memecoin, born in Fribourg. 0% tax, liquidity locked forever, a team that shows its face.",
+"nes.site":"WEBSITE 987NES.COM",
+"nes.x":"987NES ON X",
+"nes.tg":"987NES ON TELEGRAM",
+"nes.ouvre":"Opens in a new tab.",
+"nes.fermer":"CLOSE",
+"nes.bouton":"987NES",
+"nes.sous":"$NES · Solana",
+"podium.titre":"TODAY'S PODIUM",
+"podium.vide":"Nobody yet today",
+"titre.boostSousConcours":"+1 life per post",
+"titre.boostSousEntr":"Posts: contests only",
+"partage.nes":"987NES, the Swiss memecoin on Solana.",
 "panneau.grenouilles.2":"the frogs"
 };
 SIM.LANGUES=LANGUES;
@@ -5243,9 +5330,9 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.8.0-proto';
+var VERSION='0.9.0-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
-var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1};
+var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
 var JOUR_1='2026-11-23';
 var EV=SIM.EV,ENN=SIM.ENN,ARMES=SIM.ARMES,PASSIFS=SIM.PASSIFS,TRESORS=SIM.TRESORS,COLLECTIONS=SIM.COLLECTIONS;
@@ -8128,6 +8215,8 @@ function installerEntrees(){
     audioInit();hymneDebloquer();
     if(horsCanevas(e)&&e.target.tagName==='INPUT')return;
     if(ecran==='entree'){if(!e.repeat)entrer();return;}
+    /* 0.9 : panneau 987NES ouvert : Échap le ferme, rien d'autre ne passe (ni MORDRE, ni REJOUER) */
+    if(NES_OUVERT===ecran&&(ecran==='titre'||ecran==='fin')){if(k==='Escape')fermerNes();return;}
     if(ecran==='connexion'||ecran==='profil'||ecran==='boosts'||ecran==='classement'||ecran==='lots'){if(k==='Escape')allerEcran('titre');return;}
     if(REVOIR&&ecran==='jeu'){if(k==='Escape')quitterRevoir();return;}
     if(k==='ArrowUp'||k==='z'||k==='Z'||k==='w'||k==='W')touches.h=bas;
@@ -9027,7 +9116,8 @@ function rendreTitre(){
   surveillerConcours();
   var bandeau=!horsRang&&bandeauConcours('tconcours',30,380,300,38);
   if(!bandeau&&restants<=0&&!horsRang&&!(modeServeur()&&!connecte()))ttFit(T('titre.demain'),180,412,12,340,C.or,'center',0,true);
-  ttFit(T('slogan'),180,499,12,344,C.creme,'center',0,true);
+  /* 0.9 : signature 987NES (à la place du slogan, qui reste dans la bande basse des téléphones hauts) ; touchée → panneau 987NES */
+  ttFit(T('nes.signature'),180,500,12,336,zone('nesSig',14,494,332,15,ouvrirNes)?C.creme:C.or,'center',0,true);
   /* infos du jour : horde, essais, record, série, compte à rebours, décret (0.7 : celui du serveur, sinon un texte neutre) */
   var enl=connecte(),y0=510;
   panneau(14,y0,332,88,10,'rgba(38,27,54,0.92)','rgba(20,13,32,0.92)','rgba(246,241,231,0.18)',1);
@@ -9044,12 +9134,15 @@ function rendreTitre(){
   if(dj>=0){ttFit(T('decretDuJour.ligne',nomDecret(dj)),180,y0+63,12,308,C.or,'center',0,false);ttFit(ligneDecret(dj),180,y0+77,10.5,312,'rgba(246,241,231,0.85)','center',2,false);}
   else{var nl=texteNeutre();ttFit(nl[0],180,y0+63,12,308,C.or,'center',0,false);ttFit(nl[1],180,y0+77,10.5,312,'rgba(246,241,231,0.85)','center',2,false);}
   /* boutons secondaires */
-  bouton('boost',14,604,134,32,T(boostActif()?'titre.boostActif':'titre.boost'),2,function(){allerEcran(modeServeur()&&!connecte()?'connexion':'boosts');},T(boostActif()?'titre.boostActifSous':'titre.boostSous'),12.5);
+  bouton('boost',14,604,134,32,T(boostActif()&&!entrainementSeul()?'titre.boostActif':'titre.boost'),entrainementSeul()?1:2,function(){allerEcran(modeServeur()&&!connecte()?'connexion':'boosts');},sousBoost(),12.5);
   bouton('entr',152,604,112,32,T('titre.entrainement'),1,function(){demarrer(false);},null,12.5);
   bouton('langue',268,604,38,32,T('langue.code'),1,changerLangue,null,12);
   bouton('son',310,604,36,32,SAUV.son?'♪':'×',1,function(){SAUV.son=SAUV.son?0:1;sauver();reglerSon();},null,18);
   /* 0.7 : classement et profil (en ligne), ou la mention « hors ligne » */
   barreCompte();
+  /* 0.9 : podium du jour (public, sous CLASSEMENT) et accès au panneau 987NES (sous le profil) */
+  podiumTitre();
+  bouton('tnes',262,SAFE_H+37,92,32,T('nes.bouton'),1,ouvrirNes,T('nes.sous'),13);
   if(!DZO.pret&&DZO_TENTE)tn(T('titre.secours'),180,416,10,'rgba(246,241,231,0.5)','center',2);
   /* fondu au blanc avant la partie */
   if(tDepart>0.18){cx.fillStyle='rgba(255,255,255,'+Math.min(1,(tDepart-0.18)/0.12).toFixed(2)+')';cx.fillRect(0,0,360,640);}
@@ -9144,10 +9237,12 @@ function rendreFin(){
   }else{
     if(NET.debutEnCours)cx.globalAlpha=0.6;
     bouton('rejouer',40,500,280,64,T(echauffement&&rang?'fin.defi':'fin.rejouer'),0,rejouer,rang?(echauffement?T('fin.essaiClasse',essaisUtil()+1,essaisMax()):T('fin.essai',essaisUtil()+1,essaisMax())):(modeServeur()&&!connecte()?T('titre.connecteToi'):T(classee?'fin.epuise':'entrainement')),28);
-    bouton('partager',40,580,134,42,T('fin.partager'),2,partager,null,14);
-    if(modeServeur()&&!connecte()&&!HORS_RANG)bouton('fcnx',186,580,134,42,T('cnx.bouton'),3,function(){allerEcran('connexion');},null,12.5);
-    else if(classee||echauffement||restants<=0||BOT||VITESSE>1||TAB_FORCE>=0)bouton('fentr',186,580,134,42,T('titre.entrainement'),1,function(){lancer(false);},null,12.5);
-    else bouton('fdefi',186,580,134,42,T('fin.defi'),1,function(){lancerClasse('fin');},T('fin.essai',essaisUtil()+1,essaisMax()),12.5);
+    /* 0.9 : trois boutons sous REJOUER : partager, l'action suivante, et le panneau 987NES */
+    bouton('partager',14,580,106,42,T('fin.partager'),2,partager,null,14);
+    if(modeServeur()&&!connecte()&&!HORS_RANG)bouton('fcnx',127,580,106,42,T('cnx.bouton'),3,function(){allerEcran('connexion');},null,12.5);
+    else if(classee||echauffement||restants<=0||BOT||VITESSE>1||TAB_FORCE>=0)bouton('fentr',127,580,106,42,T('titre.entrainement'),1,function(){lancer(false);},null,12.5);
+    else bouton('fdefi',127,580,106,42,T('fin.defi'),1,function(){lancerClasse('fin');},T('fin.essai',essaisUtil()+1,essaisMax()),12.5);
+    bouton('fnes',240,580,106,42,T('nes.bouton'),1,ouvrirNes,T('nes.sous'),14);
   }
   bouton('fmenu',6,SAFE_H+5,52,24,T('fin.menu'),1,function(){allerEcran('titre');majJour();},null,10);
   /* 0.8 : bandeau du concours, à droite du bouton menu */
@@ -9191,6 +9286,14 @@ function sousMordre(horsRang,prem,restants){
     if(NET.debutEnCours)return T('titre.debut');
   }
   return restants>0?T(grainePropre()?'titre.essaiNouvelle':'titre.essai',essaisUtil()+1,essaisMax()):T('titre.epuise');
+}
+/* 0.9 : sous-titre du bouton BOOST selon la règle en vigueur : concours (+1 vie par post), entraînement (les posts ne
+   donnent rien hors concours), classement libre ou hors ligne (+1 essai contre un post, comme la 0.7) */
+function sousBoost(){
+  if(enConcours())return T('titre.boostSousConcours');
+  if(entrainementSeul())return T('titre.boostSousEntr');
+  if(boostActif())return T('titre.boostActifSous');
+  return T('titre.boostSous');
 }
 function barreCompte(){
   if(HORS_RANG)return;
@@ -9257,6 +9360,12 @@ var API_URL=String((hoteLocal()&&params.get('api'))||CFG.API_URL||'').replace(/\
 var BOT_NOM=String(CFG.BOT_NOM||'').replace(/^@/,'').replace(/[^A-Za-z0-9_]/g,'');
 var TG_GROUPE_URL=/^https:\/\/t\.me\/[A-Za-z0-9_+\/-]+$/.test(String(CFG.TG_GROUPE_URL||''))?String(CFG.TG_GROUPE_URL):'';
 var PARTAGE_URL=String(CFG.PARTAGE_URL===undefined?'https://987nes.com/survivors/partage/':CFG.PARTAGE_URL);
+/* 0.9 : liens du panneau 987NES (https:// seulement, sinon le bouton n'est pas affiché) et bascule de publication */
+function lienHttps(v,d){var u=String(v===undefined?d:v);return/^https:\/\/[A-Za-z0-9.-]+(\/[A-Za-z0-9._~\/-]*)?$/.test(u)?u:'';}
+var URL_SITE=lienHttps(CFG.URL_SITE,'https://987nes.com/'),URL_X=lienHttps(CFG.URL_X,'https://x.com/987_nes'),URL_TG=lienHttps(CFG.URL_TG,'https://t.me/NES_987');
+var PUBLIC=CFG.PUBLIC===true;
+/* PUBLIC:true masque la mention « proto » à l'écran (la VERSION envoyée au serveur ne change pas) */
+function versionAffichee(){return PUBLIC?VERSION.replace(/-proto$/,''):VERSION;}
 var DEV_ID=hoteLocal()&&params.get('dev')?(parseInt(params.get('dev'),10)||1001):0;
 var HORS_RANG=BOT||VITESSE>1||TAB_FORCE>=0;
 var NET={actif:!!API_URL&&typeof fetch==='function',etat:'',jeton:'',expire:0,mode:'',joueur:null,jour:null,regles:null,versions:null,modeGraine:'jour',horde:null,
@@ -9265,7 +9374,9 @@ var NET={actif:!!API_URL&&typeof fetch==='function',etat:'',jeton:'',expire:0,mo
   profilMsg:'',profilCoul:'',boostMsg:'',boostCoul:'',widget:false,widgetT:0,revoirCharge:false,msgEntree:null,ticket:TICKET,
   cnx:null,cnxMinu:0,cnxEnVol:false,
   /* 0.8 : concours en cours, prochain concours, règle hors concours (entrainement | classement), vies en vigueur */
-  concours:null,prochainConcours:null,horsConcours:'',vies:null,concoursVu:0};
+  concours:null,prochainConcours:null,horsConcours:'',vies:null,concoursVu:0,
+  /* 0.9 : classement public par période (gardé 30 s) */
+  pub:{}};
 var REVOIR=null;
 
 function modeServeur(){return NET.actif&&NET.etat==='ok';}
@@ -9617,6 +9728,7 @@ function allerEcran(e){
   if(e==='classement'){NET.cl.defil=0;if(NET.cl.periode==='concours'&&!enConcours())NET.cl.periode='jour';chargerClassement(NET.cl.periode);}
   if(e==='connexion'){NET.widgetT=0;if(NET.cnx&&NET.cnx.etat!=='attente'&&NET.cnx.etat!=='demande')NET.cnx=null;}
   REVOIR=e==='jeu'?REVOIR:null;
+  NES_OUVERT='';
   ecran=e;sous='';tEcran=0;tDepart=-1;presse=null;pressePtr=-1;
 }
 function entete(titre){
@@ -9876,14 +9988,75 @@ function rendreLots(){
 
 /* ---- classement ---- */
 var PERIODES=[['jour','cl.jour'],['hier','cl.hier'],['semaine','cl.semaine'],['mois','cl.mois']];
-/* onglets : « Concours » en premier pendant un concours (0.8) ; « Hier » une fois connecté */
-function periodesCl(){var p=connecte()?PERIODES:PERIODES.filter(function(x){return x[0]!=='hier';});return enConcours()?[['concours','cl.concours']].concat(p):p;}
+/* onglets : « Concours » en premier pendant un concours (0.8) ; « Hier » aussi sans connexion (0.9 : periode=hier publique) */
+function periodesCl(){return enConcours()?[['concours','cl.concours']].concat(PERIODES):PERIODES;}
+/* 0.9 : classement public (sans connexion, et podium du titre). Le serveur le met en cache 30 s et limite les appels par
+   adresse IP : le jeu garde aussi chaque période 30 s, ne lance jamais deux fois la même demande en parallèle et attend
+   10 s après un refus ou une coupure. Toujours limite=100 (une seule réponse sert au classement et au podium). */
+var PUB_MS=30000,PUB_ECHEC_MS=10000;
+function chargerPublic(per,cb){
+  var c=NET.pub[per]||(NET.pub[per]={t:0,json:null,enVol:false,att:[],echecT:0,echec:null}),t=Date.now();
+  if(c.json&&t-c.t<PUB_MS&&t>=c.t){if(cb)cb({statut:200,json:c.json});return;}
+  if(c.echec&&t-c.echecT<PUB_ECHEC_MS&&t>=c.echecT&&!c.enVol){if(cb)cb(c.echec);return;}
+  if(cb)c.att.push(cb);
+  if(c.enVol)return;
+  c.enVol=true;
+  apiAppel('GET','/api/public/classement?periode='+per+'&limite=100',undefined,{sansAuth:true}).then(function(r){
+    c.enVol=false;
+    if(r.statut===200&&r.json&&Array.isArray(r.json.top)){c.t=Date.now();c.json=r.json;c.echec=null;}else{c.echecT=Date.now();c.echec=r;}
+    var a=c.att;c.att=[];for(var i=0;i<a.length;i++)a[i](r);});
+}
+/* podium du jour de l'écran titre : les 3 premiers du classement public du jour (pseudo et score), visible par tous */
+function podiumTitre(){
+  if(!modeServeur()||HORS_RANG)return;
+  chargerPublic('jour',null);
+  var c=NET.pub.jour,top=c&&c.json?c.json.top.slice(0,3):null,x=6,y=SAFE_H+36,w=102,h=46,i,e,enf;
+  if(!top)return;
+  enf=zone('tpodium',x,y,w,h,function(){NET.cl.periode='jour';allerEcran('classement');});
+  cx.fillStyle=enf?'rgba(38,27,54,0.92)':'rgba(13,9,20,0.66)';cx.beginPath();rrect(cx,x,y,w,h,8);cx.fill();
+  cx.strokeStyle='rgba(255,210,63,0.45)';cx.lineWidth=1;cx.stroke();
+  ttFit(T('podium.titre'),x+w/2,y+8,8.5,w-8,C.cyan,'center',0,false);
+  if(!top.length){ttFit(T('podium.vide'),x+w/2,y+27,9.5,w-10,C.creme,'center',2,false);return;}
+  for(i=0;i<top.length;i++){e=top[i];var yy=y+19+i*11,cr=i===0?C.or:(i===1?'#D9DDE8':'#E0A15A');
+    tn(''+e.rang,x+11,yy,9.5,cr,'right',1);
+    ttFit(couperTexte(String(e.pseudo||''),42,9.5,2),x+15,yy,9.5,42,cr,'left',2,false);
+    ttFit(fmtNb(e.score),x+w-5,yy,9.5,38,C.creme,'right',1,false);}
+}
+/* texte coupé par « … » s'il dépasse la largeur (pseudo long dans une colonne étroite) */
+function couperTexte(s,larg,px,style){
+  cx.font=police(px,style);if(cx.measureText(s).width<=larg)return s;
+  var n=s.length;while(n>1&&cx.measureText(s.slice(0,n)+'…').width>larg)n--;
+  return s.slice(0,n)+'…';
+}
+/* ---- 0.9 : panneau 987NES (titre et fin) : présentation et trois liens ouverts par un vrai toucher ---- */
+var NES_OUVERT='';
+function ouvrirNes(){NES_OUVERT=ecran;presse=null;pressePtr=-1;}
+function fermerNes(){NES_OUVERT='';presse=null;pressePtr=-1;}
+function rendrePanneauNes(){
+  colonne();nBT=0;
+  cx.fillStyle='rgba(13,9,20,0.86)';cx.fillRect(0,0,360,640);
+  /* hauteur du panneau ajustée au texte de présentation (3 à 5 lignes selon la langue) */
+  var y=SAFE_H+84,n=lignes(T('nes.texte'),290,13,2).length,s=DZO.grand,yb=Math.max(y+112+n*18,y+168),h=yb+228-y;
+  panneau(16,y,328,h,16,'rgba(46,33,70,0.97)','rgba(20,13,32,0.97)','rgba(255,210,63,0.6)',2);
+  if(s){var hh=70,ww=hh*s.w/s.h;cx.drawImage(SPR.ombre,180-30,y-9,60,11);cx.drawImage(s.c,180-ww*s.ax/s.w,y-4-hh*s.ay/s.h,ww,hh);}
+  tt(T('nes.titre'),180,y+28,30,C.or,'center',0);
+  ttFit(T('nes.signature'),180,y+56,12.5,300,C.creme,'center',0,true);
+  cx.fillStyle='rgba(246,241,231,0.16)';cx.fillRect(40,y+72,280,1);
+  para(T('nes.texte'),180,y+94,290,13,C.creme,'center',2,18,false);
+  if(URL_SITE)bouton('nesSite',34,yb,292,54,T('nes.site'),2,function(){ouvrirLien(URL_SITE);},URL_SITE.replace(/^https:\/\/(www\.)?/,'').replace(/\/$/,''),17);
+  if(URL_X)bouton('nesX',34,yb+68,292,54,T('nes.x'),3,function(){ouvrirLien(URL_X);},URL_X.replace(/^https:\/\/(www\.)?/,''),17);
+  if(URL_TG)bouton('nesTg',34,yb+136,292,54,T('nes.tg'),3,function(){ouvrirLien(URL_TG);},URL_TG.replace(/^https:\/\/(www\.)?/,''),17);
+  ttFit(T('nes.ouvre'),180,yb+204,10.5,290,'rgba(246,241,231,0.6)','center',2,false);
+  bouton('nesFermer',110,y+h+14,140,38,T('nes.fermer'),1,fermerNes,null,15);
+}
 function dateHier(){var p=(NET.jour?NET.jour.jour:JOUR).split('-'),d=new Date(Date.UTC(+p[0],+p[1]-1,+p[2]-1));return d.getUTCFullYear()+'-'+('0'+(d.getUTCMonth()+1)).slice(-2)+'-'+('0'+d.getUTCDate()).slice(-2);}
 function chargerClassement(per){
   var cl=NET.cl,cle=per+'|'+Date.now();cl.periode=per;cl.charge=true;cl.erreur='';cl.donnees=null;cl.defil=0;cl.cle=cle;
   if(!modeServeur()){cl.charge=false;cl.erreur=T('net.horsLigne');return;}
-  var ch=connecte()?'/api/classement?periode='+(per==='hier'?'jour&date='+dateHier():per):'/api/public/classement?periode='+(per==='hier'?'jour':per)+'&limite=100';
-  apiAppel('GET',ch).then(function(r){if(cl.cle!==cle)return;cl.charge=false;if(r.statut===200)cl.donnees=r.json;else cl.erreur=texteErreur(r.json);});
+  var fini=function(r){if(cl.cle!==cle)return;cl.charge=false;if(r.statut===200)cl.donnees=r.json;else cl.erreur=texteErreur(r.json);};
+  /* 0.9 : sans connexion, classement public (rang, pseudo, score), gardé 30 s par période */
+  if(!connecte()){chargerPublic(per,fini);return;}
+  apiAppel('GET','/api/classement?periode='+(per==='hier'?'jour&date='+dateHier():per)).then(fini);
 }
 var CL_Y0=118,CL_H=26,clGlisse=null;
 function rendreClassement(){
@@ -9919,7 +10092,8 @@ function rendreClassement(){
       panneau(8,596,344,30,8,'rgba(58,40,18,0.95)','rgba(30,20,10,0.95)','rgba(255,210,63,0.5)',1);
       ttFit(mo?T('cl.moi',mo.rang,fmtNb(mo.score),mo.parties):T('cl.moiRien'),180,611,12,330,C.or,'center',2,false);}
   }
-  if(!connecte()&&modeServeur()){ttFit(T('cl.public'),180,574,11,330,'rgba(246,241,231,0.8)','center',2,true);bouton('clcnx',90,592,180,34,T('cnx.bouton'),2,function(){allerEcran('connexion');},null,13);}
+  /* 0.9 : sans connexion : ni ligne « Toi » ni « revoir », mais une invitation claire à entrer au classement */
+  if(!connecte()&&modeServeur()){ttFit(T('cl.public'),180,575,13,336,C.or,'center',0,true);bouton('clcnx',80,591,200,36,T('cnx.bouton'),2,function(){allerEcran('connexion');},null,15);}
   if(NET.revoirCharge)ttFit(T('cl.chargeRevoir'),180,y0+120,14,320,C.cyan,'center',0,true);
 }
 /* hors ligne : ce que ce téléphone sait (record du jour, meilleur score, série) */
@@ -10167,8 +10341,10 @@ function rendreEntree(){
   if(SPR.logo){k=1+Math.sin(t*2.1)*0.012;cx.save();cx.translate(180,92+SAFE_H);cx.scale(k*1.08,k*1.08);spr(SPR.logo,0,0);cx.restore();}
   k=0.55+0.45*Math.abs(Math.sin(t*2.4));
   cx.globalAlpha=a*k;ttFit(T(tactile?'entree.touche':'entree.clic'),180,574,22,330,C.or,'center',0,true);
-  cx.globalAlpha=a*0.7;ttFit(T('entree.son'),180,602,11,330,C.creme,'center',2,true);
-  cx.globalAlpha=a*0.45;tn('v'+VERSION,352,630,9,C.creme,'right',2);
+  cx.globalAlpha=a*0.7;ttFit(T('entree.son'),180,600,11,330,C.creme,'center',2,true);
+  /* 0.9 : signature 987NES */
+  cx.globalAlpha=a*0.95;ttFit(T('nes.signature'),180,620,12,330,C.or,'center',0,true);
+  cx.globalAlpha=a*0.45;tn('v'+versionAffichee(),352,634,8.5,C.creme,'right',2);
   cx.globalAlpha=1;
 }
 /* ---------- 0.7 : mise à jour automatique (cache du site et du navigateur de Telegram) ----------
@@ -10235,9 +10411,11 @@ function rendre(dt){
   finChamps();
 }
 function rendreEcran(dt){
+  /* 0.9 : le panneau 987NES ne vit que sur l'écran où il a été ouvert */
+  if(NES_OUVERT&&NES_OUVERT!==ecran)NES_OUVERT='';
   if(ecran==='entree'){rendreEntree();rendreMarges();return;}
-  if(ecran==='titre'){rendreTitre();rendreMarges();return;}
-  if(ecran==='fin'){rendreFin();rendreMarges();return;}
+  if(ecran==='titre'){rendreTitre();if(NES_OUVERT)rendrePanneauNes();rendreMarges();return;}
+  if(ecran==='fin'){rendreFin();if(NES_OUVERT)rendrePanneauNes();rendreMarges();return;}
   if(ecran==='connexion'){rendreConnexion();rendreMarges();return;}
   if(ecran==='profil'){rendreProfil();rendreMarges();return;}
   if(ecran==='boosts'){rendreBoosts();rendreMarges();return;}
@@ -10289,7 +10467,11 @@ window.__dzo={
     /* 0.8 : concours */
     concours:NET.concours,prochainConcours:NET.prochainConcours,horsConcours:NET.horsConcours,vies:NET.vies,enConcours:enConcours(),entrainementSeul:entrainementSeul(),horde:NET.horde,modeGraine:modeGraine(),fin:NET.fin,partieSrv:!!partieSrv,classee:classee,attentes:lireAttentes().length,msg:NET.msg,profilMsg:NET.profilMsg,boostMsg:NET.boostMsg,cl:NET.cl.donnees,code:NET.code,revoir:!!REVOIR,api:API_URL,
     /* 0.7.2 : demande de connexion en cours (le secret n'est jamais exposé ici) */
-    cnx:NET.cnx?{etat:NET.cnx.etat,code:NET.cnx.code,vue:!!NET.cnx.vue,lien:lienCnx(),msg:NET.cnx.msg||''}:null};},
+    cnx:NET.cnx?{etat:NET.cnx.etat,code:NET.cnx.code,vue:!!NET.cnx.vue,lien:lienCnx(),msg:NET.cnx.msg||''}:null,
+    /* 0.9 : podium du jour (classement public) et classement public gardé par période */
+    podium:NET.pub.jour&&NET.pub.jour.json?NET.pub.jour.json.top.slice(0,3):null,clPeriode:NET.cl.periode};},
+  /* 0.9 : panneau 987NES (ouvert ou non, liens configurés) et version affichée */
+  nes:function(){return{ouvert:NES_OUVERT,liens:{site:URL_SITE,x:URL_X,tg:URL_TG},public:PUBLIC,versionAffichee:versionAffichee()};},
   ecran:function(e){if(e==='titre'&&ecran==='entree')entrer();else if(e)allerEcran(e);return ecran;},
   /* centre d'un bouton de la dernière image, en pixels CSS (pour cliquer dans les essais automatiques) */
   bouton:function(id){for(var i=0;i<nBT;i++)if(BT[i].id===id){var b=BT[i];return{x:Math.round((OX+(b.x+b.w/2)*K)/DPR),y:Math.round((OY+(b.y+b.h/2)*K)/DPR)};}return null;},
