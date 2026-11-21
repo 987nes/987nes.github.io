@@ -28,6 +28,7 @@
 ## Pages
 - Home (token, team, how to buy, FAQ): https://987nes.com/
 - DZÔ, the mascot (facts, name origin, disambiguation, artworks): https://987nes.com/dzo/
+- DZÔ Survivors, the free browser game (DZÔ against hordes of recycled memecoins in Fribourg; ten-minute runs, daily leaderboard with Telegram sign-in, FR/DE/IT/ES/EN): https://987nes.com/survivors/
 - Whitepaper (EN/FR/ES, printable): https://987nes.com/whitepaper/
 - Languages: English by default; French and Spanish on the same pages (language switcher, ?lang=fr or ?lang=es).
 

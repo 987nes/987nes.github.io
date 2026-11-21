@@ -176,14 +176,15 @@ nav {
 
 .nav-links {
   display: flex;
-  gap: 36px;
+  gap: clamp(12px, 1.7vw, 36px);
+  white-space: nowrap;
   list-style: none;
 }
 
 .nav-links a {
   font-family: var(--body);
   font-size: 0.62rem;
-  letter-spacing: 3px;
+  letter-spacing: clamp(1.5px, 0.2vw, 3px);
   text-transform: uppercase;
   color: var(--gray);
   text-decoration: none;
@@ -193,6 +194,8 @@ nav {
 .nav-links a:hover { color: var(--white); }
 
 .nav-right {
+  flex-shrink: 0;
+  white-space: nowrap;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -897,6 +900,21 @@ section { position: relative; z-index: 1; }
   transition: transform 0.2s;
 }
 .buy-card:hover .buy-arr { transform: translateX(6px); }
+
+@media (max-width: 1240px) { .nav-links { display: none; } }
+
+/* ===== GAME SECTION ===== */
+#game {
+  background: var(--black);
+  border-top: 1px solid rgba(14,95,160,0.15);
+}
+.game-img { display: block; }
+.game-note {
+  margin-top: 18px;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  color: var(--gray);
+}
 
 /* ===== DZÔ SECTION ===== */
 #dzo {
@@ -2184,6 +2202,23 @@ footer {
     },
     {
       "@type": "NewsArticle",
+      "@id": "https://987nes.com/#news-dzo-survivors-2026",
+      "headline": "DZÔ Survivors Is Live",
+      "description": "DZÔ Survivors, the first 987NES game, is live: a free browser game in which DZÔ, the blue monster, survives hordes of recycled memecoins in the streets of Fribourg.",
+      "datePublished": "2026-11-21",
+      "dateModified": "2026-11-21",
+      "inLanguage": ["en", "fr", "es"],
+      "about": { "@id": "https://987nes.com/#nes" },
+      "isPartOf": { "@id": "https://987nes.com/#webpage" },
+      "author": { "@id": "https://987nes.com/#organization" },
+      "publisher": { "@id": "https://987nes.com/#organization" },
+      "image": "https://987nes.com/survivors-home-1200.jpg",
+      "mainEntityOfPage": "https://987nes.com/#news",
+      "articleBody": "DZÔ Survivors is the first game from 987NES. DZÔ, the blue monster mascot, stands alone in the streets of Fribourg against hordes of recycled memecoins: frogs, dogs, clowns. A run lasts ten minutes and the weapons are local specialities such as fondue and meringue. The game is free, runs in the browser on phone and computer, with nothing to install and nothing to buy. Players sign in with Telegram to enter the daily leaderboard. Play: https://987nes.com/survivors/",
+      "keywords": "987NES, $NES, DZÔ Survivors, DZO Survivors, browser game, free game, Fribourg, Swiss memecoin, Solana"
+    },
+    {
+      "@type": "NewsArticle",
       "@id": "https://987nes.com/#news-lp-locked-forever-2026",
       "headline": "Liquidity Locked Forever",
       "description": "On October 18, 2026, the 987NES team permanently locked 100% of the $NES/USDC liquidity on Raydium with Burn & Earn. It can never be withdrawn, by anyone.",
@@ -2396,6 +2431,7 @@ footer {
     <li><a href="#team"><span data-l="en">Team</span><span data-l="fr">Équipe</span><span data-l="es">Equipo</span></a></li>
     <li><a href="#how-to-buy"><span data-l="en">How to Buy</span><span data-l="fr">Comment Acheter</span><span data-l="es">Cómo Comprar</span></a></li>
     <li><a href="#dzo">DZÔ</a></li>
+    <li><a href="#game"><span data-l="en">Game</span><span data-l="fr">Jeu</span><span data-l="es">Juego</span></a></li>
     <li><a href="#whitepaper">White Paper</a></li>
     <li><a href="#community"><span data-l="en">Community</span><span data-l="fr">Communauté</span><span data-l="es">Comunidad</span></a></li>
   </ul>
@@ -2477,6 +2513,11 @@ footer {
     </p>
 
     <div class="hero-ctas">
+      <a href="survivors/" class="btn-primary">
+        <span data-l="en">🎮 Play DZÔ Survivors</span>
+        <span data-l="fr">🎮 Jouer à DZÔ Survivors</span>
+        <span data-l="es">🎮 Jugar a DZÔ Survivors</span>
+      </a>
       <a href="#story" class="btn-secondary">
         <span data-l="en">The Story →</span>
         <span data-l="fr">L'Histoire →</span>
@@ -2562,11 +2603,53 @@ footer {
       <div class="news-viewport">
         <div class="news-track" id="news-track">
 
-          <!-- Slide 1: Liquidity locked forever (newest) -->
+          <!-- Slide 1: DZÔ Survivors (newest) -->
           <div class="news-slide">
             <div class="news-card">
               <div class="news-meta">
                 <span class="news-badge">NEW</span>
+                <span class="news-date">
+                  <span data-l="en">Game &middot; November 2026</span>
+                  <span data-l="fr">Jeu &middot; Novembre 2026</span>
+                  <span data-l="es">Juego &middot; Noviembre 2026</span>
+                </span>
+              </div>
+
+              <h2 class="news-title">
+                <span data-l="en">DZÔ Survivors Is <span class="y">Live</span></span>
+                <span data-l="fr">DZÔ Survivors est <span class="y">en ligne</span></span>
+                <span data-l="es">DZÔ Survivors ya está <span class="y">en línea</span></span>
+              </h2>
+
+              <div class="news-body">
+                <p>
+                  <span data-l="en">Our first game is out: DZÔ alone in the streets of Fribourg against hordes of recycled memecoins. Frogs, dogs, clowns. Ten minutes to survive, armed with fondue, meringue and a few other local specialities.</span>
+                  <span data-l="fr">Notre premier jeu est sorti : DZÔ seul dans les rues de Fribourg face à des hordes de memecoins recyclés. Grenouilles, chiens, clowns. Dix minutes à tenir, armé de fondue, de meringue et de quelques autres spécialités du coin.</span>
+                  <span data-l="es">Nuestro primer juego ya está aquí: DZÔ solo en las calles de Friburgo contra hordas de memecoins reciclados. Ranas, perros, payasos. Diez minutos para sobrevivir, armado con fondue, merengue y otras especialidades locales.</span>
+                </p>
+                <p>
+                  <span data-l="en">Free, straight in the browser, on phone and computer. Nothing to install, nothing to buy. Sign in with Telegram to enter the daily leaderboard.</span>
+                  <span data-l="fr">Gratuit, directement dans le navigateur, sur téléphone et ordinateur. Rien à installer, rien à acheter. Connecte-toi avec Telegram pour entrer au classement du jour.</span>
+                  <span data-l="es">Gratis, directo en el navegador, en móvil y ordenador. Nada que instalar, nada que comprar. Conéctate con Telegram para entrar en la clasificación del día.</span>
+                </p>
+              </div>
+
+              <p class="news-tagline">
+                <span data-l="en">Free &middot; No Install &middot; Daily Leaderboard</span>
+                <span data-l="fr">Gratuit &middot; Sans installation &middot; Classement du jour</span>
+                <span data-l="es">Gratis &middot; Sin instalación &middot; Clasificación diaria</span>
+              </p>
+
+              <ul class="news-proof-list">
+                <li><a href="survivors/">987nes.com / survivors &#8594;</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Slide 2: Liquidity locked forever -->
+          <div class="news-slide">
+            <div class="news-card">
+              <div class="news-meta">
                 <span class="news-date">
                   <span data-l="en">Liquidity &middot; October 2026</span>
                   <span data-l="fr">Liquidité &middot; Octobre 2026</span>
@@ -2794,7 +2877,61 @@ footer {
         <button type="button" class="news-dot" data-slide="2" aria-label="Slide 3"></button>
         <button type="button" class="news-dot" data-slide="3" aria-label="Slide 4"></button>
         <button type="button" class="news-dot" data-slide="4" aria-label="Slide 5"></button>
+        <button type="button" class="news-dot" data-slide="5" aria-label="Slide 6"></button>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- GAME -->
+<section id="game" class="reveal">
+  <div class="container sec">
+    <div class="dzo-layout">
+      <div class="dzo-text">
+        <p class="lbl">
+          <span data-l="en">The Game</span>
+          <span data-l="fr">Le Jeu</span>
+          <span data-l="es">El Juego</span>
+        </p>
+        <h2 class="ttl">
+          DZÔ <span class="y">Survivors.</span>
+        </h2>
+
+        <div class="dzo-body">
+          <div class="bl en" lang="en">
+            <p><strong>DZÔ Survivors</strong> is the free browser game of 987NES. DZÔ stands alone in the streets of Fribourg against hordes of recycled memecoins: frogs, dogs, clowns. Hold on for ten minutes.</p>
+            <p>Your weapons come from here: fondue moitié-moitié, meringue with Gruyère double cream, and the full Bénichon menu to finish the job.</p>
+            <p>Sign in with Telegram to enter the <strong>daily leaderboard</strong>. Everybody can see the podium. Only one of you is on top of it.</p>
+          </div>
+          <div class="bl fr" lang="fr" style="display:none">
+            <p><strong>DZÔ Survivors</strong> est le jeu gratuit de 987NES, à jouer dans le navigateur. DZÔ est seul dans les rues de Fribourg face à des hordes de memecoins recyclés : grenouilles, chiens, clowns. Tiens dix minutes.</p>
+            <p>Tes armes viennent d'ici : fondue moitié-moitié, meringue à la crème double de la Gruyère, et le menu de Bénichon complet pour finir le travail.</p>
+            <p>Connecte-toi avec Telegram pour entrer au <strong>classement du jour</strong>. Tout le monde voit le podium. Un seul d'entre vous est tout en haut.</p>
+          </div>
+          <div class="bl es" lang="es" style="display:none">
+            <p><strong>DZÔ Survivors</strong> es el juego gratuito de 987NES, para jugar en el navegador. DZÔ está solo en las calles de Friburgo contra hordas de memecoins reciclados: ranas, perros, payasos. Aguanta diez minutos.</p>
+            <p>Tus armas son de aquí: fondue moitié-moitié, merengue con crema doble de Gruyère y el menú completo de la Bénichon para rematar.</p>
+            <p>Conéctate con Telegram para entrar en la <strong>clasificación del día</strong>. Todos ven el podio. Solo uno está arriba del todo.</p>
+          </div>
+        </div>
+
+        <a href="survivors/" class="btn-primary">
+          <span data-l="en">🎮 Play now</span>
+          <span data-l="fr">🎮 Jouer maintenant</span>
+          <span data-l="es">🎮 Jugar ahora</span>
+        </a>
+        <p class="game-note">
+          <span data-l="en">Free · Phone and computer · Nothing to install · 5 languages</span>
+          <span data-l="fr">Gratuit · Téléphone et ordinateur · Rien à installer · 5 langues</span>
+          <span data-l="es">Gratis · Móvil y ordenador · Nada que instalar · 5 idiomas</span>
+        </p>
+      </div>
+      <a class="dzo-img game-img" href="survivors/" aria-label="DZÔ Survivors">
+        <picture>
+          <source type="image/webp" srcset="survivors-home-800.webp 800w, survivors-home-1200.webp 1200w" sizes="(max-width: 1024px) 100vw, 610px">
+          <img src="survivors-home-1200.jpg" srcset="survivors-home-800.jpg 800w, survivors-home-1200.jpg 1200w" sizes="(max-width: 1024px) 100vw, 610px" width="1200" height="675" alt="DZÔ Survivors: DZÔ, the 987NES blue monster, fist raised in a Fribourg street at night, facing a horde of frogs, dogs, cats and clowns" loading="lazy" decoding="async">
+        </picture>
+      </a>
     </div>
   </div>
 </section>
