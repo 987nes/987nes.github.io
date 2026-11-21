@@ -2169,8 +2169,8 @@ LANGUES.fr={
 "boost.etape2":"2. Colle le lien de ton post",
 "boost.verifier":"VÉRIFIER",
 "boost.xRegle":"Post public du jour, avec #987NES et le code.",
-"boost.tgRegle":"Poste ce message dans le groupe de la communauté, puis touche Vérifier.",
-"boost.groupe":"OUVRIR LE GROUPE",
+"boost.tgRegle":"Envoie ce message dans le groupe « 987NES - Chat », puis touche Vérifier.",
+"boost.groupe":"ENVOYER AU GROUPE",
 "boost.colle":"Colle d'abord le lien de ton post.",
 "boost.verif":"Vérification…",
 "boost.okX":"Boost X obtenu : +1 essai aujourd'hui.",
@@ -2912,8 +2912,8 @@ LANGUES.de={
 "boost.etape2":"2. Füge den Link deines Posts ein",
 "boost.verifier":"PRÜFEN",
 "boost.xRegle":"Öffentlicher Post von heute, mit #987NES und dem Code.",
-"boost.tgRegle":"Poste diese Nachricht in der Community-Gruppe und tippe dann auf Prüfen.",
-"boost.groupe":"GRUPPE ÖFFNEN",
+"boost.tgRegle":"Sende diese Nachricht in die Gruppe «987NES - Chat» und tippe dann auf Prüfen.",
+"boost.groupe":"AN GRUPPE SENDEN",
 "boost.colle":"Füge zuerst den Link deines Posts ein.",
 "boost.verif":"Prüfung…",
 "boost.okX":"X-Boost erhalten: +1 Versuch heute.",
@@ -3655,8 +3655,8 @@ LANGUES.it={
 "boost.etape2":"2. Incolla il link del tuo post",
 "boost.verifier":"VERIFICA",
 "boost.xRegle":"Post pubblico di oggi, con #987NES e il codice.",
-"boost.tgRegle":"Pubblica questo messaggio nel gruppo della community, poi tocca Verifica.",
-"boost.groupe":"APRI IL GRUPPO",
+"boost.tgRegle":"Invia questo messaggio nel gruppo «987NES - Chat», poi tocca Verifica.",
+"boost.groupe":"INVIA AL GRUPPO",
 "boost.colle":"Incolla prima il link del tuo post.",
 "boost.verif":"Verifica…",
 "boost.okX":"Boost X ottenuto: +1 tentativo oggi.",
@@ -4398,8 +4398,8 @@ LANGUES.es={
 "boost.etape2":"2. Pega el enlace de tu post",
 "boost.verifier":"VERIFICAR",
 "boost.xRegle":"Post público de hoy, con #987NES y el código.",
-"boost.tgRegle":"Publica este mensaje en el grupo de la comunidad y luego toca Verificar.",
-"boost.groupe":"ABRIR EL GRUPO",
+"boost.tgRegle":"Envía este mensaje al grupo «987NES - Chat» y luego toca Verificar.",
+"boost.groupe":"ENVIAR AL GRUPO",
 "boost.colle":"Pega primero el enlace de tu post.",
 "boost.verif":"Verificando…",
 "boost.okX":"Boost de X conseguido: +1 intento hoy.",
@@ -5141,8 +5141,8 @@ LANGUES.en={
 "boost.etape2":"2. Paste the link to your post",
 "boost.verifier":"CHECK",
 "boost.xRegle":"Public post from today, with #987NES and the code.",
-"boost.tgRegle":"Post this message in the community group, then tap Check.",
-"boost.groupe":"OPEN THE GROUP",
+"boost.tgRegle":"Send this message to the “987NES - Chat” group, then tap Check.",
+"boost.groupe":"SEND TO GROUP",
 "boost.colle":"Paste your post's link first.",
 "boost.verif":"Checking…",
 "boost.okX":"X boost earned: +1 try today.",
@@ -5330,7 +5330,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.9.2-proto';
+var VERSION='0.9.3-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -9972,7 +9972,9 @@ function rendreBoosts(){
       para(T('boost.tgRegle'),24,y+38,312,11,C.creme,'left',2,14,false);
       cx.fillStyle='rgba(13,9,20,0.7)';cx.beginPath();rrect(cx,24,y+62,228,30,8);cx.fill();ttFit(msgTg,32,y+77,12.5,212,C.or,'left',1,false);
       bouton('copierTg',258,y+62,78,30,T('boost.copier'),2,function(){copier(msgTg);},null,11);
-      if(TG_GROUPE_URL)bouton('groupe',24,y+104,150,40,T('boost.groupe'),3,function(){ouvrirLien(TG_GROUPE_URL+'?text='+encodeURIComponent(msgTg));},null,13);
+      if(TG_GROUPE_URL)bouton('groupe',24,y+104,150,40,T('boost.groupe'),3,function(){var sc=scorePartage(),l=lienCarte(carteDuScore(sc,false,false)),t=(sc>0?T('x.boostScore',fmtNb(sc)):T('x.boostSans'))+' '+code+' #987NES';
+        /* lien de partage Telegram : choix de la conversation, message déjà écrit (t.me/<groupe>?text= n'est pas prérempli sur Android) */
+        ouvrirLien('https://t.me/share/url?url='+encodeURIComponent(l||'https://987nes.com/survivors/')+'&text='+encodeURIComponent(t));},null,13);
       bouton('verifTg',TG_GROUPE_URL?186:24,y+104,TG_GROUPE_URL?150:312,40,T('boost.verifier'),0,verifierTg,null,14);
       y+=168;}
   }
