@@ -5,6 +5,20 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#0D0914">
 <meta name="robots" content="noindex,nofollow">
+<meta name="description" content="DZÔ Survivors — the 987NES arcade game. Survive the memecoin hordes in the old town of Fribourg. 987NES, the Swiss memecoin on Solana.">
+<meta property="og:title" content="DZÔ Survivors">
+<meta property="og:description" content="DZÔ Survivors — the 987NES arcade game. Survive the memecoin hordes in the old town of Fribourg. 987NES, the Swiss memecoin on Solana.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://987nes.com/survivors/">
+<meta property="og:image" content="https://987nes.com/survivors/partage/img/ambiance-1.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="675">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="DZÔ Survivors">
+<meta name="twitter:description" content="DZÔ Survivors — the 987NES arcade game. Survive the memecoin hordes in the old town of Fribourg. 987NES, the Swiss memecoin on Solana.">
+<meta name="twitter:image" content="https://987nes.com/survivors/partage/img/ambiance-1.png">
+<link rel="icon" type="image/png" href="https://987nes.com/favicon.png">
+<link rel="apple-touch-icon" href="https://987nes.com/favicon.png">
 <script data-role="config">
 /* ===== CONFIGURATION DE MISE EN SERVICE (à remplir par le propriétaire ; rien d'autre à toucher) =====
    API_URL       adresse du serveur de scores, sans / final, ex. 'https://scores.987nes.com'.
@@ -1725,6 +1739,9 @@ LANGUES.fr={
 "pause.essaiCompte":"L'essai est compté.",
 "pause.rienCompte":"Entraînement : rien n'est compté.",
 "pause.resume":"{0} / 10:00  ·  {1} pts  ·  niveau {2}",
+"pause.budget":"Partie classée : encore {0} de pause",
+"pause.budgetFini":"Pause épuisée : cette partie ne comptera pas",
+"pause.retour":"Retour : encore {0} de pause pour cette partie classée.",
 "pause.langue":"LANGUE : {0}",
 "oui":"OUI",
 "non":"NON",
@@ -2226,7 +2243,7 @@ LANGUES.fr={
 "err.partie_incoherente":"Le serveur n'a pas retrouvé la même partie.",
 "err.partie_copiee":"Cette partie ressemble trop à une autre.",
 "err.partie_trop_rapide":"Partie envoyée plus vite qu'elle n'a pu être jouée.",
-"err.partie_trop_tardive":"Partie envoyée trop tard.",
+"err.partie_trop_tardive":"Pause trop longue : cette partie ne compte pas au classement. L'essai est utilisé.",
 "err.partie_inconnue":"Partie introuvable.",
 "err.partie_non_relancable":"Cette partie ne peut pas être relancée.",
 "err.rejeu_delai":"Le serveur a mis trop de temps à rejouer ta partie. Elle est gardée.",
@@ -2411,6 +2428,9 @@ LANGUES.de={
 "pause.essaiCompte":"Der Versuch zählt.",
 "pause.rienCompte":"Training: nichts zählt.",
 "pause.resume":"{0} / 10:00  ·  {1} Pkt.  ·  Stufe {2}",
+"pause.budget":"Gewertete Runde: noch {0} Pause",
+"pause.budgetFini":"Pause aufgebraucht: Diese Runde wird nicht zählen",
+"pause.retour":"Willkommen zurück: noch {0} Pause für diese gewertete Runde.",
 "pause.langue":"SPRACHE: {0}",
 "oui":"JA",
 "non":"NEIN",
@@ -2910,7 +2930,7 @@ LANGUES.de={
 "err.partie_incoherente":"Der Server fand nicht dieselbe Runde.",
 "err.partie_copiee":"Diese Runde gleicht zu sehr einer anderen.",
 "err.partie_trop_rapide":"Runde schneller gesendet als spielbar.",
-"err.partie_trop_tardive":"Runde zu spät gesendet.",
+"err.partie_trop_tardive":"Pause zu lang: Diese Runde zählt nicht für die Rangliste. Der Versuch ist verbraucht.",
 "err.partie_inconnue":"Runde nicht gefunden.",
 "err.partie_non_relancable":"Diese Runde kann nicht neu gestartet werden.",
 "err.rejeu_delai":"Der Server brauchte zu lange zum Nachspielen. Die Runde ist gespeichert.",
@@ -3095,6 +3115,9 @@ LANGUES.it={
 "pause.essaiCompte":"Il tentativo viene contato.",
 "pause.rienCompte":"Allenamento: nulla viene contato.",
 "pause.resume":"{0} / 10:00  ·  {1} pt  ·  livello {2}",
+"pause.budget":"Partita classificata: ancora {0} di pausa",
+"pause.budgetFini":"Pausa esaurita: questa partita non conterà",
+"pause.retour":"Bentornato: ancora {0} di pausa per questa partita classificata.",
 "pause.langue":"LINGUA : {0}",
 "oui":"SÌ",
 "non":"NO",
@@ -3594,7 +3617,7 @@ LANGUES.it={
 "err.partie_incoherente":"Il server non ha ritrovato la stessa partita.",
 "err.partie_copiee":"Questa partita somiglia troppo a un'altra.",
 "err.partie_trop_rapide":"Partita inviata più in fretta di quanto potesse essere giocata.",
-"err.partie_trop_tardive":"Partita inviata troppo tardi.",
+"err.partie_trop_tardive":"Pausa troppo lunga: questa partita non conta per la classifica. Il tentativo è usato.",
 "err.partie_inconnue":"Partita non trovata.",
 "err.partie_non_relancable":"Questa partita non può essere rilanciata.",
 "err.rejeu_delai":"Il server ha impiegato troppo a rigiocare la partita. È conservata.",
@@ -3779,6 +3802,9 @@ LANGUES.es={
 "pause.essaiCompte":"El intento cuenta.",
 "pause.rienCompte":"Entrenamiento: nada cuenta.",
 "pause.resume":"{0} / 10:00  ·  {1} pts  ·  nivel {2}",
+"pause.budget":"Partida clasificatoria: quedan {0} de pausa",
+"pause.budgetFini":"Pausa agotada: esta partida no contará",
+"pause.retour":"De vuelta: quedan {0} de pausa en esta partida clasificatoria.",
 "pause.langue":"IDIOMA: {0}",
 "oui":"SÍ",
 "non":"NO",
@@ -4278,7 +4304,7 @@ LANGUES.es={
 "err.partie_incoherente":"El servidor no encontró la misma partida.",
 "err.partie_copiee":"Esta partida se parece demasiado a otra.",
 "err.partie_trop_rapide":"Partida enviada más rápido de lo que pudo jugarse.",
-"err.partie_trop_tardive":"Partida enviada demasiado tarde.",
+"err.partie_trop_tardive":"Pausa demasiado larga: esta partida no cuenta para la clasificación. El intento está usado.",
 "err.partie_inconnue":"Partida no encontrada.",
 "err.partie_non_relancable":"Esta partida no se puede relanzar.",
 "err.rejeu_delai":"El servidor tardó demasiado en repetir tu partida. Se conserva.",
@@ -4463,6 +4489,9 @@ LANGUES.en={
 "pause.essaiCompte":"This try counts.",
 "pause.rienCompte":"Training: nothing counts.",
 "pause.resume":"{0} / 10:00  ·  {1} pts  ·  level {2}",
+"pause.budget":"Ranked run: {0} of pause left",
+"pause.budgetFini":"Pause used up: this run won't count",
+"pause.retour":"Welcome back: {0} of pause left on this ranked run.",
 "pause.langue":"LANGUAGE: {0}",
 "oui":"YES",
 "non":"NO",
@@ -4962,7 +4991,7 @@ LANGUES.en={
 "err.partie_incoherente":"The server did not find the same run.",
 "err.partie_copiee":"This run looks too much like another.",
 "err.partie_trop_rapide":"Run sent faster than it could be played.",
-"err.partie_trop_tardive":"Run sent too late.",
+"err.partie_trop_tardive":"Pause too long: this run does not count for the ranking. The attempt is used.",
 "err.partie_inconnue":"Run not found.",
 "err.partie_non_relancable":"This run cannot be rerun.",
 "err.rejeu_delai":"The server took too long to replay your run. It is kept.",
@@ -5014,9 +5043,9 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.7.2-proto';
+var VERSION='0.7.3-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
-var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1};
+var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
 var JOUR_1='2026-11-23';
 var EV=SIM.EV,ENN=SIM.ENN,ARMES=SIM.ARMES,PASSIFS=SIM.PASSIFS,TRESORS=SIM.TRESORS,COLLECTIONS=SIM.COLLECTIONS;
@@ -7923,9 +7952,11 @@ function installerEntrees(){
     else if(k==='ArrowLeft'||k==='q'||k==='Q'||k==='a'||k==='A')touches.g=false;
     else if(k==='ArrowRight'||k==='d'||k==='D')touches.d=false;
   });
-  function perteFocus(){touches.h=touches.b=touches.g=touches.d=false;lacherDoigts();presse=null;pressePtr=-1;if(!BOT)mettreEnPause();}
+  function perteFocus(){touches.h=touches.b=touches.g=touches.d=false;lacherDoigts();presse=null;pressePtr=-1;if(!absenceT0)absenceT0=Date.now();if(!BOT)mettreEnPause();}
+  window.addEventListener('focus',retourAbsence);
   window.addEventListener('blur',perteFocus);
   document.addEventListener('visibilitychange',function(){if(document.hidden){perteFocus();hymneArreterTout();}else{
+    retourAbsence();
     /* 0.7.2 : retour de Telegram : la confirmation est sans doute faite, on interroge tout de suite */
     if(NET.cnx&&NET.cnx.etat==='attente')cnxPlanifier(0);
     if(connecte()&&Date.now()-NET.majT>10000)rafraichir();}});
@@ -7997,7 +8028,12 @@ function finDePartie(){
   ecran='fin';sous='';tEcran=0;AU.joue=false;lacherDoigts();presse=null;pressePtr=-1;finTampon=0;apercuCarte=null;
   if(REVOIR){recordAvant=0;nouveauRecord=false;titreFin=S.victoire?(S.bossTue?'fin.titre.victoire':'fin.titre.cloture'):'revoir.fin';tueurFin=S.victoire?-1:S.tueur;tueurVFin=S.tueurV||0;regretFin='';return;}
   /* 0.7 : partie classée en ligne : envoi du journal (gardé en stockage local jusqu'à la réponse du serveur) */
-  if(classee&&partieSrv)finServeur(partieSrv);
+  if(classee&&partieSrv){
+    var prm=pauseRestanteMs();
+    /* 0.7.3 : budget de pause dépassé : la partie n'est plus envoyée comme classée (l'essai est déjà consommé) */
+    if(prm!==null&&prm<=0)NET.fin={k:partieSrv.jeton.slice(0,24),statut:'refusee',erreur:'partie_trop_tardive',score:SIM.score(S)};
+    else finServeur(partieSrv);
+  }
   /* record du jour pour une partie classée, record personnel sinon */
   recordAvant=classee?SAUV.record:SAUV.meilleur;nouveauRecord=sc>recordAvant&&sc>0;
   if(classee){
@@ -8706,6 +8742,9 @@ function rendrePause(){
   ttFit(classee?T('essaiDe',libelleJour(),essaiNo,essaisMax()):T(echauffement?'echauffement':'entrainement'),180,y+18,11,340,'rgba(246,241,231,0.7)','center',2,true);
   ttFit(T('decretDuJour.ligne',nomDecret(S.decret)),180,y+38,12,340,C.or,'center',0,true);
   ttFit(ligneDecret(S.decret),180,y+55,11,340,C.creme,'center',2,true);
+  /* 0.7.3 : budget de pause de la partie classée en ligne */
+  var prp=pauseRestanteMs();
+  if(prp!==null)ttFit(prp<=0?T('pause.budgetFini'):T('pause.budget',fmtPause(prp)),180,y+76,13,340,prp<120000?C.danger:C.or,'center',1,true);
 }
 
 /* ---------- écran titre ---------- */
@@ -9201,13 +9240,35 @@ function texteCompte(){
   return loc==='00:00'?T(e?'titre.compteEssaisMinuit':'titre.compteMinuit',d):T(e?'titre.compteEssais':'titre.compte',d,loc);
 }
 
+/* ---- 0.7.3 : budget de pause d'une partie classée en ligne ----
+   Le serveur refuse une partie rendue plus de (durée de jeu + regles.pauseMaxS) après son /debut (partie_trop_tardive).
+   Pause consommée = temps réel écoulé depuis le début - temps de jeu simulé (S.n / 60) ; restant = pauseMaxS - consommée. */
+var absenceT0=0;
+function pauseMaxMs(){var r=partieSrv&&typeof partieSrv.pauseMaxS==='number'?partieSrv.pauseMaxS:(NET.regles&&typeof NET.regles.pauseMaxS==='number'?NET.regles.pauseMaxS:1200);return Math.max(0,r)*1000;}
+function pauseRestanteMs(){
+  if(!classee||!partieSrv||BOT||REVOIR||!S)return null;
+  var m=Date.now(),ecoule=m-partieSrv.t0;
+  if(typeof partieSrv.debut==='number')ecoule=Math.max(ecoule,m+NET.decalage-partieSrv.debut);
+  return pauseMaxMs()-(ecoule-S.n/60*1000);
+}
+function fmtPause(ms){var s=Math.max(0,Math.ceil(ms/1000)),m=Math.floor(s/60);s%=60;return(m<10?'0':'')+m+':'+(s<10?'0':'')+s;}
+function retourAbsence(){
+  var d=absenceT0?Date.now()-absenceT0:0;absenceT0=0;
+  if(d<5000||ecran!=='jeu')return;
+  var r=pauseRestanteMs();if(r===null)return;
+  if(r<=0)afficherMsg(T('pause.budgetFini'),C.danger);
+  else afficherMsg(T('pause.retour',fmtPause(r)),r<120000?C.danger:C.or);
+}
+/* texte d'un refus de fin de partie : « pause trop longue » se suffit à lui-même */
+function texteRefus(e){var c=String(e&&typeof e==='object'?e.erreur:(e||''));return c==='partie_trop_tardive'?texteErreur(e):T('net.refusee')+' '+texteErreur(e);}
+
 /* ---- partie classée : début ---- */
 function debutServeur(suite){
   if(NET.debutEnCours)return;NET.debutEnCours=true;
   apiAppel('POST','/api/partie/debut',{version:VERSION}).then(function(r){
     NET.debutEnCours=false;var e=r.json||{};
     if(r.statut===200&&typeof e.graine==='number'&&typeof e.jeton==='string'){
-      NET.partie={jeton:e.jeton,graine:e.graine>>>0,essai:e.essai,essaisMax:e.essaisMax,jour:e.jour,debut:e.debut,joueur:NET.joueur.id};
+      NET.partie={jeton:e.jeton,graine:e.graine>>>0,essai:e.essai,essaisMax:e.essaisMax,jour:e.jour,debut:e.debut,joueur:NET.joueur.id,pauseMaxS:typeof e.pauseMaxS==='number'?e.pauseMaxS:undefined,t0:Date.now()};
       if(NET.jour){NET.jour.essaisUtilises=e.essai;NET.jour.essaisMax=e.essaisMax;}
       suite();return;}
     if(e.erreur==='essais_epuises'&&NET.jour){NET.jour.essaisUtilises=e.essaisUtilises;NET.jour.essaisMax=e.essaisMax;}
@@ -9260,7 +9321,7 @@ function resultatFin(it,r){
   if(r.statut===0||r.statut===429||(r.statut>=500&&c!=='rejeu_delai'&&c!=='rejeu_echec')){majFin(it,{statut:'reseau',erreur:c});reessayer(it);return;}
   /* réponse définitive : refus, ou incident du serveur (la partie y est conservée, l'organisateur peut la relancer) */
   retirerAttente(it.k);majFin(it,{statut:r.statut>=500?'incident':'refusee',erreur:c});
-  if(!courant)afficherMsg(T('net.refusee')+' '+texteErreur(e),C.danger);
+  if(!courant)afficherMsg(texteRefus(e),C.danger);
   rafraichir();
 }
 function sonder(it,id,n){
@@ -9281,7 +9342,7 @@ function ligneServeur(){
   if(!partieSrv)return[T('net.nonClasse'),'rgba(246,241,231,0.6)'];
   var f=NET.fin;if(!f)return null;
   if(f.statut==='validee')return[f.rangJour?T('net.valideRang',f.rangJour,fmtNb(f.scoreJour||f.score)):T('net.valide'),C.vert];
-  if(f.statut==='refusee')return[T('net.refusee')+' '+texteErreur(f.erreur),C.danger];
+  if(f.statut==='refusee')return[texteRefus(f.erreur),C.danger];
   if(f.statut==='incident')return[texteErreur(f.erreur),C.or];
   if(f.statut==='reseau')return[T('net.enAttente'),C.or];
   return[T('net.verif'),C.cyan];
