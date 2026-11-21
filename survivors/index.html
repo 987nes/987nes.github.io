@@ -73,7 +73,10 @@ var DUREE=36000,T_BOSSN=21600,T_LIQ=28800;
 var EV_HIT=1,EV_MORT=2,EV_GEMME=3,EV_JTOUCHE=4,EV_NIVEAU=5,EV_COFFRE=6,EV_ONDE=7,EV_TIR=8,EV_BANDEAU=9,EV_PAROLE=10,EV_ELITE=11,EV_BOSSMORT=12,EV_RAMASSE=13,EV_PIEU=14,EV_TAPIS=15,EV_FIN=16,EV_CHAPEAU=17,EV_ASPI=19,EV_TIRENN=20,EV_BOSS=22,EV_ECLAT=23,
     EV_TRESOR=24,EV_PRISE=25,EV_TRESFIN=26,EV_COMBO=27,EV_BOMBE=28,EV_ARME=29,EV_LANCE=30,
     EV_FUNI=31,EV_FONT=32,EV_CASSE=33,EV_FUNICOUP=34,EV_ECRASE=35,
-    EV_COUP=36,EV_BOUCLIER=37,EV_PLAT=38,EV_REPAS=39;
+    EV_COUP=36,EV_BOUCLIER=37,EV_PLAT=38,EV_REPAS=39,
+    EV_PET=40;   /* 0.10 : a = 0 nuage lâché (x, y, rayon, évolution) ; a = 1 Monsieur Prout éclate de jalousie (x, y) */
+/* 0.10 : nuages du pet qui pue ; un ennemi qui a fui reste insensible à la peur pendant PEUR_REPOS pas ; palet de la crosse */
+var MAXNU=10,PEUR_REPOS=45,PALET_V=7,PALET_R=150;
 var M_CARTE=1,M_VOTE=2;
 var R_FONDUE=0,R_AIRDROP=1,R_BOUGIE=2,R_COFFRE=3;
 var B_MEUTE=0,B_BULL=1,B_DEV=2,B_LIQ=3,B_PAUSE=4,B_ELITE=5,B_CLOTURE=6;
@@ -147,7 +150,16 @@ var ARMES=[
  /* 0.6 : le jambon à l'os : un coup en éventail devant DZÔ, vers l'ennemi le plus proche (corps à corps).
     arc : cosinus du demi-angle de l'éventail (0,5 : 120° ; −1 : tout autour, pour l'évolution) ; lent : la fumée de la borne. */
  {cle:'jambon',fam:0,passif:'moutarde',maj:aJambon,cdInit:10,conseil:8,
-  deg:[14,18,18,24,24,40],r:[64,64,74,74,84,104],cd:[1,1,1,0.85,0.75,0.7],arc:[0.5,0.5,0.35,0.35,0.2,-1],pousse:[14,14,14,20,20,26],lent:[0,0,0,0,0,0.5]}
+  deg:[14,18,18,24,24,40],r:[64,64,74,74,84,104],cd:[1,1,1,0.85,0.75,0.7],arc:[0.5,0.5,0.35,0.35,0.2,-1],pousse:[14,14,14,20,20,26],lent:[0,0,0,0,0,0.5]},
+ /* 0.10 : le pet qui pue : DZÔ lâche derrière lui un gros nuage vert qui reste au sol. Le nuage empoisonne (dégâts toutes
+    les 0,5 s) et fait fuir les ennemis ordinaires (peur : secondes de fuite ; élites et boss ne fuient pas). Monsieur Prout
+    ne supporte pas la concurrence : il éclate dès qu'il entre dans le nuage. Évolution (Le Föhn) : le nuage géant roule devant DZÔ. */
+ {cle:'pet',fam:2,passif:'creme',maj:aPet,cdInit:20,conseil:9,
+  deg:[9,11,11,13,15,16],r:[52,52,62,62,72,80],cd:[2.8,2.6,2.6,2.3,2,1.8],duree:[3,3,3.5,3.5,4,5],peur:[0.6,0.6,0.7,0.7,0.9,0.7]},
+ /* 0.10 : la crosse du Dragon : un palet part vers l'ennemi le plus proche et ricoche d'ennemi en ennemi comme sur la glace
+    (rebonds : ennemis touchés après le premier). Évolution (La Charge des Dragons) : palets en feu, chaque impact crache une flamme. */
+ {cle:'crosse',fam:0,passif:'sac',maj:aCrosse,cdInit:12,conseil:10,
+  deg:[10,12,12,13,14,20],nb:[1,1,2,2,2,3],rebonds:[2,2,2,3,3,4],cd:[1.5,1.5,1.5,1.3,1.2,1],r:[9,9,9,9,10,11]}
 ];
 
 /* ---- BONUS (passifs) : 3 niveaux ; effets par niveau, additionnés dans recalc().
@@ -285,8 +297,8 @@ var REGL={
 var S,E,P,PE,G,F,PI,O,R,BO;
 function lier(st){S=st;E=st.E;P=st.P;PE=st.PE;G=st.G;F=st.F;PI=st.PI;O=st.O;R=st.R;BO=st.B;M=st.M;}
 
-function objE(){return{v:0,t:0,x:0,y:0,kx:0,ky:0,pv:0,pvMax:0,r:0,taille:0,vit:0,deg:0,xp:0,uid:0,mort:0,et:0,tm:0,dx:0,dy:0,lent:0,lentF:0,etourdi:0,buff:0,cdOrb:0,cdPud:0,cdFu:0,flash:0,nais:0,chapeau:0,chapMax:0,face:1,cdTir:0,c:-1,ci:0,ox:0,oy:0,rx:0,ry:0};}
-function objP(){return{type:0,x:0,y:0,vx:0,vy:0,vie:0,deg:0,r:0,perce:0,phase:0,dist:0,portee:0,outil:0,hit:new Int32Array(12),hitN:0,tx:new Float32Array(8),ty:new Float32Array(8),tn:0,ti:0,nais:0,ox:0,oy:0,rx:0,ry:0};}
+function objE(){return{v:0,t:0,x:0,y:0,kx:0,ky:0,pv:0,pvMax:0,r:0,taille:0,vit:0,deg:0,xp:0,uid:0,mort:0,et:0,tm:0,dx:0,dy:0,lent:0,lentF:0,etourdi:0,buff:0,cdOrb:0,cdPud:0,cdFu:0,flash:0,nais:0,chapeau:0,chapMax:0,face:1,cdTir:0,c:-1,ci:0,ox:0,oy:0,rx:0,ry:0,peur:0,pdx:0,pdy:0,cdPet:0};}
+function objP(){return{type:0,x:0,y:0,vx:0,vy:0,vie:0,deg:0,r:0,perce:0,phase:0,dist:0,portee:0,outil:0,hit:new Int32Array(12),hitN:0,tx:new Float32Array(8),ty:new Float32Array(8),tn:0,ti:0,nais:0,ox:0,oy:0,rx:0,ry:0,cib:0,cibI:-1};}
 function tableau(n,f){var a=[];for(var i=0;i<n;i++)a.push(f());return a;}
 
 function creer(graine,tab){
@@ -298,7 +310,7 @@ function creer(graine,tab){
   s.px=0;s.py=0;s.opx=0;s.opy=0;s.dx=1;s.dy=0;s.face=1;s.marche=0;s.jkx=0;s.jky=0;s.dir=0;
   s.pv=100;s.pvMax=100;s.inv=0;s.vit=120;s.regen=0;s.rayonRam=32;
   s.niveau=1;s.xp=0;s.xpSuiv=XPT[1];s.attente=0;s.relances=1;
-  s.armes=tableau(4,function(){return{id:-1,niv:0,evo:0,cd:0,t:0,actif:0,deg:0,cdMax:0,r:0,nb:0,perce:0,portee:0,pousse:0,duree:0,lent:0,repos:0,arc:0};});s.nA=0;
+  s.armes=tableau(4,function(){return{id:-1,niv:0,evo:0,cd:0,t:0,actif:0,deg:0,cdMax:0,r:0,nb:0,perce:0,portee:0,pousse:0,duree:0,lent:0,repos:0,arc:0,peur:0,rebonds:0};});s.nA=0;
   s.passifs=tableau(4,function(){return{id:-1,niv:0};});s.nPa=0;
   s.cartes=tableau(3,function(){return{genre:0,id:0,niv:0};});
   s.voteSujet=-1;s.voteFait=new Int8Array(VOTES.length);s.nVotes=0;
@@ -307,6 +319,7 @@ function creer(graine,tab){
   s.PE=tableau(MAXPE,function(){return{x:0,y:0,vx:0,vy:0,vie:0,rot:0,ox:0,oy:0,rx:0,ry:0};});s.nPE=0;
   s.G=tableau(MAXG,function(){return{x:0,y:0,val:0,aim:0,v:0,nais:0,ox:0,oy:0,rx:0,ry:0};});s.nG=0;
   s.F=tableau(MAXF,function(){return{x:0,y:0,r:0,vie:0,vieMax:0,deg:0,lent:0,graine:0};});s.nF=0;
+  s.NU=tableau(MAXNU,function(){return{x:0,y:0,r:0,vie:0,vieMax:0,deg:0,peur:0,vx:0,vy:0,evo:0};});s.nNU=0;
   s.PI=tableau(MAXPI,function(){return{x:0,y:0,r:0,t:0,deg:0,col:0};});s.nPI=0;
   s.O=tableau(MAXO,function(){return{x:0,y:0,r:0,degE:0,degJ:0,pousse:0};});s.nO=0;
   s.R=tableau(MAXR,function(){return{type:0,x:0,y:0,nais:0};});s.nR=0;
@@ -370,6 +383,7 @@ function recalc(){
     a.cdMax=d.cd?Math.max(6,Math.round(d.cd[L]*HZ*mc)):0;
     a.nb=d.nb?d.nb[L]:1;if(D.armeNb&&D.armeNb[d.cle])a.nb+=D.armeNb[d.cle];a.perce=d.perce?d.perce[L]:0;a.portee=d.portee?d.portee[L]:0;a.pousse=d.pousse?d.pousse[L]:0;
     a.duree=d.duree?Math.round(d.duree[L]*HZ):0;a.lent=d.lent?d.lent[L]:0;a.arc=d.arc?d.arc[L]:0;a.repos=d.repos?Math.round(d.repos[L]*HZ*mc):0;
+    a.peur=d.peur?Math.round(d.peur[L]*HZ):0;a.rebonds=d.rebonds?d.rebonds[L]:0;
     a.duo=fam[d.fam]>=2?1:0;
   }
 }
@@ -417,8 +431,8 @@ var K_BLOC=I_OBJ.bloc,K_MAISON=I_OBJ.maison,K_CATH=I_OBJ.cathedrale,K_NEF=I_OBJ.
     K_SAPIN=I_OBJ.sapin,K_FEUIL=I_OBJ.feuillu,K_TILLEUL=I_OBJ.tilleul,K_VACHE=I_OBJ.vache,K_FOIN=I_OBJ.foin,K_TONNEAU=I_OBJ.tonneau,K_CAISSE=I_OBJ.caisse,
     K_STH=I_OBJ.gareHaut,K_STB=I_OBJ.gareBas,K_FROM=I_OBJ.fromagerie,K_MOLESON=I_OBJ.moleson,K_PANNEAU=I_OBJ.panneau;
 /* petits objets sans collision (rendu seulement) */
-var DECOS=[{cle:'lampe'},{cle:'banc'},{cle:'fleurs'},{cle:'toitPont'}];
-var D_LAMPE=0,D_BANC=1,D_FLEURS=2,D_TOITPONT=3;
+var DECOS=[{cle:'lampe'},{cle:'banc'},{cle:'fleurs'},{cle:'toitPont'},{cle:'banniere'}];
+var D_LAMPE=0,D_BANC=1,D_FLEURS=2,D_TOITPONT=3,D_BANNIERE=4; /* 0.10 : la bannière des Dragons (hockey), près du départ */
 /* ---- TABLEAUX (registre) : un tableau = une carte. generer(graine) rend un monde au format commun (voir nouveauMonde) ;
    riviere / funi : éléments qui jouent ; panneaux : clés des textes des panneaux (panneau.<cle> dans le dictionnaire),
    dans l'ordre de la valeur ov de l'objet « panneau ». Le rendu (palette PAL, sprites de construireDecor, tuiles du sol) est
@@ -536,6 +550,8 @@ function genFribourg(graine){
   ajout(1,K_CAISSE,su-118,sv+56,14,14,0);ajout(1,K_TONNEAU,su+120,sv-60,14,14,1);ajout(1,K_CAISSE,su+124,sv+70,14,14,2);
   deco(D_LAMPE,cu-60,tf+60,0);deco(D_LAMPE,cu+60,tf+60,0);deco(D_LAMPE,plU1-20,plV0+30,0);deco(D_LAMPE,plU1-20,plV1-30,0);
   deco(D_BANC,cu+236,plV0+52,0);deco(D_BANC,su-30,sv+120,0);deco(D_FLEURS,cu-90,tf+4,1);deco(D_FLEURS,cu+90,tf+4,2);
+  /* 0.10 : la bannière des Dragons sur le parvis, à une place fixe (aucun tirage : le monde de la graine ne change pas) */
+  deco(D_BANNIERE,su-84,sv-58,0);
   /* ---- funiculaire : deux gares ---- */
   ajout(0,K_STH,m.fu,m.fv0-44,40,40,0,70);
   ajout(0,K_STB,m.fu,m.fv1+44,40,40,0,70);
@@ -777,7 +793,7 @@ function naitre(t,x,y){
   if(M&&!ENN[t].vole){degager(x,y,ENN[t].taille*0.35);x=CX;y=CY;}
   var e=E[S.nE++],d=ENN[t],m=(d.role!==0)?1:S.pvMult*REGL.pv*(S.dec.pvEnn||1);
   e.t=t;e.v=0;e.x=x;e.y=y;e.ox=x;e.oy=y;e.kx=0;e.ky=0;e.pv=e.pvMax=Math.max(1,Math.round(d.pv*m));e.r=d.taille*0.35;e.taille=d.taille;e.vit=d.vit;e.deg=d.deg;e.xp=(S.dec.xpEnn&&S.dec.xpEnn[d.cle])?d.xp*S.dec.xpEnn[d.cle]:d.xp;
-  e.uid=S.uid++;e.mort=0;e.et=0;e.tm=0;e.dx=0;e.dy=0;e.lent=0;e.lentF=0;e.etourdi=0;e.buff=0;e.cdOrb=0;e.cdPud=0;e.cdFu=0;e.flash=0;e.nais=S.n;e.chapeau=0;e.chapMax=0;e.face=x<S.px?1:-1;e.cdTir=60+(e.uid%7)*12;e.c=-1;e.ci=0;e.v=NVAR[t]>1?melange(e.uid,t+1)%NVAR[t]:0;
+  e.uid=S.uid++;e.mort=0;e.et=0;e.tm=0;e.dx=0;e.dy=0;e.lent=0;e.lentF=0;e.etourdi=0;e.buff=0;e.cdOrb=0;e.cdPud=0;e.cdFu=0;e.flash=0;e.nais=S.n;e.chapeau=0;e.chapMax=0;e.face=x<S.px?1:-1;e.cdTir=60+(e.uid%7)*12;e.c=-1;e.ci=0;e.peur=0;e.pdx=0;e.pdy=0;e.cdPet=0;e.v=NVAR[t]>1?melange(e.uid,t+1)%NVAR[t]:0;
   return e;
 }
 function elite(){
@@ -929,7 +945,7 @@ function plusProches(ray,nmax){
 }
 function tirer(type,x,y,dx,dy,vit,vie,a){
   if(S.nP>=MAXP)return null;
-  var p=P[S.nP++];p.type=type;p.x=x;p.y=y;p.vx=dx*vit/HZ;p.vy=dy*vit/HZ;p.vie=vie;p.deg=a.deg;p.r=a.r;p.perce=a.perce;p.phase=0;p.dist=0;p.portee=a.portee;p.outil=0;p.hitN=0;p.tn=0;p.ti=0;p.nais=S.n;p.ox=x;p.oy=y;
+  var p=P[S.nP++];p.type=type;p.x=x;p.y=y;p.vx=dx*vit/HZ;p.vy=dy*vit/HZ;p.vie=vie;p.deg=a.deg;p.r=a.r;p.perce=a.perce;p.phase=0;p.dist=0;p.portee=a.portee;p.outil=0;p.hitN=0;p.tn=0;p.ti=0;p.nais=S.n;p.ox=x;p.oy=y;p.cib=0;p.cibI=-1;
   return p;
 }
 var CAND=new Int16Array(MAXE);
@@ -1051,6 +1067,52 @@ function aJambon(a){
     blesser(Q[q],a.deg,fx*a.pousse*0.2,fy*a.pousse*0.2,a.evo?1:0);}
   ev(EV_COUP,S.px,y0,a.r,fx,fy);ev(EV_TIR,7);
 }
+/* 0.10 : le pet qui pue. Toutes les cdMax pas, un nuage derrière DZÔ (à l'opposé de son dernier sens de marche).
+   Le Föhn (évolution) : le nuage roule devant DZÔ à 45 px/s. */
+function aPet(a){
+  if(a.cd>0){a.cd--;return;}
+  a.cd=a.cdMax;
+  var x=S.px-S.dx*14,y=S.py+4-S.dy*10,u,i,m;
+  if(S.nNU>=MAXNU){m=0;for(i=1;i<S.nNU;i++)if(S.NU[i].vie<S.NU[m].vie)m=i;u=S.NU[m];}else u=S.NU[S.nNU++];
+  u.x=x;u.y=y;u.r=a.r;u.vie=a.duree;u.vieMax=a.duree;u.deg=a.deg;u.peur=a.peur;u.evo=a.evo?1:0;
+  if(a.evo){u.vx=S.dx*0.75;u.vy=S.dy*0.75;}else{u.vx=0;u.vy=0;}
+  ev(EV_PET,0,x,y,a.r,u.evo);ev(EV_TIR,8);
+}
+/* Nuages : toutes les 0,1 s, ceux qui sont dedans fuient (ordinaires et chapeaux) ; chacun prend deg au plus une fois par 0,5 s. */
+function majNuages(n){
+  var i,u,q,nq,k,e,dx,dy,d,t;
+  for(i=0;i<S.nNU;i++){u=S.NU[i];u.vie--;
+    if(u.vie<=0){t=S.NU[i];S.NU[i]=S.NU[S.nNU-1];S.NU[S.nNU-1]=t;S.nNU--;i--;continue;}
+    u.x+=u.vx;u.y+=u.vy;
+    if((n+i)%6!==0)continue;
+    nq=requete(u.x,u.y,u.r);
+    for(q=0;q<nq;q++){k=Q[q];e=E[k];if(e.mort)continue;
+      /* Monsieur Prout ne supporte pas la concurrence : il éclate (son onde ne blesse que les ennemis) */
+      if(e.t===T_BULLE){ev(EV_PET,1,e.x,e.y);tuer(k);continue;}
+      if(!ENN[e.t].fort&&e.peur<=0&&u.peur>0){dx=e.x-u.x;dy=e.y-u.y;d=Math.sqrt(dx*dx+dy*dy);
+        if(d<1){dx=e.x-S.px;dy=e.y-S.py;d=Math.sqrt(dx*dx+dy*dy);}if(d<0.001){dx=1;dy=0;d=1;}
+        e.pdx=dx/d;e.pdy=dy/d;e.peur=u.peur+PEUR_REPOS;}
+      if(e.cdPet<=n){e.cdPet=n+30;blesser(k,u.deg,0,0,3);}
+    }
+  }
+}
+/* 0.10 : la crosse du Dragon : un palet par cible (les plus proches à moins de 260), qui ricoche (voir majProjectiles). */
+function aCrosse(a){
+  var j,e,dx,dy,d,nb,x,y,c,s,p,ang;
+  if(a.cd>0)a.cd--;
+  if(a.cd>0)return;
+  nb=plusProches(260,a.nb<4?a.nb:4);
+  if(nb===0)return;
+  a.cd=a.cdMax;
+  for(j=0;j<a.nb;j++){
+    e=E[PP[j%nb]];dx=e.x-S.px;dy=e.y-(S.py+4);d=Math.sqrt(dx*dx+dy*dy);if(d<0.001){dx=1;dy=0;d=1;}
+    dx/=d;dy/=d;
+    if(j>=nb){ang=(j&1)?100:-100;c=cs(ang);s=sn(ang);x=dx*c-dy*s;y=dx*s+dy*c;dx=x;dy=y;}
+    p=tirer(2,S.px,S.py+4,dx,dy,PALET_V*HZ,90,a);
+    if(p){p.perce=a.rebonds;p.outil=a.evo?1:0;if(j<nb){p.cib=e.uid;p.cibI=PP[j];}}
+  }
+  ev(EV_TIR,9);
+}
 var DENS=new Int16Array(64);
 /* Bombe en cloche : 0,6 s de vol (les éclats du Gruyère à Fragmentation : 0,3 s). */
 function lancerBombe(x,y,a,frag){
@@ -1099,10 +1161,15 @@ function majPieux(){
   }
 }
 function majProjectiles(){
-  var i,p,n,q,ei,e,h,hn,vu,dx,dy,d,t,v;
+  var i,p,n,q,ei,e,h,hn,vu,dx,dy,d,t,v,rb=0,rx=0,ry=0;
   for(i=0;i<S.nP;i++){p=P[i];
     p.tx[p.ti]=p.x;p.ty[p.ti]=p.y;p.ti=(p.ti+1)&7;if(p.tn<8)p.tn++;
     if(p.type===0){p.x+=p.vx;p.y+=p.vy;p.vie--;}
+    else if(p.type===2){ /* 0.10 : palet, il file vers sa cible tant qu'elle vit (sinon il glisse tout droit) */
+      p.vie--;
+      if(p.cibI>=0){e=E[p.cibI];if(p.cibI<S.nE&&!e.mort&&e.uid===p.cib){dx=e.x-p.x;dy=e.y-p.y;d=Math.sqrt(dx*dx+dy*dy);if(d>0.5){p.vx=dx/d*PALET_V;p.vy=dy/d*PALET_V;}}else p.cibI=-1;}
+      p.x+=p.vx;p.y+=p.vy;
+    }
     else{
       p.vie--;
       if(p.phase===0){p.x+=p.vx;p.y+=p.vy;p.dist+=5;if(p.dist>=p.portee){p.phase=1;p.hitN=0;}}
@@ -1117,6 +1184,17 @@ function majProjectiles(){
         p.hit[p.hitN%12]=e.uid;p.hitN++;
         blesser(ei,p.deg,p.vx*0.4,p.vy*0.4,p.type===0&&p.perce<0?1:0);
         if(p.type===0){if(p.perce===0){p.vie=0;ev(EV_ECLAT,p.x,p.y);break;}else if(p.perce>0)p.perce--;}
+        else if(p.type===2){rb=1;rx=e.x;ry=e.y;break;}
+      }
+      /* palet : un ennemi par pas ; il ricoche vers le plus proche qu'il n'a pas encore touché, ou s'arrête */
+      if(rb){rb=0;
+        if(p.outil){ev(EV_ONDE,rx,ry,30,8);zone(rx,ry,30,Math.round(p.deg*0.5),0,0,1);}
+        if(p.perce>0){p.perce--;
+          n=requete(rx,ry,PALET_R);ei=-1;d=1e18;
+          for(q=0;q<n;q++){e=E[Q[q]];hn=p.hitN<12?p.hitN:12;vu=0;for(h=0;h<hn;h++)if(p.hit[h]===e.uid){vu=1;break;}
+            if(vu)continue;dx=e.x-rx;dy=e.y-ry;v=dx*dx+dy*dy;if(v<d){d=v;ei=Q[q];}}
+          if(ei>=0){p.cib=E[ei].uid;p.cibI=ei;if(p.vie<45)p.vie=45;}else{p.cibI=-1;p.vie=0;ev(EV_ECLAT,p.x,p.y);}
+        }else{p.vie=0;ev(EV_ECLAT,p.x,p.y);}
       }
     }
     if(p.vie<=0){t=P[i];P[i]=P[S.nP-1];P[S.nP-1]=t;S.nP--;i--;}
@@ -1168,7 +1246,10 @@ function majEnnemis(n){
     }
     if(e.lent>0){e.lent--;v*=(1-e.lentF);}
     if(e.buff>0){e.buff--;v*=1.3;}
+    /* 0.10 : peur (nuage du pet qui pue) : il s'enfuit droit devant lui, puis reste insensible PEUR_REPOS pas */
+    if(e.peur>0)e.peur--;
     if(e.etourdi>0){e.etourdi--;}
+    else if(e.peur>PEUR_REPOS){e.x+=e.pdx*v*0.9;e.y+=e.pdy*v*0.9;}
     else{fn=ENN[e.t].bouger;
       if(fn){MV.nx=nx;MV.ny=ny;MV.ux=ux;MV.uy=uy;MV.v=v;MV.d=d;MV.fe=fe;MV.n=n;MV.i=i;if(fn(e,MV))continue;}
       else{e.x+=nx*v;e.y+=ny*v;}
@@ -1477,6 +1558,7 @@ function pas(st,dir){
   majProjectiles();
   majBombes();
   majFlaques(n);
+  majNuages(n);
   majPieux();
   majEnnemis(n);
   majBoss();
@@ -1589,13 +1671,13 @@ return{HZ:HZ,NA:NA,creer:creer,pas:pas,choisir:choisir,relancer:relancer,voter:v
   mondeDe:mondeDe,genererMonde:genererMonde,chevauche:chevauche,dansEau:function(st,x,y){lier(st);return dansEau(x,y);},md:md,wr:wr,funiEtat:function(st,n){lier(st);funiEtat(n);return{v:FUV,m:FUM,a:FUA,p:FUP};},
   MONDE:{LM:LM,CL:CL,NCL:NCL,RIV_HW:RIV_HW,FONT_MAX:FONT_MAX,FONT_RAYON:FONT_RAYON,FUNI_PER:FUNI_PER,FUNI_ATT:FUNI_ATT,FUNI_ANN:FUNI_ANN,FUNI_TRAJ:FUNI_TRAJ,
     K:{BLOC:K_BLOC,MAISON:K_MAISON,CATH:K_CATH,NEF:K_NEF,MORAT:K_MORAT,TOURR:K_TOURR,REMP:K_REMP,FONT:K_FONT,SAPIN:K_SAPIN,FEUIL:K_FEUIL,TILLEUL:K_TILLEUL,VACHE:K_VACHE,FOIN:K_FOIN,TONNEAU:K_TONNEAU,CAISSE:K_CAISSE,STH:K_STH,STB:K_STB,FROM:K_FROM,MOLESON:K_MOLESON,PANNEAU:K_PANNEAU},
-    D:{LAMPE:D_LAMPE,BANC:D_BANC,FLEURS:D_FLEURS,TOITPONT:D_TOITPONT}},fnv1a:fnv1a,mulberry32:mulberry32,melange:melange,sn:sn,cs:cs,
+    D:{LAMPE:D_LAMPE,BANC:D_BANC,FLEURS:D_FLEURS,TOITPONT:D_TOITPONT,BANNIERE:D_BANNIERE}},fnv1a:fnv1a,mulberry32:mulberry32,melange:melange,sn:sn,cs:cs,
   ENN:ENN,NVAR:NVAR,VAGUES:VAGUES,PVMIN:PVMIN,REGL:REGL,ARMES:ARMES,NARMES:NARMES,PASSIFS:PASSIFS,SURCHARGES:SURCHARGES,DECRETS:DECRETS,decretDe:decretDe,VOTES:VOTES,PALIERS:PALIERS,FAMILLES:FAMILLES,XPT:XPT,M_CARTE:M_CARTE,M_VOTE:M_VOTE,MAXPAS:MAXPAS,PLAF:PLAF,
   TRESORS:TRESORS,COLLECTIONS:COLLECTIONS,TABLEAUX:TABLEAUX,I_TABLEAU:I_TABLEAU,tableauDe:tableauDe,OBJETS:OBJETS,DECOS:DECOS,COMBO_PAL:COMBO_PAL,I_COL:I_COL,I_ENN:I_ENN,I_ARME:I_ARME,I_PASSIF:I_PASSIF,I_TRES:I_TRES,VAGUE_COL:VAGUE_COL,T_VOTES:T_VOTES,DUREE:DUREE,T_BOSSN:T_BOSSN,T_LIQ:T_LIQ,
   EV:{HIT:EV_HIT,MORT:EV_MORT,GEMME:EV_GEMME,JTOUCHE:EV_JTOUCHE,NIVEAU:EV_NIVEAU,COFFRE:EV_COFFRE,ONDE:EV_ONDE,TIR:EV_TIR,BANDEAU:EV_BANDEAU,PAROLE:EV_PAROLE,ELITE:EV_ELITE,BOSSMORT:EV_BOSSMORT,RAMASSE:EV_RAMASSE,PIEU:EV_PIEU,TAPIS:EV_TAPIS,FIN:EV_FIN,CHAPEAU:EV_CHAPEAU,ASPI:EV_ASPI,TIRENN:EV_TIRENN,BOSS:EV_BOSS,ECLAT:EV_ECLAT,
       TRESOR:EV_TRESOR,PRISE:EV_PRISE,TRESFIN:EV_TRESFIN,COMBO:EV_COMBO,BOMBE:EV_BOMBE,ARME:EV_ARME,LANCE:EV_LANCE,
       FUNI:EV_FUNI,FONT:EV_FONT,CASSE:EV_CASSE,FUNICOUP:EV_FUNICOUP,ECRASE:EV_ECRASE,
-      COUP:EV_COUP,BOUCLIER:EV_BOUCLIER,PLAT:EV_PLAT,REPAS:EV_REPAS}};
+      COUP:EV_COUP,BOUCLIER:EV_BOUCLIER,PLAT:EV_PLAT,REPAS:EV_REPAS,PET:EV_PET}};
 })();
 if(typeof module!=='undefined'&&module.exports){module.exports=SIM;}
 /* =====================================================================
@@ -1690,6 +1772,8 @@ LANGUES.fr={
 "stat.arc":"Éventail",
 "stat.ennemi":"{0} ennemi",
 "stat.tout":"tout",
+"stat.rebonds":"Rebonds",
+"stat.peur":"Fuite",
 "carte.fondue.nom":"Fondue",
 "carte.fondue.phrase":"Te soigne de 30 PV, tout de suite.",
 "cartes.niveau":"NIVEAU {0} !",
@@ -1836,6 +1920,10 @@ LANGUES.fr={
 "parole.airdrop":"Airdrop !",
 "parole.bougie":"Bougie rouge !",
 "parole.chapeau":"Chapeau !",
+"parole.pet.1":"Pardon.",
+"parole.pet.2":"C'est pas moi !",
+"parole.pet.3":"La double crème…",
+"parole.prout":"Trop de concurrence !",
 "parole.funi":"Ding ding ! FUNI !",
 "parole.aieFuni":"Aïe, le funi !",
 "parole.ecrase.1":"Écrasé !",
@@ -1954,6 +2042,25 @@ LANGUES.fr={
 "arme.jambon.phr.3":"Plus fort (+33 %), et plus souvent.",
 "arme.jambon.phr.4":"Plus souvent, plus loin, presque tout autour.",
 "arme.jambon.nb":"Nombre",
+"arme.pet.nom":"Le pet qui pue",
+"arme.pet.ligne":"Un nuage vert qui empoisonne et fait fuir.",
+"arme.pet.evo":"Le Föhn",
+"arme.pet.evoLigne":"Le vent chaud des Alpes pousse un nuage géant devant DZÔ. Même le boss tousse.",
+"arme.pet.nouv":"DZÔ lâche un gros nuage vert : ça empoisonne, et ça fait fuir.",
+"arme.pet.phr.1":"Plus toxique (+22 %), et plus souvent.",
+"arme.pet.phr.2":"Un nuage plus grand, qui reste plus longtemps : ils fuient plus loin.",
+"arme.pet.phr.3":"Plus toxique (+18 %), et plus souvent.",
+"arme.pet.phr.4":"Plus grand, plus long, plus souvent, plus toxique : la panique.",
+"arme.crosse.nom":"La crosse du Dragon",
+"arme.crosse.ligne":"Un palet qui ricoche d'ennemi en ennemi, comme sur la glace.",
+"arme.crosse.evo":"La Charge des Dragons",
+"arme.crosse.evoLigne":"Trois palets en feu, des rebonds à n'en plus finir : chaque impact crache une flamme.",
+"arme.crosse.nouv":"Lance un palet qui ricoche d'un ennemi à l'autre.",
+"arme.crosse.phr.1":"Le palet frappe plus fort (+20 %).",
+"arme.crosse.phr.2":"2 palets au lieu de 1.",
+"arme.crosse.phr.3":"Plus fort (+8 %), un rebond de plus, et plus souvent.",
+"arme.crosse.phr.4":"Plus fort (+18 %), et plus souvent.",
+"arme.crosse.nb":"Palets",
 "passif.moutarde.nom":"Moutarde de Bénichon",
 "passif.moutarde.ligne":"Dégâts +12 %",
 "passif.moutarde.phrase":"Toutes tes armes frappent 12 % plus fort.",
@@ -2348,7 +2455,49 @@ LANGUES.fr={
 "titre.boostSousConcours":"+1 vie par post",
 "titre.boostSousEntr":"Posts : en concours seulement",
 "partage.nes":"987NES, le memecoin suisse sur Solana.",
-"panneau.grenouilles.2":"les grenouilles"
+"panneau.grenouilles.2":"les grenouilles",
+/* 0.10 : boost de fidélité, parrainage, vies bonus */
+"fid.regle":"Fidélité : un post X et un post Telegram le même jour = +{0} % le lendemain (garde ton post X).",
+"fid.actif":"Fidélité : +{0} % sur tes parties classées aujourd'hui",
+"fid.aRelire":"Fidélité : ton post X d'hier est en vérification (+{0} %)",
+"fid.annule":"Fidélité annulée aujourd'hui : post X d'hier supprimé",
+"fid.demain":"Pour demain : X {0} · Telegram {1}",
+"fid.pret":"+{0} % acquis pour demain (garde ton post X)",
+"fid.badge":"+{0} % FIDÉLITÉ",
+"fid.finAccorde":"{0} + {1} % fidélité = {2}",
+"fid.finAttente":"Bonus fidélité +{0} % en vérification…",
+"fid.finAnnule":"Bonus fidélité annulé : post X d'hier supprimé",
+"fid.finExpire":"Bonus fidélité non confirmé à temps",
+"parr.titre":"PARRAINAGE",
+"parr.regle":"Invite tes amis avec ton lien. Un filleul compte quand il a joué classé {0} jours différents : 1 vie bonus pour toi par filleul actif.",
+"parr.regle2":"Une vie bonus sert toute seule quand tes vies du jour sont épuisées (une par jour au plus).",
+"parr.monLien":"TON LIEN",
+"parr.partagerX":"PARTAGER SUR X",
+"parr.partagerTg":"TELEGRAM",
+"parr.filleuls":"Filleuls",
+"parr.actifs":"Actifs",
+"parr.vies":"Vies bonus",
+"parr.utiliseeAujourdhui":"Vie bonus du jour déjà utilisée.",
+"parr.fermees":"Vies bonus fermées pendant ce concours.",
+"parr.tonParrain":"Ton parrain : {0}",
+"parr.anciens":"{0} ancien(s) filleul(s) du bot, sans vie bonus.",
+"parr.chargement":"Chargement…",
+"parr.indispo":"Parrainage pas encore disponible.",
+"parr.texte":"Survis avec moi à la horde de DZÔ ! #987NES",
+"parr.r.enregistre":"Parrainage enregistré.",
+"parr.r.de":" Ton parrain : {0}.",
+"parr.r.parrain_code_invalide":"Lien de parrainage invalide.",
+"parr.r.parrain_inconnu":"Lien de parrainage inconnu.",
+"parr.r.parrain_soi_meme":"C'est ton propre lien de parrainage.",
+"parr.r.deja_parraine":"Tu as déjà un parrain.",
+"parr.r.deja_joue":"Parrainage impossible : tu as déjà joué classé.",
+"parr.r.parrainage_boucle":"Parrainage impossible : ce joueur est déjà ton filleul.",
+"parr.r.trop_de_requetes":"Trop d'essais de parrainage. Réessaie plus tard.",
+"parr.vieBonusPrise":"Vie bonus du parrainage utilisée pour cet essai.",
+"titre.essaiBonus":"Vie bonus · essai {0}/{1}",
+"err.essais_epuises_bonusPris":"Essais épuisés et vie bonus du jour déjà prise. Reviens demain.",
+"err.essais_epuises_bonusFerme":"Essais épuisés. Vies bonus fermées pendant ce concours.",
+"compte.prochains":"Prochains essais dans {0}"
 };
 LANGUES.de={
 "langue.nom":"Deutsch",
@@ -2435,6 +2584,8 @@ LANGUES.de={
 "stat.arc":"Fächer",
 "stat.ennemi":"{0} Gegner",
 "stat.tout":"alle",
+"stat.rebonds":"Abpraller",
+"stat.peur":"Flucht",
 "carte.fondue.nom":"Fondue",
 "carte.fondue.phrase":"Heilt dich sofort um 30 LP.",
 "cartes.niveau":"STUFE {0}!",
@@ -2581,6 +2732,10 @@ LANGUES.de={
 "parole.airdrop":"Airdrop!",
 "parole.bougie":"Rote Kerze!",
 "parole.chapeau":"Chapeau!",
+"parole.pet.1":"Pardon.",
+"parole.pet.2":"Ich war's nicht!",
+"parole.pet.3":"Die Double Crème…",
+"parole.prout":"Zu viel Konkurrenz!",
 "parole.funi":"Ding ding! FUNI!",
 "parole.aieFuni":"Aua, das Funi!",
 "parole.ecrase.1":"Platt!",
@@ -2699,6 +2854,25 @@ LANGUES.de={
 "arme.jambon.phr.3":"Stärker (+33 %), und öfter.",
 "arme.jambon.phr.4":"Öfter, weiter, fast rundherum.",
 "arme.jambon.nb":"Anzahl",
+"arme.pet.nom":"Der Stinkefurz",
+"arme.pet.ligne":"Eine grüne Wolke, die vergiftet und vertreibt.",
+"arme.pet.evo":"Der Föhn",
+"arme.pet.evoLigne":"Der warme Alpenwind schiebt eine Riesenwolke vor DZÔ her. Sogar der Boss hustet.",
+"arme.pet.nouv":"DZÔ lässt eine dicke grüne Wolke fahren: Sie vergiftet und schlägt alle in die Flucht.",
+"arme.pet.phr.1":"Giftiger (+22 %) und öfter.",
+"arme.pet.phr.2":"Eine grössere Wolke, die länger bleibt: Sie fliehen weiter.",
+"arme.pet.phr.3":"Giftiger (+18 %) und öfter.",
+"arme.pet.phr.4":"Grösser, länger, öfter, giftiger: Panik!",
+"arme.crosse.nom":"Der Schläger des Drachen",
+"arme.crosse.ligne":"Ein Puck, der von Gegner zu Gegner abprallt, wie auf dem Eis.",
+"arme.crosse.evo":"Der Sturm der Drachen",
+"arme.crosse.evoLigne":"Drei brennende Pucks, Abpraller ohne Ende: Jeder Treffer speit eine Flamme.",
+"arme.crosse.nouv":"Schiesst einen Puck, der von einem Gegner zum nächsten abprallt.",
+"arme.crosse.phr.1":"Der Puck trifft härter (+20 %).",
+"arme.crosse.phr.2":"2 Pucks statt 1.",
+"arme.crosse.phr.3":"Stärker (+8 %), ein Abpraller mehr, und öfter.",
+"arme.crosse.phr.4":"Stärker (+18 %) und öfter.",
+"arme.crosse.nb":"Pucks",
 "passif.moutarde.nom":"Moutarde de Bénichon",
 "passif.moutarde.ligne":"Schaden +12 %",
 "passif.moutarde.phrase":"Alle deine Waffen schlagen 12 % härter.",
@@ -3091,7 +3265,49 @@ LANGUES.de={
 "titre.boostSousConcours":"+1 Leben pro Post",
 "titre.boostSousEntr":"Posts: nur im Wettbewerb",
 "partage.nes":"987NES, der Schweizer Memecoin auf Solana.",
-"panneau.grenouilles.2":"verboten"
+"panneau.grenouilles.2":"verboten",
+/* 0.10 : boost de fidélité, parrainage, vies bonus */
+"fid.regle":"Treue: ein X-Post und ein Telegram-Post am selben Tag = +{0} % am nächsten Tag (X-Post stehen lassen).",
+"fid.actif":"Treue: +{0} % auf deine gewerteten Runden heute",
+"fid.aRelire":"Treue: dein X-Post von gestern wird geprüft (+{0} %)",
+"fid.annule":"Treue heute gestrichen: X-Post von gestern gelöscht",
+"fid.demain":"Für morgen: X {0} · Telegram {1}",
+"fid.pret":"+{0} % für morgen gesichert (X-Post stehen lassen)",
+"fid.badge":"+{0} % TREUE",
+"fid.finAccorde":"{0} + {1} % Treue = {2}",
+"fid.finAttente":"Treuebonus +{0} % wird geprüft…",
+"fid.finAnnule":"Treuebonus gestrichen: X-Post von gestern gelöscht",
+"fid.finExpire":"Treuebonus nicht rechtzeitig bestätigt",
+"parr.titre":"EINLADEN",
+"parr.regle":"Lade Freunde mit deinem Link ein. Ein Freund zählt, sobald er an {0} verschiedenen Tagen gewertet gespielt hat: 1 Bonusleben pro aktivem Freund.",
+"parr.regle2":"Ein Bonusleben wird automatisch genutzt, wenn deine Tagesleben weg sind (höchstens eins pro Tag).",
+"parr.monLien":"DEIN LINK",
+"parr.partagerX":"AUF X TEILEN",
+"parr.partagerTg":"TELEGRAM",
+"parr.filleuls":"Eingeladen",
+"parr.actifs":"Aktiv",
+"parr.vies":"Bonusleben",
+"parr.utiliseeAujourdhui":"Bonusleben für heute schon genutzt.",
+"parr.fermees":"Bonusleben in diesem Wettbewerb gesperrt.",
+"parr.tonParrain":"Eingeladen von: {0}",
+"parr.anciens":"{0} alte Einladung(en) über den Bot, ohne Bonusleben.",
+"parr.chargement":"Laden…",
+"parr.indispo":"Einladungen noch nicht verfügbar.",
+"parr.texte":"Überleb mit mir die Horde von DZÔ! #987NES",
+"parr.r.enregistre":"Einladung gespeichert.",
+"parr.r.de":" Eingeladen von {0}.",
+"parr.r.parrain_code_invalide":"Ungültiger Einladungslink.",
+"parr.r.parrain_inconnu":"Unbekannter Einladungslink.",
+"parr.r.parrain_soi_meme":"Das ist dein eigener Einladungslink.",
+"parr.r.deja_parraine":"Du wurdest schon eingeladen.",
+"parr.r.deja_joue":"Zu spät: du hast schon gewertet gespielt.",
+"parr.r.parrainage_boucle":"Nicht möglich: diesen Spieler hast du eingeladen.",
+"parr.r.trop_de_requetes":"Zu viele Versuche. Später nochmal.",
+"parr.vieBonusPrise":"Bonusleben aus Einladungen für diesen Versuch genutzt.",
+"titre.essaiBonus":"Bonusleben · Versuch {0}/{1}",
+"err.essais_epuises_bonusPris":"Versuche aufgebraucht, Bonusleben für heute schon genutzt. Morgen wieder.",
+"err.essais_epuises_bonusFerme":"Versuche aufgebraucht. Bonusleben in diesem Wettbewerb gesperrt.",
+"compte.prochains":"Neue Versuche in {0}"
 };
 LANGUES.it={
 "langue.nom":"Italiano",
@@ -3178,6 +3394,8 @@ LANGUES.it={
 "stat.arc":"Ventaglio",
 "stat.ennemi":"{0} nemico",
 "stat.tout":"tutto",
+"stat.rebonds":"Rimbalzi",
+"stat.peur":"Fuga",
 "carte.fondue.nom":"Fonduta",
 "carte.fondue.phrase":"Ti cura di 30 PV, subito.",
 "cartes.niveau":"LIVELLO {0}!",
@@ -3324,6 +3542,10 @@ LANGUES.it={
 "parole.airdrop":"Airdrop!",
 "parole.bougie":"Candela rossa!",
 "parole.chapeau":"Giù il cappello!",
+"parole.pet.1":"Scusate.",
+"parole.pet.2":"Non sono stato io!",
+"parole.pet.3":"La doppia panna…",
+"parole.prout":"Troppa concorrenza!",
 "parole.funi":"Ding ding! FUNI!",
 "parole.aieFuni":"Ahi, il funi!",
 "parole.ecrase.1":"Schiacciato!",
@@ -3442,6 +3664,25 @@ LANGUES.it={
 "arme.jambon.phr.3":"Più forte (+33 %), e più spesso.",
 "arme.jambon.phr.4":"Più spesso, più lontano, quasi tutto intorno.",
 "arme.jambon.nb":"Numero",
+"arme.pet.nom":"La Scoreggia Puzzona",
+"arme.pet.ligne":"Una nuvola verde che avvelena e mette in fuga.",
+"arme.pet.evo":"Il Favonio",
+"arme.pet.evoLigne":"Il vento caldo delle Alpi spinge una nuvola gigante davanti a DZÔ. Tossisce perfino il boss.",
+"arme.pet.nouv":"DZÔ molla una grossa nuvola verde: avvelena, e fa scappare tutti.",
+"arme.pet.phr.1":"Più tossica (+22 %), e più spesso.",
+"arme.pet.phr.2":"Una nuvola più grande, che resta più a lungo: scappano più lontano.",
+"arme.pet.phr.3":"Più tossica (+18 %), e più spesso.",
+"arme.pet.phr.4":"Più grande, più lunga, più spesso, più tossica: panico!",
+"arme.crosse.nom":"Il Bastone del Drago",
+"arme.crosse.ligne":"Un disco che rimbalza da un nemico all'altro, come sul ghiaccio.",
+"arme.crosse.evo":"La Carica dei Draghi",
+"arme.crosse.evoLigne":"Tre dischi in fiamme e rimbalzi senza fine: ogni colpo sputa una fiammata.",
+"arme.crosse.nouv":"Tira un disco che rimbalza da un nemico all'altro.",
+"arme.crosse.phr.1":"Il disco colpisce più forte (+20 %).",
+"arme.crosse.phr.2":"2 dischi invece di 1.",
+"arme.crosse.phr.3":"Più forte (+8 %), un rimbalzo in più, e più spesso.",
+"arme.crosse.phr.4":"Più forte (+18 %), e più spesso.",
+"arme.crosse.nb":"Dischi",
 "passif.moutarde.nom":"Moutarde de Bénichon",
 "passif.moutarde.ligne":"Danni +12 %",
 "passif.moutarde.phrase":"Tutte le tue armi colpiscono il 12 % più forte.",
@@ -3834,7 +4075,49 @@ LANGUES.it={
 "titre.boostSousConcours":"+1 vita per post",
 "titre.boostSousEntr":"Post: solo nei concorsi",
 "partage.nes":"987NES, il memecoin svizzero su Solana.",
-"panneau.grenouilles.2":"le rane"
+"panneau.grenouilles.2":"le rane",
+/* 0.10 : boost de fidélité, parrainage, vies bonus */
+"fid.regle":"Fedeltà: un post X e un post Telegram lo stesso giorno = +{0} % il giorno dopo (lascia il post X).",
+"fid.actif":"Fedeltà: +{0} % sulle tue partite in classifica oggi",
+"fid.aRelire":"Fedeltà: verifica del tuo post X di ieri (+{0} %)",
+"fid.annule":"Fedeltà annullata oggi: post X di ieri cancellato",
+"fid.demain":"Per domani: X {0} · Telegram {1}",
+"fid.pret":"+{0} % assicurato per domani (lascia il post X)",
+"fid.badge":"+{0} % FEDELTÀ",
+"fid.finAccorde":"{0} + {1} % fedeltà = {2}",
+"fid.finAttente":"Bonus fedeltà +{0} % in verifica…",
+"fid.finAnnule":"Bonus fedeltà annullato: post X di ieri cancellato",
+"fid.finExpire":"Bonus fedeltà non confermato in tempo",
+"parr.titre":"INVITA",
+"parr.regle":"Invita gli amici con il tuo link. Un invitato conta quando ha giocato in classifica in {0} giorni diversi: 1 vita bonus per te per invitato attivo.",
+"parr.regle2":"Una vita bonus si usa da sola quando le vite del giorno sono finite (al massimo una al giorno).",
+"parr.monLien":"IL TUO LINK",
+"parr.partagerX":"CONDIVIDI SU X",
+"parr.partagerTg":"TELEGRAM",
+"parr.filleuls":"Invitati",
+"parr.actifs":"Attivi",
+"parr.vies":"Vite bonus",
+"parr.utiliseeAujourdhui":"Vita bonus di oggi già usata.",
+"parr.fermees":"Vite bonus chiuse durante questo concorso.",
+"parr.tonParrain":"Invitato da: {0}",
+"parr.anciens":"{0} vecchi inviti dal bot, senza vita bonus.",
+"parr.chargement":"Caricamento…",
+"parr.indispo":"Inviti non ancora disponibili.",
+"parr.texte":"Sopravvivi con me all'orda di DZÔ! #987NES",
+"parr.r.enregistre":"Invito registrato.",
+"parr.r.de":" Invitato da {0}.",
+"parr.r.parrain_code_invalide":"Link d'invito non valido.",
+"parr.r.parrain_inconnu":"Link d'invito sconosciuto.",
+"parr.r.parrain_soi_meme":"È il tuo stesso link d'invito.",
+"parr.r.deja_parraine":"Sei già stato invitato.",
+"parr.r.deja_joue":"Troppo tardi: hai già giocato in classifica.",
+"parr.r.parrainage_boucle":"Impossibile: questo giocatore è già un tuo invitato.",
+"parr.r.trop_de_requetes":"Troppi tentativi. Riprova più tardi.",
+"parr.vieBonusPrise":"Vita bonus degli inviti usata per questo tentativo.",
+"titre.essaiBonus":"Vita bonus · tentativo {0}/{1}",
+"err.essais_epuises_bonusPris":"Tentativi esauriti e vita bonus di oggi già usata. Torna domani.",
+"err.essais_epuises_bonusFerme":"Tentativi esauriti. Vite bonus chiuse durante questo concorso.",
+"compte.prochains":"Prossimi tentativi tra {0}"
 };
 LANGUES.es={
 "langue.nom":"Español",
@@ -3921,6 +4204,8 @@ LANGUES.es={
 "stat.arc":"Abanico",
 "stat.ennemi":"{0} enemigo",
 "stat.tout":"todo",
+"stat.rebonds":"Rebotes",
+"stat.peur":"Huida",
 "carte.fondue.nom":"Fondue",
 "carte.fondue.phrase":"Te cura 30 PV al instante.",
 "cartes.niveau":"¡NIVEL {0}!",
@@ -4067,6 +4352,10 @@ LANGUES.es={
 "parole.airdrop":"¡Airdrop!",
 "parole.bougie":"¡Vela roja!",
 "parole.chapeau":"¡Chapó!",
+"parole.pet.1":"Perdón.",
+"parole.pet.2":"¡Yo no fui!",
+"parole.pet.3":"La doble crema…",
+"parole.prout":"¡Demasiada competencia!",
 "parole.funi":"¡Ding ding! ¡FUNI!",
 "parole.aieFuni":"¡Ay, el funi!",
 "parole.ecrase.1":"¡Aplastado!",
@@ -4185,6 +4474,25 @@ LANGUES.es={
 "arme.jambon.phr.3":"Más fuerte (+33 %), y más a menudo.",
 "arme.jambon.phr.4":"Más a menudo, más lejos, casi todo alrededor.",
 "arme.jambon.nb":"Número",
+"arme.pet.nom":"El Pedo Apestoso",
+"arme.pet.ligne":"Una nube verde que envenena y hace huir.",
+"arme.pet.evo":"El Föhn",
+"arme.pet.evoLigne":"El viento cálido de los Alpes empuja una nube gigante delante de DZÔ. Hasta el jefe tose.",
+"arme.pet.nouv":"DZÔ suelta una gran nube verde: envenena y hace huir a todos.",
+"arme.pet.phr.1":"Más tóxico (+22 %), y más a menudo.",
+"arme.pet.phr.2":"Una nube más grande, que dura más: huyen más lejos.",
+"arme.pet.phr.3":"Más tóxico (+18 %), y más a menudo.",
+"arme.pet.phr.4":"Más grande, más largo, más a menudo, más tóxico: ¡pánico!",
+"arme.crosse.nom":"El Stick del Dragón",
+"arme.crosse.ligne":"Un disco que rebota de enemigo en enemigo, como sobre el hielo.",
+"arme.crosse.evo":"La Carga de los Dragones",
+"arme.crosse.evoLigne":"Tres discos en llamas y rebotes sin fin: cada impacto escupe una llamarada.",
+"arme.crosse.nouv":"Lanza un disco que rebota de un enemigo a otro.",
+"arme.crosse.phr.1":"El disco pega más fuerte (+20 %).",
+"arme.crosse.phr.2":"2 discos en vez de 1.",
+"arme.crosse.phr.3":"Más fuerte (+8 %), un rebote más, y más a menudo.",
+"arme.crosse.phr.4":"Más fuerte (+18 %), y más a menudo.",
+"arme.crosse.nb":"Discos",
 "passif.moutarde.nom":"Mostaza de Bénichon",
 "passif.moutarde.ligne":"Daño +12 %",
 "passif.moutarde.phrase":"Todas tus armas pegan un 12 % más fuerte.",
@@ -4577,7 +4885,49 @@ LANGUES.es={
 "titre.boostSousConcours":"+1 vida por post",
 "titre.boostSousEntr":"Posts: solo en concursos",
 "partage.nes":"987NES, la memecoin suiza en Solana.",
-"panneau.grenouilles.2":"a las ranas"
+"panneau.grenouilles.2":"a las ranas",
+/* 0.10 : boost de fidélité, parrainage, vies bonus */
+"fid.regle":"Fidelidad: un post en X y uno en Telegram el mismo día = +{0} % al día siguiente (deja el post de X).",
+"fid.actif":"Fidelidad: +{0} % en tus partidas clasificadas de hoy",
+"fid.aRelire":"Fidelidad: verificando tu post de X de ayer (+{0} %)",
+"fid.annule":"Fidelidad anulada hoy: post de X de ayer borrado",
+"fid.demain":"Para mañana: X {0} · Telegram {1}",
+"fid.pret":"+{0} % asegurado para mañana (deja el post de X)",
+"fid.badge":"+{0} % FIDELIDAD",
+"fid.finAccorde":"{0} + {1} % fidelidad = {2}",
+"fid.finAttente":"Bono de fidelidad +{0} % en verificación…",
+"fid.finAnnule":"Bono de fidelidad anulado: post de X de ayer borrado",
+"fid.finExpire":"Bono de fidelidad no confirmado a tiempo",
+"parr.titre":"INVITAR",
+"parr.regle":"Invita a tus amigos con tu enlace. Un invitado cuenta cuando ha jugado clasificado {0} días distintos: 1 vida extra para ti por invitado activo.",
+"parr.regle2":"Una vida extra se usa sola cuando se acaban tus vidas del día (como mucho una al día).",
+"parr.monLien":"TU ENLACE",
+"parr.partagerX":"COMPARTIR EN X",
+"parr.partagerTg":"TELEGRAM",
+"parr.filleuls":"Invitados",
+"parr.actifs":"Activos",
+"parr.vies":"Vidas extra",
+"parr.utiliseeAujourdhui":"Vida extra de hoy ya usada.",
+"parr.fermees":"Vidas extra cerradas durante este concurso.",
+"parr.tonParrain":"Te invitó: {0}",
+"parr.anciens":"{0} invitaciones antiguas por el bot, sin vida extra.",
+"parr.chargement":"Cargando…",
+"parr.indispo":"Invitaciones aún no disponibles.",
+"parr.texte":"¡Sobrevive conmigo a la horda de DZÔ! #987NES",
+"parr.r.enregistre":"Invitación registrada.",
+"parr.r.de":" Te invitó {0}.",
+"parr.r.parrain_code_invalide":"Enlace de invitación no válido.",
+"parr.r.parrain_inconnu":"Enlace de invitación desconocido.",
+"parr.r.parrain_soi_meme":"Es tu propio enlace de invitación.",
+"parr.r.deja_parraine":"Ya te había invitado alguien.",
+"parr.r.deja_joue":"Demasiado tarde: ya jugaste clasificado.",
+"parr.r.parrainage_boucle":"Imposible: este jugador ya es tu invitado.",
+"parr.r.trop_de_requetes":"Demasiados intentos. Prueba más tarde.",
+"parr.vieBonusPrise":"Vida extra de invitaciones usada en este intento.",
+"titre.essaiBonus":"Vida extra · intento {0}/{1}",
+"err.essais_epuises_bonusPris":"Intentos agotados y vida extra de hoy ya usada. Vuelve mañana.",
+"err.essais_epuises_bonusFerme":"Intentos agotados. Vidas extra cerradas durante este concurso.",
+"compte.prochains":"Próximos intentos en {0}"
 };
 LANGUES.en={
 "langue.nom":"English",
@@ -4664,6 +5014,8 @@ LANGUES.en={
 "stat.arc":"Spread",
 "stat.ennemi":"{0} enemy",
 "stat.tout":"all",
+"stat.rebonds":"Ricochets",
+"stat.peur":"Flee",
 "carte.fondue.nom":"Fondue",
 "carte.fondue.phrase":"Heals you for 30 HP, right now.",
 "cartes.niveau":"LEVEL {0}!",
@@ -4810,6 +5162,10 @@ LANGUES.en={
 "parole.airdrop":"Airdrop!",
 "parole.bougie":"Red candle!",
 "parole.chapeau":"Hats off!",
+"parole.pet.1":"Excuse me.",
+"parole.pet.2":"Wasn't me!",
+"parole.pet.3":"The double cream…",
+"parole.prout":"Too much competition!",
 "parole.funi":"Ding ding! FUNI!",
 "parole.aieFuni":"Ouch, the funi!",
 "parole.ecrase.1":"Squashed!",
@@ -4928,6 +5284,25 @@ LANGUES.en={
 "arme.jambon.phr.3":"Stronger (+33%), and more often.",
 "arme.jambon.phr.4":"More often, farther, almost all around.",
 "arme.jambon.nb":"Count",
+"arme.pet.nom":"Silent but Deadly",
+"arme.pet.ligne":"A green cloud that poisons and scares them off.",
+"arme.pet.evo":"The Föhn",
+"arme.pet.evoLigne":"The warm Alpine wind rolls a giant cloud ahead of DZÔ. Even the boss coughs.",
+"arme.pet.nouv":"DZÔ lets rip a big green cloud: it poisons, and everyone runs.",
+"arme.pet.phr.1":"More toxic (+22%), and more often.",
+"arme.pet.phr.2":"A bigger cloud that lingers longer: they flee farther.",
+"arme.pet.phr.3":"More toxic (+18%), and more often.",
+"arme.pet.phr.4":"Bigger, longer, more often, more toxic: panic!",
+"arme.crosse.nom":"The Dragon's Stick",
+"arme.crosse.ligne":"A puck that ricochets from enemy to enemy, like on ice.",
+"arme.crosse.evo":"Dragons' Charge",
+"arme.crosse.evoLigne":"Three blazing pucks, endless ricochets: every hit spits a flame.",
+"arme.crosse.nouv":"Fires a puck that ricochets from one enemy to the next.",
+"arme.crosse.phr.1":"The puck hits harder (+20%).",
+"arme.crosse.phr.2":"2 pucks instead of 1.",
+"arme.crosse.phr.3":"Harder (+8%), one more ricochet, and more often.",
+"arme.crosse.phr.4":"Harder (+18%), and more often.",
+"arme.crosse.nb":"Pucks",
 "passif.moutarde.nom":"Bénichon Mustard",
 "passif.moutarde.ligne":"Damage +12%",
 "passif.moutarde.phrase":"All your weapons hit 12% harder.",
@@ -5320,7 +5695,49 @@ LANGUES.en={
 "titre.boostSousConcours":"+1 life per post",
 "titre.boostSousEntr":"Posts: contests only",
 "partage.nes":"987NES, the Swiss memecoin on Solana.",
-"panneau.grenouilles.2":"the frogs"
+"panneau.grenouilles.2":"the frogs",
+/* 0.10 : boost de fidélité, parrainage, vies bonus */
+"fid.regle":"Loyalty: one X post and one Telegram post on the same day = +{0} % the next day (keep your X post).",
+"fid.actif":"Loyalty: +{0} % on your ranked runs today",
+"fid.aRelire":"Loyalty: checking yesterday's X post (+{0} %)",
+"fid.annule":"Loyalty cancelled today: yesterday's X post deleted",
+"fid.demain":"For tomorrow: X {0} · Telegram {1}",
+"fid.pret":"+{0} % secured for tomorrow (keep your X post)",
+"fid.badge":"+{0} % LOYALTY",
+"fid.finAccorde":"{0} + {1} % loyalty = {2}",
+"fid.finAttente":"Loyalty bonus +{0} % being checked…",
+"fid.finAnnule":"Loyalty bonus cancelled: yesterday's X post deleted",
+"fid.finExpire":"Loyalty bonus not confirmed in time",
+"parr.titre":"INVITE",
+"parr.regle":"Invite friends with your link. A friend counts once they've played ranked on {0} different days: 1 bonus life for you per active friend.",
+"parr.regle2":"A bonus life is used automatically when your daily lives run out (one per day at most).",
+"parr.monLien":"YOUR LINK",
+"parr.partagerX":"SHARE ON X",
+"parr.partagerTg":"TELEGRAM",
+"parr.filleuls":"Invited",
+"parr.actifs":"Active",
+"parr.vies":"Bonus lives",
+"parr.utiliseeAujourdhui":"Today's bonus life already used.",
+"parr.fermees":"Bonus lives closed during this contest.",
+"parr.tonParrain":"Invited by: {0}",
+"parr.anciens":"{0} old bot invite(s), no bonus life.",
+"parr.chargement":"Loading…",
+"parr.indispo":"Invites not available yet.",
+"parr.texte":"Survive DZÔ's horde with me! #987NES",
+"parr.r.enregistre":"Invite saved.",
+"parr.r.de":" Invited by {0}.",
+"parr.r.parrain_code_invalide":"Invalid invite link.",
+"parr.r.parrain_inconnu":"Unknown invite link.",
+"parr.r.parrain_soi_meme":"That's your own invite link.",
+"parr.r.deja_parraine":"You were already invited.",
+"parr.r.deja_joue":"Too late: you've already played ranked.",
+"parr.r.parrainage_boucle":"Not possible: this player is already your invitee.",
+"parr.r.trop_de_requetes":"Too many tries. Try again later.",
+"parr.vieBonusPrise":"Invite bonus life used for this run.",
+"titre.essaiBonus":"Bonus life · try {0}/{1}",
+"err.essais_epuises_bonusPris":"Tries used up and today's bonus life already taken. Come back tomorrow.",
+"err.essais_epuises_bonusFerme":"Tries used up. Bonus lives closed during this contest.",
+"compte.prochains":"Next tries in {0}"
 };
 SIM.LANGUES=LANGUES;
 
@@ -5330,7 +5747,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.9.3-proto';
+var VERSION='0.10.0-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -5379,6 +5796,14 @@ var TICKET=(function(){var t='',h=null;
   try{t=params.get('t')||'';h=/(?:^#|&)t=([^&]*)/.exec(location.hash||'');if(!t&&h)t=decodeURIComponent(h[1]);
     if(params.get('t')!==null||h){var u=new URL(location.href);u.searchParams.delete('t');if(h)u.hash='';history.replaceState(history.state,'',u.pathname+u.search+u.hash);}}catch(e){}
   return/^[A-Za-z0-9_-]{20,100}$/.test(t)?t:'';})();
+/* 0.10 : lien de parrainage (?ref=<code>) : retiré tout de suite de la barre d'adresse et gardé dans le stockage local
+   (il doit survivre au rechargement et à l'aller-retour de la connexion par Telegram), jusqu'à son envoi au serveur
+   (champ « parrain » de la connexion, ou /api/parrainage/lier si le joueur est déjà connecté). Gardé 14 jours au plus. */
+var REF_CLE='dzo.ref';
+(function(){var c='';
+  try{c=String(params.get('ref')||'').trim().toUpperCase();
+    if(params.get('ref')!==null){var u=new URL(location.href);u.searchParams.delete('ref');history.replaceState(history.state,'',u.pathname+u.search+u.hash);}}catch(e){}
+  if(/^[A-Z0-9]{4,16}$/.test(c)){try{window.localStorage.setItem(REF_CLE,JSON.stringify({c:c,t:Date.now()}));}catch(e){}}})();
 /* Page déjà ouverte : le lien du bot ne change alors que le fragment, sans recharger. On recharge pour le traiter. */
 try{window.addEventListener('hashchange',function(){if(/(?:^#|&)t=/.test(location.hash||''))location.reload();});}catch(e){}
 TAB_FORCE=(function(){var c=params.get('tableau');return c&&SIM.I_TABLEAU[c]!==undefined?SIM.I_TABLEAU[c]:-1;})();
@@ -5852,7 +6277,25 @@ var ICO_ARME={
    g.fillStyle='#F4C9B4';g.beginPath();ell(g,0,4,9.5,11.5);g.fill();g.fillStyle='#E48E7E';g.beginPath();ell(g,0,4,6,7.5);g.fill();g.fillStyle='#FFF3EA';g.beginPath();ell(g,0,4,2.2,2.6);g.fill();
    corps(g,function(g){g.beginPath();rrect(g,-3,-33,6,15,2);},'#FFF6E6',0,-26,6,{trait:1.6,contour:'#5A4A3A',sansRim:1,sansReflet:1});
    corps(g,function(g){g.beginPath();ell(g,-4,-34,4.2,4.2);ell(g,4,-34,4.2,4.2);},'#FFF6E6',0,-34,7,{trait:1.6,contour:'#5A4A3A',sansRim:1});
-   g.restore();}
+   g.restore();},
+ pet:function(g){ /* 0.10 : le pet qui pue : un gros nuage vert, trois ondulations d'odeur, deux mouches */
+   g.strokeStyle='rgba(160,255,120,0.9)';g.lineWidth=2.6;g.lineCap='round';
+   [[18,4],[31,1],[44,4]].forEach(function(p){g.beginPath();g.moveTo(p[0],p[1]+20);g.bezierCurveTo(p[0]-5,p[1]+15,p[0]+5,p[1]+9,p[0],p[1]+4);g.stroke();});
+   corps(g,function(g){g.beginPath();ell(g,20,42,13,11);ell(g,34,36,15,13);ell(g,46,44,12,10);ell(g,32,48,16,9);},'#7FD85A',32,42,22,{trait:2,contour:'#1F5A14'});
+   g.fillStyle='#1F5A14';g.beginPath();ell(g,26,41,2.2,3);ell(g,38,41,2.2,3);g.fill();
+   g.strokeStyle='#1F5A14';g.lineWidth=2;g.beginPath();g.moveTo(26,49);g.quadraticCurveTo(32,45,38,49);g.stroke();
+   [[9,24],[55,28]].forEach(function(p){g.fillStyle='rgba(255,255,255,0.8)';g.beginPath();ell(g,p[0]-2,p[1]-3,2.4,1.6,-0.5);ell(g,p[0]+2,p[1]-3,2.4,1.6,0.5);g.fill();g.fillStyle='#14141A';g.beginPath();ell(g,p[0],p[1],2.2,2.2);g.fill();});},
+ crosse:function(g){ /* 0.10 : la crosse du Dragon : la glace, la crosse en bois au ruban blanc, le palet qui file, une flamme */
+   g.fillStyle='rgba(190,235,255,0.55)';g.beginPath();ell(g,32,50,29,10);g.fill();
+   g.strokeStyle='rgba(255,255,255,0.8)';g.lineWidth=1.2;g.beginPath();g.moveTo(10,50);g.lineTo(22,47);g.moveTo(40,54);g.lineTo(52,51);g.stroke();
+   g.lineCap='round';g.lineJoin='round';
+   g.strokeStyle='#3A1E08';g.lineWidth=8;g.beginPath();g.moveTo(50,6);g.lineTo(24,44);g.quadraticCurveTo(20,50,8,50);g.stroke();
+   g.strokeStyle='#C98A4B';g.lineWidth=4.6;g.beginPath();g.moveTo(50,6);g.lineTo(24,44);g.quadraticCurveTo(20,50,8,50);g.stroke();
+   g.strokeStyle='#F6F1E7';g.lineWidth=4.6;g.beginPath();g.moveTo(22,47);g.quadraticCurveTo(19,50,11,50);g.stroke();
+   g.strokeStyle='#14141A';g.lineWidth=4.6;g.beginPath();g.moveTo(50,6);g.lineTo(46,12);g.stroke();
+   g.strokeStyle='rgba(255,138,61,0.9)';g.lineWidth=3;g.beginPath();g.moveTo(58,30);g.quadraticCurveTo(50,33,46,40);g.moveTo(60,38);g.quadraticCurveTo(54,39,50,43);g.stroke();
+   corps(g,function(g){g.beginPath();ell(g,42,45,8,4.4);},'#2A2A32',42,44,8,{trait:1.4,contour:'#050508',sansRim:1});
+   g.fillStyle='rgba(255,255,255,0.35)';g.beginPath();ell(g,40,43.4,4,1.2);g.fill();}
 };
 var ICO_PASSIF={
  moutarde:function(g){ /* moutarde */
@@ -6518,6 +6961,17 @@ function construireSprites(){
   SPR.faisceau=(function(){var c=toile(64,256),g=c.getContext('2d'),gr=g.createLinearGradient(0,0,64,0);gr.addColorStop(0,'rgba(255,210,63,0)');gr.addColorStop(0.3,'rgba(255,210,63,0.35)');gr.addColorStop(0.5,'rgba(255,255,230,0.9)');gr.addColorStop(0.7,'rgba(255,210,63,0.35)');gr.addColorStop(1,'rgba(255,210,63,0)');g.fillStyle=gr;g.fillRect(0,0,64,256);
     g.globalCompositeOperation='destination-in';var v=g.createLinearGradient(0,0,0,256);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(0.6,'rgba(0,0,0,0.7)');v.addColorStop(1,'rgba(0,0,0,1)');g.fillStyle=v;g.fillRect(0,0,64,256);return c;})();
   SPR.poing=sprite(32,32,16,16,dPoing);
+  /* 0.10 : palet de la crosse (vu en biais), nuages verts du pet qui pue (trois formes, dessinées une fois : rayon nominal 52) */
+  SPR.palet=sprite(24,16,12,8,function(g){g.fillStyle='#050508';g.beginPath();ell(g,12,9.4,9,5);g.fill();g.fillStyle='#2A2A32';g.beginPath();ell(g,12,7.6,9,5);g.fill();
+    g.strokeStyle='rgba(255,255,255,0.35)';g.lineWidth=1;g.beginPath();g.ellipse(12,7.6,6,3,0,3.4,5.6);g.stroke();},Math.max(RES,2));
+  SPR.nuages=[];
+  for(k=0;k<3;k++){(function(k){var r=SIM.mulberry32(501+k*17);SPR.nuages[k]=sprite(128,96,64,52,function(g){
+    var i,n=7,a,x,y,rr,gr;
+    for(i=0;i<n;i++){a=i/n*PI2+r()*0.5;x=64+Math.cos(a)*30*(0.7+r()*0.4);y=50+Math.sin(a)*18*(0.7+r()*0.4);rr=22+r()*10;
+      gr=g.createRadialGradient(x-rr*0.2,y-rr*0.3,rr*0.1,x,y,rr);gr.addColorStop(0,'rgba(196,255,140,0.95)');gr.addColorStop(0.55,'rgba(120,214,74,0.8)');gr.addColorStop(1,'rgba(70,150,40,0)');
+      g.fillStyle=gr;g.beginPath();g.arc(x,y,rr,0,PI2);g.fill();}
+    gr=g.createRadialGradient(64,50,4,64,50,40);gr.addColorStop(0,'rgba(150,235,90,0.85)');gr.addColorStop(1,'rgba(90,180,50,0)');g.fillStyle=gr;g.beginPath();g.ellipse(64,50,46,30,0,0,PI2);g.fill();
+  });})(k);}
   SPR.outils=[];for(k=0;k<5;k++)SPR.outils[k]=sprite(32,32,16,16,dOutil(k));
   SPR.caquelon=sprite(34,32,16,18,function(g){dCaquelon(g,false);});
   SPR.bougie=sprite(24,64,12,62,dBougie('#3DFF8F','#0B5A30'));
@@ -6809,6 +7263,8 @@ function traiterEv(){
       else if(k===1){anneauFx(x,y,v[o+3],0.45,3);secouer(0.2);son('boum');gerbe(x,y,16,4,300,8,0.5);}
       else if(k===2||k===3){anneauFx(x,y,v[o+3],0.3,1);gerbe(x,y,14,k===2?2:4,240,7,0.4);son('pop');if(k===2)secouer(0.15);}
       else if(k===4){anneauFx(x,y,v[o+3],0.4,2);anneauFx(x,y,v[o+3]*0.7,0.3,2);secouer(0.25);son('non');parole(x,y-46,T('parole.non'));}
+      else if(k===8){ /* 0.10 : flamme de la Charge des Dragons (impact d'un palet en feu) */
+        anneauFx(x,y,v[o+3],0.22,1);gerbe(x,y,5,2,160,7,0.3);gerbe(x,y,3,1,120,6,0.25);}
       else if(k===7){ /* vague du repas de Bénichon */
         anneauFx(x,y,v[o+3],0.55,2);anneauFx(x,y,v[o+3]*0.65,0.4,3);secouer(0.3);son('boum');budgetPart+=40;gerbe(x,y-10,24,1,420,9,0.6);}
       else if(k===5){ /* onde de choc de montée de niveau */
@@ -6894,6 +7350,14 @@ function traiterEv(){
       for(q=0;q<10;q++){a=Math.random()*PI2;vv=60+Math.random()*140;part(S.px,S.py-14,Math.cos(a)*vv,Math.sin(a)*vv-60,0.5+Math.random()*0.3,3+Math.random()*2,1,T_FROMAGE);}
       parole(S.px,S.py-58,T(k>0?'parole.crac':'parole.dernierBricelet'));break;
     case EV.PLAT:k=x|0;platFlash[k]=1;son('plat');anneauFx(S.px,S.py,120,0.4,2);if(S.col>=0)parole(S.px,S.py-70,txtPlat(S.col,k,'court')+' ✓');break;
+    /* ---- 0.10 : le pet qui pue (nuage lâché, Monsieur Prout jaloux) ---- */
+    case EV.PET:
+      x=y;y=v[o+3];
+      if(v[o+1]===0){gerbe(x,y,6,3,90,9,0.6);if(v[o+5])gerbe(x,y,5,4,140,8,0.4);
+        if(tReel-tParolePet>14){tParolePet=tReel;parole(S.px,S.py-58,T('parole.pet.'+(1+((Math.random()*3)|0))));}}
+      else{anneauFx(x,y,56,0.3,3);gerbe(x,y,10,3,220,9,0.45);
+        if(tReel-tParoleProut>4){tParoleProut=tReel;parole(x,y-40,T('parole.prout'));}}
+      break;
     case EV.REPAS:repasT=0;pluie.length=0;son('repas');eclairBlanc=1;gel=Math.max(gel,0.14);secouer(0.8);musBaisse=2;budgetPart+=200;
       anneauFx(S.px,S.py,420,0.8,2);anneauFx(S.px,S.py,300,0.6,0);anneauFx(S.px,S.py,180,0.45,3);gerbe(S.px,S.py-20,60,1,460,11,1);gerbe(S.px,S.py-20,40,4,380,10,0.9);
       vibrer([60,40,120]);break;
@@ -6970,6 +7434,7 @@ function bornesObjet(o){
     if(k===MDK.LAMPE){OBX0[o]=-12;OBX1[o]=12;OBY0[o]=-56;OBY1[o]=4;OFR[o]=0;}
     else if(k===MDK.BANC){OBX0[o]=-18;OBX1[o]=18;OBY0[o]=-16;OBY1[o]=4;OFR[o]=0;}
     else if(k===MDK.FLEURS){OBX0[o]=-12;OBX1[o]=12;OBY0[o]=-16;OBY1[o]=3;OFR[o]=0;}
+    else if(k===MDK.BANNIERE){OBX0[o]=-10;OBX1[o]=30;OBY0[o]=-70;OBY1[o]=4;OFR[o]=0;}
     else{OBX0[o]=-a-4;OBX1[o]=a+4;OBY0[o]=-2*b-48;OBY1[o]=4;OFR[o]=0;}
     return;}
   k=MW.ok[o];a=MW.oa[o];b=MW.ob[o];h=MW.oh[o];OFR[o]=MW.ot[o]===0?b:a*0.35;
@@ -7493,6 +7958,22 @@ function dessinLampe(g){
   g.fillStyle='#2A2A30';g.beginPath();g.moveTo(-5,-44);g.lineTo(5,-44);g.lineTo(3,-54);g.lineTo(-3,-54);g.closePath();g.fill();
   g.fillStyle='#FFE2A0';g.fillRect(-3.4,-52.6,6.8,7.4);g.fillStyle='#2A2A30';g.fillRect(-0.6,-52.6,1.2,7.4);g.fillRect(-5,-56,10,2.4);
 }
+/* 0.10 : bannière des Dragons (clin d'œil au hockey fribourgeois, sans nom ni emblème) : un mât, un fanion noir et blanc
+   à queue d'aronde, une tête de dragon stylisée crachant une flamme, deux crosses croisées et un palet. */
+function dessinBanniere(g){
+  g.fillStyle='rgba(0,0,0,0.3)';g.beginPath();ell(g,0,0,7,2.4);g.fill();
+  g.fillStyle='#2A2A30';g.fillRect(-1.6,-66,3.2,66);g.fillStyle='#C9A24A';g.beginPath();ell(g,0,-67,2.6,2.6);g.fill();
+  g.fillStyle='#F2EEE4';g.beginPath();g.moveTo(1.6,-64);g.lineTo(30,-64);g.lineTo(24,-48);g.lineTo(30,-32);g.lineTo(1.6,-32);g.closePath();g.fill();
+  g.fillStyle='#17161C';g.beginPath();g.moveTo(1.6,-64);g.lineTo(30,-64);g.lineTo(27,-56);g.lineTo(1.6,-56);g.closePath();g.fill();
+  g.strokeStyle='rgba(0,0,0,0.45)';g.lineWidth=1;g.beginPath();g.moveTo(1.6,-64);g.lineTo(30,-64);g.lineTo(24,-48);g.lineTo(30,-32);g.lineTo(1.6,-32);g.stroke();
+  /* tête de dragon, de profil, tournée vers la droite */
+  g.fillStyle='#17161C';g.beginPath();g.moveTo(5,-38);g.lineTo(6,-48);g.lineTo(9,-53);g.lineTo(12,-50);g.lineTo(16,-50);g.lineTo(21,-47);g.lineTo(21,-44);g.lineTo(15,-44);g.lineTo(13,-40);g.lineTo(9,-38);g.closePath();g.fill();
+  g.fillStyle='#E3001B';g.beginPath();ell(g,13,-47.6,1.2,1);g.fill();
+  g.fillStyle='#FF8A3D';g.beginPath();g.moveTo(21,-45.5);g.lineTo(26,-47.5);g.lineTo(24.5,-45.2);g.lineTo(27,-43);g.closePath();g.fill();
+  /* crosses croisées et palet */
+  g.strokeStyle='#7A5232';g.lineWidth=1.3;g.lineCap='round';g.beginPath();g.moveTo(5,-42);g.lineTo(13,-35);g.lineTo(16,-35);g.moveTo(19,-42);g.lineTo(11,-35);g.lineTo(8,-35);g.stroke();
+  g.fillStyle='#17161C';g.beginPath();ell(g,12,-33.8,2.4,1);g.fill();
+}
 function dessinBanc(g){g.fillStyle='#2A2A30';g.fillRect(-15,-6,2,7);g.fillRect(13,-6,2,7);g.fillStyle='#7A5232';g.fillRect(-17,-8,34,3.4);g.fillRect(-17,-15,34,3);g.fillStyle='rgba(255,255,255,0.12)';g.fillRect(-17,-8,34,1);}
 function dessinFleurs(g,v){g.fillStyle='#8A4A30';g.beginPath();g.moveTo(-8,0);g.lineTo(-10,-9);g.lineTo(10,-9);g.lineTo(8,0);g.closePath();g.fill();
   var c=['#E0403A','#F0D040','#E070C0'][v%3];g.fillStyle='#3A6A30';g.beginPath();g.ellipse(0,-11,10,4,0,0,PI2);g.fill();g.fillStyle=c;for(var k=0;k<7;k++){g.beginPath();g.arc(-8+k*2.7,-12-(k%2)*2,1.6,0,PI2);g.fill();}}
@@ -7534,7 +8015,7 @@ function construireDecor(){
   D.from=spriteC(176,242,88,190,dessinFromagerie,2);
   D.moleson=spriteC(260,296,130,234,dessinMoleson,2);
   D.panneau=[];for(k=0;k<nbPanneaux();k++)(function(v){D.panneau.push(spriteC(72,58,36,52,function(g){dessinPanneau(g,v);},3));})(k);
-  D.lampe=spriteC(16,62,8,58,dessinLampe,2);D.banc=spriteC(38,20,19,16,dessinBanc,2);
+  D.lampe=spriteC(16,62,8,58,dessinLampe,2);D.banc=spriteC(38,20,19,16,dessinBanc,2);D.banniere=spriteC(40,74,10,70,dessinBanniere,2);
   D.fleurs=[];for(k=0;k<3;k++)(function(v){D.fleurs.push(spriteC(24,20,12,17,function(g){dessinFleurs(g,v);},2));})(k);
   D.cabine=spriteC(48,76,24,38,dessinCabine,2);
   D.remp={};D.toitPont=null;
@@ -7555,7 +8036,7 @@ function rendreSolMonde(){
 }
 
 /* ---- passe du décor dans le rendu ---- */
-var ennCache=new Uint8Array(1024),funiAlerte=0,fontPulse=0,tParoleFuni=-9,OWX=null,OWY=null,lampN=0,lampX=new Float32Array(24),lampY=new Float32Array(24),FCV=0,FCM=0,FCA=0,eclabT=0;
+var ennCache=new Uint8Array(1024),funiAlerte=0,fontPulse=0,tParoleFuni=-9,tParolePet=-99,tParoleProut=-9,OWX=null,OWY=null,lampN=0,lampX=new Float32Array(24),lampY=new Float32Array(24),FCV=0,FCM=0,FCA=0,eclabT=0;
 function surPontV(v){for(var k=0;k<3;k++)if(v>MW.pv0[k]-6&&v<MW.pv1[k]+6)return true;return false;}
 function wxU(u){return camX+wrw(mdw(u-MW.ofu-camX));}
 function wyV(v){return camY+wrw(mdw(v-MW.ofv-camY));}
@@ -7616,6 +8097,7 @@ function dessinerObjet(o,dt){
     if(k===MDK.LAMPE){spr(D.lampe,x,y);if(lampN<24){lampX[lampN]=x;lampY[lampN]=y;lampN++;}}
     else if(k===MDK.BANC)spr(D.banc,x,y);
     else if(k===MDK.FLEURS)spr(D.fleurs[v%3],x,y);
+    else if(k===MDK.BANNIERE)spr(D.banniere,x,y);
     else{s=spriteToitPont(d);
       var a_=MW.da[d],b_=MW.db[d],sous_=RPX>x-a_&&RPX<x+a_&&RPY>y-2*b_-10&&RPY<y+6,cib=sous_?0.22:0.9,ii;
       if(!sous_)for(ii=0;ii<S.nE&&cib>0.6;ii++){var ee=S.E[ii];if(ee.rx>x-a_&&ee.rx<x+a_&&ee.ry>y-2*b_&&ee.ry<y)cib=0.6;}
@@ -7822,6 +8304,14 @@ function rendreMonde(dt){
   cx.globalCompositeOperation='lighter';
   for(i=0;i<S.nF;i++){f=S.F[i];if((i&1)===0)continue;al=f.vie<24?f.vie/24:1;cx.globalAlpha=al*0.05;sc=f.r*2.2;cx.drawImage(SPR.haloFromage,f.x-sc,f.y-sc*0.8,sc*2,sc*1.6);}
   cx.globalAlpha=1;cx.globalCompositeOperation='source-over';
+  /* 0.10 : nuages du pet qui pue : un sprite par nuage (gonfle à la pose, respire, s'efface), puis trois bouffées qui montent */
+  for(i=0;i<S.nNU;i++){f=S.NU[i];if(f.x<camX-vw-60||f.x>camX+vw+60||f.y<camY-vh-60||f.y>camY+vh+60)continue;
+    a=f.vieMax-f.vie;al=f.vie<30?f.vie/30:1;sc=f.r/52*(a<10?0.5+a/10*0.5:1)*(1+0.04*Math.sin(tReel*3+i));
+    cx.globalAlpha=al*0.6;s=SPR.nuages[(f.vieMax+i)%3];cx.drawImage(s.c,f.x-64*sc,f.y-52*sc,128*sc,96*sc);}
+  cx.globalCompositeOperation='lighter';
+  for(i=0;i<S.nNU;i++){f=S.NU[i];if(f.x<camX-vw||f.x>camX+vw||f.y<camY-vh||f.y>camY+vh)continue;al=f.vie<30?f.vie/30:1;
+    for(q=0;q<3;q++){a=(tReel*0.7+q/3+i*0.13)%1;r=10+a*14;x=f.x+Math.sin(i*2.1+q*2.3)*f.r*0.55;y=f.y-a*f.r*0.9;cx.globalAlpha=al*(1-a)*0.3;cx.drawImage(SPR.haloVert,x-r,y-r,r*2,r*2);}}
+  cx.globalAlpha=1;cx.globalCompositeOperation='source-over';
   /* ombres */
   if(!cache)for(i=0;i<S.nE;i++){e=S.E[i];x=e.rx;y=e.ry;if(x<camX-vw||x>camX+vw||y<camY-vh||y>camY+vh)continue;r=e.taille*0.55;cx.drawImage(SPR.ombre,x-r,y+e.taille*0.42-r*0.3,r*2,r*0.7);}
   cx.drawImage(SPR.ombre,px-26,py+7,52,18);
@@ -7909,8 +8399,10 @@ function rendreMonde(dt){
         cx.globalAlpha=0.7;cx.drawImage(SPR.haloCyan,x-22,y-22,44,44);cx.globalAlpha=1;}}
   }
   /* traînées des projectiles */
-  for(i=0;i<S.nP;i++){p=S.P[i];r=p.type===0?12:15;
-    for(q=0;q<p.tn;q++){k=(p.ti-1-q+16)&7;al=(1-q/p.tn);cx.globalAlpha=al*0.55;sc=r*(0.45+al*0.8);cx.drawImage(S.degT>1?SPR.haloChoco:SPR.haloCyan,p.tx[k]-sc,p.ty[k]-sc,sc*2,sc*2);}
+  for(i=0;i<S.nP;i++){p=S.P[i];r=p.type===0?12:(p.type===2?9:15);
+    /* 0.10 : traînée du palet : glace (blanche), en feu pour la Charge des Dragons */
+    s=S.degT>1?SPR.haloChoco:(p.type===2?(p.outil?SPR.haloRouge:SPR.haloBlanc):SPR.haloCyan);
+    for(q=0;q<p.tn;q++){k=(p.ti-1-q+16)&7;al=(1-q/p.tn);cx.globalAlpha=al*0.55;sc=r*(0.45+al*0.8);cx.drawImage(s,p.tx[k]-sc,p.ty[k]-sc,sc*2,sc*2);}
     cx.globalAlpha=0.95;cx.drawImage(SPR.haloCyan,p.rx-r*2.1,p.ry-r*2.1,r*4.2,r*4.2);cx.globalAlpha=0.5;cx.drawImage(SPR.haloBlanc,p.rx-r,p.ry-r,r*2,r*2);}
   /* 0.4 : bombes au fromage en vol : traînée dorée, cible au sol */
   for(i=0;i<S.nB;i++){p=S.B[i];k=Math.min(1,(p.t+IA)/p.T);x=p.x0+(p.x1-p.x0)*k;y=p.y0+(p.y1-p.y0)*k-Math.sin(k*Math.PI)*(p.frag?28:70);
@@ -7928,6 +8420,7 @@ function rendreMonde(dt){
   }
   for(i=0;i<S.nP;i++){p=S.P[i];
     if(p.type===0)sprT(SPR.poing,SPR.poing.c,p.rx,p.ry,Math.atan2(p.vy,p.vx),p.r/8*1.5,p.r/8*1.5,0);
+    else if(p.type===2)spr(SPR.palet,p.rx,p.ry);
     else{s=SPR.outils[p.outil];sprT(s,s.c,p.rx,p.ry,(S.n-p.nais)*0.42,1.55,1.55,0);}}
   for(i=0;i<MAXCO;i++){if(coT[i]<=0)continue;k=Math.min(1,coT[i]/0.2*1.6);a=coA[i]-coH[i]+2*coH[i]*k;r=coR[i]*0.85;
     sprT(SPR.jambon,SPR.jambon.c,coX[i]+Math.cos(a)*r,coY[i]+Math.sin(a)*r,a+1.2,1.15,1.15,0);}
@@ -8034,13 +8527,13 @@ function souffle(freq,q,dur,vol,type,dest,quand){
 }
 var GAMME=[1,1.2,1.3333,1.5,1.8];
 function note(k){if(k<0)k=0;return Math.pow(2,Math.floor(k/5))*GAMME[k%5];}
-var MIN_INT={coup:0.075,mort:0.065,gemme:0.035,tir0:0.09,tir1:0.12,tir2:0.12,tir3:0.5,tir5:0.12,pieu:0.09,pop:0.07,tirenn:0.12,boum:0.09,clic:0.03,compte:0.03,bombe:0.08,tir6:0.1,onde:0.15,fontaine:0.3,casse:0.08,ecrase:0.07,funi:1};
+var MIN_INT={coup:0.075,mort:0.065,gemme:0.035,tir0:0.09,tir1:0.12,tir2:0.12,tir3:0.5,tir5:0.12,pieu:0.09,pop:0.07,tirenn:0.12,boum:0.09,clic:0.03,compte:0.03,bombe:0.08,tir6:0.1,tir8:0.5,tir9:0.12,onde:0.15,fontaine:0.3,casse:0.08,ecrase:0.07,funi:1};
 function son(nom,p){
   if(!AU.c||!SAUV.son||AU.c.state!=='running')return;
   var t=AU.c.currentTime,d=AU.dern[nom]||0;if(t-d<(MIN_INT[nom]||0.02))return;AU.dern[nom]=t;
   try{jouerSon(nom,p,t);}catch(e){}
 }
-var NOMS_SONS=['coup','mort','gemme','niveau','coffre','evolution','touche','tir0','tir1','tir2','tir3','tir5','pieu','pop','boum','non','alarme','elite','boss','aspi','tirenn','soin','airdrop','fin','tampon','compte','clic','depart','vote','choix','victoire','onde','bombe','tir6','tresor','prise','turbo','rage','meuh','combo','nouvelle','funi','funidep','fontaine','casse','ecrase','tir7','crac','plat','repas'];
+var NOMS_SONS=['coup','mort','gemme','niveau','coffre','evolution','touche','tir0','tir1','tir2','tir3','tir5','pieu','pop','boum','non','alarme','elite','boss','aspi','tirenn','soin','airdrop','fin','tampon','compte','clic','depart','vote','choix','victoire','onde','bombe','tir6','tresor','prise','turbo','rage','meuh','combo','nouvelle','funi','funidep','fontaine','casse','ecrase','tir7','crac','plat','repas','tir8','tir9'];
 function jouerSon(nom,p,t){
   var h=1+(Math.random()*2-1)*0.06,k,f;
   switch(nom){
@@ -8097,6 +8590,9 @@ function jouerSon(nom,p,t){
     case'funidep':ton('sawtooth',70,140,0.9,0.12*(p||1),null,t,0.15);souffle(500,0.8,0.8,0.12*(p||1),'lowpass');break;
     case'fontaine':souffle(3200*h,1.5,0.18,0.05,'highpass');ton('sine',880*h,1320*h,0.09,0.04);break;
     case'tir7':souffle(700*h,0.8,0.12,0.22,'bandpass');ton('triangle',140*h,60,0.12,0.22);break;
+    /* 0.10 : le pet qui pue (grondement grave qui tremble), la crosse du Dragon (claquement sec sur la glace) */
+    case'tir8':ton('sawtooth',92*h,52,0.42,0.16,null,t,0.03);ton('square',68*h,46,0.36,0.07,null,t+0.04,0.03);souffle(260*h,0.7,0.4,0.22,'lowpass');break;
+    case'tir9':souffle(3200*h,0.9,0.05,0.22,'highpass');ton('square',1250*h,520,0.03,0.07);ton('sine',230*h,120,0.06,0.14);break;
     case'crac':souffle(2600*h,1.2,0.08,0.3,'highpass');ton('square',900*h,300,0.05,0.06);souffle(1200,0.8,0.1,0.18);break;
     case'plat':for(k=0;k<3;k++){f=523*note(k*2);ton('triangle',f,f,0.12,0.12,null,t+k*0.07);}ton('sine',1568,1568,0.5,0.06,null,t+0.2);break;
     case'repas':for(k=0;k<8;k++){f=262*note(k);ton('square',f,f,0.12,0.1,null,t+k*0.09);ton('triangle',f*2,f*2,0.1,0.06,null,t+k*0.09);}
@@ -8217,7 +8713,7 @@ function installerEntrees(){
     if(ecran==='entree'){if(!e.repeat)entrer();return;}
     /* 0.9 : panneau 987NES ouvert : Échap le ferme, rien d'autre ne passe (ni MORDRE, ni REJOUER) */
     if(NES_OUVERT===ecran&&(ecran==='titre'||ecran==='fin')){if(k==='Escape')fermerNes();return;}
-    if(ecran==='connexion'||ecran==='profil'||ecran==='boosts'||ecran==='classement'||ecran==='lots'){if(k==='Escape')allerEcran('titre');return;}
+    if(ecran==='connexion'||ecran==='profil'||ecran==='boosts'||ecran==='classement'||ecran==='lots'||ecran==='parrainage'){if(k==='Escape')allerEcran('titre');return;}
     if(REVOIR&&ecran==='jeu'){if(k==='Escape')quitterRevoir();return;}
     if(k==='ArrowUp'||k==='z'||k==='Z'||k==='w'||k==='W')touches.h=bas;
     else if(k==='ArrowDown'||k==='s'||k==='S')touches.b=bas;
@@ -8819,6 +9315,7 @@ function gainsArme(id,niv){
   /* éventail du jambon : en degrés */
   if(d.arc&&d.arc[a]!==d.arc[b]){var dg=function(c){return Math.round(2*Math.acos(Math.max(-1,Math.min(1,c)))*180/Math.PI)+'°';};L.push([T('stat.arc'),dg(d.arc[a]),dg(d.arc[b])]);}
   aj(T('stat.portee'),d.portee);aj(T('stat.cd'),d.cd,' s');aj(T('stat.duree'),d.duree,' s');aj(T('stat.repos'),d.repos,' s');aj(T('stat.pousse'),d.pousse);
+  aj(T('stat.rebonds'),d.rebonds);aj(T('stat.peur'),d.peur,' s'); /* 0.10 : crosse du Dragon, pet qui pue */
   cacheGains[cle]=L;return L;
 }
 function ligneGain(g,x,y){cx.font=police(12.5,2);cx.textAlign='left';cx.textBaseline='middle';var s=g[0]+' '+g[1]+' → ';cx.fillStyle='rgba(246,241,231,0.92)';cx.fillText(s,x,y);cx.fillStyle=C.vert;cx.fillText(g[2],x+cx.measureText(s).width,y);}
@@ -9115,7 +9612,16 @@ function rendreTitre(){
   /* 0.8 : bandeau du concours (ou de l'entraînement), touché → lots et règles */
   surveillerConcours();
   var bandeau=!horsRang&&bandeauConcours('tconcours',30,380,300,38);
-  if(!bandeau&&restants<=0&&!horsRang&&!(modeServeur()&&!connecte()))ttFit(T('titre.demain'),180,412,12,340,C.or,'center',0,true);
+  /* 0.10 : plus d'essai : le compte à rebours jusqu'aux prochains, bien visible (sinon le message d'avant) */
+  var epuise=restants<=0&&!horsRang&&!entrainementSeul()&&!(modeServeur()&&!connecte()),tpe=epuise?texteProchainsEssais():'';
+  if(!bandeau&&epuise)ttFit(tpe||T('titre.demain'),180,412,tpe?15:12,340,C.or,'center',tpe?1:0,true);
+  /* 0.10 : pastille « +5 % FIDÉLITÉ » collée sur le coin du bouton quand le bonus vaut aujourd'hui ; touchée → boosts (la règle) */
+  var fid=!horsRang&&!entrainementSeul()?fidelite():null;
+  if(fid&&fid.actif){var txf=T('fid.badge',fid.p);cx.font=police(11,0);var wf=Math.min(170,cx.measureText(txf).width+20);
+    var enf=zone('tfid',312-wf,413,wf,22,function(){allerEcran('boosts');});
+    cx.save();cx.translate(312-wf/2,424);cx.rotate(-0.07);k=1+Math.sin(t*3)*0.03;cx.scale(k,k);
+    cx.fillStyle=enf?'#FFE27A':C.or;cx.beginPath();rrect(cx,-wf/2,-11,wf,22,11);cx.fill();cx.strokeStyle=C.encre;cx.lineWidth=2;cx.stroke();
+    ttFit(txf,0,1,11,wf-14,C.encre,'center',0,false);cx.restore();}
   /* 0.9 : signature 987NES (à la place du slogan, qui reste dans la bande basse des téléphones hauts) ; touchée → panneau 987NES */
   ttFit(T('nes.signature'),180,500,12,336,zone('nesSig',14,494,332,15,ouvrirNes)?C.creme:C.or,'center',0,true);
   /* infos du jour : horde, essais, record, série, compte à rebours, décret (0.7 : celui du serveur, sinon un texte neutre) */
@@ -9129,6 +9635,9 @@ function rendreTitre(){
   /* 0.8 : en entraînement, pas d'essais à recharger : début du prochain concours s'il y en a un */
   var pc=NET.prochainConcours;
   if(entrainementSeul())ttFit(pc?T('lots.debutDans',dureeTexte(pc.debut-maintenantSrv())):T('concours.entrainementSous'),180,y0+43,10.5,316,C.cyan,'center',2,false);
+  /* 0.10 : concours qui finit avant minuit : sa fin, pas le minuit (pas deux comptes contradictoires) ; essais épuisés : en or */
+  else if(enConcours()&&resteAvantEssais()===null)ttFit(T('lots.reste',dureeTexte(NET.concours.fin-maintenantSrv())),180,y0+43,10.5,316,C.cyan,'center',2,false);
+  else if(epuise&&tpe)ttFit(tpe,180,y0+43,12,316,C.or,'center',1,true);
   else ttFit(texteCompte(),180,y0+43,10.5,316,C.cyan,'center',2,false);
   cx.fillStyle='rgba(246,241,231,0.14)';cx.fillRect(26,y0+52,308,1);
   if(dj>=0){ttFit(T('decretDuJour.ligne',nomDecret(dj)),180,y0+63,12,308,C.or,'center',0,false);ttFit(ligneDecret(dj),180,y0+77,10.5,312,'rgba(246,241,231,0.85)','center',2,false);}
@@ -9216,6 +9725,7 @@ function rendreFin(){
       yl=ys+140;
       /* 0.7 : ce que dit le serveur (vérification, score validé et rang du jour, refus, envoi en attente) */
       if(lsrv){ttFit(lsrv[0],180,yl,12,336,lsrv[1],'center',2,true);yl+=17;}
+      var lfid=ligneFidelite();if(lfid){ttFit(lfid[0],180,yl,12,336,lfid[1],'center',2,true);yl+=17;}
       if(tueurFin>=0){txt=T('fin.liquidePar',nomEnn(tueurFin,tueurVFin));cx.font=police(12,2);w=Math.min(300,cx.measureText(txt).width);s=SPR.ennV[tueurFin][tueurVFin]||SPR.enn[tueurFin];cx.drawImage(s.c,180-w/2-26,yl-11,22,22);ttFit(txt,180+11,yl,12,300,C.creme,'center',2,true);yl+=17;}
       if(regretFin){ttFit(regretFin,180,yl,12,336,C.cyan,'center',2,true);yl+=17;}
       if(S.repasFait){ttFit(T('fin.repas'),180,yl,11.5,336,C.or,'center',0,true);yl+=16;}
@@ -9236,7 +9746,7 @@ function rendreFin(){
     bouton('fcl',40,580,280,42,T('cl.titre'),3,quitterRevoir,null,14);
   }else{
     if(NET.debutEnCours)cx.globalAlpha=0.6;
-    bouton('rejouer',40,500,280,64,T(echauffement&&rang?'fin.defi':'fin.rejouer'),0,rejouer,rang?(echauffement?T('fin.essaiClasse',essaisUtil()+1,essaisMax()):T('fin.essai',essaisUtil()+1,essaisMax())):(modeServeur()&&!connecte()?T('titre.connecteToi'):T(classee?'fin.epuise':'entrainement')),28);
+    bouton('rejouer',40,500,280,64,T(echauffement&&rang?'fin.defi':'fin.rejouer'),0,rejouer,rang?(echauffement?T('fin.essaiClasse',essaisUtil()+1,essaisMax()):T('fin.essai',essaisUtil()+1,essaisMax())):(modeServeur()&&!connecte()?T('titre.connecteToi'):(classee&&restants<=0&&texteProchainsEssais()?texteProchainsEssais():T(classee?'fin.epuise':'entrainement'))),28);
     /* 0.9 : trois boutons sous REJOUER : partager, l'action suivante, et le panneau 987NES */
     bouton('partager',14,580,106,42,T('fin.partager'),2,partager,null,14);
     if(modeServeur()&&!connecte()&&!HORS_RANG)bouton('fcnx',127,580,106,42,T('cnx.bouton'),3,function(){allerEcran('connexion');},null,12.5);
@@ -9307,6 +9817,8 @@ function sousMordre(horsRang,prem,restants){
     if(!connecte())return T('titre.connecteToi');
     if(!versionOk())return T('titre.perimee');
     if(NET.debutEnCours)return T('titre.debut');
+    /* 0.10 : vies du jour épuisées, le prochain essai prendra la vie bonus du parrainage */
+    if(prochainEssaiBonus())return T('titre.essaiBonus',essaisUtil()+1,essaisMax());
   }
   return restants>0?T(grainePropre()?'titre.essaiNouvelle':'titre.essai',essaisUtil()+1,essaisMax()):T('titre.epuise');
 }
@@ -9332,7 +9844,8 @@ function boostDuJour(){
   if(SAUV.boost!==JOUR){SAUV.boost=JOUR;sauver();}
 }
 function carteScore(){
-  var c=toile(1080,1350),g=c.getContext('2d'),sc=SIM.score(S),pal=SIM.palier(sc,S),i,x;
+  /* 0.10 : score final du serveur (bonus de fidélité compris) une fois la partie validée, comme le texte du post */
+  var c=toile(1080,1350),g=c.getContext('2d'),sc=scoreFin(),pal=SIM.palier(sc,S),i,x;
   var gr=g.createLinearGradient(0,0,0,1350);gr.addColorStop(0,'#261B36');gr.addColorStop(1,'#0D0914');g.fillStyle=gr;g.fillRect(0,0,1080,1350);
   /* 0.5 : en fond, le quartier où la partie a commencé */
   if(S&&S.M){changerMonde(S.M);var c0=Math.floor(MW.ofu/CHK)-2,r0=Math.floor(MW.ofv/CHK)-2,j;g.globalAlpha=0.55;
@@ -9406,7 +9919,7 @@ function modeServeur(){return NET.actif&&NET.etat==='ok';}
 function connecte(){return modeServeur()&&!!NET.jeton&&!!NET.joueur&&!!NET.jour;}
 function versionOk(){return!NET.versions||NET.versions.indexOf(VERSION)>=0;}
 function boostsActifs(){return NET.regles&&NET.regles.boostsActifs?NET.regles.boostsActifs:[];}
-function afficherMsg(s,coul){NET.msg=s;NET.msgT=0;NET.msgCoul=coul||C.creme;}
+function afficherMsg(s,coul){NET.msg=s;NET.msgT=0;NET.msgCoul=coul||C.creme;NET.msgCompte=false;}
 /* message (et écran) gardés pour la sortie de l'écran d'entrée, sinon tout de suite */
 function msgApresEntree(s,coul,versEcran){if(ecran==='entree'){NET.msgEntree=[s,coul,versEcran||''];return;}afficherMsg(s,coul);if(versEcran&&ecran!=='jeu'&&ecran!=='fin')allerEcran(versEcran);}
 /* 0.7.1 : règle de graine annoncée par le serveur (regles.modeGraine, aussi dans /api/sante avant connexion) */
@@ -9449,6 +9962,9 @@ function appliquerSession(j){
   /* la langue de Telegram sert de langue par défaut tant que le joueur n'en a pas choisi */
   if(!SAUV.langue&&NET.joueur.langue){var l=langueDe(NET.joueur.langue);if(l&&l!==LANGUE)appliquerLangue(l,true);}
   envoyerAttentes();
+  /* 0.10 : résultat du parrainage envoyé avec la connexion ; sinon (déjà connecté, ou serveur d'avant la 0.10) : /lier */
+  if(j.parrainage&&typeof j.parrainage.resultat==='string')resultatParrainage(j.parrainage.resultat,null);
+  else if(refGarde())lierParrain();
 }
 function finSession(r){
   NET.majT=Date.now();
@@ -9460,7 +9976,7 @@ function ouvrirSession(){
   if(!NET.actif)return Promise.resolve(null);
   var tma=initDataTg(),st=sessionStockee();
   NET.etat='attente';NET.majT=Date.now();
-  if(tma){NET.tmaTente=true;NET.ticket='';return apiAppel('POST','/api/session',{version:VERSION},{auth:'tma '+tma}).then(finSession);}
+  if(tma){NET.tmaTente=true;NET.ticket='';return apiAppel('POST','/api/session',avecParrain({version:VERSION}),{auth:'tma '+tma}).then(finSession);}
   if(NET.ticket)return ouvrirParTicket(st);
   if(st){NET.jeton=st.j;NET.expire=st.e;NET.mode=st.m||'';cnxGarder();return rafraichir();}
   /* 0.7.2 : demande de connexion en cours dans cet onglet (page rechargée au retour de Telegram) : reprise */
@@ -9520,7 +10036,7 @@ function bandeauConcours(id,x,y,w,h){
    session gardée (appareil partagé, autre compte). Échec : message traduit, invitation à rouvrir le bot. */
 function ouvrirParTicket(st){
   var tk=NET.ticket;
-  return apiAppel('POST','/api/session',{ticket:tk,version:VERSION},{sansAuth:true}).then(function(r){
+  return apiAppel('POST','/api/session',avecParrain({ticket:tk,version:VERSION}),{sansAuth:true}).then(function(r){
     NET.majT=Date.now();
     if(r.statut===200){NET.ticket='';appliquerSession(r.json);msgApresEntree(T('cnx.bienvenue',NET.joueur.pseudo),C.vert);return r;}
     /* réseau ou serveur indisponible : le ticket est gardé en mémoire, nouvel essai avec la reprise automatique */
@@ -9540,12 +10056,12 @@ function rafraichir(){
     if(r.statut===0||r.statut>=500){if(NET.etat==='attente')NET.etat='hors';return r;}
     /* session expirée : dans Telegram, une nouvelle avec l'initData (s'il a moins d'une heure) */
     var tma=initDataTg();
-    if(r.statut===401&&tma&&!NET.tmaRetente){NET.tmaRetente=true;return apiAppel('POST','/api/session',{version:VERSION},{auth:'tma '+tma}).then(finSession);}
+    if(r.statut===401&&tma&&!NET.tmaRetente){NET.tmaRetente=true;return apiAppel('POST','/api/session',avecParrain({version:VERSION}),{auth:'tma '+tma}).then(finSession);}
     NET.etat='ok';return r;});
 }
 function connexionDev(){
   if(!DEV_ID)return;
-  apiAppel('POST','/api/session',{dev:{id:DEV_ID,prenom:'Dev'+DEV_ID,username:'dev'+DEV_ID,langue:LANGUE},version:VERSION}).then(function(r){finSession(r);if(r.statut===200)apresConnexion();});
+  apiAppel('POST','/api/session',avecParrain({dev:{id:DEV_ID,prenom:'Dev'+DEV_ID,username:'dev'+DEV_ID,langue:LANGUE},version:VERSION})).then(function(r){finSession(r);if(r.statut===200)apresConnexion();});
 }
 function apresConnexion(){afficherMsg(T('cnx.bienvenue',NET.joueur.pseudo),C.vert);allerEcran('titre');}
 /* 0.7.2 : connexion demandée ici, confirmée dans le bot. Le serveur donne un secret (gardé dans cet onglet
@@ -9574,7 +10090,7 @@ function cnxInterroger(){
   NET.cnxMinu=0;var c=NET.cnx;
   if(!c||c.etat!=='attente'||!c.secret||NET.cnxEnVol)return;
   NET.cnxEnVol=true;
-  apiAppel('POST','/api/connexion/etat',{secret:c.secret,version:VERSION},{sansAuth:true}).then(function(r){
+  apiAppel('POST','/api/connexion/etat',avecParrain({secret:c.secret,version:VERSION}),{sansAuth:true}).then(function(r){
     NET.cnxEnVol=false;
     if(NET.cnx!==c)return; /* annulée ou recommencée pendant l'appel */
     var j=r.json||{};
@@ -9589,10 +10105,72 @@ function cnxInterroger(){
 }
 /* rappel du Telegram Login Widget : l'objet reçu est transmis tel quel */
 window.__dzoTgAuth=function(user){
-  apiAppel('POST','/api/session',{widget:user,version:VERSION}).then(function(r){finSession(r);if(r.statut===200)apresConnexion();});
+  apiAppel('POST','/api/session',avecParrain({widget:user,version:VERSION})).then(function(r){finSession(r);if(r.statut===200)apresConnexion();});
 };
 /* 0.7.2 : la session dure 30 jours ; se déconnecter la révoque aussi côté serveur (cet appareil seulement) */
 function deconnecter(){var j=NET.jeton;if(j)apiAppel('POST','/api/deconnexion',{},{auth:'Bearer '+j});oublierSession();afficherMsg(T('profil.deconnecte'),C.creme);allerEcran('titre');}
+
+/* ---- 0.10 : parrainage ----
+   Le code lu dans ?ref= (gardé par REF_CLE) part dans le champ « parrain » de toute connexion par identité Telegram
+   (Mini App, widget, bot, ticket, identité de développement). La réponse porte parrainage.resultat ; il n'empêche
+   jamais la connexion. Joueur déjà connecté (session gardée) : POST /api/parrainage/lier. Le code est oublié dès
+   qu'une réponse définitive arrive (enregistré ou refusé) ; réseau coupé ou serveur indisponible : gardé pour plus tard. */
+function refGarde(){try{var o=JSON.parse(window.localStorage.getItem(REF_CLE)||'null');
+  if(o&&typeof o.c==='string'&&/^[A-Z0-9]{4,16}$/.test(o.c)&&Date.now()-(+o.t||0)<14*864e5)return o.c;if(o)window.localStorage.removeItem(REF_CLE);}catch(e){}return'';}
+function refOublier(){try{window.localStorage.removeItem(REF_CLE);}catch(e){}}
+function avecParrain(c){var r=refGarde();if(r)c.parrain=r;return c;}
+function lierParrain(){
+  var c=refGarde();if(!c||NET.parrLier||!connecte())return;NET.parrLier=true;
+  apiAppel('POST','/api/parrainage/lier',{code:c}).then(function(r){
+    NET.parrLier=false;var j=r.json||{};
+    if(r.statut===200&&j.parrainage&&typeof j.parrainage.resultat==='string'){resultatParrainage(j.parrainage.resultat,j.parrainage.parrain);return;}
+    if(r.statut===0||r.statut>=500||j.erreur==='session_invalide'||j.erreur==='session_absente')return;
+    /* serveur d'avant la 0.10 : la route n'existe pas, le code est oublié sans rien dire */
+    if(r.statut===404&&j.erreur==='introuvable'){refOublier();return;}
+    resultatParrainage(String(j.erreur||''),null);});
+}
+function texteParrainage(res,parrain){
+  if(DICO['parr.r.'+res]===undefined&&LANGUES.fr['parr.r.'+res]===undefined)return texteErreur({erreur:res});
+  return T('parr.r.'+res)+(res==='enregistre'&&parrain&&parrain.pseudo?T('parr.r.de',parrain.pseudo):'');
+}
+function resultatParrainage(res,parrain){
+  refOublier();NET.parrResultat=res;NET.parr=null;
+  var txt=texteParrainage(res,parrain),coul=res==='enregistre'?C.vert:C.or;
+  /* après le message de bienvenue de la connexion (posé juste après), sur la même bannière */
+  setTimeout(function(){
+    if(ecran==='entree'&&NET.msgEntree){NET.msgEntree[0]+=' '+txt;if(res!=='enregistre')NET.msgEntree[1]=coul;return;}
+    if(NET.msg&&NET.msgT<1&&NET.msg.indexOf(txt)<0){afficherMsg(NET.msg+' '+txt,res==='enregistre'?NET.msgCoul:coul);return;}
+    msgApresEntree(txt,coul);},0);
+}
+/* écran Parrainage : GET /api/parrainage (code, lien, filleuls, vies bonus) */
+function parrainageDispo(){return connecte()&&!!(NET.regles&&NET.regles.parrainage);}
+function chargerParrainage(){
+  if(!connecte())return;NET.parrErr='';
+  apiAppel('GET','/api/parrainage').then(function(r){var j=r.json||{};
+    if(r.statut===200&&typeof j.code==='string'){NET.parr=j;NET.parrT=Date.now();return;}
+    NET.parrErr=r.statut===404&&j.erreur==='introuvable'?T('parr.indispo'):(r.statut===0?T('net.horsLigne'):texteErreur(j));});
+}
+/* lien à partager : celui du serveur (https, ou http sur la machine du développeur), sinon URL_JEU?ref=<code> */
+function lienParrainage(){
+  var p=NET.parr;if(!p)return'';var u=String(p.lien||'');
+  if(/^https:\/\/[^\s"<>]+$/.test(u)||(hoteLocal()&&/^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?\/[^\s"<>]*$/.test(u)))return u;
+  return URL_JEU?URL_JEU+(URL_JEU.indexOf('?')<0?'?':'&')+'ref='+encodeURIComponent(p.code):'';
+}
+function partagerParrainageX(){var l=lienParrainage();if(l)ouvrirX(T('parr.texte')+' '+l);}
+function partagerParrainageTg(){var l=lienParrainage();if(l)ouvrirLien('https://t.me/share/url?url='+encodeURIComponent(l)+'&text='+encodeURIComponent(T('parr.texte')));}
+
+/* ---- 0.10 : vies bonus et boost de fidélité (champs absents d'un serveur plus ancien : rien ne s'affiche) ---- */
+function viesBonus(){var v=connecte()?NET.jour.viesBonus:null;return v&&typeof v==='object'&&typeof v.solde==='number'?v:null;}
+function vieBonusUtilisable(){var v=viesBonus();return!!(v&&v.utilisable);}
+/* le prochain essai classé prendrait la vie bonus : les vies du jour (gratuites et gagnées par posts) sont épuisées */
+function prochainEssaiBonus(){return connecte()&&vieBonusUtilisable()&&NET.jour.essaisUtilises>=NET.jour.essaisMax;}
+function fidelite(){
+  var f=connecte()?NET.jour.fidelite:null;if(!f||typeof f!=='object')return null;
+  var p=typeof f.pourcent==='number'?f.pourcent:(NET.regles&&NET.regles.fidelite&&typeof NET.regles.fidelite.pourcent==='number'?NET.regles.fidelite.pourcent:0);
+  if(!(p>0)||f.etat==='desactive')return null;
+  return{p:p,etat:String(f.etat||''),actif:f.actif===true,demain:f.demain&&typeof f.demain==='object'?f.demain:{}};
+}
+function pourcentFidelite(){var f=fidelite();if(f)return f.p;var r=NET.regles&&NET.regles.fidelite;return r&&typeof r.pourcent==='number'?r.pourcent:0;}
 
 /* ---- traduction des codes du serveur ---- */
 function texteErreur(e){
@@ -9606,9 +10184,11 @@ function texteErreur(e){
 function heureLocale(ms){var d=new Date(ms);return('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);}
 
 /* ---- essais : ceux du serveur une fois connecté, sinon le compte local de la 0.6 ---- */
-function essaisMax(){if(connecte())return NET.jour.essaisMax;return 3+(SAUV.boost===JOUR?1:0);}
+/* 0.10 : la vie bonus du parrainage utilisable aujourd'hui compte dans les essais affichés (« 4/4 » : /debut renvoie
+   alors essaisMax en la comptant) ; essaisRestants vient du serveur (jour.essaisRestants) quand il le donne */
+function essaisMax(){if(connecte())return NET.jour.essaisMax+(vieBonusUtilisable()?1:0);return 3+(SAUV.boost===JOUR?1:0);}
 function essaisUtil(){return connecte()?NET.jour.essaisUtilises:SAUV.essais;}
-function essaisRestants(){return Math.max(0,essaisMax()-essaisUtil());}
+function essaisRestants(){if(connecte()&&typeof NET.jour.essaisRestants==='number')return Math.max(0,NET.jour.essaisRestants);return Math.max(0,essaisMax()-essaisUtil());}
 function boostActif(){return connecte()?NET.jour.boosts.length>0:SAUV.boost===JOUR;}
 
 /* ---- compte à rebours : minuit à Zurich, affiché à l'heure de l'appareil ---- */
@@ -9625,9 +10205,15 @@ function prochainMinuit(){
   x=u-decalageZurich(x);x=u-decalageZurich(x);
   cacheMinuit={j:JOUR,t:x};return x;
 }
+/* 0.10 : compte à rebours des essais, à l'horloge du serveur (serveur.prochainJour de la session ; sans session, le
+   minuit de Zurich calculé ici, comme avant). « HH:MM:SS », ou « MM:SS » sous une heure ; arrivé à zéro, majReseau relit la
+   session (essais du nouveau jour sans recharger). null : un concours en cours finit avant minuit (son bandeau fait foi). */
+function fmtCompte(ms){var r=Math.max(0,Math.floor(ms/1000)),h=Math.floor(r/3600),m=Math.floor(r/60)%60,s=r%60;
+  return(h>0?(h<10?'0':'')+h+':':'')+(m<10?'0':'')+m+':'+(s<10?'0':'')+s;}
+function resteAvantEssais(){var fin=prochainMinuit();if(enConcours()&&NET.concours.fin<fin)return null;return Math.max(0,fin-maintenantSrv());}
+function texteProchainsEssais(){var r=resteAvantEssais();return r===null?'':T('compte.prochains',fmtCompte(r));}
 function texteCompte(){
-  var fin=prochainMinuit(),r=Math.max(0,Math.floor((fin-(Date.now()+NET.decalage))/1000)),h=Math.floor(r/3600),m=Math.floor(r/60)%60,s=r%60;
-  var d=h+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s,loc=heureLocale(fin-NET.decalage);
+  var fin=prochainMinuit(),d=fmtCompte(fin-(Date.now()+NET.decalage)),loc=heureLocale(fin-NET.decalage);
   var e=grainePropre();
   return loc==='00:00'?T(e?'titre.compteEssaisMinuit':'titre.compteMinuit',d):T(e?'titre.compteEssais':'titre.compte',d,loc);
 }
@@ -9654,6 +10240,14 @@ function retourAbsence(){
 /* texte d'un refus de fin de partie : « pause trop longue » se suffit à lui-même */
 function texteRefus(e){var c=String(e&&typeof e==='object'?e.erreur:(e||''));return c==='partie_trop_tardive'?texteErreur(e):T('net.refusee')+' '+texteErreur(e);}
 
+/* 0.10 : refus de /debut ; essais épuisés avec des vies bonus en banque : dire pourquoi elles ne servent pas */
+function texteDebutRefuse(e){
+  var vb=e&&e.viesBonus;
+  if(e&&e.erreur==='essais_epuises'&&vb&&typeof vb==='object'&&vb.solde>0){
+    if(vb.utiliseeAujourdhui)return T('err.essais_epuises_bonusPris');
+    if(vb.autorisee===false)return T('err.essais_epuises_bonusFerme');}
+  return texteErreur(e);
+}
 /* ---- partie classée : début ---- */
 function debutServeur(suite){
   if(NET.debutEnCours)return;NET.debutEnCours=true;
@@ -9661,12 +10255,23 @@ function debutServeur(suite){
     NET.debutEnCours=false;var e=r.json||{};
     if(r.statut===200&&typeof e.graine==='number'&&typeof e.jeton==='string'){
       NET.partie={jeton:e.jeton,graine:e.graine>>>0,essai:e.essai,essaisMax:e.essaisMax,jour:e.jour,debut:e.debut,joueur:NET.joueur.id,pauseMaxS:typeof e.pauseMaxS==='number'?e.pauseMaxS:undefined,t0:Date.now()};
-      if(NET.jour){NET.jour.essaisUtilises=e.essai;NET.jour.essaisMax=e.essaisMax;}
+      NET.partie.vieBonus=e.vieBonus===true;
+      if(NET.jour){
+        /* 0.10 : essai pris sur la vie bonus : elle n'est plus utilisable aujourd'hui (le serveur le redira au rafraîchissement) */
+        var vb=NET.jour.viesBonus;
+        if(e.vieBonus===true&&vb&&typeof vb==='object'){vb.utilisable=false;vb.utiliseeAujourdhui=true;if(vb.solde>0)vb.solde--;}
+        NET.jour.essaisUtilises=e.essai;NET.jour.essaisMax=e.essaisMax;
+        if(typeof NET.jour.essaisRestants==='number')NET.jour.essaisRestants=Math.max(0,NET.jour.essaisRestants-1);}
+      if(e.vieBonus===true)afficherMsg(T('parr.vieBonusPrise'),C.vert);
       suite();return;}
-    if(e.erreur==='essais_epuises'&&NET.jour){NET.jour.essaisUtilises=e.essaisUtilises;NET.jour.essaisMax=e.essaisMax;}
+    if(e.erreur==='essais_epuises'&&NET.jour){NET.jour.essaisUtilises=e.essaisUtilises;NET.jour.essaisMax=e.essaisMax;
+      if(e.viesBonus&&typeof e.viesBonus==='object')NET.jour.viesBonus=e.viesBonus;
+      if(typeof NET.jour.essaisRestants==='number')NET.jour.essaisRestants=0;}
     if(e.erreur==='version_perimee'&&e.versions)NET.versions=e.versions;
     if(r.statut===0||r.statut>=500&&e.erreur!=='serveur_occupe'){NET.etat='hors';afficherMsg(T('net.horsLigne'),C.danger);return;}
-    afficherMsg(texteErreur(e),C.danger);
+    afficherMsg(texteDebutRefuse(e),C.danger);
+    /* 0.10 : essais épuisés : le message porte le compte à rebours, qui tourne tant qu'il est affiché */
+    if(e.erreur==='essais_epuises')NET.msgCompte=true;
   });
 }
 /* lancer un essai classé : par le serveur si l'on est en ligne, sinon comme en 0.6 */
@@ -9705,11 +10310,15 @@ function envoyerFin(it){
 function resultatFin(it,r){
   var e=r.json||{},c=e.erreur,courant=NET.fin&&NET.fin.k===it.k;
   if(r.statut===200&&e.statut==='validee'){
-    retirerAttente(it.k);majFin(it,{statut:'validee',score:e.score,rangJour:e.rangJour,scoreJour:e.scoreJour,rangConcours:e.rangConcours||null,scoreConcours:e.scoreConcours||null});
+    retirerAttente(it.k);majFin(it,{statut:'validee',score:e.score,rangJour:e.rangJour,scoreJour:e.scoreJour,rangConcours:e.rangConcours||null,scoreConcours:e.scoreConcours||null,
+      /* 0.10 : score = score final ; scoreBrut, état du bonus de fidélité, vie bonus (absents d'un serveur plus ancien) */
+      partie:e.partie||null,scoreBrut:typeof e.scoreBrut==='number'?e.scoreBrut:null,fidelite:typeof e.fidelite==='string'?e.fidelite:null,
+      fidelitePourcent:typeof e.fidelitePourcent==='number'?e.fidelitePourcent:0,vieBonus:e.vieBonus===true});
     if(!courant)afficherMsg(T('net.envoyee',fmtNb(e.score)),C.vert);
+    else if(e.fidelite==='en_attente'&&e.partie)setTimeout(function(){suivreFidelite(it.k,e.partie,0);},20000);
     rafraichir();return;}
   if(r.statut===202||(r.statut===200&&e.statut==='en_attente')){majFin(it,{statut:'verif'});setTimeout(function(){sonder(it,e.partie,0);},e.reessayerDans||3000);return;}
-  if(r.statut===401){majFin(it,{statut:'reseau',erreur:c});var tma=initDataTg();if(tma)apiAppel('POST','/api/session',{version:VERSION},{auth:'tma '+tma}).then(finSession);return;}
+  if(r.statut===401){majFin(it,{statut:'reseau',erreur:c});var tma=initDataTg();if(tma)apiAppel('POST','/api/session',avecParrain({version:VERSION}),{auth:'tma '+tma}).then(finSession);return;}
   if(r.statut===0||r.statut===429||(r.statut>=500&&c!=='rejeu_delai'&&c!=='rejeu_echec')){majFin(it,{statut:'reseau',erreur:c});reessayer(it);return;}
   /* réponse définitive : refus, ou incident du serveur (la partie y est conservée, l'organisateur peut la relancer) */
   retirerAttente(it.k);majFin(it,{statut:r.statut>=500?'incident':'refusee',erreur:c});
@@ -9722,6 +10331,19 @@ function sonder(it,id,n){
     if(r.statut===200&&e.statut==='validee'){resultatFin(it,{statut:200,json:e});return;}
     if(r.statut===200){resultatFin(it,{statut:e.statut==='erreur'?503:422,json:{erreur:e.erreur}});return;}
     majFin(it,{statut:'reseau',erreur:e.erreur});reessayer(it);});
+}
+/* 0.10 : bonus de fidélité en attente de la relecture du post X d'hier : l'écran de fin relit la partie (toutes les 20 s,
+   10 minutes au plus, tant qu'elle reste affichée) ; le serveur l'accorde ou l'annule avant la clôture du jour */
+function suivreFidelite(k,id,n){
+  if(!NET.fin||NET.fin.k!==k||n>=30||!connecte())return;
+  apiAppel('GET','/api/partie/'+id).then(function(r){var e=r.json||{};
+    if(!NET.fin||NET.fin.k!==k)return;
+    if(r.statut===200&&e.statut==='validee'){
+      if(typeof e.score==='number')NET.fin.score=e.score;if(typeof e.scoreBrut==='number')NET.fin.scoreBrut=e.scoreBrut;
+      NET.fin.fidelite=typeof e.fidelite==='string'?e.fidelite:null;NET.fin.fidelitePourcent=typeof e.fidelitePourcent==='number'?e.fidelitePourcent:0;
+      if(NET.fin.fidelite!=='en_attente'){rafraichir();return;}}
+    else if(r.statut!==0&&r.statut<500)return;
+    setTimeout(function(){suivreFidelite(k,id,n+1);},20000);});
 }
 function reessayer(it){
   it.n=(it.n||0)+1;var d=Math.min(60000,3000*Math.pow(2,Math.min(5,it.n)));
@@ -9741,6 +10363,16 @@ function ligneServeur(){
   if(f.statut==='reseau')return[T('net.enAttente'),C.or];
   return[T('net.verif'),C.cyan];
 }
+/* 0.10 : ligne du bonus de fidélité sous la ligne du serveur (partie classée validée, serveur 0.10 seulement) */
+function ligneFidelite(){
+  if(REVOIR||!classee||!partieSrv)return null;
+  var f=NET.fin;if(!f||f.statut!=='validee'||!f.fidelite)return null;
+  if(f.fidelite==='accorde'&&f.fidelitePourcent>0&&typeof f.scoreBrut==='number')return[T('fid.finAccorde',fmtNb(f.scoreBrut),f.fidelitePourcent,fmtNb(f.score)),C.or];
+  if(f.fidelite==='en_attente')return[T('fid.finAttente',pourcentFidelite()||''),C.cyan];
+  if(f.fidelite==='annule')return[T('fid.finAnnule'),C.danger];
+  if(f.fidelite==='expire')return[T('fid.finExpire'),'rgba(246,241,231,0.75)'];
+  return null;
+}
 
 /* ---- navigation entre écrans ---- */
 function allerEcran(e){
@@ -9748,6 +10380,7 @@ function allerEcran(e){
   if(e==='titre')setTimeout(verifierVersion,0);
   if(e==='profil'){var j=NET.joueur||{};NET.profilMsg='';profilVal={pseudo:j.pseudo||'',wallet:j.wallet||'',x:j.x?'@'+j.x:''};profilInit=true;}
   if(e==='boosts'){NET.boostMsg='';chargerCode();}
+  if(e==='parrainage'){NET.parr=null;chargerParrainage();}
   if(e==='classement'){NET.cl.defil=0;if(NET.cl.periode==='concours'&&!enConcours())NET.cl.periode='jour';chargerClassement(NET.cl.periode);}
   if(e==='connexion'){NET.widgetT=0;if(NET.cnx&&NET.cnx.etat!=='attente'&&NET.cnx.etat!=='demande')NET.cnx=null;}
   REVOIR=e==='jeu'?REVOIR:null;
@@ -9890,7 +10523,46 @@ function rendreProfil(){
   bouton('psauver',60,y+310,240,50,T('profil.enregistrer'),0,sauverProfil,null,20);
   if(NET.profilMsg)ttFit(NET.profilMsg,180,y+378,12,320,NET.profilCoul||C.creme,'center',2,true);
   if(j&&NET.mode!=='miniapp')bouton('pdeco',100,y+400,160,32,T('profil.deconnecter'),1,deconnecter,null,11);
-  if(NET.profilMsg&&/reprenable/.test(NET.profilErr||''))bouton('pboost',100,y+440,160,32,T('boost.titre'),2,function(){allerEcran('boosts');},null,11);
+  var rep=NET.profilMsg&&/reprenable/.test(NET.profilErr||'');
+  if(rep)bouton('pboost',100,y+440,160,32,T('boost.titre'),2,function(){allerEcran('boosts');},null,11);
+  /* 0.10 : parrainage (serveur 0.10 : regles.parrainage) ; vies bonus en banque en sous-titre */
+  if(parrainageDispo()){var vb=viesBonus();
+    bouton('pparr',70,y+(rep?482:442),220,40,T('parr.titre'),3,function(){allerEcran('parrainage');},vb&&vb.solde>0?T('parr.vies')+' : '+vb.solde:null,15);}
+}
+
+/* ---- 0.10 : écran Parrainage (mon lien, partage, filleuls, vies bonus, règle) ---- */
+function rendreParrainage(){
+  fondMenu();entete(T('parr.titre'));
+  var y=SAFE_H+50,p=NET.parr,n,i;
+  if(!modeServeur()){bientot(y+30);return;}
+  if(!connecte()){inviterConnexion(y+140);return;}
+  n=para(T('parr.regle',p&&p.regle&&p.regle.joursActifs?p.regle.joursActifs:((NET.regles&&NET.regles.parrainage&&NET.regles.parrainage.joursActifs)||2)),180,y+12,326,11.5,C.creme,'center',2,15,false);
+  y+=12+n*15;
+  n=para(T('parr.regle2'),180,y,326,10.5,'rgba(246,241,231,0.75)','center',2,13,false);
+  y+=n*13+8;
+  if(!p){ttFit(NET.parrErr||T('parr.chargement'),180,y+40,13,320,NET.parrErr?C.or:C.creme,'center',2,true);
+    if(NET.parrErr)bouton('parrReessayer',110,y+70,140,34,T('net.reessayer'),3,chargerParrainage,null,13);return;}
+  /* mon lien : code en gros, lien en petit, copier */
+  var lien=lienParrainage();
+  panneau(16,y,328,92,12,'rgba(58,40,18,0.95)','rgba(30,20,10,0.95)','rgba(255,210,63,0.5)',1.5);
+  tn(T('parr.monLien'),32,y+14,9.5,C.or,'left',0);
+  tt(p.code,130,y+40,24,C.or,'center',1);
+  bouton('parrCopier',240,y+24,92,32,T('boost.copier'),2,function(){if(lien)copier(lien);},null,11);
+  ttFit(lien,180,y+74,10.5,300,'rgba(246,241,231,0.8)','center',1,false);
+  y+=102;
+  /* partager : X (rédaction d'un post), Telegram (choix de la conversation, message déjà écrit) */
+  bouton('parrX',16,y,160,42,T('parr.partagerX'),3,partagerParrainageX,null,13);
+  bouton('parrTg',184,y,160,42,T('parr.partagerTg'),3,partagerParrainageTg,null,13);
+  y+=54;
+  /* compteurs */
+  var vb=p.viesBonus&&typeof p.viesBonus==='object'?p.viesBonus:null,cases=[[T('parr.filleuls'),p.filleuls||0,C.creme],[T('parr.actifs'),p.filleulsActifs||0,C.cyan],[T('parr.vies'),vb?vb.solde:0,C.vert]];
+  panneau(16,y,328,64,12,'rgba(38,27,54,0.95)','rgba(20,13,32,0.95)','rgba(246,241,231,0.18)',1);
+  for(i=0;i<3;i++){var cxi=16+328/6+i*328/3;tt(''+cases[i][1],cxi,y+26,22,cases[i][2],'center',1);ttFit(cases[i][0],cxi,y+50,10.5,100,'rgba(246,241,231,0.7)','center',0,false);}
+  y+=76;
+  if(vb&&vb.solde>0&&vb.utiliseeAujourdhui){ttFit(T('parr.utiliseeAujourdhui'),180,y,11.5,320,C.or,'center',2,false);y+=17;}
+  else if(vb&&vb.solde>0&&vb.autorisee===false){ttFit(T('parr.fermees'),180,y,11.5,320,C.or,'center',2,false);y+=17;}
+  if(p.parrain&&p.parrain.pseudo){ttFit(T('parr.tonParrain',p.parrain.pseudo),180,y,11.5,320,C.creme,'center',2,false);y+=17;}
+  if(p.filleulsAnciens>0){ttFit(T('parr.anciens',p.filleulsAnciens),180,y,10.5,320,'rgba(246,241,231,0.6)','center',2,false);y+=16;}
 }
 
 /* ---- boosts ---- */
@@ -9940,8 +10612,10 @@ function rendreBoosts(){
   if(entrainementSeul()){para(T('boost.horsConcours'),180,y+40,300,14,C.creme,'center',2,19,true);bandeauConcours('bconcours',30,y+120,300,38);return;}
   if(!connecte()){inviterConnexion(y+140);return;}
   ttFit(T(eX.v08?'boost.regleConcours':'boost.regle'),180,y+8,12,330,C.creme,'center',2,true);
-  if(eX.v08&&j.boostsMax)ttFit(T('boost.viesGagnees',j.viesGagnees||0,j.boostsMax.total),180,y+26,13,330,(j.viesGagnees||0)<j.boostsMax.total?C.cyan:C.vert,'center',0,true);
-  else ttFit(T('titre.essais',essaisRestants(),essaisMax()),180,y+26,13,330,essaisRestants()>0?C.cyan:C.danger,'center',0,true);
+  /* 0.10 : suivi du compte à rebours des prochains essais (en or quand il n'en reste aucun) */
+  var tpb=texteProchainsEssais(),vide=essaisRestants()<=0;
+  if(eX.v08&&j.boostsMax)ttFit(T('boost.viesGagnees',j.viesGagnees||0,j.boostsMax.total)+(tpb?' · '+tpb:''),180,y+26,13,330,vide&&tpb?C.or:((j.viesGagnees||0)<j.boostsMax.total?C.cyan:C.vert),'center',0,true);
+  else ttFit(T('titre.essais',essaisRestants(),essaisMax())+(tpb?' · '+tpb:''),180,y+26,13,330,essaisRestants()>0?C.cyan:C.danger,'center',0,true);
   /* code du jour */
   panneau(40,y+40,280,56,12,'rgba(58,40,18,0.95)','rgba(30,20,10,0.95)','rgba(255,210,63,0.5)',1.5);
   tn(T('boost.code'),56,y+52,9.5,C.or,'left',0);
@@ -9978,7 +10652,21 @@ function rendreBoosts(){
       bouton('verifTg',TG_GROUPE_URL?186:24,y+104,TG_GROUPE_URL?150:312,40,T('boost.verifier'),0,verifierTg,null,14);
       y+=168;}
   }
-  if(NET.boostMsg)para(NET.boostMsg,180,Math.min(y+8,606),330,12,NET.boostCoul||C.creme,'center',2,15,true);
+  /* 0.10 : boost de fidélité : la règle, l'état d'aujourd'hui et ce qui est déjà fait pour demain */
+  var fd=fidelite();if(fd)y=blocFidelite(fd,y);
+  if(NET.boostMsg)para(NET.boostMsg,180,Math.min(y+8,612),330,12,NET.boostCoul||C.creme,'center',2,15,true);
+}
+function blocFidelite(fd,y){
+  var p=fd.p,d=fd.demain,e=fd.etat,h,n,l1=null,c1=C.creme;
+  if(e==='actif'){l1=T('fid.actif',p);c1=C.vert;}else if(e==='a_relire'){l1=T('fid.aRelire',p);c1=C.cyan;}else if(e==='annule'){l1=T('fid.annule');c1=C.danger;}
+  n=lignes(T('fid.regle',p),316,10.5,2).length;
+  h=14+n*13+(l1?15:0)+16;
+  panneau(12,y,336,h,10,'rgba(58,40,18,0.9)','rgba(30,20,10,0.9)','rgba(255,210,63,0.45)',1);
+  var yy=y+12;
+  if(l1){ttFit(l1,180,yy,12,316,c1,'center',0,true);yy+=15;}
+  para(T('fid.regle',p),180,yy,316,10.5,'rgba(246,241,231,0.85)','center',2,13,false);yy+=n*13;
+  ttFit(d.pret?T('fid.pret',p):T('fid.demain',d.x?'✓':'—',d.tg?'✓':'—'),180,yy+1,11.5,316,d.pret?C.vert:C.or,'center',0,false);
+  return y+h+4;
 }
 
 /* ---- 0.8 : écran du concours (lots, dates, vies, mode de classement) ---- */
@@ -10198,7 +10886,7 @@ function hymneDebloquer(){
 function hymneVoulu(){
   if(!HY.debloque||!SAUV.son)return'';
   try{if(document.hidden)return'';}catch(e){}
-  if(ecran==='entree'||ecran==='titre'||ecran==='connexion'||ecran==='profil'||ecran==='boosts'||ecran==='classement'||ecran==='lots')return tDepart>=0?'':'titre';
+  if(ecran==='entree'||ecran==='titre'||ecran==='connexion'||ecran==='profil'||ecran==='boosts'||ecran==='classement'||ecran==='lots'||ecran==='parrainage')return tDepart>=0?'':'titre';
   if(ecran==='fin'&&!REVOIR&&S)return S.victoire?'victoire':'fin';
   return'';
 }
@@ -10244,7 +10932,7 @@ function lienCarte(nom){
   if(!PARTAGE_URL)return URL_JEU;
   return PARTAGE_URL.replace(/\/*$/,'/')+LANGUE+'/'+nom+'.html';
 }
-function carteDeLaPartie(){if(!S)return'ambiance-1';var sc=SIM.score(S);return carteDuScore(sc,!!S.victoire,!!S.repasFait);}
+function carteDeLaPartie(){if(!S)return'ambiance-1';var sc=scoreFin();return carteDuScore(sc,!!S.victoire,!!S.repasFait);}
 /* créature dessinée en vecteur à la taille voulue (net à toute échelle) : pieds en (x, y), regard vers sens (1 droite, -1 gauche) */
 function dessinCreature(g,t,v,x,y,taille,sens,ombre){
   var V=VAR[t][v]||VAR[t][0],f=V.o===0?1:V.o*sens;
@@ -10430,9 +11118,9 @@ var tPrec=0,DZO_TENTE=false,msImage=0,fige=false,regardX=null,regardY=0;
 function rendre(dt){
   if(MODE_CARTES){rendreCartesPartage();return;}
   rendreEcran(dt);
-  if(NET.msg&&NET.msgT<4.5){colonne();cx.globalAlpha=Math.min(1,(4.5-NET.msgT)/0.4);var lm=lignes(NET.msg,300,12,2),hm=lm.length*16+14,ym=SAFE_H+40;
+  if(NET.msg&&NET.msgT<4.5){colonne();cx.globalAlpha=Math.min(1,(4.5-NET.msgT)/0.4);var tm=NET.msg+(NET.msgCompte&&texteProchainsEssais()?' '+texteProchainsEssais():''),lm=lignes(tm,300,12,2),hm=lm.length*16+14,ym=SAFE_H+40;
     cx.fillStyle='rgba(13,9,20,0.92)';cx.beginPath();rrect(cx,20,ym,320,hm,10);cx.fill();cx.strokeStyle=NET.msgCoul||C.creme;cx.lineWidth=1.5;cx.stroke();
-    para(NET.msg,180,ym+14,300,12,NET.msgCoul||C.creme,'center',2,16,false);cx.globalAlpha=1;}
+    para(tm,180,ym+14,300,12,NET.msgCoul||C.creme,'center',2,16,false);cx.globalAlpha=1;}
   finChamps();
 }
 function rendreEcran(dt){
@@ -10446,6 +11134,7 @@ function rendreEcran(dt){
   if(ecran==='boosts'){rendreBoosts();rendreMarges();return;}
   if(ecran==='classement'){rendreClassement();rendreMarges();return;}
   if(ecran==='lots'){rendreLots();rendreMarges();return;}
+  if(ecran==='parrainage'){rendreParrainage();rendreMarges();return;}
   nBT=0;
   rendreMonde(sous==='pause'?0:(sous==='niveau'?dt*0.35:dt));
   rendreHUD(sous==='pause'?0:dt);
@@ -10494,7 +11183,10 @@ window.__dzo={
     /* 0.7.2 : demande de connexion en cours (le secret n'est jamais exposé ici) */
     cnx:NET.cnx?{etat:NET.cnx.etat,code:NET.cnx.code,vue:!!NET.cnx.vue,lien:lienCnx(),msg:NET.cnx.msg||''}:null,
     /* 0.9 : podium du jour (classement public) et classement public gardé par période */
-    podium:NET.pub.jour&&NET.pub.jour.json?NET.pub.jour.json.top.slice(0,3):null,clPeriode:NET.cl.periode};},
+    podium:NET.pub.jour&&NET.pub.jour.json?NET.pub.jour.json.top.slice(0,3):null,clPeriode:NET.cl.periode,
+    /* 0.10 : parrainage (code gardé de ?ref=, dernier résultat, écran) ; vies bonus, fidélité, essais affichés */
+    ref:refGarde(),parrResultat:NET.parrResultat||'',parr:NET.parr,parrErr:NET.parrErr||'',lienParr:lienParrainage(),
+    essaisRestants:essaisRestants(),essaisMax:essaisMax(),compteEssais:texteProchainsEssais(),fidelite:fidelite(),vieBonusPartie:!!(partieSrv&&partieSrv.vieBonus)};},
   /* 0.9 : panneau 987NES (ouvert ou non, liens configurés) et version affichée */
   nes:function(){return{ouvert:NES_OUVERT,liens:{site:URL_SITE,x:URL_X,tg:URL_TG},public:PUBLIC,versionAffichee:versionAffichee()};},
   ecran:function(e){if(e==='titre'&&ecran==='entree')entrer();else if(e)allerEcran(e);return ecran;},
