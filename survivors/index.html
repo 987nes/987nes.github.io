@@ -5747,7 +5747,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.10.0-proto';
+var VERSION='0.10.1-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -9724,12 +9724,22 @@ function rendreFin(){
       /* pourquoi on est mort, ce qu'on a raté de peu */
       yl=ys+140;
       /* 0.7 : ce que dit le serveur (vérification, score validé et rang du jour, refus, envoi en attente) */
-      if(lsrv){ttFit(lsrv[0],180,yl,12,336,lsrv[1],'center',2,true);yl+=17;}
-      var lfid=ligneFidelite();if(lfid){ttFit(lfid[0],180,yl,12,336,lfid[1],'center',2,true);yl+=17;}
-      if(tueurFin>=0){txt=T('fin.liquidePar',nomEnn(tueurFin,tueurVFin));cx.font=police(12,2);w=Math.min(300,cx.measureText(txt).width);s=SPR.ennV[tueurFin][tueurVFin]||SPR.enn[tueurFin];cx.drawImage(s.c,180-w/2-26,yl-11,22,22);ttFit(txt,180+11,yl,12,300,C.creme,'center',2,true);yl+=17;}
-      if(regretFin){ttFit(regretFin,180,yl,12,336,C.cyan,'center',2,true);yl+=17;}
-      if(S.repasFait){ttFit(T('fin.repas'),180,yl,11.5,336,C.or,'center',0,true);yl+=16;}
-      if(!REVOIR)ttFit(T(classee?'fin.recordJour':'fin.recordPerso',fmtNb(classee?SAUV.record:SAUV.meilleur))+(nouveauRecord?T('fin.nouveau'):''),180,yl,11.5,336,C.or,'center',1,true);
+      /* 0.10.1 : les lignes se partagent la place disponible pour que les icônes du build restent toujours visibles ;
+         s'il y en a trop, le regret puis le repas cèdent la place (serveur, fidélité, tueur et record restent) */
+      var LF=[],lfid=ligneFidelite(),pasL,dispoL=496-30-14-yl;
+      if(lsrv)LF.push({k:'srv',t:lsrv[0],c:lsrv[1],p:12,g:2});
+      if(lfid)LF.push({k:'fid',t:lfid[0],c:lfid[1],p:12,g:2});
+      if(tueurFin>=0)LF.push({k:'tueur',t:T('fin.liquidePar',nomEnn(tueurFin,tueurVFin)),c:C.creme,p:12,g:2});
+      if(regretFin)LF.push({k:'regret',t:regretFin,c:C.cyan,p:12,g:2});
+      if(S.repasFait)LF.push({k:'repas',t:T('fin.repas'),c:C.or,p:11.5,g:0});
+      if(!REVOIR)LF.push({k:'record',t:T(classee?'fin.recordJour':'fin.recordPerso',fmtNb(classee?SAUV.record:SAUV.meilleur))+(nouveauRecord?T('fin.nouveau'):''),c:C.or,p:11.5,g:1});
+      var oter=['regret','repas'];
+      while(LF.length>1&&dispoL/(LF.length-1)<13.5&&oter.length){var ko=oter.shift();LF=LF.filter(function(l){return l.k!==ko;});}
+      pasL=LF.length>1?Math.max(12,Math.min(17,dispoL/(LF.length-1))):17;
+      for(i=0;i<LF.length;i++){var lf=LF[i];
+        if(lf.k==='tueur'){cx.font=police(12,2);w=Math.min(300,cx.measureText(lf.t).width);s=SPR.ennV[tueurFin][tueurVFin]||SPR.enn[tueurFin];cx.drawImage(s.c,180-w/2-26,yl-11,22,22);ttFit(lf.t,180+11,yl,12,300,lf.c,'center',2,true);}
+        else ttFit(lf.t,180,yl,lf.p,336,lf.c,'center',lf.g,true);
+        if(i<LF.length-1)yl+=pasL;}
       yl+=12;
       if(yl+30<496){n=S.nA+S.nPa;
         for(i=0;i<S.nA;i++)caseBuild(180-n*15+i*30,yl,SPR.icoArme[S.armes[i].id],S.armes[i].evo?'★':''+S.armes[i].niv,S.armes[i].evo?C.or:C.creme,false);
