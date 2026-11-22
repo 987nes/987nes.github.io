@@ -2846,6 +2846,16 @@ LANGUES.fr={
 "niv.profilAucun":"Aucun wallet relié",
 "niv.profilSigne":"{0} · signé",
 "niv.profilTape":"{0} · non signé",
+"sec.connexion":"Connecte-toi d'abord.",
+"sec.ok":"Vies illimitées jusqu'au {0}",
+"sec.infini":"∞ essais",
+"niv.profilTapeAide":"Un wallet signé le remplace aussitôt.",
+"niv.profilSigneAide":"Il reçoit tes lots et compte pour ton niveau.",
+"niv.bonusDzodzet":"Il reçoit tes lots dès qu'il est relié ; le bonus de niveau commence une fois Dzodzet.",
+"niv.pRelier":"RELIER",
+"niv.pChanger":"CHANGER",
+"niv.pRetirer":"RETIRER",
+"niv.pRetirerConf":"SÛR ?",
 "err.niveau_touriste":"Touriste aujourd’hui : partie hors classement.",
 "err.quoi_invalide":"Vérification inconnue.",
 "err.wallet_changement_trop_tot":"Un seul changement de wallet par 7 jours.",
@@ -3910,6 +3920,16 @@ LANGUES.de={
 "niv.profilAucun":"Kein Wallet verbunden",
 "niv.profilSigne":"{0} · signiert",
 "niv.profilTape":"{0} · nicht signiert",
+"sec.connexion":"Melde dich zuerst an.",
+"sec.ok":"Unbegrenzte Leben bis {0}",
+"sec.infini":"∞ Versuche",
+"niv.profilTapeAide":"Ein signiertes Wallet ersetzt es sofort.",
+"niv.profilSigneAide":"Es erhält deine Preise und zählt für deine Stufe.",
+"niv.bonusDzodzet":"Es erhält deine Preise, sobald es verbunden ist; der Stufenbonus beginnt, sobald du Dzodzet bist.",
+"niv.pRelier":"VERBINDEN",
+"niv.pChanger":"WECHSELN",
+"niv.pRetirer":"ENTFERNEN",
+"niv.pRetirerConf":"SICHER?",
 "err.niveau_touriste":"Heute Tourist: Runde ohne Rangliste.",
 "err.quoi_invalide":"Unbekannte Prüfung.",
 "err.wallet_changement_trop_tot":"Nur ein Wallet-Wechsel pro 7 Tage.",
@@ -4974,6 +4994,16 @@ LANGUES.it={
 "niv.profilAucun":"Nessun wallet collegato",
 "niv.profilSigne":"{0} · firmato",
 "niv.profilTape":"{0} · non firmato",
+"sec.connexion":"Prima accedi.",
+"sec.ok":"Vite illimitate fino al {0}",
+"sec.infini":"∞ tentativi",
+"niv.profilTapeAide":"Un wallet firmato lo sostituisce subito.",
+"niv.profilSigneAide":"Riceve i tuoi premi e conta per il tuo livello.",
+"niv.bonusDzodzet":"Riceve i tuoi premi appena collegato; il bonus di livello inizia una volta Dzodzet.",
+"niv.pRelier":"COLLEGA",
+"niv.pChanger":"CAMBIA",
+"niv.pRetirer":"RIMUOVI",
+"niv.pRetirerConf":"SICURO?",
 "err.niveau_touriste":"Turista oggi: partita fuori classifica.",
 "err.quoi_invalide":"Verifica sconosciuta.",
 "err.wallet_changement_trop_tot":"Un solo cambio di wallet ogni 7 giorni.",
@@ -6038,6 +6068,16 @@ LANGUES.es={
 "niv.profilAucun":"Ningún wallet vinculado",
 "niv.profilSigne":"{0} · firmado",
 "niv.profilTape":"{0} · sin firmar",
+"sec.connexion":"Primero inicia sesión.",
+"sec.ok":"Vidas ilimitadas hasta el {0}",
+"sec.infini":"∞ intentos",
+"niv.profilTapeAide":"Un wallet firmado lo reemplaza al instante.",
+"niv.profilSigneAide":"Recibe tus premios y cuenta para tu nivel.",
+"niv.bonusDzodzet":"Recibe tus premios en cuanto está vinculado; el bonus de nivel empieza una vez Dzodzet.",
+"niv.pRelier":"VINCULAR",
+"niv.pChanger":"CAMBIAR",
+"niv.pRetirer":"QUITAR",
+"niv.pRetirerConf":"¿SEGURO?",
 "err.niveau_touriste":"Turista hoy: partida sin ranking.",
 "err.quoi_invalide":"Comprobación desconocida.",
 "err.wallet_changement_trop_tot":"Solo un cambio de wallet cada 7 días.",
@@ -7102,6 +7142,16 @@ LANGUES.en={
 "niv.profilAucun":"No wallet linked",
 "niv.profilSigne":"{0} · signed",
 "niv.profilTape":"{0} · not signed",
+"sec.connexion":"Sign in first.",
+"sec.ok":"Unlimited lives until {0}",
+"sec.infini":"∞ tries",
+"niv.profilTapeAide":"A signed wallet replaces it at once.",
+"niv.profilSigneAide":"It receives your prizes and counts for your level.",
+"niv.bonusDzodzet":"It receives your prizes as soon as it's linked; the level bonus starts once you're a Dzodzet.",
+"niv.pRelier":"LINK",
+"niv.pChanger":"CHANGE",
+"niv.pRetirer":"REMOVE",
+"niv.pRetirerConf":"SURE?",
 "err.niveau_touriste":"Tourist today: run not ranked.",
 "err.quoi_invalide":"Unknown check.",
 "err.wallet_changement_trop_tot":"Only one wallet change every 7 days.",
@@ -7141,7 +7191,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.12.1-proto';
+var VERSION='0.13.0-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -10229,6 +10279,8 @@ function installerEntrees(){
     if(ecran==='fin'&&tEcran<0.9)return;
     versLog(e);
     var b=boutonSous(LX,LY);
+    /* 0.13 : mascotte du titre (poing, dents, ventre) : réaction tout de suite, plusieurs doigts possibles */
+    if(ecran==='titre'&&toucherSecret(b))return;
     if(b){if(presse===null){presse=b.id;pressePtr=e.pointerId;ptr.x=LX;ptr.y=LY;}return;}
     if(e.pointerType==='mouse'){ptr.x=LX;ptr.y=LY;}
     if(ecran==='classement'){clGlisse={id:e.pointerId,y:LY,d:NET.cl.defil};return;}
@@ -11098,12 +11150,85 @@ function rendrePause(){
   bouton('aband',50,y+106,260,42,T('pause.abandonner'),1,abandonner,T(classee?'pause.essaiCompte':'pause.rienCompte'),15);
   y+=172;
   ttFit(T('pause.resume',fmtTemps(S.n),fmtNb(SIM.score(S)),S.niveau),180,y,12,340,C.creme,'center',1,true);
-  ttFit(classee?T('essaiDe',libelleJour(),essaiNo,essaisMax()):T(echauffement?'echauffement':'entrainement'),180,y+18,11,340,'rgba(246,241,231,0.7)','center',2,true);
+  ttFit(classee?T('essaiDe',libelleJour(),essaiNo,maxAffiche()):T(echauffement?'echauffement':'entrainement'),180,y+18,11,340,'rgba(246,241,231,0.7)','center',2,true);
   ttFit(T('decretDuJour.ligne',nomDecret(S.decret)),180,y+38,12,340,C.or,'center',0,true);
   ttFit(ligneDecret(S.decret),180,y+55,11,340,C.creme,'center',2,true);
   /* 0.7.3 : budget de pause de la partie classée en ligne */
   var prp=pauseRestanteMs();
   if(prp!==null)ttFit(prp<=0?T('pause.budgetFini'):T('pause.budget',fmtPause(prp)),180,y+76,13,340,prp<120000?C.danger:C.or,'center',1,true);
+}
+
+/* =====================================================================
+   0.13 : TROIS ZONES TOUCHABLES SUR LA MASCOTTE DU TITRE (poing levé, dents, « 987 » du ventre)
+   Toucher une zone donne toujours la même petite réaction (DZÔ sursaute, un son court), qu'il y ait quelque chose à
+   trouver ou non. Le jeu note les touchers en séries (zone, nombre de touchers d'affilée) ; un toucher ailleurs ou une
+   pause de plus de 4 s efface la série. Une série d'au moins 3 groupes suivie d'une pause de 1,2 s part UNE fois au
+   serveur (POST /api/secret/essai) : lui seul sait s'il existe une série attendue et répond oui ou non. « Non » : rien.
+   ===================================================================== */
+/* les trois zones, dans cet ordre : poing levé, dents, ventre (« 987 NES ») */
+var NOMS_ZONES_DZO=['poing','dents','ventre'];
+/* leurs cadres dans l'image assets/dzo-front-a.png (331 × 405 px) : x0, y0, x1, y1 */
+var CADRES_DZO=[[4,0,92,76],[92,154,276,240],[128,242,234,320]];
+/* les mêmes sur le DZÔ dessiné de secours (unités de 96, ×4 dans sa toile) */
+var CADRES_DZO_SECOURS=[[4,4,27,31],[25,43,71,68],[33,68,63,86]];
+var SEC={g:[],t:0,enVol:false,rz:'',rt:-9,fete:-9,ill:null,zones:[]};
+/* zones de la mascotte telle qu'elle est dessinée : centre (186, 432), échelles sx, sy, hauteur hh (même calcul que rendreTitre) */
+function zonesMascotte(s,hh,sx,sy){
+  var ww=hh*s.w/s.h,png=DZO.pret&&s===DZO.grand,Z=png?CADRES_DZO:CADRES_DZO_SECOURS,dec=png?8:0,f=png?1:4,i,z,x0,y0,x1,y1;
+  SEC.zones=[];
+  for(i=0;i<Z.length;i++){z=Z[i];
+    x0=186+sx*((z[0]*f+dec)-s.ax)*ww/s.w;x1=186+sx*((z[2]*f+dec)-s.ax)*ww/s.w;
+    y0=432+sy*((z[1]*f+dec)-s.ay)*hh/s.h;y1=432+sy*((z[3]*f+dec)-s.ay)*hh/s.h;
+    zone('dzo:'+NOMS_ZONES_DZO[i],x0,y0,x1-x0,y1-y0,function(){});SEC.zones.push({nom:NOMS_ZONES_DZO[i],x:x0,y:y0,w:x1-x0,h:y1-y0});}
+}
+/* pointerdown sur le titre : vrai si le toucher était pour DZÔ (réaction, série) ; ailleurs, la série s'efface */
+function toucherSecret(b){
+  var z=b&&typeof b.id==='string'&&b.id.indexOf('dzo:')===0?b.id.slice(4):'',t=Date.now(),d;
+  if(!z){SEC.g=[];return false;}
+  if(SEC.g.length&&t-SEC.t>4000)SEC.g=[];
+  d=SEC.g[SEC.g.length-1];
+  if(d&&d[0]===z)d[1]=Math.min(99,d[1]+1);else{SEC.g.push([z,1]);if(SEC.g.length>12)SEC.g.shift();}
+  SEC.t=t;SEC.rz=z;SEC.rt=tReel;son('pop');
+  return true;
+}
+/* à chaque image du titre : pause de 1,2 s après 3 groupes ou plus → envoi unique ; pause de plus de 4 s → effacée */
+function veillerSecret(){
+  if(!SEC.g.length)return;var p=Date.now()-SEC.t,g;
+  if(SEC.g.length>=3&&p>=1200){g=SEC.g;SEC.g=[];envoyerSecret(g);return;}
+  if(p>4000)SEC.g=[];
+}
+function envoyerSecret(g){
+  if(!modeServeur()||HORS_RANG)return;
+  if(!connecte()){afficherMsg(T('sec.connexion'),C.or);return;}
+  if(SEC.enVol)return;SEC.enVol=true;
+  apiAppel('POST','/api/secret/essai',{gestes:g}).then(function(r){SEC.enVol=false;var j=r.json||{};
+    if(r.statut===200&&j.ok===true&&typeof j.illimiteJusquA==='number')accorderIllimite({jusquA:j.illimiteJusquA,dernierJour:String(j.dernierJour||''),applicable:j.applicable!==false});
+    /* « non », trop d'essais, réseau coupé : rien du tout, et aucun nouvel essai automatique */
+  });
+}
+/* vies illimitées (niveau.illimite du serveur) : null, ou {jusquA, dernierJour, applicable} */
+function illimiteNiv(){var d=connecte()?NIV.d:null,i=d&&d.illimite;return i&&typeof i==='object'&&typeof i.jusquA==='number'?i:null;}
+/* elles valent en ce moment (faux pendant un concours où elles ne valent pas, ou passé minuit) : « ∞ essais » */
+function essaisInfinis(){var i=illimiteNiv(),e=NIV.d&&NIV.d.essais;return!!(i&&i.applicable===true&&i.jusquA>maintenantSrv()&&e&&e.illimite===true);}
+/* dernier jour compris (« 2026-11-25 » → « 25.11. ») ; à défaut, la veille de la fin (minuit de Zurich) */
+function dateIllimite(i){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(i.dernierJour||''));if(m)return m[3]+'.'+m[2]+'.';
+  try{return new Intl.DateTimeFormat('de-CH',{timeZone:'Europe/Zurich',day:'2-digit',month:'2-digit'}).format(new Date(i.jusquA-60000))+'.';}catch(e){return dateHeureLocale(i.jusquA-60000).split(' ')[0];}}
+function feteTitre(a){
+  var j,b,x,y;
+  cx.globalCompositeOperation='lighter';cx.globalAlpha=Math.max(0,Math.min(1,a/0.2,(3.2-a)/0.8))*(0.6+0.15*Math.sin(a*6));
+  cx.drawImage(SPR.haloOr,180-190,320-190,380,380);cx.globalAlpha=1;cx.globalCompositeOperation='source-over';
+  for(j=0;j<64;j++){b=a-j/40;if(b<=0||b>2)continue;
+    x=12+(hash2(j,7)%1000)/1000*336+Math.sin(b*5+j)*10;y=SAFE_H+120+b*b*110+b*60;
+    cx.globalAlpha=b>1.5?(2-b)/0.5:1;cx.fillStyle=[C.or,C.vert,C.cyan,C.creme,C.rouge][j%5];
+    cx.save();cx.translate(x,y);cx.rotate(b*7+j);cx.fillRect(-3.5,-1.8,7,3.6);cx.restore();}
+  cx.globalAlpha=1;
+}
+/* « oui » : petite fête, message, l'état est posé tout de suite puis relu (GET /api/niveau ; la session pour les essais) */
+function accorderIllimite(i){
+  if(!connecte())return;
+  if(NIV.d){NIV.d.illimite=i;if(NIV.d.essais&&i.applicable)NIV.d.essais.illimite=true;}
+  SEC.fete=tReel;son('victoire');afficherMsg(T('sec.ok',dateIllimite(i)),C.vert);
+  NIV.essaiT=0;chargerNiveau().then(function(){if(!touriste())rafraichir();});
 }
 
 /* ---------- écran titre ---------- */
@@ -11155,6 +11280,7 @@ function rendreTitre(){
   var i,o,a,k,s,w,x,restants=essaisRestants(),t=tReel,dep=tDepart>=0?Math.min(1,tDepart/0.18):0,prem=premiereFois(),horsRang=HORS_RANG;
   /* réglages ouverts puis écran quitté : refermés au retour */
   if(reglagesTitre&&tEcran<reglagesT)reglagesTitre=false;
+  veillerSecret();
   /* yeux idiots qui s'allument dans le noir (pas derrière le logo) */
   for(i=0;i<yeuxTitre.length;i++){o=yeuxTitre[i];if(o.y<200)continue;k=((t+o.p)%o.d)/o.d;a=k<0.15?k/0.15:(k>0.8?(1-k)/0.2:1);if(k>0.45&&k<0.5)a=0;if(a<=0)continue;
     cx.globalAlpha=a*0.85;var col=TEINTES[o.c===5||o.c===6||o.c===9?0:o.c],r=9*o.e;
@@ -11177,8 +11303,13 @@ function rendreTitre(){
   /* DZÔ géant, un peu plus petit : ni son poing ni sa tête sous le logo ; au départ il ouvre grand */
   s=DZO.grand;
   if(s){var hh=262-SAFE_H*0.75,ww=hh*s.w/s.h,resp=1+Math.sin(t*1.2*PI2*0.5)*0.014,e=Math.min(1,tEcran/0.5);e=(1-(1-e)*(1-e))*(1+0.35*dep);
+    /* 0.13 : zones touchables (poing, dents, ventre) qui suivent le dessin ; DZÔ touché sursaute 0,28 s */
+    if(tDepart<0&&!reglagesTitre)zonesMascotte(s,hh,(2-resp)*e,resp*e);
+    var rk=Math.max(0,1-(t-SEC.rt)/0.28),rx=rk>0?Math.sin((t-SEC.rt)*70)*3*rk:0;
     cx.drawImage(SPR.ombre,180-78,419,156,26);
-    cx.save();cx.translate(186,432);cx.scale((2-resp)*e,resp*e);cx.drawImage(s.c,-ww*s.ax/s.w,-hh*s.ay/s.h,ww,hh);cx.restore();}
+    cx.save();cx.translate(186+rx,432);cx.scale((2-resp)*e*(1+0.06*rk),resp*e*(1-0.07*rk));cx.drawImage(s.c,-ww*s.ax/s.w,-hh*s.ay/s.h,ww,hh);cx.restore();}
+  /* vies illimitées accordées : halo doré et confettis pendant 3 s */
+  if(t-SEC.fete<3.2)feteTitre(t-SEC.fete);
   logoTitre();
   /* état du jour : UNE ligne ; plus d'essai : le bouton principal devient le boost doré */
   var yS=450,yB=482,yP=562;
@@ -11245,6 +11376,8 @@ function ligneEtatTitre(yc,epuise,tpe,restants){
   if(niveauxActifs()&&niveauDuJour()){nivTxt=nomNiveau(niveauDuJour());cb=function(){allerEcran('niveau');};}
   if(modeServeur()&&!connecte()&&!touriste()){txt=T('cl.public').replace(/[.。]\s*$/,'');coul=C.or;cb=function(){allerEcran('connexion');};nivTxt='';}
   else if(epuise){m=Math.min(8,essaisMax());if(!m)ico='horloge';txt=tpe||T('titre.demain');coul=tpe?C.creme:C.or;if(tpe)nivTxt='';}
+  /* 0.13 : vies illimitées en cours : « ∞ essais », sans pastilles */
+  else if(essaisInfinis()&&restants>0){txt=T('sec.infini');coul=C.or;}
   else{m=Math.min(8,Math.max(restants,essaisMax()));n=Math.min(m,restants);txt=T(restants===1?'titre.essais1':'titre.essaisN',restants);
     var se=serieAffichee();if(se>0&&!nivTxt)serTxt=T('titre.serieJ',se);}
   cx.font=police(PX,2);wt=cx.measureText(txt).width;
@@ -11334,7 +11467,7 @@ function rendreFin(){
   y=SAFE_H;
   var L=titreEquilibre(T(titreFin),336,21);for(i=0;i<L.length;i++)tt(L[i],180,y+46+i*25,21,vic?C.vert:C.creme,'center',0);
   y+=L.length>1?94:70;
-  ttFit(REVOIR?T('revoir.de',REVOIR.pseudo):(classee?T('essaiDe',libelleJour(),essaiNo,essaisMax()):T(echauffement?'fin.echauffement':'fin.entrainement')),180,y,11,340,'rgba(246,241,231,0.75)','center',2,true);
+  ttFit(REVOIR?T('revoir.de',REVOIR.pseudo):(classee?T('essaiDe',libelleJour(),essaiNo,maxAffiche()):T(echauffement?'fin.echauffement':'fin.entrainement')),180,y,11,340,'rgba(246,241,231,0.75)','center',2,true);
   /* temps tenu, niveau, éliminés par archétype */
   e=Math.min(1,t/0.4);
   panneau(20,y+10,320,160,12,'rgba(46,33,70,0.94)','rgba(26,18,40,0.94)','rgba(246,241,231,0.2)',1);
@@ -11418,14 +11551,14 @@ function rendreFin(){
     bouton('fcl',40,580,280,42,T('cl.titre'),3,quitterRevoir,null,14);
   }else{
     if(NET.debutEnCours)cx.globalAlpha=0.6;
-    bouton('rejouer',40,500,280,64,T(echauffement&&rang?'fin.defi':'fin.rejouer'),0,rejouer,rang?(echauffement?T('fin.essaiClasse',essaisUtil()+1,essaisMax()):T('fin.essai',essaisUtil()+1,essaisMax())):(modeServeur()&&!connecte()&&!touriste()?T('titre.connecteToi'):(classee&&restants<=0&&texteProchainsEssais()?texteProchainsEssais():T(classee?'fin.epuise':'entrainement'))),28);
+    bouton('rejouer',40,500,280,64,T(echauffement&&rang?'fin.defi':'fin.rejouer'),0,rejouer,rang?(echauffement?T('fin.essaiClasse',essaisUtil()+1,maxAffiche()):T('fin.essai',essaisUtil()+1,maxAffiche())):(modeServeur()&&!connecte()&&!touriste()?T('titre.connecteToi'):(classee&&restants<=0&&texteProchainsEssais()?texteProchainsEssais():T(classee?'fin.epuise':'entrainement'))),28);
     /* 0.9 : trois boutons sous REJOUER : partager, l'action suivante, et le panneau 987NES */
     bouton('partager',14,580,106,42,T('fin.partager'),2,partager,null,14);
     /* 0.12 : Touriste : « Devenir Dzodzet » (Mon niveau) */
     if(touriste()&&restants<=0)bouton('fniveau',127,580,106,42,T('niv.devenir'),2,function(){allerEcran('niveau');},null,12.5);
     else if(modeServeur()&&!connecte()&&!HORS_RANG&&!touriste())bouton('fcnx',127,580,106,42,T('cnx.bouton'),3,function(){allerEcran('connexion');},null,12.5);
     else if(classee||echauffement||restants<=0||BOT||VITESSE>1||TAB_FORCE>=0)bouton('fentr',127,580,106,42,T('titre.entrainement'),1,function(){lancer(false);},null,12.5);
-    else bouton('fdefi',127,580,106,42,T('fin.defi'),1,function(){lancerClasse('fin');},T('fin.essai',essaisUtil()+1,essaisMax()),12.5);
+    else bouton('fdefi',127,580,106,42,T('fin.defi'),1,function(){lancerClasse('fin');},T('fin.essai',essaisUtil()+1,maxAffiche()),12.5);
     bouton('fnes',240,580,106,42,T('nes.bouton'),1,ouvrirNes,T('nes.sous'),14);
     if(meilJ>sc){var enfM=zone('fmeilleur',40,476,280,22,function(){partagerScore(meilJ);});
       cx.fillStyle=enfM?'rgba(255,210,63,0.3)':'rgba(255,210,63,0.15)';cx.beginPath();rrect(cx,50,477,260,20,10);cx.fill();
@@ -11486,14 +11619,14 @@ function sousMordre(horsRang,prem,restants){
   if(prem)return T('titre.echauffement');
   if(NET.actif&&(NET.etat==='attente'||NET.departAttente))return T('titre.connexion');
   if(modeServeur()){
-    if(touriste()&&versionOk())return restants>0?T('titre.essai',essaisUtil()+1,essaisMax()):T('titre.epuise');
+    if(touriste()&&versionOk())return restants>0?T('titre.essai',essaisUtil()+1,maxAffiche()):T('titre.epuise');
     if(!connecte())return T('titre.connecteToi');
     if(!versionOk())return T('titre.perimee');
     if(NET.debutEnCours)return T('titre.debut');
     /* 0.10 : vies du jour épuisées, le prochain essai prendra la vie bonus du parrainage */
-    if(prochainEssaiBonus())return T('titre.essaiBonus',essaisUtil()+1,essaisMax());
+    if(prochainEssaiBonus())return T('titre.essaiBonus',essaisUtil()+1,maxAffiche());
   }
-  return restants>0?T(grainePropre()?'titre.essaiNouvelle':'titre.essai',essaisUtil()+1,essaisMax()):T('titre.epuise');
+  return restants>0?T(grainePropre()?'titre.essaiNouvelle':'titre.essai',essaisUtil()+1,maxAffiche()):T('titre.epuise');
 }
 /* 0.9 : sous-titre du bouton BOOST selon la règle en vigueur : concours (+1 vie par post), entraînement (les posts ne
    donnent rien hors concours), classement libre ou hors ligne (+1 essai contre un post, comme la 0.7) */
@@ -11868,7 +12001,9 @@ function heureLocale(ms){var d=new Date(ms);return('0'+d.getHours()).slice(-2)+'
    alors essaisMax en la comptant) ; essaisRestants vient du serveur (jour.essaisRestants) quand il le donne */
 /* 0.12 : Touriste (serveur 0.12, sans connexion ou sans le niveau) : 3 essais comptés ici, comme hors ligne ; hors ligne :
    3 essais (le boost local de la 0.6 n'existe plus) */
-function essaisMax(){if(touriste())return essaisNiveau('touriste');if(connecte())return NET.jour.essaisMax+(vieBonusUtilisable()?1:0);return 3;}
+/* 0.13 : le plafond tel qu'il s'affiche (« Essai 4/∞ » pendant les vies illimitées) */
+function maxAffiche(){return essaisInfinis()?'∞':essaisMax();}
+function essaisMax(){if(touriste())return essaisInfinis()?99:essaisNiveau('touriste');if(connecte())return NET.jour.essaisMax+(vieBonusUtilisable()?1:0);return 3;}
 function essaisUtil(){return connecte()&&!touriste()?NET.jour.essaisUtilises:SAUV.essais;}
 function essaisRestants(){if(touriste())return Math.max(0,essaisMax()-SAUV.essais);if(connecte()&&typeof NET.jour.essaisRestants==='number')return Math.max(0,NET.jour.essaisRestants);return Math.max(0,essaisMax()-essaisUtil());}
 /* halo doré du titre : le bonus « 987NES » du jour (il porte le bonus de fidélité) */
@@ -12216,12 +12351,7 @@ function rendreProfil(){
   panneau(12,y,336,388,14,'rgba(38,27,54,0.95)','rgba(20,13,32,0.95)','rgba(246,241,231,0.18)',1);
   cadreChamp(T('profil.pseudo'),28,y+30,304,40);champ('pseudo',28,y+30,304,40,{max:16,aide:T('profil.pseudoAide'),valeur:profilVal.pseudo});
   tn(T('profil.pseudoRegle'),30,y+84,10,'rgba(246,241,231,0.65)','left',2);
-  if(niveauxActifs()){var wn=NIV.d&&NIV.d.wallet||{},wt=wn.relie&&wn.court?T(wn.signe?'niv.profilSigne':'niv.profilTape',wn.court):(j&&j.wallet?T(j.walletSigne?'niv.profilSigne':'niv.profilTape',String(j.wallet).slice(0,4)+'…'+String(j.wallet).slice(-4)):T('niv.profilAucun'));
-    /* 0.12 : le wallet signé, géré dans « Mon niveau » */
-    cadreChamp(T('niv.profilWallet'),28,y+118,304,40);cx.fillStyle='#1A1228';cx.beginPath();rrect(cx,28,y+118,180,40,10);cx.fill();cx.strokeStyle='rgba(111,230,255,0.3)';cx.lineWidth=1.5;cx.stroke();
-    ttFit(wt,38,y+138.5,12.5,162,wn.signe||(j&&j.walletSigne)?C.vert:C.creme,'left',1,false);
-    bouton('pniveau',216,y+118,116,40,T('niv.titre'),3,function(){allerEcran('niveau');},null,12);
-    para(T('niv.f3'),30,y+172,300,10.5,C.or,'left',2,13,false);}
+  if(niveauxActifs())walletProfil(y,j);
   else{cadreChamp(T('profil.wallet'),28,y+118,304,40);champ('wallet',28,y+118,304,40,{max:64,aide:T('profil.walletAide'),valeur:profilVal.wallet});
   para(T('profil.walletAvert'),30,y+172,300,10.5,C.or,'left',2,13,false);}
   cadreChamp(T('profil.x'),28,y+218,304,40);champ('x',28,y+218,304,40,{max:16,aide:'@compte',valeur:profilVal.x});
@@ -12238,6 +12368,37 @@ function rendreProfil(){
   if((xApi()||(reglesNiv()&&reglesNiv().x&&reglesNiv().x.api))&&ux){var yx=y+(rep?530:490),conf=Date.now()-BX.delierT<4000;
     ttFit(T('boost2.profilX',ux),30,yx+16,12,184,C.vert,'left',2,false);
     bouton('xdelier',222,yx,114,32,T(conf?'boost2.delierConfirme':'boost2.delier'),conf?0:1,delierX,null,11);}
+}
+
+/* 0.13 : état du wallet (aucun, saisi pas signé, signé) d'après GET /api/niveau, sinon la session */
+function etatWalletJoueur(){
+  var wn=NIV.d&&NIV.d.wallet,j=NET.joueur||{};
+  if(wn&&typeof wn==='object')return{relie:!!wn.relie,signe:!!(wn.relie&&wn.signe),court:String(wn.court||''),pl:typeof wn.changementPossibleLe==='number'?wn.changementPossibleLe:0};
+  return{relie:!!j.wallet,signe:!!(j.wallet&&j.walletSigne),court:j.wallet?String(j.wallet).slice(0,4)+'…'+String(j.wallet).slice(-4):'',pl:0};
+}
+/* relier ou changer depuis le profil : la feuille de signature s'ouvre sur « Mon niveau », et y ramène au profil une fois fermée */
+function walletDepuisProfil(changer){allerEcran('niveau');ouvrirFeuilleWallet(changer);if(NIV.feuille)NIV.feuille.de='profil';}
+/* 0.13 : rangée « WALLET SOLANA » du profil, à tout niveau : état, Relier / Changer, Retirer (deux touchers), aide, phrase secrète */
+function walletProfil(y,j){
+  var w=etatWalletJoueur(),t=maintenantSrv(),bloque=w.signe&&w.pl>t,conf=Date.now()-NIV.retirerT<4000,aide,nj;
+  var wt=w.relie&&w.court?T(w.signe?'niv.profilSigne':'niv.profilTape',w.court):T('niv.profilAucun');
+  cadreChamp(T('niv.profilWallet'),28,y+118,304,40);
+  var lb=w.relie?152:156;
+  cx.fillStyle='#1A1228';cx.beginPath();rrect(cx,28,y+118,lb,40,10);cx.fill();cx.strokeStyle=w.signe?'rgba(61,255,127,0.45)':'rgba(111,230,255,0.3)';cx.lineWidth=1.5;cx.stroke();
+  ttFit(wt,38,y+138.5,12.5,lb-18,w.signe?C.vert:(w.relie?C.creme:COUL_NIV.petit),'left',1,false);
+  if(!w.relie)bouton('pwallet',190,y+118,142,40,T('niv.pRelier'),3,function(){walletDepuisProfil(false);},null,13);
+  else{
+    if(bloque)cx.globalAlpha=0.5;
+    bouton('pwallet',186,y+118,72,40,T('niv.pChanger'),3,function(){if(!bloque)walletDepuisProfil(true);},null,12);cx.globalAlpha=1;
+    bouton('pretirer',264,y+118,68,40,T(conf?'niv.pRetirerConf':'niv.pRetirer'),conf?0:1,retirerWallet,null,12);}
+  /* ligne d'aide : saisi → un wallet signé le remplace aussitôt ; signé → délai de 7 jours ; retrait à confirmer */
+  if(conf)aide=T('niv.retirerConfirme');
+  else if(w.signe&&bloque){nj=Math.ceil((w.pl-t)/864e5);aide=nj<=1?T('niv.changerDemain'):T('niv.changerDans',nj);}
+  else if(w.signe)aide=T('niv.profilSigneAide');
+  else if(w.relie)aide=T('niv.profilTapeAide');
+  else aide=T('niv.f4');
+  ttFit(aide,30,y+170,10.5,300,conf?C.danger:'rgba(246,241,231,0.72)','left',2,false);
+  ttFit(T('niv.f3'),30,y+188,10.5,300,C.or,'left',2,false);
 }
 
 /* ---- 0.10 : écran Parrainage (mon lien, partage, filleuls, vies bonus, règle) ---- */
@@ -12708,7 +12869,9 @@ function ouvrirFeuilleWallet(changer){
     if(r.statut===200&&typeof j.message==='string'&&/^[A-Za-z0-9_-]{43}$/.test(String(j.jeton||''))){f.defi=j;f.etat='pret';return;}
     f.etat='erreur';f.msg=r.statut===0?T('net.horsLigne'):texteErrWallet(j);});
 }
-function fermerFeuilleWallet(){var f=NIV.feuille;NIV.feuille=null;if(f&&f.etat==='attente')NIV.attente={quoi:'wallet',t:Date.now()};}
+function fermerFeuilleWallet(){var f=NIV.feuille;NIV.feuille=null;if(f&&f.etat==='attente')NIV.attente={quoi:'wallet',t:Date.now()};retourProfil(f);}
+/* 0.13 : feuille ouverte depuis le profil : on y revient en la fermant ou une fois le wallet relié */
+function retourProfil(f){if(f&&f.de==='profil'&&ecran==='niveau')allerEcran('profil');}
 function lienAppWallet(app,lien){var o='';try{o=location.origin;}catch(e){}if(!/^https?:\/\//.test(o))o='https://987nes.com';
   var u=encodeURIComponent(lien),ref=encodeURIComponent(o);return app==='solflare'?'https://solflare.com/ul/v1/browse/'+u+'?ref='+ref:'https://phantom.com/ul/browse/'+u+'?ref='+ref;}
 function ouvrirAppWallet(app){
@@ -12723,7 +12886,7 @@ function signerIci(){
   signerAvecWallet(fw,f.defi.message,f.defi.jeton,function(err,court,code){
     if(NIV.feuille!==f)return;
     if(err){f.etat=code==='signature_invalide'||code==='annule'?'pret':'erreur';f.msg=err;return;}
-    NIV.feuille=null;afficherMsg(T('niv.walletOk',court),C.vert);son('nouvelle');chargerNiveau();rafraichir();});
+    NIV.feuille=null;afficherMsg(T('niv.walletOk',court),C.vert);son('nouvelle');chargerNiveau();rafraichir();retourProfil(f);});
 }
 /* l'app du wallet a signé ailleurs : le niveau le dit (wallet signé, adresse courte nouvelle) */
 function walletDetecte(){
@@ -12731,7 +12894,7 @@ function walletDetecte(){
   if(!w||!w.signe)return false;
   if(f&&f.avant&&f.avant===String(w.court||''))return false;
   if(!f&&!NIV.sonde)return false;
-  NIV.feuille=null;NIV.sonde=0;afficherMsg(T('niv.walletOk',String(w.court||'')),C.vert);son('nouvelle');rafraichir();return true;
+  NIV.feuille=null;NIV.sonde=0;afficherMsg(T('niv.walletOk',String(w.court||'')),C.vert);son('nouvelle');rafraichir();retourProfil(f);return true;
 }
 /* sonde du niveau après l'ouverture de l'app du wallet : toutes les 5 s pendant 3 minutes */
 function sonderWallet(){
@@ -12890,6 +13053,21 @@ function carteGestionWalletNiv(y,mesure){
   h+=ligneNiv(y+h,{texte:conf?T('niv.retirerConfirme'):T('niv.retirer'),droite:'›',droiteCoul:conf?C.danger:'#9FDCF0'},w.signe);
   return h+4;
 }
+/* 0.13 : carte repliée des détenteurs pour un Touriste ; connecté, la rangée du wallet y est (relier, changer, retirer) :
+   le wallet reçoit les lots tout de suite, le bonus de niveau commence une fois Dzodzet */
+function carteDetCalmeNiv(yy,mesure){
+  var h=4+ligneNiv(yy+4,{texte:T('niv.detCalme'),sous:T('niv.detCalmeSous'),droite:'+1 · +3',etat:'avenir'});
+  if(!connecte())return h+4;
+  var w=etatWalletJoueur();
+  if(NIV.walletPerdu)h+=walletPerduNiv(yy+h);
+  h+=ligneNiv(yy+h,{puce:w.signe,etat:w.signe?'fait':(w.relie?'actif':'avenir'),texte:w.signe?T('niv.walletRelie'):(w.relie?T('niv.walletTape'):T('niv.profilAucun')),sous:w.relie?w.court:null,sousMono:w.relie},true);
+  if(w.relie&&!w.signe)h+=aideNiv(T('niv.profilTapeAide'),yy+h-6,'left')-4;
+  h+=aideNiv(T('niv.bonusDzodzet'),yy+h-4,'left');
+  if(!w.relie||!w.signe){bouton('nivWallet',24,yy+h+2,312,36,T(w.relie?'niv.changerWallet':'niv.relierWallet'),3,function(){ouvrirFeuilleWallet(w.relie);},null,14);h+=46;}
+  if(w.relie)h+=carteGestionWalletNiv(yy+h,mesure);
+  h+=aideNiv(T('niv.f3'),yy+h-2,'left');
+  return h+4;
+}
 /* l'échelle : les essais par jour dans les ronds, le niveau du joueur en or, les niveaux franchis en vert */
 function echelleNiv(y,n,bonus){
   var i,k=NIVEAUX.indexOf(n),xs=[56,138.67,221.33,304],yc=y+48;
@@ -12940,6 +13118,9 @@ function rendreNiveau(){
     else if(fait>0&&fait<4){t1=4-fait===1?T('niv.plusQue1'):T('niv.plusQue',4-fait);t2=T('niv.pourPasser',essaisNiveau('dzodzet'));}
     else{t1=T('niv.tuEs',nomNiveau('touriste'));t2=T('niv.sousTouriste',essaisNiveau('touriste'));}
     ttFit(t1,180,y+10,20,320,C.or,'center',0,true);ttFit(t2,180,y+34,12.5,330,COUL_NIV.texte,'center',2,false);y+=54;}
+  /* 0.13 : vies illimitées en cours : une ligne discrète */
+  var il=illimiteNiv();
+  if(il){ttFit(T('sec.ok',dateIllimite(il)),180,y-2,11.5,320,il.applicable?C.or:COUL_NIV.petit,'center',2,false);y+=18;}
   var ya=y;
   if(!memb||perdu)y=carteNiv(y,'cyan',function(yy,m){return carteEtapesNiv(yy,m,{redevenir:!!perdu});});
   if(memb){
@@ -12947,7 +13128,7 @@ function rendreNiveau(){
     y=carteNiv(y,'cyan',carteDetenteurNiv);
     if(d.wallet&&d.wallet.relie)y=carteNiv(y,'calme',carteGestionWalletNiv);
     if(!perdu)y=carteNiv(y,'calme',function(yy,m){return 4+ligneNiv(yy+4,{puce:true,etat:'fait',texte:'Dzodzet',sous:T('niv.dzodzetRecap',compteX())})+4;});
-  }else y=carteNiv(y,'calme',function(yy,m){return 4+ligneNiv(yy+4,{texte:T('niv.detCalme'),sous:T('niv.detCalmeSous'),droite:'+1 · +3',etat:'avenir'})+4;});
+  }else y=carteNiv(y,'calme',carteDetCalmeNiv);
   y=carteNiv(y,'calme',carteMesPartiesNiv);
   NIV.hTot=y-(y0-NIV.defil)+8;
   if(NIV.hTot>628-y0&&NIV.defil<NIV.hTot-(628-y0)-2)indiceSuite(0,352,BAS_DEFIL);
@@ -13705,6 +13886,8 @@ window.__dzo={
   /* 0.9 : panneau 987NES (ouvert ou non, liens configurés) et version affichée */
   nes:function(){return{ouvert:NES_OUVERT,liens:{site:URL_SITE,x:URL_X,tg:URL_TG},public:PUBLIC,versionAffichee:versionAffichee()};},
   beta:function(){return{ouvert:BETA_OUVERT,version:versionEcran(),groupe:lienGroupeBeta()};},
+  /* 0.13 : série en cours de la mascotte, zones (unités du jeu), réaction, vies illimitées */
+  secret:function(){return{g:JSON.parse(JSON.stringify(SEC.g)),zones:SEC.zones.slice(),enVol:SEC.enVol,reaction:SEC.rz,illimite:illimiteNiv(),infinis:essaisInfinis(),fete:tReel-SEC.fete<3.2,safeH:SAFE_H,png:DZO.pret,mordre:sousMordre(HORS_RANG,premiereFois(),essaisRestants())};},
   ecran:function(e){if(e==='titre'&&ecran==='entree')entrer();else if(e)allerEcran(e);return ecran;},
   /* centre d'un bouton de la dernière image, en pixels CSS (pour cliquer dans les essais automatiques) */
   bouton:function(id){for(var i=0;i<nBT;i++)if(BT[i].id===id){var b=BT[i];return{x:Math.round((OX+(b.x+b.w/2)*K)/DPR),y:Math.round((OY+(b.y+b.h/2)*K)/DPR)};}return null;},
