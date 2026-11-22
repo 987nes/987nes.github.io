@@ -2868,7 +2868,13 @@ LANGUES.fr={
 "niv.walletOk":"Wallet relié : {0}",
 "niv.signatureAnnulee":"Signature annulée dans le wallet.",
 "niv.signerBouton":"SIGNER LE MESSAGE",
-"niv.signerSansWallet":"Aucun wallet ici. Ouvre ce lien dans Phantom ou Solflare.",
+"niv.signerSansWallet":"Ouvre cette page dans le navigateur de ton wallet.",
+"niv.autreWallet":"AUTRE WALLET",
+"niv.copierLien":"COPIER LE LIEN",
+"niv.retour":"Retour",
+"niv.signerRecherche":"Recherche de ton wallet…",
+"niv.lienCopie":"Lien copié. Colle-le dans le navigateur de ton wallet.",
+"niv.collerLien":"Colle ce lien dans le navigateur de ton wallet",
 "niv.signerFait":"C'est relié, retourne dans le jeu.",
 "niv.signerEnvoi":"Envoi de la signature…",
 "niv.signerLien":"Lien de signature invalide. Recommence depuis le jeu.",
@@ -3979,7 +3985,13 @@ LANGUES.de={
 "niv.walletOk":"Wallet verbunden: {0}",
 "niv.signatureAnnulee":"Signatur im Wallet abgebrochen.",
 "niv.signerBouton":"NACHRICHT SIGNIEREN",
-"niv.signerSansWallet":"Hier ist kein Wallet. Öffne diesen Link in Phantom oder Solflare.",
+"niv.signerSansWallet":"Öffne diese Seite im Browser deines Wallets.",
+"niv.autreWallet":"ANDERES WALLET",
+"niv.copierLien":"LINK KOPIEREN",
+"niv.retour":"Zurück",
+"niv.signerRecherche":"Suche nach deinem Wallet…",
+"niv.lienCopie":"Link kopiert. Füge ihn im Browser deines Wallets ein.",
+"niv.collerLien":"Füge diesen Link im Browser deines Wallets ein",
 "niv.signerFait":"Verbunden, geh zurück ins Spiel.",
 "niv.signerEnvoi":"Signatur wird gesendet…",
 "niv.signerLien":"Ungültiger Signaturlink. Starte im Spiel neu.",
@@ -5090,7 +5102,13 @@ LANGUES.it={
 "niv.walletOk":"Wallet collegato: {0}",
 "niv.signatureAnnulee":"Firma annullata nel wallet.",
 "niv.signerBouton":"FIRMA IL MESSAGGIO",
-"niv.signerSansWallet":"Nessun wallet qui. Apri questo link in Phantom o Solflare.",
+"niv.signerSansWallet":"Apri questa pagina nel browser del tuo wallet.",
+"niv.autreWallet":"ALTRO WALLET",
+"niv.copierLien":"COPIA IL LINK",
+"niv.retour":"Indietro",
+"niv.signerRecherche":"Cerco il tuo wallet…",
+"niv.lienCopie":"Link copiato. Incollalo nel browser del tuo wallet.",
+"niv.collerLien":"Incolla questo link nel browser del tuo wallet",
 "niv.signerFait":"Collegato, torna nel gioco.",
 "niv.signerEnvoi":"Invio della firma…",
 "niv.signerLien":"Link di firma non valido. Ricomincia dal gioco.",
@@ -6201,7 +6219,13 @@ LANGUES.es={
 "niv.walletOk":"Wallet vinculado: {0}",
 "niv.signatureAnnulee":"Firma cancelada en el wallet.",
 "niv.signerBouton":"FIRMAR EL MENSAJE",
-"niv.signerSansWallet":"No hay ningún wallet aquí. Abre este enlace en Phantom o Solflare.",
+"niv.signerSansWallet":"Abre esta página en el navegador de tu wallet.",
+"niv.autreWallet":"OTRO WALLET",
+"niv.copierLien":"COPIAR EL ENLACE",
+"niv.retour":"Atrás",
+"niv.signerRecherche":"Buscando tu wallet…",
+"niv.lienCopie":"Enlace copiado. Pégalo en el navegador de tu wallet.",
+"niv.collerLien":"Pega este enlace en el navegador de tu wallet",
 "niv.signerFait":"Vinculado, vuelve al juego.",
 "niv.signerEnvoi":"Enviando la firma…",
 "niv.signerLien":"Enlace de firma no válido. Vuelve a empezar desde el juego.",
@@ -7312,7 +7336,13 @@ LANGUES.en={
 "niv.walletOk":"Wallet linked: {0}",
 "niv.signatureAnnulee":"Signature cancelled in the wallet.",
 "niv.signerBouton":"SIGN THE MESSAGE",
-"niv.signerSansWallet":"No wallet here. Open this link in Phantom or Solflare.",
+"niv.signerSansWallet":"Open this page in your wallet's browser.",
+"niv.autreWallet":"OTHER WALLET",
+"niv.copierLien":"COPY THE LINK",
+"niv.retour":"Back",
+"niv.signerRecherche":"Looking for your wallet…",
+"niv.lienCopie":"Link copied. Paste it in your wallet's browser.",
+"niv.collerLien":"Paste this link in your wallet's browser",
 "niv.signerFait":"Linked, go back to the game.",
 "niv.signerEnvoi":"Sending the signature…",
 "niv.signerLien":"Invalid signing link. Start again from the game.",
@@ -7401,7 +7431,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.14.1-proto';
+var VERSION='0.14.2-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -7461,7 +7491,7 @@ var WSIGNE=(function(){var j='',h=null;
     if(location.hash)history.replaceState(history.state,'',location.pathname+location.search);}catch(e){}
   if(j){try{window.sessionStorage.setItem('dzo.wj',JSON.stringify({j:j,t:Date.now()}));}catch(e){}}
   else{try{var o=JSON.parse(window.sessionStorage.getItem('dzo.wj')||'null');if(o&&/^[A-Za-z0-9_-]{43}$/.test(o.j)&&Date.now()-o.t<600000)j=o.j;}catch(e){}}
-  return{jeton:j,etat:j?'charge':'invalide',message:'',msg:'',court:''};})();
+  return{jeton:j,etat:j?'charge':'invalide',message:'',msg:'',court:'',t0:Date.now(),copie:false};})();
 /* 0.11 : ?lang=<fr|de|it|es|en> (pages de partage) : langue du jeu tant que le joueur n'en a pas choisi une */
 var LANG_URL=langueDe(params.get('lang'));
 /* 0.7.1 : ticket de connexion du bouton du bot (?t=…, ou #t=…) ; retiré tout de suite de la barre d'adresse
@@ -13070,30 +13100,92 @@ function base58(b){var d=[],s='',i,j,c,z=0;
   for(i=0;i<b.length&&b[i]===0;i++)z++;
   for(i=0;i<b.length;i++){c=b[i];for(j=0;j<d.length;j++){c+=d[j]*256;d[j]=c%58;c=Math.floor(c/58);}while(c>0){d.push(c%58);c=Math.floor(c/58);}}
   for(i=0;i<z;i++)s+='1';for(i=d.length-1;i>=0;i--)s+=B58[d[i]];return s;}
-/* wallet injecté dans la page (extension sur ordinateur, navigateur intégré de Phantom / Solflare) */
-function fournisseurWallet(){
-  try{var w=window;
-    if(w.phantom&&w.phantom.solana&&typeof w.phantom.solana.signMessage==='function')return{p:w.phantom.solana,nom:'Phantom'};
-    if(w.solflare&&typeof w.solflare.signMessage==='function')return{p:w.solflare,nom:'Solflare'};
-    if(w.solana&&typeof w.solana.signMessage==='function')return{p:w.solana,nom:w.solana.isPhantom?'Phantom':(w.solana.isSolflare?'Solflare':'wallet')};}catch(e){}
+/* 0.14.2 : wallets reconnus (documentation officielle, voir conception/wallets.md) : lien qui ouvre une URL dans le
+   navigateur de l'app (u = URL encodée, r = origine du jeu encodée) et variable injectée dans ce navigateur */
+var WALLETS=[
+  {id:'phantom',nom:'Phantom',lien:function(u,r){return'https://phantom.com/ul/browse/'+u+'?ref='+r;},g:function(w){return w.phantom&&w.phantom.solana;}},
+  {id:'solflare',nom:'Solflare',lien:function(u,r){return'https://solflare.com/ul/v1/browse/'+u+'?ref='+r;},g:function(w){return w.solflare;}},
+  {id:'bitget',nom:'Bitget Wallet',lien:function(u){return'https://bkcode.vip?action=dapp&url='+u;},g:function(w){return w.bitkeep&&w.bitkeep.solana;}},
+  {id:'okx',nom:'OKX Wallet',lien:function(u){return'https://web3.okx.com/download?deeplink='+encodeURIComponent('okx://wallet/dapp/url?dappUrl='+u);},g:function(w){return w.okxwallet&&w.okxwallet.solana;}},
+  {id:'backpack',nom:'Backpack',lien:function(u,r){return'https://backpack.app/ul/v1/browse/'+u+'?ref='+r;},g:function(w){return w.backpack;}}
+];
+function walletParId(id){for(var i=0;i<WALLETS.length;i++)if(WALLETS[i].id===id)return WALLETS[i];return null;}
+/* Wallet Standard : les wallets s'annoncent par événements (wallet-standard:register-wallet, ou en réponse à wallet-standard:app-ready) */
+var WSTD={liste:[],pret:false};
+function ecouterWalletStandard(){
+  if(WSTD.pret)return;WSTD.pret=true;
+  try{
+    var api={register:function(){var a=arguments,i;for(i=0;i<a.length;i++)if(a[i]&&WSTD.liste.indexOf(a[i])<0)WSTD.liste.push(a[i]);return function(){};}};
+    window.addEventListener('wallet-standard:register-wallet',function(e){try{if(e&&typeof e.detail==='function')e.detail(api);}catch(x){}});
+    window.dispatchEvent(new CustomEvent('wallet-standard:app-ready',{detail:api}));
+  }catch(e){}
+}
+ecouterWalletStandard();
+function base58Octets(t){var o=[],i,j,c,k,z=0;
+  for(i=0;i<t.length;i++){k=B58.indexOf(t[i]);if(k<0)return null;c=k;for(j=0;j<o.length;j++){c+=o[j]*58;o[j]=c&255;c>>=8;}while(c>0){o.push(c&255);c>>=8;}}
+  for(i=0;i<t.length&&t[i]==='1';i++)z++;
+  for(i=0;i<z;i++)o.push(0);return Uint8Array.from(o.reverse());}
+/* la signature rendue par le wallet, quelle que soit sa forme : tableau d'objets, objet {signature}, octets, Buffer JSON, nombres, texte base58 / base64 / hexadécimal */
+function octetsSignature(s,p){
+  p=p||0;if(s===null||s===undefined||p>4)return null;var b,i;
+  if(typeof s==='string'){var t=s.trim();
+    if(/^[0-9a-fA-F]{128}$/.test(t)){b=new Uint8Array(64);for(i=0;i<64;i++)b[i]=parseInt(t.substr(i*2,2),16);return b;}
+    b=/^[1-9A-HJ-NP-Za-km-z]+$/.test(t)?base58Octets(t):null;if(b&&b.length===64)return b;
+    try{var bin=atob(t.replace(/-/g,'+').replace(/_/g,'/'));b=new Uint8Array(bin.length);for(i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);if(b.length===64)return b;}catch(e){}
+    return null;}
+  if(typeof ArrayBuffer!=='undefined'&&ArrayBuffer.isView(s))return new Uint8Array(s.buffer,s.byteOffset,s.byteLength);
+  if(s instanceof ArrayBuffer)return new Uint8Array(s);
+  if(Array.isArray(s)){if(s.length&&typeof s[0]==='number'){try{return Uint8Array.from(s);}catch(e){return null;}}return octetsSignature(s[0],p+1);}
+  if(typeof s==='object'){
+    if(s.type==='Buffer'&&Array.isArray(s.data))return octetsSignature(s.data,p+1);
+    if(s.signature!==undefined)return octetsSignature(s.signature,p+1);
+    if(s.data!==undefined)return octetsSignature(s.data,p+1);}
   return null;
 }
-function cleTexte(pk){try{return pk?(typeof pk.toBase58==='function'?pk.toBase58():String(pk)):'';}catch(e){return'';}}
+/* adresse base58 d'une clé publique : texte, objet toBase58 / toString, octets (32), compte {address} */
+function adresseDe(x){
+  try{if(!x)return'';if(typeof x==='string')return x;
+    if(x.address&&typeof x.address==='string')return x.address;
+    if(typeof x.toBase58==='function')return x.toBase58();
+    if(ArrayBuffer.isView(x)&&x.byteLength===32)return base58(new Uint8Array(x.buffer,x.byteOffset,32));
+    if(x.accounts&&x.accounts.length)return adresseDe(x.accounts[0]);
+    if(x.publicKey)return adresseDe(x.publicKey);
+    var s=typeof x.toString==='function'?x.toString():'';return/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(s)?s:'';}catch(e){return'';}
+}
+/* un wallet prêt à signer : { nom, signer(octets) → promesse { adr, sig } }, sig déjà ramenée en octets */
+function fwClassique(p,nom){
+  return{nom:nom,signer:function(octets){var adr='';
+    return Promise.resolve().then(function(){return typeof p.connect==='function'?p.connect():null;}).then(function(rc){
+      adr=adresseDe(rc)||adresseDe(p.publicKey);
+      return p.signMessage(octets,'utf8');
+    }).then(function(s){var a=adresseDe(s&&!Array.isArray(s)?s.publicKey:(s&&s[0]&&s[0].publicKey))||adresseDe(p.publicKey);if(a)adr=a;return{adr:adr,sig:octetsSignature(s)};});}};
+}
+function fwStandard(w){
+  return{nom:String(w.name||'wallet'),signer:function(octets){var cpt=null;
+    return Promise.resolve().then(function(){return w.features['standard:connect'].connect();}).then(function(rc){
+      var l=(rc&&rc.accounts&&rc.accounts.length?rc.accounts:w.accounts)||[];cpt=l[0];if(!cpt)throw{code:'wallet_invalide'};
+      return w.features['solana:signMessage'].signMessage({account:cpt,message:octets});
+    }).then(function(s){return{adr:adresseDe(cpt),sig:octetsSignature(s)};});}};
+}
+function wsOk(w){try{var f=w&&w.features;return!!(f&&f['standard:connect']&&typeof f['standard:connect'].connect==='function'&&f['solana:signMessage']&&typeof f['solana:signMessage'].signMessage==='function');}catch(e){return false;}}
+/* wallet présent dans la page (extension sur ordinateur, navigateur intégré d'une app) : Wallet Standard d'abord,
+   puis les variables connues de chaque wallet, puis window.solana */
+function fournisseurWallet(){
+  try{var w=window,i,g,l=WSTD.liste;
+    for(i=0;i<l.length;i++)if(wsOk(l[i]))return fwStandard(l[i]);
+    for(i=0;i<WALLETS.length;i++){g=WALLETS[i].g(w);if(g&&typeof g.signMessage==='function')return fwClassique(g,WALLETS[i].nom);}
+    g=w.solana;if(g&&typeof g.signMessage==='function')return fwClassique(g,g.isPhantom?'Phantom':(g.isSolflare?'Solflare':(g.isBackpack?'Backpack':'wallet')));}catch(e){}
+  return null;
+}
 /* connecter, signer les octets UTF-8 du message exact, envoyer : fini(erreur traduite | '', court) */
 function signerAvecWallet(fw,message,jeton,fini){
-  var p=fw.p,adr='';
-  Promise.resolve().then(function(){return typeof p.connect==='function'?p.connect():null;}).then(function(rc){
-    adr=cleTexte((rc&&rc.publicKey)||p.publicKey);
-    return p.signMessage(new TextEncoder().encode(message),'utf8');
-  }).then(function(s){
-    var sig=s&&s.signature!==undefined?s.signature:s;if(s&&s.publicKey)adr=cleTexte(s.publicKey)||adr;
-    if(!adr)adr=cleTexte(p.publicKey);
-    try{if(!(sig instanceof Uint8Array))sig=Uint8Array.from(sig);}catch(e){sig=null;}
+  Promise.resolve().then(function(){return fw.signer(new TextEncoder().encode(message));}).then(function(r){
+    var sig=r&&r.sig,adr=r&&r.adr||'';
     if(!sig||sig.length!==64)throw{code:'signature_invalide'};
     if(!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(adr))throw{code:'wallet_invalide'};
     return apiAppel('POST','/api/wallet/signer',{jeton:jeton,adresse:adr,signature:base58(sig)},{sansAuth:true});
   }).then(function(r){var j=r.json||{};if(r.statut===200&&j.ok){fini('',String(j.court||''));return;}fini(r.statut===0?T('net.horsLigne'):texteErreur(j),'',j.erreur||'');},
-    function(e){fini(e&&e.code?texteErreur({erreur:e.code}):T('niv.signatureAnnulee'),'','annule');});
+    function(e){fini(e&&typeof e.code==='string'?texteErreur({erreur:e.code}):T('niv.signatureAnnulee'),'',e&&e.code==='signature_invalide'?'signature_invalide':'annule');});
 }
 function texteErrWallet(j){if(j&&j.erreur==='wallet_changement_trop_tot'&&typeof j.changementPossibleLe==='number')return T('err.wallet_changement_trop_tot_d',dateHeureLocale(j.changementPossibleLe).split(' ')[0]);return texteErreur(j);}
 function ouvrirFeuilleWallet(changer){
@@ -13107,12 +13199,29 @@ function fermerFeuilleWallet(){var f=NIV.feuille;NIV.feuille=null;if(f&&f.etat==
 /* 0.13 : feuille ouverte depuis le profil : on y revient en la fermant ou une fois le wallet relié */
 function retourProfil(f){if(f&&f.de==='profil'&&ecran==='niveau')allerEcran('profil');}
 function lienAppWallet(app,lien){var o='';try{o=location.origin;}catch(e){}if(!/^https?:\/\//.test(o))o='https://987nes.com';
-  var u=encodeURIComponent(lien),ref=encodeURIComponent(o);return app==='solflare'?'https://solflare.com/ul/v1/browse/'+u+'?ref='+ref:'https://phantom.com/ul/browse/'+u+'?ref='+ref;}
+  var u=encodeURIComponent(lien),ref=encodeURIComponent(o),W=walletParId(app)||WALLETS[0];return W.lien(u,ref);}
 function ouvrirAppWallet(app){
   var f=NIV.feuille;if(!f||!f.defi)return;var l=String(f.defi.lienSignature||'');if(!/^https?:\/\/[^\s"<>]+$/.test(l))return;
   f.etat='attente';f.app=app;NIV.attente={quoi:'wallet',t:Date.now()};NIV.dernierLienWallet=lienAppWallet(app,l);
   if(NET.mode==='dev'){NIV.attente=null;sonderWallet();return;}
   ouvrirLien(NIV.dernierLienWallet);
+}
+/* texte dans le presse-papiers (API moderne, sinon execCommand, sinon invite de copie) : cb(copié ?) */
+function copierTexte(txt,cb){
+  var fin=function(ok){if(cb)cb(ok);};
+  var repli=function(){
+    try{var t=document.createElement('textarea');t.value=txt;t.setAttribute('readonly','');t.style.cssText='position:fixed;left:-1000px;top:0;opacity:0';
+      document.body.appendChild(t);t.select();t.setSelectionRange(0,txt.length);var ok=document.execCommand('copy');document.body.removeChild(t);if(ok){fin(true);return;}}catch(e){}
+    try{window.prompt(T('niv.collerLien'),txt);}catch(e){}fin(false);};
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){fin(true);},repli);return;}}catch(e){}
+  repli();
+}
+/* « COPIER LE LIEN » : le joueur colle la page de signature dans le navigateur de n'importe quel wallet ; le jeu attend comme pour une app */
+function copierLienWallet(){
+  var f=NIV.feuille;if(!f||!f.defi)return;var l=String(f.defi.lienSignature||'');if(!/^https?:\/\/[^\s"<>]+$/.test(l))return;
+  f.etat='attente';f.app='copie';f.info='';NIV.attente={quoi:'wallet',t:Date.now()};
+  if(NET.mode==='dev'){NIV.attente=null;sonderWallet();}
+  copierTexte(l,function(ok){if(NIV.feuille===f&&ok)f.info=T('niv.lienCopie');});
 }
 function signerIci(){
   var f=NIV.feuille,fw=fournisseurWallet();if(!f||!f.defi||!fw||f.etat==='envoi')return;
@@ -13479,6 +13588,17 @@ function rendreNiveau(){
   if(NIV.hTot>628-y0){var vis=628-y0,hb2=Math.max(24,vis*vis/NIV.hTot),yb=y0+(vis-hb2)*NIV.defil/Math.max(1,NIV.hTot-vis);cx.fillStyle='rgba(111,230,255,0.35)';cx.fillRect(353,yb,3,hb2);}
   if(NIV.feuille)rendreFeuilleWallet();
 }
+/* boutons de la feuille sans wallet injecté : au plus 4 wallets (Phantom, Solflare, Bitget, puis les suivants), « AUTRE WALLET »
+   qui ouvre le reste, et en dernier « COPIER LE LIEN » (à coller dans le navigateur de n'importe quel wallet) */
+function listeBoutonsWallet(f){
+  var L=[],i,lot=f.autre?WALLETS.slice(4):WALLETS.slice(0,4);
+  var ouvre=function(w){return function(actif){return function(){if(actif)ouvrirAppWallet(w.id);};};};
+  for(i=0;i<lot.length;i++)L.push({id:'niv'+lot[i].id.charAt(0).toUpperCase()+lot[i].id.slice(1),label:T('niv.ouvrir',lot[i].nom.toUpperCase()),cb:ouvre(lot[i])});
+  if(!f.autre&&WALLETS.length>4)L.push({id:'nivAutre',label:T('niv.autreWallet'),cb:function(actif){return function(){if(actif)f.autre=true;};}});
+  if(f.autre||WALLETS.length<=4)L.push({id:'nivCopier',label:T('niv.copierLien'),cb:function(actif){return function(){if(actif)copierLienWallet();};}});
+  if(f.autre)L.push({id:'nivRetour',label:'‹ '+T('niv.retour').toUpperCase(),cb:function(){return function(){f.autre=false;};}});
+  return L;
+}
 /* la feuille « Relier mon wallet » : ce qu'on signe (le message exact), gratuit, privé, jamais la phrase secrète */
 function lignesMono(s,larg,px){cx.font='400 '+px+'px '+F_CHIFFRE;var out=[],P=String(s).split('\n'),i,mots,l,k,e;
   for(i=0;i<P.length;i++){mots=P[i].split(' ');l='';for(k=0;k<mots.length;k++){e=l?l+' '+mots[k]:mots[k];if(cx.measureText(e).width>larg&&l){out.push(l);l=mots[k];}else l=e;}out.push(l);}return out;}
@@ -13487,7 +13607,8 @@ function rendreFeuilleWallet(){
   zone('nivVoile',0,0,360,640,function(){});
   cx.fillStyle='rgba(4,4,8,0.72)';cx.fillRect(0,0,360,640);
   for(i=0;i<P.length;i++)hP+=lignes(P[i],290,12.5,2).length*16+4;
-  h=14+30+hP+8+(f.defi?LM.length*15+16:44)+(fw?54:102)+24+30+12;
+  var LB=fw?[]:listeBoutonsWallet(f),hB=fw?54:LB.length*42+6;
+  h=14+30+hP+8+(f.defi?LM.length*15+16:44)+hB+24+30+12;
   y=Math.max(SAFE_H+8,640-h);
   var gr=cx.createLinearGradient(0,y,0,640);gr.addColorStop(0,'#16223C');gr.addColorStop(1,'#0C1424');cx.fillStyle=gr;cx.beginPath();rrect(cx,0,y,360,660-y,18);cx.fill();
   cx.fillStyle='#5FD8F5';cx.fillRect(14,y,332,2);
@@ -13507,11 +13628,10 @@ function rendreFeuilleWallet(){
   var actif=!!f.defi&&f.etat!=='envoi';
   if(!actif)cx.globalAlpha=f.defi?0.6:0.35;
   if(fw){bouton('nivSigner',20,yy,320,44,T('niv.signerAvec',fw.nom.toUpperCase()),3,function(){if(actif)signerIci();},null,16);yy+=54;}
-  else{bouton('nivPhantom',20,yy,320,44,T('niv.ouvrir','PHANTOM'),3,function(){if(actif)ouvrirAppWallet('phantom');},null,16);
-    bouton('nivSolflare',20,yy+54,320,36,T('niv.ouvrir','SOLFLARE'),1,function(){if(actif)ouvrirAppWallet('solflare');},null,14);yy+=102;}
+  else{for(i=0;i<LB.length;i++){var lb=LB[i];bouton(lb.id,20,yy,320,34,lb.label,i===0&&!f.autre?3:1,lb.cb(actif),null,14);yy+=42;}yy+=6;}
   cx.globalAlpha=1;
   if(f.etat==='envoi'){ttFit(T('niv.signerEnvoi'),180,yy+8,12,300,C.cyan,'center',2,false);}
-  else if(f.etat==='attente'){ttFit(T('niv.attenteWallet'),180,yy+8,12,300,C.cyan,'center',2,false);}
+  else if(f.etat==='attente'){ttFit(f.info||T('niv.attenteWallet'),180,yy+8,12,320,C.cyan,'center',2,false);}
   else if(f.msg&&f.defi){ttFit(f.msg,180,yy+8,12,320,C.danger,'center',2,false);}
   else ttFit(T('niv.domaine'),180,yy+8,11.5,320,COUL_NIV.petit,'center',2,false);
   yy+=24;
@@ -13526,6 +13646,11 @@ function chargerMessageSigne(){
   apiAppel('POST','/api/wallet/message',{jeton:s.jeton},{sansAuth:true}).then(function(r){var j=r.json||{};
     if(r.statut===200&&typeof j.message==='string'){s.message=j.message;s.compte=j.compte&&typeof j.compte==='object'?j.compte:null;s.etat='pret';return;}
     s.etat='erreur';s.msg=r.statut===0?T('net.horsLigne'):texteErreur(j);});
+}
+/* le lien de cette page (jeton compris, qui n'est plus dans l'adresse) : à coller dans le navigateur du wallet */
+function copierLienPage(){
+  var s=WSIGNE;if(!s||!s.jeton)return;
+  copierTexte(location.origin+location.pathname+location.search+'#wj='+s.jeton,function(ok){s.copie=ok;});
 }
 function signerPage(){
   var s=WSIGNE,fw=fournisseurWallet();if(!s||s.etat!=='pret'||!fw)return;
@@ -13568,7 +13693,14 @@ function rendreSigner(){
     y+=hm+14;}
   if(s.message)y=compteSigner(s.compte,y);
   if(s.etat==='erreur'&&!s.message){para(s.msg||T('err.inconnu'),180,y+20,300,13,C.danger,'center',2,17,true);return;}
-  if(!fw){para(T('niv.signerSansWallet'),180,y+16,300,13,C.or,'center',2,17,true);return;}
+  if(!fw){
+    /* 0.14.2 : les wallets s'annoncent parfois après le chargement : 2,5 s de recherche, puis le message et le lien à copier */
+    if(Date.now()-s.t0<2500){ttFit(T('niv.signerRecherche'),180,y+16,13,300,C.cyan,'center',2,false);pointsAttente(168,y+36,C.cyan);return;}
+    var nl=para(T('niv.signerSansWallet'),180,y+16,300,13,C.or,'center',2,17,true),yb=y+nl*17+30;
+    bouton('signerCopier',20,yb,320,44,T('niv.copierLien'),3,copierLienPage,null,16);
+    if(s.copie)para(T('niv.lienCopie'),180,yb+66,300,12,C.vert,'center',2,15,true);
+    else ttFit(T('niv.domaine'),180,yb+68,11.5,320,COUL_NIV.petit,'center',2,false);
+    return;}
   if(s.etat==='envoi')cx.globalAlpha=0.6;
   bouton('signerPage',20,y,320,50,T('niv.signerAvec',fw.nom.toUpperCase()),3,signerPage,null,17);cx.globalAlpha=1;
   y+=64;
@@ -14214,7 +14346,7 @@ window.__dzo={
     /* 0.11 : boosts sans code (état X, attentes, dernier texte de post), langue de l'adresse */
     /* 0.12 : niveau du jour, revérification en cours, feuille du wallet, Touriste (compteur local) */
     niv:{actifs:niveauxActifs(),niveau:niveauDuJour(),touriste:touriste(),d:NIV.d,verif:NIV.verif?{quoi:NIV.verif.quoi,etat:NIV.verif.etat,err:NIV.verif.err||''}:null,attente:NIV.attente?NIV.attente.quoi:'',feuille:NIV.feuille?{etat:NIV.feuille.etat,msg:NIV.feuille.msg||'',message:NIV.feuille.defi?NIV.feuille.defi.message:'',lien:NIV.dernierLienWallet||''}:null,defil:NIV.defil,hTot:NIV.hTot,essaiTouriste:essaiTouriste,walletPerdu:NIV.walletPerdu||'',xo:{officiel:xOfficiel(),sousEtat:xSousEtat(),compte:xDeclare(),msg:msgBX(XO.msg),edit:XO.edit,perdu:xPerdu()}},
-    signer:WSIGNE?{etat:WSIGNE.etat,msg:WSIGNE.msg,message:WSIGNE.message,court:WSIGNE.court,compte:WSIGNE.compte||null}:null,
+    signer:WSIGNE?{etat:WSIGNE.etat,msg:WSIGNE.msg,message:WSIGNE.message,court:WSIGNE.court,compte:WSIGNE.compte||null,copie:WSIGNE.copie,wallet:(function(){var f=fournisseurWallet();return f?f.nom:"";})()}:null,
     bx:{v2:boostsV2(),api:xApi(),x:BX.x,parrain:BX.parrain,charge:BX.charge,xVerif:BX.xVerif?BX.xVerif.etat:'',xMsg:msgBX(BX.xMsg),xFerme:BX.xFerme,tg:BX.tg?BX.tg.etat:'',tgMsg:msgBX(BX.tgMsg),coller:BX.coller,post:BX.dernierPost,tgLien:BX.dernierTg||'',lienSimule:BX.dernierLien,manif:MANIF.ids?MANIF.ids.length:0,xc:!!XRETOUR.jeton},langUrl:LANG_URL};},
   /* 0.11 : texte d'un post tel que le jeu le compose (cible : boost, fin, parr) */
   /* 0.12 : défilement de « Mon niveau » (essais automatiques) */
