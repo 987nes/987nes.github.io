@@ -77,6 +77,10 @@ var EV_HIT=1,EV_MORT=2,EV_GEMME=3,EV_JTOUCHE=4,EV_NIVEAU=5,EV_COFFRE=6,EV_ONDE=7
     EV_PET=40;   /* 0.10 : a = 0 nuage lâché (x, y, rayon, évolution) ; a = 1 Monsieur Prout éclate de jalousie (x, y) */
 /* 0.10 : nuages du pet qui pue ; un ennemi qui a fui reste insensible à la peur pendant PEUR_REPOS pas ; palet de la crosse */
 var MAXNU=10,PEUR_REPOS=45,PALET_V=7,PALET_R=150;
+/* 0.11 (bornes) : oratoires du pari et rond de sciure. EV_PARI : a = 0 oratoire posé (type, x, y), 1 pari accepté (type, x, y),
+   2 malédiction finie, gain acquis (type), 3 oratoire disparu sans pari (type, x, y) ; EV_CERCLE : a = 0 rond posé (x, y),
+   1 rond tenu (x, y), 2 rond perdu (x, y), 3 récompense choisie (rang dans RECOMPENSES). */
+var EV_PARI=41,EV_CERCLE=42;
 var M_CARTE=1,M_VOTE=2;
 var R_FONDUE=0,R_AIRDROP=1,R_BOUGIE=2,R_COFFRE=3;
 var B_MEUTE=0,B_BULL=1,B_DEV=2,B_LIQ=3,B_PAUSE=4,B_ELITE=5,B_CLOTURE=6;
@@ -211,6 +215,32 @@ var COLLECTIONS=[
   plats:[{cle:'cuchaule',passif:'moutarde'},{cle:'jambon',arme:'jambon'},{cle:'meringues',tresor:'meringueGruyere'},{cle:'bricelets',tresor:'bricelet'},{cle:'vincuit',tresor:'vincuit'}]}
 ];
 
+/* ---- PARIS (0.11, bornes) : l'oratoire du pari. Trois oratoires par partie, aux moments de T_BORNES (+ 0 à 10 s, graine),
+   chacun à 200-280 px de DZÔ (graine), pendant BORNE_VIE pas ; chacun propose un pari tiré de la graine, sans doublon.
+   DZÔ reste BORNE_TENIR pas sur l'oratoire pour accepter (l'anneau se remplit ; en sortir le vide vite) : aucun appui,
+   la décision se lit dans le journal des directions. Un pari accepté rend la partie plus dure et ajoute mult au
+   multiplicateur des points gagnés ENSUITE (tout : éliminations, temps, bonus), plafonné à PARI_MAX au total.
+   Champs : taux (× apparitions jusqu'à la fin), elites (élites tout de suite, à la force du moment), duree (pas de
+   malédiction) avec vitEnn (× vitesse des ennemis) et degEnn (× coups reçus) ; auBout:1 : le gain n'est acquis qu'à la fin
+   de la malédiction (DZÔ doit y survivre). On ajoute en fin de liste. ---- */
+var PARIS=[
+ {cle:'tournee',mult:0.15,taux:1.35},
+ {cle:'matous',mult:0.12,elites:2},
+ {cle:'bise',mult:0.2,duree:3600,vitEnn:1.3,degEnn:1.4,auBout:1}
+];
+var T_BORNES=[6000,13200,19200],BORNE_VIE=2700,BORNE_TENIR=90,BORNE_R=30,PARI_MAX=0.5;
+/* ---- RÉCOMPENSES du rond de sciure (0.11, bornes) : deux ronds par partie (T_CERCLES + 0 à 15 s, graine), à 240-320 px de
+   DZÔ, pendant CERCLE_VIE pas. DZÔ doit y rester CERCLE_TENIR pas en tout (dehors, la charge se vide de deux pas par pas) ;
+   rond tenu : trois cartes tirées de ce registre (genre 4), choisies comme une carte de niveau (journal des choix),
+   sans relance. donner() : l'effet ; bot() : intérêt du robot. On ajoute en fin de liste. ---- */
+var RECOMPENSES=[
+ {cle:'coffre',donner:rcCoffre,bot:function(){return 9;}},
+ {cle:'festin',donner:rcFestin,bot:function(){return S.pv<S.pvMax*0.5?10:4;}},
+ {cle:'couronne',donner:rcCouronne,bot:function(){return 7;}},
+ {cle:'taureau',donner:rcTaureau,bot:function(){return 5;}}
+];
+var T_CERCLES=[9600,19800],CERCLE_VIE=2400,CERCLE_TENIR=420,CERCLE_R=72;
+
 /* ---- COMBO : paliers (un mot par palier dans le dictionnaire : combo.1 à combo.10) ---- */
 /* Paliers du combo : chaque palier atteint ajoute +10 % au score des éliminations suivantes (jusqu'à +60 %).
    Un coup reçu divise le combo par deux ; sans élimination pendant 2,5 s (1,7 s dès 3:00) il retombe à zéro. */
@@ -341,6 +371,7 @@ function creer(graine,tab){
   s.rDec=mulberry32(melange(graine,88));s.eau=0;s.fonSoin=0;s.cassees=0;s.ecrases=0;s.funiCoups=0;
   /* 0.6 : collection du tableau (menu : un bit par plat), finale, bouclier de bricelets, gâteau au vin cuit */
   s.col=TABLEAUX[s.tableau].col;s.menu=0;s.repasT=0;s.repasFait=0;s.repasN=0;s.bouclier=0;s.vcx=0;s.vcy=0;
+  initBornes(s,graine);
   lier(s);
   ajouterArme(0);recalc();s.pv=s.pvMax;
   return s;
@@ -916,6 +947,7 @@ function apparitions(n){
   if(S.bossVivant&&S.bossFuite!==1&&taux>REGL.tauxBoss)taux=REGL.tauxBoss;
   if(D.taux)taux=Math.round(taux*D.taux);
   if(S.bull>0)taux*=2;
+  if(S.pariTaux!==1)taux=Math.round(taux*S.pariTaux);   /* 0.11 : pari « tournée générale » */
   if(S.nE<PLAF){
     S.acc+=taux;
     while(S.acc>=600&&S.nE<PLAF){
@@ -1392,6 +1424,74 @@ function fRepas(t){
   if(t===0){S.balaye=1;tuerOrdinaires(400);S.balaye=0;}
   if(t%120===0){for(k=0;k<S.nG;k++)G[k].aim=1;if(t>0){ev(EV_ONDE,S.px,S.py,260,7);zone(S.px,S.py,260,60,50,0,1);}}
 }
+/* ---------- 0.11 (bornes) : oratoires du pari et rond de sciure ----------
+   Tout dépend de la graine (générateurs propres rPari et rCer : les autres tirages de la partie ne bougent pas tant que
+   le joueur ne parie pas) et des directions jouées ; la récompense du rond passe par le journal des choix (choisir). */
+function initBornes(s,graine){
+  var r=mulberry32(melange(graine,121)),k,j,t,o=[];
+  s.rPari=r;s.rCer=mulberry32(melange(graine,131));
+  s.boT=new Int32Array(T_BORNES.length);for(k=0;k<T_BORNES.length;k++)s.boT[k]=T_BORNES[k]+Math.floor(r()*600);
+  for(k=0;k<PARIS.length;k++)o.push(k);for(k=o.length-1;k>0;k--){j=Math.floor(r()*(k+1));t=o[k];o[k]=o[j];o[j]=t;}s.boOrdre=o;
+  s.bo={on:0,type:0,x:0,y:0,nais:0,ch:0};s.boN=0;s.paris=0;s.nParis=0;s.pariCent=0;s.pariMult=1;s.scorePari=0;s.scoreVu=0;s.pariTaux=1;s.biseT=0;s.biseK=-1;s.vitDec0=s.vitDec;
+  s.ceT=new Int32Array(T_CERCLES.length);for(k=0;k<T_CERCLES.length;k++)s.ceT[k]=T_CERCLES[k]+Math.floor(s.rCer()*900);
+  s.ce={on:0,x:0,y:0,nais:0,ch:0};s.ceN=0;s.cePris=0;s.ceGagne=0;s.cartesCercle=0;
+}
+/* place libre à dMin-dMax de DZÔ (centre et quatre points à 44 px pour le rond) ; sinon la place sûre la plus proche */
+function placerBorne(dMin,dMax,large,rng){
+  var k,q,a,d,x=S.px,y=S.py,ok;
+  for(k=0;k<12;k++){a=Math.floor(rng()*NA);d=dMin+rng()*(dMax-dMin);x=S.px+cs(a)*d;y=S.py+sn(a)*d;if(!M)break;
+    ok=placeLibre(x,y,24);for(q=0;q<4&&ok&&large;q++)ok=placeLibre(x+DIRX[1+q*4]*44,y+DIRY[1+q*4]*44,12);if(ok)break;}
+  if(M){posSure(x,y,22);x=CX;y=CY;}CX=x;CY=y;
+}
+/* points gagnés depuis le dernier compte × (multiplicateur des paris − 1) : le pari ne vaut que pour la suite */
+function pariCompter(){var b=S.scoreTues+S.scoreTemps+S.scoreBonus;if(S.pariMult>1)S.scorePari+=(b-S.scoreVu)*(S.pariMult-1);S.scoreVu=b;}
+function pariGain(k){pariCompter();S.pariCent=Math.min(Math.round(PARI_MAX*100),S.pariCent+Math.round(PARIS[k].mult*100));S.pariMult=1+S.pariCent/100;}
+function accepterPari(k){
+  var P=PARIS[k],i,a,e,q;
+  S.paris|=1<<k;S.nParis++;
+  if(!P.auBout)pariGain(k);
+  if(P.taux)S.pariTaux*=P.taux;
+  /* élites du pari : comme elite(), mais placées par le générateur des paris */
+  for(i=0;i<(P.elites||0);i++){a=Math.floor(S.rPari()*NA);e=naitre(T_CHAT,S.px+cs(a)*300,S.py+sn(a)*300);if(!e)break;
+    q=S.elitesNees++;e.v=q%NVAR[T_CHAT];if(q>=PV_ELITE.length)q=PV_ELITE.length-1;e.pv=e.pvMax=PV_ELITE[q];e.chapeau=e.chapMax=CHAP_ELITE[q];}
+  if(P.elites)ev(EV_BANDEAU,B_ELITE);
+  /* une seule malédiction à la fois (une nouvelle remplace l'ancienne, sans son gain) */
+  if(P.duree){S.biseT=P.duree;S.biseK=k;}
+  ev(EV_PARI,1,k,S.px,S.py);
+}
+function majBornes(n){
+  var b=S.bo,c=S.ce,P,dx,dy;
+  /* malédiction : vitesse et coups des ennemis, réappliqués à chaque pas (la Liquidation recalcule les siens dans chrono) */
+  if(S.biseT>0){P=PARIS[S.biseK];S.biseT--;
+    if(S.biseT===0){S.vitDec=S.vitDec0;if(P.auBout)pariGain(S.biseK);ev(EV_PARI,2,S.biseK,S.px,S.py);S.biseK=-1;}
+    else S.vitDec=S.vitDec0*(P.vitEnn||1);
+    S.vitMult=S.vitVote*S.vitDec*(1+REGL.liqVit*S.liq);S.degMult=(1+REGL.liqDeg*S.liq)*(S.biseT>0?(P.degEnn||1):1);}
+  /* oratoire du pari */
+  if(!b.on&&S.boN<S.boT.length&&n>=S.boT[S.boN]&&!S.bossFuite){
+    placerBorne(200,280,0,S.rPari);b.on=1;b.type=S.boOrdre[S.boN%S.boOrdre.length];b.x=CX;b.y=CY;b.nais=n;b.ch=0;S.boN++;ev(EV_PARI,0,b.type,b.x,b.y);}
+  if(b.on){dx=S.px-b.x;dy=S.py-b.y;
+    if(dx*dx+dy*dy<BORNE_R*BORNE_R){if(++b.ch>=BORNE_TENIR){b.on=0;accepterPari(b.type);}}
+    else if(b.ch>0){b.ch-=3;if(b.ch<0)b.ch=0;}
+    if(b.on&&n-b.nais>=BORNE_VIE){b.on=0;ev(EV_PARI,3,b.type,b.x,b.y);}}
+  /* rond de sciure */
+  if(!c.on&&S.ceN<S.ceT.length&&n>=S.ceT[S.ceN]&&!S.bossFuite){
+    placerBorne(240,320,1,S.rCer);c.on=1;c.x=CX;c.y=CY;c.nais=n;c.ch=0;S.ceN++;ev(EV_CERCLE,0,c.x,c.y);}
+  if(c.on){dx=S.px-c.x;dy=S.py-c.y;
+    if(dx*dx+dy*dy<CERCLE_R*CERCLE_R){if(++c.ch>=CERCLE_TENIR){c.on=0;S.cePris++;S.ceGagne=1;ev(EV_CERCLE,1,c.x,c.y);}}
+    else if(c.ch>0){c.ch-=2;if(c.ch<0)c.ch=0;}
+    if(c.on&&n-c.nais>=CERCLE_VIE){c.on=0;ev(EV_CERCLE,2,c.x,c.y);}}
+}
+/* rond tenu : trois récompenses sans doublon, montrées comme des cartes (genre 4), au pas où aucune autre fenêtre n'est ouverte */
+function cartesCercle(){
+  var n=RECOMPENSES.length,i,j,t,c,ca;S.ceGagne=0;
+  for(i=0;i<n;i++)EL_I[i]=i;
+  for(c=0;c<3;c++){j=c+Math.floor(S.rCer()*(n-c));t=EL_I[c];EL_I[c]=EL_I[j];EL_I[j]=t;ca=S.cartes[c];ca.genre=4;ca.id=EL_I[c];ca.niv=0;}
+  S.cartesCercle=1;S.modal=M_CARTE;
+}
+function rcCoffre(){ouvrirCoffre();}
+function rcFestin(){S.pv=S.pvMax;}
+function rcCouronne(){gagnerXP(S.xpSuiv-S.xp);}
+function rcTaureau(){var k=I_TRES.chocolat,i;S.fx[k]=TRESORS[k].duree;for(i=0;i<S.nG;i++)G[i].aim=1;}
 function majGemmes(){
   var i,g,dx,dy,d2,d,rr=S.rayonRam,r2=rr*rr,t,pas_;
   for(i=0;i<S.nG;i++){g=G[i];dx=S.px-g.x;dy=S.py-g.y;d2=dx*dx+dy*dy;
@@ -1463,6 +1563,7 @@ function tirerCartes(){
 function choisir(st,i){
   lier(st);if(S.modal!==M_CARTE||i<0||i>2)return false;
   var c=S.cartes[i];S.choix.push(S.n,i);
+  if(S.cartesCercle){S.cartesCercle=0;S.modal=0;RECOMPENSES[c.id].donner();recalc();ev(EV_CERCLE,3,c.id);return true;}   /* 0.11 : récompense du rond */
   if(c.genre===0){ajouterArme(c.id);var ka=idxArme(c.id);ev(EV_ARME,c.id,c.niv===0?1:0,ka>=0?S.armes[ka].niv:0);}
   else if(c.genre===1)ajouterPassif(c.id);else if(c.genre===2)S.pv=Math.min(S.pvMax,S.pv+30);else S.sur[c.id]++;
   recalc();
@@ -1471,6 +1572,7 @@ function choisir(st,i){
 }
 function relancer(st){
   lier(st);if(S.modal!==M_CARTE||S.relances<=0)return false;
+  if(S.cartesCercle)return false;   /* 0.11 : pas de relance pour les récompenses du rond */
   S.relances--;S.choix.push(S.n,3);tirerCartes();return true;
 }
 function voter(st,oui){
@@ -1551,6 +1653,7 @@ function pas(st,dir){
   if(S.regen>0&&S.pv<S.pvMax){S.pv+=S.regen/HZ;if(S.pv>S.pvMax)S.pv=S.pvMax;}
   if(S.combo>0&&++S.comboT>=S.comboFen){S.combo=0;S.comboPal=0;S.comboT=0;S.comboChutes++;}
   construireGrille();
+  majBornes(n);   /* 0.11 : oratoires du pari, rond de sciure, malédiction */
   if(S.ondeNiv){S.ondeNiv=0;ondeNiveau();}
   traiterOndes();
   apparitions(n);
@@ -1573,10 +1676,12 @@ function pas(st,dir){
   S.n=n+1;
   if(S.n%HZ===0)S.scoreTemps+=10;
   if(!S.fini)chrono(S.n);
+  pariCompter();
+  if(!S.fini&&!S.modal&&S.ceGagne)cartesCercle();
   if(!S.fini&&!S.modal&&S.attente>0&&S.n>=Math.min(S.mv0<0?360:S.mv0+120,360))tirerCartes();
 }
 
-function score(st){return Math.floor(st.scoreTues+st.scoreTemps+st.scoreBonus);}
+function score(st){return Math.floor(st.scoreTues+st.scoreTemps+st.scoreBonus+(st.scorePari||0));}
 /* Le dernier palier exige le boss tué et la clôture atteinte. */
 function palier(sc,st){var k=0;for(var i=0;i<PALIERS.length;i++)if(sc>=PALIERS[i][0])k=i;if(st&&k===PALIERS.length-1&&!(st.bossTue&&st.victoire))k--;return k;}
 
@@ -1600,7 +1705,7 @@ function rejouer(graine,journal,nPas,choix,tab){
 /* ---------- robot ---------- */
 var DIRX=new Float64Array(17),DIRY=new Float64Array(17);(function(){for(var d=1;d<=16;d++){DIRX[d]=cs((d-1)*90);DIRY[d]=sn((d-1)*90);}})();
 function quantifier(fx,fy){var best=0,bd=-1e9,d,v;for(d=1;d<=16;d++){v=fx*DIRX[d]+fy*DIRY[d];if(v>bd){bd=v;best=d;}}return best;}
-function botDir(st){
+function botDir(st,o){
   lier(st);
   var fx=0,fy=0,px=S.px,py=S.py,i,e,dx,dy,d,Rr,w,p,k,B,c,g,best,bd;
   for(i=0;i<S.nE;i++){e=E[i];if(e.deg===0&&e.t!==T_BULLE)continue;
@@ -1619,6 +1724,7 @@ function botDir(st){
     for(i=0;i<S.nG;i++){g=G[i];dx=g.x-px;dy=g.y-py;d=dx*dx+dy*dy;if(d<bd){bd=d;best=i;}}
     if(best>=0&&bd<40000){d=Math.sqrt(bd)+0.01;fx+=(G[best].x-px)/d*0.8;fy+=(G[best].y-py)/d*0.8;}
   }
+  if(o){if(botAttirer(o,px,py)){S.botD=0;return 0;}fx+=BAX;fy+=BAY;}   /* 0.11 : robots qui parient ou tiennent le rond */
   if(fx*fx+fy*fy<0.0025){if(S.n%40===0)S.botD=(S.botD%16)+1;S.botD=botEviter(st,S.botD,1);return S.botD;}
   S.botD=botEviter(st,quantifier(fx,fy),1);return S.botD;
 }
@@ -1637,6 +1743,22 @@ function botEviter(st,q,eau){
   for(k=0;k<=7;k++)for(s=0;s<(k?2:1);s++){d=((q-1+(s?-k:k)+32)%16)+1;
     if(botLibre(S.px+DIRX[d]*24,S.py+DIRY[d]*24,eau&&k<4)&&botLibre(S.px+DIRX[d]*12,S.py+DIRY[d]*12,0))return d;}
   return q;
+}
+/* 0.11 (bornes, tests) : o & 1 : le robot va parier quand botParie() le juge raisonnable (il reste immobile sur l'oratoire
+   jusqu'à ce que l'anneau soit plein) ; o & 2 : il va au rond de sciure et y reste en esquivant (rappel vers le centre).
+   Renvoie 1 pour « ne bouge pas » ; sinon ajoute son attirance dans BAX, BAY. */
+var BAX=0,BAY=0;
+/* parieur avisé : 60 % de PV au moins, 85 % pour une malédiction, et pas d'élites en plus sans une évolution ou le niveau 15 */
+function botParie(P){return S.pv>=S.pvMax*(P.duree?0.85:0.6)&&(!P.elites||S.nEvo>0||S.niveau>=15);}
+function botAttirer(o,px,py){
+  var b=S.bo,c=S.ce,dx,dy,d,w;BAX=0;BAY=0;
+  if((o&1)&&b.on&&(b.ch>0||botParie(PARIS[b.type]))){dx=b.x-px;dy=b.y-py;d=Math.sqrt(dx*dx+dy*dy)+0.01;
+    if(d<BORNE_R*0.6)return 1;w=d<140?7:2.5;BAX+=dx/d*w;BAY+=dy/d*w;}
+  if((o&2)&&c.on){dx=c.x-px;dy=c.y-py;d=Math.sqrt(dx*dx+dy*dy)+0.01;
+    /* encore le temps d'arriver et de tenir ? */
+    if(CERCLE_VIE-(S.n-c.nais)>Math.max(0,d-CERCLE_R)/(S.vit/HZ)+(CERCLE_TENIR-c.ch)){
+      w=d>CERCLE_R*0.55?(d<CERCLE_R?9:3):0;BAX+=dx/d*w;BAY+=dy/d*w;}}
+  return 0;
 }
 function botChoix(st){
   lier(st);
@@ -1661,6 +1783,7 @@ function botChoixBon(st){
     if(c.genre===0){k=idxArme(c.id);v=k<0?(S.nA<3?9:5):7+c.niv;}
     else if(c.genre===1)v=passifLie(c.id)?8:(PASSIFS[c.id].botPoids||3);
     else if(c.genre===2)v=S.pv<S.pvMax*0.4?10:1;
+    else if(c.genre===4)v=RECOMPENSES[c.id].bot();
     else v=SURCHARGES[c.id].botPoids||2;
     if(v>bv){bv=v;best=i;}}
   choisir(st,best);
@@ -1673,6 +1796,7 @@ return{HZ:HZ,NA:NA,creer:creer,pas:pas,choisir:choisir,relancer:relancer,voter:v
     K:{BLOC:K_BLOC,MAISON:K_MAISON,CATH:K_CATH,NEF:K_NEF,MORAT:K_MORAT,TOURR:K_TOURR,REMP:K_REMP,FONT:K_FONT,SAPIN:K_SAPIN,FEUIL:K_FEUIL,TILLEUL:K_TILLEUL,VACHE:K_VACHE,FOIN:K_FOIN,TONNEAU:K_TONNEAU,CAISSE:K_CAISSE,STH:K_STH,STB:K_STB,FROM:K_FROM,MOLESON:K_MOLESON,PANNEAU:K_PANNEAU},
     D:{LAMPE:D_LAMPE,BANC:D_BANC,FLEURS:D_FLEURS,TOITPONT:D_TOITPONT,BANNIERE:D_BANNIERE}},fnv1a:fnv1a,mulberry32:mulberry32,melange:melange,sn:sn,cs:cs,
   ENN:ENN,NVAR:NVAR,VAGUES:VAGUES,PVMIN:PVMIN,REGL:REGL,ARMES:ARMES,NARMES:NARMES,PASSIFS:PASSIFS,SURCHARGES:SURCHARGES,DECRETS:DECRETS,decretDe:decretDe,VOTES:VOTES,PALIERS:PALIERS,FAMILLES:FAMILLES,XPT:XPT,M_CARTE:M_CARTE,M_VOTE:M_VOTE,MAXPAS:MAXPAS,PLAF:PLAF,
+  PARIS:PARIS,RECOMPENSES:RECOMPENSES,T_BORNES:T_BORNES,T_CERCLES:T_CERCLES,BORNE_VIE:BORNE_VIE,BORNE_TENIR:BORNE_TENIR,BORNE_R:BORNE_R,PARI_MAX:PARI_MAX,CERCLE_VIE:CERCLE_VIE,CERCLE_TENIR:CERCLE_TENIR,CERCLE_R:CERCLE_R,EV_PARI:EV_PARI,EV_CERCLE:EV_CERCLE,
   TRESORS:TRESORS,COLLECTIONS:COLLECTIONS,TABLEAUX:TABLEAUX,I_TABLEAU:I_TABLEAU,tableauDe:tableauDe,OBJETS:OBJETS,DECOS:DECOS,COMBO_PAL:COMBO_PAL,I_COL:I_COL,I_ENN:I_ENN,I_ARME:I_ARME,I_PASSIF:I_PASSIF,I_TRES:I_TRES,VAGUE_COL:VAGUE_COL,T_VOTES:T_VOTES,DUREE:DUREE,T_BOSSN:T_BOSSN,T_LIQ:T_LIQ,
   EV:{HIT:EV_HIT,MORT:EV_MORT,GEMME:EV_GEMME,JTOUCHE:EV_JTOUCHE,NIVEAU:EV_NIVEAU,COFFRE:EV_COFFRE,ONDE:EV_ONDE,TIR:EV_TIR,BANDEAU:EV_BANDEAU,PAROLE:EV_PAROLE,ELITE:EV_ELITE,BOSSMORT:EV_BOSSMORT,RAMASSE:EV_RAMASSE,PIEU:EV_PIEU,TAPIS:EV_TAPIS,FIN:EV_FIN,CHAPEAU:EV_CHAPEAU,ASPI:EV_ASPI,TIRENN:EV_TIRENN,BOSS:EV_BOSS,ECLAT:EV_ECLAT,
       TRESOR:EV_TRESOR,PRISE:EV_PRISE,TRESFIN:EV_TRESFIN,COMBO:EV_COMBO,BOMBE:EV_BOMBE,ARME:EV_ARME,LANCE:EV_LANCE,
@@ -2112,6 +2236,37 @@ LANGUES.fr={
 "tresor.vincuit.nom":"Gâteau au vin cuit",
 "tresor.vincuit.mot":"GÂTEAU AU VIN CUIT !",
 "tresor.vincuit.ligne":"Tout ce qui marche dessus reste collé pendant 9 s.",
+"pari.oratoire":"Oratoire du pari",
+"pari.tenir":"Reste sur l'oratoire pour parier",
+"pari.hud":"Paris ×{0}",
+"pari.biseHud":"Bise noire {0} s",
+"pari.scelle":"Pari tenu ! +{0} % de points",
+"pari.tournee.nom":"Tournée générale",
+"pari.tournee.ligne":"Horde ×{0} jusqu'à la fin. Points +{1} % dès maintenant.",
+"pari.tournee.bandeau":"TOURNÉE GÉNÉRALE ! Toute la horde a soif.",
+"pari.matous.nom":"Jass des matous",
+"pari.matous.ligne":"{0} chats à chapeau élites, tout de suite. Points +{1} %.",
+"pari.matous.bandeau":"JASS DES MATOUS ! Ils ont atout.",
+"pari.bise.nom":"Bise noire",
+"pari.bise.ligne":"{0} s : ennemis ×{1} plus vifs et plus durs. Survis : +{2} %.",
+"pari.bise.bandeau":"BISE NOIRE ! Survis-y pour toucher la mise.",
+"pari.bise.fini":"BISE TOMBÉE ! +{0} %",
+"cercle.titre":"ROND DE SCIURE TENU !",
+"cercle.tenir":"Tiens le rond : {0} s",
+"cercle.perdu":"Le rond est balayé…",
+"cercle.coffre.nom":"Coffre du lutteur",
+"cercle.coffre.phrase":"Ouvre un coffre tout de suite (évolution si elle est prête).",
+"cercle.festin.nom":"Festin de la fête",
+"cercle.festin.phrase":"Tous tes PV, tout de suite. On ressert ?",
+"cercle.couronne.nom":"Couronne de chêne",
+"cercle.couronne.phrase":"Un niveau de plus, tout de suite.",
+"cercle.taureau.nom":"Taureau du roi",
+"cercle.taureau.phrase":"Rage chocolat 8 s, et toutes les gemmes accourent.",
+"aide.pari":"Un oratoire ! Reste dessus pour parier : plus dur, plus de points.",
+"aide.cercle":"Un rond de sciure ! Tiens-y 7 s pour choisir un prix.",
+"fin.paris":"Paris ×{0} : +{1} pts",
+"fin.ronds":"Ronds tenus : {0}",
+"cat.3":"PRIX DU ROND",
 "decret.toutous.nom":"Jour des Toutous",
 "decret.toutous.ligne":"Deux fois plus de toutous. Le Poing Levé tire un poing de plus.",
 "decret.baissier.nom":"Marché baissier",
@@ -2433,6 +2588,75 @@ LANGUES.fr={
 "boost.horsConcours":"Hors concours, les posts ne donnent pas de vie. Reviens pendant un concours !",
 "boost.okXVie":"Post X validé : +1 vie aujourd'hui.",
 "boost.okTgVie":"Message Telegram validé : +1 vie aujourd'hui.",
+"boost2.connecter":"CONNECTER X",
+"boost2.reconnecter":"RECONNECTER X",
+"boost2.connecterAide":"Relie ton compte X une fois : ensuite, le jeu voit tes posts tout seul.",
+"boost2.reconnecterAide":"X ne reconnaît plus le jeu : reconnecte ton compte.",
+"boost2.relie":"Compte X @{0} relié",
+"boost2.etapeRelier":"Relier ton compte X",
+"boost2.suivre":"SUIVRE @{0}",
+"boost2.etapeSuivre":"Suivre @{0}",
+"boost2.suivreAide":"Abonne-toi à @{0} sur X, puis reviens ici.",
+"boost2.suiviOk":"Tu suis @{0}",
+"boost2.suiviNon":"Pas encore abonné à @{0} : suis le compte, puis reviens.",
+"boost2.suiviVerif":"Vérification de l'abonnement…",
+"boost2.etapePoster":"Poster sur X",
+"boost2.poster":"POSTER SUR X",
+"boost2.posterAide":"Le texte est prêt : publie-le, puis reviens dans le jeu.",
+"boost2.attentePost":"En attente de ton post… ({0}/{1})",
+"boost2.retourPost":"Publie ton post, puis reviens ici.",
+"boost2.jaiPoste":"J'AI POSTÉ",
+"boost2.pasTrouve":"Post pas trouvé : vérifie qu'il contient 987NES ou le lien, puis réessaie.",
+"boost2.reessayer":"VÉRIFIER ENCORE",
+"boost2.vieGagnee":"Vie gagnée !",
+"boost2.xFermeJour":"Boost X indisponible aujourd'hui, réessaie demain.",
+"boost2.verifsMax":"Trop de vérifications X aujourd'hui, réessaie demain.",
+"boost2.credit":"Vérification X indisponible pour le moment : réessaie plus tard.",
+"boost2.etapeTg":"Envoyer dans le groupe",
+"boost2.tgEnvoyer":"ENVOYER DANS LE GROUPE",
+"boost2.tgAide":"Choisis « 987NES - Chat » et envoie : la vie arrive toute seule.",
+"boost2.tgAttente":"En attente de ton message…",
+"boost2.tgPasRecu":"Pas reçu ? Envoie-le dans le groupe « 987NES - Chat ».",
+"boost2.tgSuiviX":"D'abord : relie X et suis @{0} (carte X).",
+"boost2.etapeColler":"Coller le lien de ton post",
+"boost2.coller":"COLLER MON LIEN",
+"boost2.collerAide":"Sur X, copie le lien de ton post, puis touche « Coller mon lien ».",
+"boost2.presseVide":"Pas de lien de post dans le presse-papiers : colle-le ici.",
+"boost2.lienSimule":"Post simulé créé (rien n'est envoyé à X). Touche Vérifier.",
+"boost2.delier":"DÉLIER",
+"boost2.delierConfirme":"ENCORE POUR DÉLIER",
+"boost2.delie":"Compte X délié.",
+"boost2.profilX":"Compte X relié : @{0}",
+"boost2.attenteConnexion":"Connecte-toi pour finir de relier ton compte X.",
+"boost2.liaison":"Liaison du compte X…",
+"boost2.x.ok":"Compte X connecté.",
+"boost2.x.annule":"Connexion à X annulée.",
+"boost2.x.etat":"Recommence depuis le jeu, dans le même navigateur.",
+"boost2.x.expire":"Lien expiré : recommence.",
+"boost2.x.credit":"X indisponible, réessaie plus tard.",
+"boost2.x.erreur":"Erreur, réessaie.",
+"boost2.ouverture":"Ouverture de X…",
+"post.score.1":"Score du jour sur DZÔ Survivors : {0}",
+"post.score.2":"{0} points sur DZÔ Survivors aujourd'hui",
+"post.score.3":"J'ai tenu la horde : {0} sur DZÔ Survivors",
+"post.score.4":"DZÔ Survivors, mon score du jour : {0}",
+"post.score.5":"{0} points. La horde de Fribourg peut trembler.",
+"post.score.6":"Nouveau score sur DZÔ Survivors : {0}. À toi !",
+"post.sansScore":"La horde m'attend sur DZÔ Survivors. Et toi ?",
+"err.x_connexion_requise":"Connecte d'abord ton compte X.",
+"err.x_a_reconnecter":"X ne reconnaît plus le jeu : reconnecte ton compte X.",
+"err.x_credit_epuise":"Vérification X indisponible pour le moment : réessaie plus tard.",
+"err.x_plafond_jour_atteint":"Boost X indisponible aujourd'hui, réessaie demain.",
+"err.x_verifications_jour_max":"Trop de vérifications X aujourd'hui, réessaie demain.",
+"err.x_suivi_requis":"Suis d'abord @987_nes sur X, puis reviens.",
+"err.post_pas_encore_vu":"Ton post n'est pas encore visible sur X. Encore un instant.",
+"err.x_confirmation_invalide":"Liaison refusée : recommence depuis « Connecter X » dans le jeu.",
+"err.x_delai_changement":"Ce compte X était lié à un autre joueur : réessaie plus tard.",
+"err.x_delai_changement_d":"Ce compte X était lié à un autre joueur : possible à partir du {0}.",
+"err.x_api_absente":"Connexion X indisponible pour le moment.",
+"err.x_non_lie":"Connecte d'abord ton compte X.",
+"err.post_sans_987nes":"Il manque 987NES ou le lien 987nes.com dans le post.",
+"err.post_sans_lien_parrain":"Le lien du post doit être celui du jeu, avec ton code.",
 "net.valideRangConcours":"Validé · n° {0} du concours ({1})",
 "fin.concours":"CONCOURS : {0}",
 "err.hors_concours":"Pas de concours en cours : partie d'entraînement.",
@@ -2500,6 +2724,17 @@ LANGUES.fr={
 "parr.codeGarde":"Code {0} noté : il comptera à ta connexion.",
 "parr.codeNote":"Code de parrainage noté : {0}",
 "titre.essaiBonus":"Vie bonus · essai {0}/{1}",
+"titre.presente":"987NES présente",
+"titre.essais1":"1 essai",
+"titre.essaisN":"{0} essais",
+"titre.serieJ":"{0} j",
+"titre.toi":"toi #{0}",
+"titre.plusEssai":"+1 ESSAI",
+"titre.plusEssaiSous":"Poste ton score sur X ou Telegram",
+"titre.suivre":"Suivre @987_nes",
+"titre.reglages":"RÉGLAGES",
+"titre.sonOui":"SON : ACTIVÉ",
+"titre.sonNon":"SON : COUPÉ",
 "err.essais_epuises_bonusPris":"Essais épuisés et vie bonus du jour déjà prise. Reviens demain.",
 "err.essais_epuises_bonusFerme":"Essais épuisés. Vies bonus fermées pendant ce concours.",
 "compte.prochains":"Prochains essais dans {0}"
@@ -2929,6 +3164,37 @@ LANGUES.de={
 "tresor.vincuit.nom":"Gâteau au vin cuit",
 "tresor.vincuit.mot":"GÂTEAU AU VIN CUIT!",
 "tresor.vincuit.ligne":"Wer darüberläuft, klebt 9 s fest (Birnendicksaft).",
+"pari.oratoire":"Wettkapelle",
+"pari.tenir":"Bleib auf der Kapelle, um zu wetten",
+"pari.hud":"Wetten ×{0}",
+"pari.biseHud":"Schwarze Bise {0} s",
+"pari.scelle":"Wette gilt! +{0} % Punkte",
+"pari.tournee.nom":"Runde für alle",
+"pari.tournee.ligne":"Horde ×{0} bis zum Schluss. Punkte +{1} % ab sofort.",
+"pari.tournee.bandeau":"RUNDE FÜR ALLE! Die ganze Horde hat Durst.",
+"pari.matous.nom":"Katerjass",
+"pari.matous.ligne":"{0} Elite-Hutkater, sofort. Punkte +{1} %.",
+"pari.matous.bandeau":"KATERJASS! Sie haben Trumpf.",
+"pari.bise.nom":"Schwarze Bise",
+"pari.bise.ligne":"{0} s: Gegner ×{1} schneller und härter. Überleben: +{2} %.",
+"pari.bise.bandeau":"SCHWARZE BISE! Überleb sie, dann zählt der Einsatz.",
+"pari.bise.fini":"BISE VORBEI! +{0} %",
+"cercle.titre":"SÄGEMEHLRING GEHALTEN!",
+"cercle.tenir":"Halte den Ring: {0} s",
+"cercle.perdu":"Der Ring ist weggefegt …",
+"cercle.coffre.nom":"Schwingertruhe",
+"cercle.coffre.phrase":"Öffnet sofort eine Truhe (Evolution, falls bereit).",
+"cercle.festin.nom":"Chilbi-Festmahl",
+"cercle.festin.phrase":"Sofort alle LP zurück. Nachschlag?",
+"cercle.couronne.nom":"Eichenkranz",
+"cercle.couronne.phrase":"Sofort eine Stufe mehr.",
+"cercle.taureau.nom":"Königsmuni",
+"cercle.taureau.phrase":"8 s Schoko-Rausch, und alle Edelsteine kommen angerannt.",
+"aide.pari":"Eine Kapelle! Bleib drauf, um zu wetten: härter, mehr Punkte.",
+"aide.cercle":"Ein Sägemehlring! Halte ihn 7 s und wähle einen Preis.",
+"fin.paris":"Wetten ×{0}: +{1} Pkt.",
+"fin.ronds":"Ringe gehalten: {0}",
+"cat.3":"RINGPREIS",
 "decret.toutous.nom":"Hundetag",
 "decret.toutous.ligne":"Doppelt so viele Hunde. Die Erhobene Faust wirft eine Faust mehr.",
 "decret.baissier.nom":"Bärenmarkt",
@@ -3248,6 +3514,75 @@ LANGUES.de={
 "boost.horsConcours":"Außerhalb eines Wettbewerbs geben Posts kein Leben. Komm während eines Wettbewerbs wieder!",
 "boost.okXVie":"X-Post bestätigt: +1 Leben heute.",
 "boost.okTgVie":"Telegram-Nachricht bestätigt: +1 Leben heute.",
+"boost2.connecter":"X VERBINDEN",
+"boost2.reconnecter":"X NEU VERBINDEN",
+"boost2.connecterAide":"Verbinde dein X-Konto einmal: danach sieht das Spiel deine Posts von selbst.",
+"boost2.reconnecterAide":"X erkennt das Spiel nicht mehr: verbinde dein Konto neu.",
+"boost2.relie":"X-Konto @{0} verbunden",
+"boost2.etapeRelier":"X-Konto verbinden",
+"boost2.suivre":"@{0} FOLGEN",
+"boost2.etapeSuivre":"@{0} folgen",
+"boost2.suivreAide":"Folge @{0} auf X und komm dann hierher zurück.",
+"boost2.suiviOk":"Du folgst @{0}",
+"boost2.suiviNon":"Du folgst @{0} noch nicht: folge dem Konto und komm zurück.",
+"boost2.suiviVerif":"Abo wird geprüft…",
+"boost2.etapePoster":"Auf X posten",
+"boost2.poster":"AUF X POSTEN",
+"boost2.posterAide":"Der Text ist bereit: veröffentliche ihn und komm zurück ins Spiel.",
+"boost2.attentePost":"Warte auf deinen Post… ({0}/{1})",
+"boost2.retourPost":"Veröffentliche deinen Post und komm hierher zurück.",
+"boost2.jaiPoste":"ICH HABE GEPOSTET",
+"boost2.pasTrouve":"Post nicht gefunden: enthält er 987NES oder den Link? Dann nochmal versuchen.",
+"boost2.reessayer":"NOCHMAL PRÜFEN",
+"boost2.vieGagnee":"Leben gewonnen!",
+"boost2.xFermeJour":"X-Boost heute nicht verfügbar, versuch es morgen wieder.",
+"boost2.verifsMax":"Zu viele X-Prüfungen heute, versuch es morgen wieder.",
+"boost2.credit":"X-Prüfung gerade nicht verfügbar: versuch es später.",
+"boost2.etapeTg":"In die Gruppe senden",
+"boost2.tgEnvoyer":"IN DIE GRUPPE SENDEN",
+"boost2.tgAide":"Wähle «987NES - Chat» und sende: das Leben kommt von selbst.",
+"boost2.tgAttente":"Warte auf deine Nachricht…",
+"boost2.tgPasRecu":"Nicht angekommen? Sende sie in die Gruppe «987NES - Chat».",
+"boost2.tgSuiviX":"Zuerst: X verbinden und @{0} folgen (X-Karte).",
+"boost2.etapeColler":"Link deines Posts einfügen",
+"boost2.coller":"MEINEN LINK EINFÜGEN",
+"boost2.collerAide":"Kopiere auf X den Link deines Posts und tippe dann auf «Meinen Link einfügen».",
+"boost2.presseVide":"Kein Post-Link in der Zwischenablage: füge ihn hier ein.",
+"boost2.lienSimule":"Simulierter Post erstellt (nichts geht an X). Tippe auf Prüfen.",
+"boost2.delier":"TRENNEN",
+"boost2.delierConfirme":"NOCHMAL ZUM TRENNEN",
+"boost2.delie":"X-Konto getrennt.",
+"boost2.profilX":"X-Konto verbunden: @{0}",
+"boost2.attenteConnexion":"Melde dich an, um die Verbindung mit X abzuschließen.",
+"boost2.liaison":"X-Konto wird verbunden…",
+"boost2.x.ok":"X-Konto verbunden.",
+"boost2.x.annule":"Verbindung mit X abgebrochen.",
+"boost2.x.etat":"Fang im Spiel neu an, im selben Browser.",
+"boost2.x.expire":"Link abgelaufen: fang neu an.",
+"boost2.x.credit":"X nicht verfügbar, versuch es später.",
+"boost2.x.erreur":"Fehler, versuch es nochmal.",
+"boost2.ouverture":"X wird geöffnet…",
+"post.score.1":"Tagesscore bei DZÔ Survivors: {0}",
+"post.score.2":"{0} Punkte bei DZÔ Survivors heute",
+"post.score.3":"Ich habe der Horde standgehalten: {0} bei DZÔ Survivors",
+"post.score.4":"DZÔ Survivors, mein Tagesscore: {0}",
+"post.score.5":"{0} Punkte. Die Horde von Freiburg zittert.",
+"post.score.6":"Neuer Score bei DZÔ Survivors: {0}. Du bist dran!",
+"post.sansScore":"Die Horde wartet bei DZÔ Survivors auf mich. Und du?",
+"err.x_connexion_requise":"Verbinde zuerst dein X-Konto.",
+"err.x_a_reconnecter":"X erkennt das Spiel nicht mehr: verbinde dein X-Konto neu.",
+"err.x_credit_epuise":"X-Prüfung gerade nicht verfügbar: versuch es später.",
+"err.x_plafond_jour_atteint":"X-Boost heute nicht verfügbar, versuch es morgen wieder.",
+"err.x_verifications_jour_max":"Zu viele X-Prüfungen heute, versuch es morgen wieder.",
+"err.x_suivi_requis":"Folge zuerst @987_nes auf X und komm zurück.",
+"err.post_pas_encore_vu":"Dein Post ist auf X noch nicht sichtbar. Einen Moment noch.",
+"err.x_confirmation_invalide":"Verbindung abgelehnt: fang im Spiel bei «X verbinden» neu an.",
+"err.x_delai_changement":"Dieses X-Konto war mit einem anderen Spieler verbunden: versuch es später.",
+"err.x_delai_changement_d":"Dieses X-Konto war mit einem anderen Spieler verbunden: möglich ab {0}.",
+"err.x_api_absente":"Verbindung mit X gerade nicht verfügbar.",
+"err.x_non_lie":"Verbinde zuerst dein X-Konto.",
+"err.post_sans_987nes":"Im Post fehlt 987NES oder der Link zu 987nes.com.",
+"err.post_sans_lien_parrain":"Der Link im Post muss der Spiel-Link mit deinem Code sein.",
 "net.valideRangConcours":"Bestätigt · Platz {0} im Wettbewerb ({1})",
 "fin.concours":"WETTBEWERB: {0}",
 "err.hors_concours":"Gerade kein Wettbewerb: Trainingsrunde.",
@@ -3315,6 +3650,17 @@ LANGUES.de={
 "parr.codeGarde":"Code {0} gemerkt: Er zählt bei deiner Anmeldung.",
 "parr.codeNote":"Einladungscode gemerkt: {0}",
 "titre.essaiBonus":"Bonusleben · Versuch {0}/{1}",
+"titre.presente":"987NES präsentiert",
+"titre.essais1":"1 Versuch",
+"titre.essaisN":"{0} Versuche",
+"titre.serieJ":"{0} T",
+"titre.toi":"du #{0}",
+"titre.plusEssai":"+1 VERSUCH",
+"titre.plusEssaiSous":"Poste deinen Score auf X oder Telegram",
+"titre.suivre":"@987_nes folgen",
+"titre.reglages":"EINSTELLUNGEN",
+"titre.sonOui":"TON: AN",
+"titre.sonNon":"TON: AUS",
 "err.essais_epuises_bonusPris":"Versuche aufgebraucht, Bonusleben für heute schon genutzt. Morgen wieder.",
 "err.essais_epuises_bonusFerme":"Versuche aufgebraucht. Bonusleben in diesem Wettbewerb gesperrt.",
 "compte.prochains":"Neue Versuche in {0}"
@@ -3744,6 +4090,37 @@ LANGUES.it={
 "tresor.vincuit.nom":"Torta al vin cuit",
 "tresor.vincuit.mot":"TORTA AL VIN CUIT!",
 "tresor.vincuit.ligne":"Tutto ciò che ci cammina sopra resta incollato per 9 s.",
+"pari.oratoire":"Cappelletta della scommessa",
+"pari.tenir":"Resta sulla cappelletta per scommettere",
+"pari.hud":"Scommesse ×{0}",
+"pari.biseHud":"Bise nera {0} s",
+"pari.scelle":"Scommessa fatta! +{0} % di punti",
+"pari.tournee.nom":"Giro per tutti",
+"pari.tournee.ligne":"Orda ×{0} fino alla fine. Punti +{1} % da subito.",
+"pari.tournee.bandeau":"GIRO PER TUTTI! Tutta l'orda ha sete.",
+"pari.matous.nom":"Jass dei gattoni",
+"pari.matous.ligne":"{0} gatti col cappello d'élite, subito. Punti +{1} %.",
+"pari.matous.bandeau":"JASS DEI GATTONI! Hanno la briscola.",
+"pari.bise.nom":"Bise nera",
+"pari.bise.ligne":"{0} s: nemici ×{1} più veloci e più duri. Sopravvivi: +{2} %.",
+"pari.bise.bandeau":"BISE NERA! Sopravvivi per incassare la posta.",
+"pari.bise.fini":"BISE CALATA! +{0} %",
+"cercle.titre":"CERCHIO DI SEGATURA TENUTO!",
+"cercle.tenir":"Tieni il cerchio: {0} s",
+"cercle.perdu":"Il cerchio è spazzato via…",
+"cercle.coffre.nom":"Baule del lottatore",
+"cercle.coffre.phrase":"Apre subito un baule (evoluzione se è pronta).",
+"cercle.festin.nom":"Banchetto della sagra",
+"cercle.festin.phrase":"Tutti i PV, subito. Si fa il bis?",
+"cercle.couronne.nom":"Corona di quercia",
+"cercle.couronne.phrase":"Un livello in più, subito.",
+"cercle.taureau.nom":"Toro del re",
+"cercle.taureau.phrase":"Rabbia al cioccolato 8 s, e tutte le gemme accorrono.",
+"aide.pari":"Una cappelletta! Restaci sopra per scommettere: più dura, più punti.",
+"aide.cercle":"Un cerchio di segatura! Tienilo 7 s per scegliere un premio.",
+"fin.paris":"Scommesse ×{0}: +{1} pti",
+"fin.ronds":"Cerchi tenuti: {0}",
+"cat.3":"PREMIO DEL CERCHIO",
 "decret.toutous.nom":"Giorno dei Cagnolini",
 "decret.toutous.ligne":"Il doppio di cagnolini. Il Pugno Alzato lancia un pugno in più.",
 "decret.baissier.nom":"Mercato ribassista",
@@ -4063,6 +4440,75 @@ LANGUES.it={
 "boost.horsConcours":"Fuori concorso i post non danno vite. Torna durante un concorso!",
 "boost.okXVie":"Post X convalidato: +1 vita oggi.",
 "boost.okTgVie":"Messaggio Telegram convalidato: +1 vita oggi.",
+"boost2.connecter":"COLLEGA X",
+"boost2.reconnecter":"RICOLLEGA X",
+"boost2.connecterAide":"Collega il tuo account X una volta: poi il gioco vede i tuoi post da solo.",
+"boost2.reconnecterAide":"X non riconosce più il gioco: ricollega il tuo account.",
+"boost2.relie":"Account X @{0} collegato",
+"boost2.etapeRelier":"Collegare l'account X",
+"boost2.suivre":"SEGUI @{0}",
+"boost2.etapeSuivre":"Seguire @{0}",
+"boost2.suivreAide":"Segui @{0} su X, poi torna qui.",
+"boost2.suiviOk":"Segui @{0}",
+"boost2.suiviNon":"Non segui ancora @{0}: segui l'account, poi torna.",
+"boost2.suiviVerif":"Verifica dell'iscrizione…",
+"boost2.etapePoster":"Pubblicare su X",
+"boost2.poster":"PUBBLICA SU X",
+"boost2.posterAide":"Il testo è pronto: pubblicalo, poi torna nel gioco.",
+"boost2.attentePost":"In attesa del tuo post… ({0}/{1})",
+"boost2.retourPost":"Pubblica il tuo post, poi torna qui.",
+"boost2.jaiPoste":"HO PUBBLICATO",
+"boost2.pasTrouve":"Post non trovato: controlla che contenga 987NES o il link, poi riprova.",
+"boost2.reessayer":"VERIFICA ANCORA",
+"boost2.vieGagnee":"Vita guadagnata!",
+"boost2.xFermeJour":"Boost X non disponibile oggi, riprova domani.",
+"boost2.verifsMax":"Troppe verifiche X oggi, riprova domani.",
+"boost2.credit":"Verifica X non disponibile al momento: riprova più tardi.",
+"boost2.etapeTg":"Inviare nel gruppo",
+"boost2.tgEnvoyer":"INVIA NEL GRUPPO",
+"boost2.tgAide":"Scegli «987NES - Chat» e invia: la vita arriva da sola.",
+"boost2.tgAttente":"In attesa del tuo messaggio…",
+"boost2.tgPasRecu":"Non ricevuto? Invialo nel gruppo «987NES - Chat».",
+"boost2.tgSuiviX":"Prima: collega X e segui @{0} (scheda X).",
+"boost2.etapeColler":"Incollare il link del post",
+"boost2.coller":"INCOLLA IL MIO LINK",
+"boost2.collerAide":"Su X copia il link del tuo post, poi tocca «Incolla il mio link».",
+"boost2.presseVide":"Nessun link di post negli appunti: incollalo qui.",
+"boost2.lienSimule":"Post simulato creato (niente va a X). Tocca Verifica.",
+"boost2.delier":"SCOLLEGA",
+"boost2.delierConfirme":"ANCORA PER SCOLLEGARE",
+"boost2.delie":"Account X scollegato.",
+"boost2.profilX":"Account X collegato: @{0}",
+"boost2.attenteConnexion":"Accedi per finire di collegare il tuo account X.",
+"boost2.liaison":"Collegamento dell'account X…",
+"boost2.x.ok":"Account X connesso.",
+"boost2.x.annule":"Connessione a X annullata.",
+"boost2.x.etat":"Ricomincia dal gioco, nello stesso browser.",
+"boost2.x.expire":"Link scaduto: ricomincia.",
+"boost2.x.credit":"X non disponibile, riprova più tardi.",
+"boost2.x.erreur":"Errore, riprova.",
+"boost2.ouverture":"Apertura di X…",
+"post.score.1":"Punteggio del giorno su DZÔ Survivors: {0}",
+"post.score.2":"{0} punti su DZÔ Survivors oggi",
+"post.score.3":"Ho tenuto testa all'orda: {0} su DZÔ Survivors",
+"post.score.4":"DZÔ Survivors, il mio punteggio di oggi: {0}",
+"post.score.5":"{0} punti. L'orda di Friburgo può tremare.",
+"post.score.6":"Nuovo punteggio su DZÔ Survivors: {0}. Tocca a te!",
+"post.sansScore":"L'orda mi aspetta su DZÔ Survivors. E tu?",
+"err.x_connexion_requise":"Collega prima il tuo account X.",
+"err.x_a_reconnecter":"X non riconosce più il gioco: ricollega il tuo account X.",
+"err.x_credit_epuise":"Verifica X non disponibile al momento: riprova più tardi.",
+"err.x_plafond_jour_atteint":"Boost X non disponibile oggi, riprova domani.",
+"err.x_verifications_jour_max":"Troppe verifiche X oggi, riprova domani.",
+"err.x_suivi_requis":"Segui prima @987_nes su X, poi torna.",
+"err.post_pas_encore_vu":"Il tuo post non è ancora visibile su X. Ancora un attimo.",
+"err.x_confirmation_invalide":"Collegamento rifiutato: ricomincia da «Collega X» nel gioco.",
+"err.x_delai_changement":"Questo account X era collegato a un altro giocatore: riprova più tardi.",
+"err.x_delai_changement_d":"Questo account X era collegato a un altro giocatore: possibile dal {0}.",
+"err.x_api_absente":"Connessione a X non disponibile al momento.",
+"err.x_non_lie":"Collega prima il tuo account X.",
+"err.post_sans_987nes":"Nel post manca 987NES o il link a 987nes.com.",
+"err.post_sans_lien_parrain":"Il link del post deve essere quello del gioco, con il tuo codice.",
 "net.valideRangConcours":"Convalidato · {0}° del concorso ({1})",
 "fin.concours":"CONCORSO: {0}",
 "err.hors_concours":"Nessun concorso in corso: partita di allenamento.",
@@ -4130,6 +4576,17 @@ LANGUES.it={
 "parr.codeGarde":"Codice {0} salvato: conterà al tuo accesso.",
 "parr.codeNote":"Codice d'invito salvato: {0}",
 "titre.essaiBonus":"Vita bonus · tentativo {0}/{1}",
+"titre.presente":"987NES presenta",
+"titre.essais1":"1 tentativo",
+"titre.essaisN":"{0} tentativi",
+"titre.serieJ":"{0} g",
+"titre.toi":"tu #{0}",
+"titre.plusEssai":"+1 TENTATIVO",
+"titre.plusEssaiSous":"Pubblica il tuo punteggio su X o Telegram",
+"titre.suivre":"Segui @987_nes",
+"titre.reglages":"IMPOSTAZIONI",
+"titre.sonOui":"AUDIO: SÌ",
+"titre.sonNon":"AUDIO: NO",
 "err.essais_epuises_bonusPris":"Tentativi esauriti e vita bonus di oggi già usata. Torna domani.",
 "err.essais_epuises_bonusFerme":"Tentativi esauriti. Vite bonus chiuse durante questo concorso.",
 "compte.prochains":"Prossimi tentativi tra {0}"
@@ -4559,6 +5016,37 @@ LANGUES.es={
 "tresor.vincuit.nom":"Pastel de vin cuit",
 "tresor.vincuit.mot":"¡PASTEL DE VIN CUIT!",
 "tresor.vincuit.ligne":"Todo lo que lo pisa se queda pegado durante 9 s.",
+"pari.oratoire":"Oratorio de la apuesta",
+"pari.tenir":"Quédate en el oratorio para apostar",
+"pari.hud":"Apuestas ×{0}",
+"pari.biseHud":"Bise negra {0} s",
+"pari.scelle":"¡Apuesta hecha! +{0} % de puntos",
+"pari.tournee.nom":"Ronda para todos",
+"pari.tournee.ligne":"Horda ×{0} hasta el final. Puntos +{1} % desde ya.",
+"pari.tournee.bandeau":"¡RONDA PARA TODOS! Toda la horda tiene sed.",
+"pari.matous.nom":"Jass de los gatos",
+"pari.matous.ligne":"{0} gatos con sombrero de élite, ya. Puntos +{1} %.",
+"pari.matous.bandeau":"¡JASS DE LOS GATOS! Tienen triunfo.",
+"pari.bise.nom":"Bise negra",
+"pari.bise.ligne":"{0} s: enemigos ×{1} más rápidos y más duros. Sobrevive: +{2} %.",
+"pari.bise.bandeau":"¡BISE NEGRA! Sobrevive para cobrar la apuesta.",
+"pari.bise.fini":"¡BISE CALMADA! +{0} %",
+"cercle.titre":"¡CÍRCULO DE SERRÍN AGUANTADO!",
+"cercle.tenir":"Aguanta el círculo: {0} s",
+"cercle.perdu":"El círculo se ha barrido…",
+"cercle.coffre.nom":"Cofre del luchador",
+"cercle.coffre.phrase":"Abre un cofre ya (evolución si está lista).",
+"cercle.festin.nom":"Festín de la fiesta",
+"cercle.festin.phrase":"Todos tus PV, ahora mismo. ¿Repetimos?",
+"cercle.couronne.nom":"Corona de roble",
+"cercle.couronne.phrase":"Un nivel más, ahora mismo.",
+"cercle.taureau.nom":"Toro del rey",
+"cercle.taureau.phrase":"Rabia de chocolate 8 s, y todas las gemas acuden.",
+"aide.pari":"¡Un oratorio! Quédate encima para apostar: más duro, más puntos.",
+"aide.cercle":"¡Un círculo de serrín! Aguanta 7 s para elegir un premio.",
+"fin.paris":"Apuestas ×{0}: +{1} pts",
+"fin.ronds":"Círculos aguantados: {0}",
+"cat.3":"PREMIO DEL CÍRCULO",
 "decret.toutous.nom":"Día de los Perros",
 "decret.toutous.ligne":"El doble de perros. El Puño en Alto lanza un puño más.",
 "decret.baissier.nom":"Mercado bajista",
@@ -4878,6 +5366,75 @@ LANGUES.es={
 "boost.horsConcours":"Fuera de concurso, los posts no dan vidas. ¡Vuelve durante un concurso!",
 "boost.okXVie":"Post de X validado: +1 vida hoy.",
 "boost.okTgVie":"Mensaje de Telegram validado: +1 vida hoy.",
+"boost2.connecter":"CONECTAR X",
+"boost2.reconnecter":"RECONECTAR X",
+"boost2.connecterAide":"Vincula tu cuenta de X una vez: después el juego ve tus posts solo.",
+"boost2.reconnecterAide":"X ya no reconoce el juego: vuelve a conectar tu cuenta.",
+"boost2.relie":"Cuenta de X @{0} vinculada",
+"boost2.etapeRelier":"Vincular tu cuenta de X",
+"boost2.suivre":"SEGUIR A @{0}",
+"boost2.etapeSuivre":"Seguir a @{0}",
+"boost2.suivreAide":"Sigue a @{0} en X y vuelve aquí.",
+"boost2.suiviOk":"Sigues a @{0}",
+"boost2.suiviNon":"Aún no sigues a @{0}: sigue la cuenta y vuelve.",
+"boost2.suiviVerif":"Comprobando el seguimiento…",
+"boost2.etapePoster":"Publicar en X",
+"boost2.poster":"PUBLICAR EN X",
+"boost2.posterAide":"El texto está listo: publícalo y vuelve al juego.",
+"boost2.attentePost":"Esperando tu post… ({0}/{1})",
+"boost2.retourPost":"Publica tu post y vuelve aquí.",
+"boost2.jaiPoste":"YA PUBLIQUÉ",
+"boost2.pasTrouve":"Post no encontrado: comprueba que contiene 987NES o el enlace y vuelve a intentarlo.",
+"boost2.reessayer":"COMPROBAR OTRA VEZ",
+"boost2.vieGagnee":"¡Vida ganada!",
+"boost2.xFermeJour":"Boost X no disponible hoy, vuelve a intentarlo mañana.",
+"boost2.verifsMax":"Demasiadas comprobaciones de X hoy, vuelve mañana.",
+"boost2.credit":"Comprobación de X no disponible por ahora: inténtalo más tarde.",
+"boost2.etapeTg":"Enviar al grupo",
+"boost2.tgEnvoyer":"ENVIAR AL GRUPO",
+"boost2.tgAide":"Elige «987NES - Chat» y envía: la vida llega sola.",
+"boost2.tgAttente":"Esperando tu mensaje…",
+"boost2.tgPasRecu":"¿No llegó? Envíalo en el grupo «987NES - Chat».",
+"boost2.tgSuiviX":"Primero: vincula X y sigue a @{0} (tarjeta X).",
+"boost2.etapeColler":"Pegar el enlace de tu post",
+"boost2.coller":"PEGAR MI ENLACE",
+"boost2.collerAide":"En X copia el enlace de tu post y toca «Pegar mi enlace».",
+"boost2.presseVide":"No hay enlace de post en el portapapeles: pégalo aquí.",
+"boost2.lienSimule":"Post simulado creado (no se envía nada a X). Toca Verificar.",
+"boost2.delier":"DESVINCULAR",
+"boost2.delierConfirme":"OTRA VEZ PARA DESVINCULAR",
+"boost2.delie":"Cuenta de X desvinculada.",
+"boost2.profilX":"Cuenta de X vinculada: @{0}",
+"boost2.attenteConnexion":"Inicia sesión para terminar de vincular tu cuenta de X.",
+"boost2.liaison":"Vinculando la cuenta de X…",
+"boost2.x.ok":"Cuenta de X conectada.",
+"boost2.x.annule":"Conexión con X cancelada.",
+"boost2.x.etat":"Empieza de nuevo desde el juego, en el mismo navegador.",
+"boost2.x.expire":"Enlace caducado: empieza de nuevo.",
+"boost2.x.credit":"X no disponible, inténtalo más tarde.",
+"boost2.x.erreur":"Error, inténtalo de nuevo.",
+"boost2.ouverture":"Abriendo X…",
+"post.score.1":"Puntuación del día en DZÔ Survivors: {0}",
+"post.score.2":"{0} puntos en DZÔ Survivors hoy",
+"post.score.3":"Aguanté a la horda: {0} en DZÔ Survivors",
+"post.score.4":"DZÔ Survivors, mi puntuación de hoy: {0}",
+"post.score.5":"{0} puntos. La horda de Friburgo puede temblar.",
+"post.score.6":"Nueva puntuación en DZÔ Survivors: {0}. ¡Te toca!",
+"post.sansScore":"La horda me espera en DZÔ Survivors. ¿Y tú?",
+"err.x_connexion_requise":"Primero conecta tu cuenta de X.",
+"err.x_a_reconnecter":"X ya no reconoce el juego: vuelve a conectar tu cuenta de X.",
+"err.x_credit_epuise":"Comprobación de X no disponible por ahora: inténtalo más tarde.",
+"err.x_plafond_jour_atteint":"Boost X no disponible hoy, vuelve a intentarlo mañana.",
+"err.x_verifications_jour_max":"Demasiadas comprobaciones de X hoy, vuelve mañana.",
+"err.x_suivi_requis":"Primero sigue a @987_nes en X y vuelve.",
+"err.post_pas_encore_vu":"Tu post aún no se ve en X. Un momento más.",
+"err.x_confirmation_invalide":"Vinculación rechazada: empieza de nuevo desde «Conectar X» en el juego.",
+"err.x_delai_changement":"Esta cuenta de X estaba vinculada a otro jugador: inténtalo más tarde.",
+"err.x_delai_changement_d":"Esta cuenta de X estaba vinculada a otro jugador: posible a partir del {0}.",
+"err.x_api_absente":"Conexión con X no disponible por ahora.",
+"err.x_non_lie":"Primero conecta tu cuenta de X.",
+"err.post_sans_987nes":"Al post le falta 987NES o el enlace a 987nes.com.",
+"err.post_sans_lien_parrain":"El enlace del post debe ser el del juego, con tu código.",
 "net.valideRangConcours":"Validado · {0}.º del concurso ({1})",
 "fin.concours":"CONCURSO: {0}",
 "err.hors_concours":"No hay concurso en curso: partida de entrenamiento.",
@@ -4945,6 +5502,17 @@ LANGUES.es={
 "parr.codeGarde":"Código {0} guardado: contará al conectarte.",
 "parr.codeNote":"Código de invitación guardado: {0}",
 "titre.essaiBonus":"Vida extra · intento {0}/{1}",
+"titre.presente":"987NES presenta",
+"titre.essais1":"1 intento",
+"titre.essaisN":"{0} intentos",
+"titre.serieJ":"{0} d",
+"titre.toi":"tú #{0}",
+"titre.plusEssai":"+1 INTENTO",
+"titre.plusEssaiSous":"Publica tu puntuación en X o Telegram",
+"titre.suivre":"Sigue a @987_nes",
+"titre.reglages":"AJUSTES",
+"titre.sonOui":"SONIDO: SÍ",
+"titre.sonNon":"SONIDO: NO",
 "err.essais_epuises_bonusPris":"Intentos agotados y vida extra de hoy ya usada. Vuelve mañana.",
 "err.essais_epuises_bonusFerme":"Intentos agotados. Vidas extra cerradas durante este concurso.",
 "compte.prochains":"Próximos intentos en {0}"
@@ -5374,6 +5942,37 @@ LANGUES.en={
 "tresor.vincuit.nom":"Vin Cuit Cake",
 "tresor.vincuit.mot":"VIN CUIT CAKE!",
 "tresor.vincuit.ligne":"Vin cuit (pear syrup) cake: whatever steps on it stays stuck for 9 s.",
+"pari.oratoire":"Wager shrine",
+"pari.tenir":"Stay on the shrine to place a bet",
+"pari.hud":"Bets ×{0}",
+"pari.biseHud":"Black bise {0} s",
+"pari.scelle":"Bet placed! +{0} % points",
+"pari.tournee.nom":"Round on the house",
+"pari.tournee.ligne":"Horde ×{0} until the end. Points +{1} % from now on.",
+"pari.tournee.bandeau":"ROUND ON THE HOUSE! The whole horde is thirsty.",
+"pari.matous.nom":"Tomcat jass",
+"pari.matous.ligne":"{0} elite hat cats, right now. Points +{1} %.",
+"pari.matous.bandeau":"TOMCAT JASS! They hold the trumps.",
+"pari.bise.nom":"Black bise",
+"pari.bise.ligne":"{0} s: enemies ×{1} faster and harder. Survive: +{2} %.",
+"pari.bise.bandeau":"BLACK BISE! Survive it to cash in.",
+"pari.bise.fini":"BISE IS OVER! +{0} %",
+"cercle.titre":"SAWDUST RING HELD!",
+"cercle.tenir":"Hold the ring: {0} s",
+"cercle.perdu":"The ring is swept away…",
+"cercle.coffre.nom":"Wrestler's chest",
+"cercle.coffre.phrase":"Opens a chest right now (evolution if it is ready).",
+"cercle.festin.nom":"Fair feast",
+"cercle.festin.phrase":"All your HP back, right now. Seconds?",
+"cercle.couronne.nom":"Oak wreath",
+"cercle.couronne.phrase":"One more level, right now.",
+"cercle.taureau.nom":"The king's bull",
+"cercle.taureau.phrase":"Chocolate rage for 8 s, and all gems come running.",
+"aide.pari":"A shrine! Stay on it to bet: harder, more points.",
+"aide.cercle":"A sawdust ring! Hold it 7 s to pick a prize.",
+"fin.paris":"Bets ×{0}: +{1} pts",
+"fin.ronds":"Rings held: {0}",
+"cat.3":"RING PRIZE",
 "decret.toutous.nom":"Doggo Day",
 "decret.toutous.ligne":"Twice as many dogs. The Raised Fist throws one extra fist.",
 "decret.baissier.nom":"Bear Market",
@@ -5693,6 +6292,75 @@ LANGUES.en={
 "boost.horsConcours":"Outside a contest, posts give no lives. Come back during a contest!",
 "boost.okXVie":"X post confirmed: +1 life today.",
 "boost.okTgVie":"Telegram message confirmed: +1 life today.",
+"boost2.connecter":"CONNECT X",
+"boost2.reconnecter":"RECONNECT X",
+"boost2.connecterAide":"Link your X account once: then the game sees your posts by itself.",
+"boost2.reconnecterAide":"X no longer recognises the game: reconnect your account.",
+"boost2.relie":"X account @{0} linked",
+"boost2.etapeRelier":"Link your X account",
+"boost2.suivre":"FOLLOW @{0}",
+"boost2.etapeSuivre":"Follow @{0}",
+"boost2.suivreAide":"Follow @{0} on X, then come back here.",
+"boost2.suiviOk":"You follow @{0}",
+"boost2.suiviNon":"Not following @{0} yet: follow the account, then come back.",
+"boost2.suiviVerif":"Checking the follow…",
+"boost2.etapePoster":"Post on X",
+"boost2.poster":"POST ON X",
+"boost2.posterAide":"The text is ready: publish it, then come back to the game.",
+"boost2.attentePost":"Waiting for your post… ({0}/{1})",
+"boost2.retourPost":"Publish your post, then come back here.",
+"boost2.jaiPoste":"I POSTED",
+"boost2.pasTrouve":"Post not found: check it contains 987NES or the link, then try again.",
+"boost2.reessayer":"CHECK AGAIN",
+"boost2.vieGagnee":"Life earned!",
+"boost2.xFermeJour":"X boost unavailable today, try again tomorrow.",
+"boost2.verifsMax":"Too many X checks today, try again tomorrow.",
+"boost2.credit":"X check unavailable right now: try again later.",
+"boost2.etapeTg":"Send to the group",
+"boost2.tgEnvoyer":"SEND TO THE GROUP",
+"boost2.tgAide":"Pick “987NES - Chat” and send: the life arrives by itself.",
+"boost2.tgAttente":"Waiting for your message…",
+"boost2.tgPasRecu":"Not received? Send it in the “987NES - Chat” group.",
+"boost2.tgSuiviX":"First: link X and follow @{0} (X card).",
+"boost2.etapeColler":"Paste your post's link",
+"boost2.coller":"PASTE MY LINK",
+"boost2.collerAide":"On X, copy your post's link, then tap “Paste my link”.",
+"boost2.presseVide":"No post link in the clipboard: paste it here.",
+"boost2.lienSimule":"Simulated post created (nothing is sent to X). Tap Check.",
+"boost2.delier":"UNLINK",
+"boost2.delierConfirme":"AGAIN TO UNLINK",
+"boost2.delie":"X account unlinked.",
+"boost2.profilX":"X account linked: @{0}",
+"boost2.attenteConnexion":"Sign in to finish linking your X account.",
+"boost2.liaison":"Linking your X account…",
+"boost2.x.ok":"X account connected.",
+"boost2.x.annule":"X connection cancelled.",
+"boost2.x.etat":"Start again from the game, in the same browser.",
+"boost2.x.expire":"Link expired: start again.",
+"boost2.x.credit":"X unavailable, try again later.",
+"boost2.x.erreur":"Error, try again.",
+"boost2.ouverture":"Opening X…",
+"post.score.1":"Today's score on DZÔ Survivors: {0}",
+"post.score.2":"{0} points on DZÔ Survivors today",
+"post.score.3":"I held off the horde: {0} on DZÔ Survivors",
+"post.score.4":"DZÔ Survivors, my score of the day: {0}",
+"post.score.5":"{0} points. The Fribourg horde should be worried.",
+"post.score.6":"New score on DZÔ Survivors: {0}. Your turn!",
+"post.sansScore":"The horde is waiting for me on DZÔ Survivors. Coming?",
+"err.x_connexion_requise":"Connect your X account first.",
+"err.x_a_reconnecter":"X no longer recognises the game: reconnect your X account.",
+"err.x_credit_epuise":"X check unavailable right now: try again later.",
+"err.x_plafond_jour_atteint":"X boost unavailable today, try again tomorrow.",
+"err.x_verifications_jour_max":"Too many X checks today, try again tomorrow.",
+"err.x_suivi_requis":"Follow @987_nes on X first, then come back.",
+"err.post_pas_encore_vu":"Your post isn't visible on X yet. One more moment.",
+"err.x_confirmation_invalide":"Link refused: start again from “Connect X” in the game.",
+"err.x_delai_changement":"This X account was linked to another player: try again later.",
+"err.x_delai_changement_d":"This X account was linked to another player: possible from {0}.",
+"err.x_api_absente":"X connection unavailable right now.",
+"err.x_non_lie":"Connect your X account first.",
+"err.post_sans_987nes":"The post is missing 987NES or the 987nes.com link.",
+"err.post_sans_lien_parrain":"The post's link must be the game link, with your code.",
 "net.valideRangConcours":"Confirmed · #{0} in the contest ({1})",
 "fin.concours":"CONTEST: {0}",
 "err.hors_concours":"No contest running: training run.",
@@ -5760,6 +6428,17 @@ LANGUES.en={
 "parr.codeGarde":"Code {0} saved: it will count when you sign in.",
 "parr.codeNote":"Invite code saved: {0}",
 "titre.essaiBonus":"Bonus life · try {0}/{1}",
+"titre.presente":"987NES presents",
+"titre.essais1":"1 try",
+"titre.essaisN":"{0} tries",
+"titre.serieJ":"{0} d",
+"titre.toi":"you #{0}",
+"titre.plusEssai":"+1 TRY",
+"titre.plusEssaiSous":"Post your score on X or Telegram",
+"titre.suivre":"Follow @987_nes",
+"titre.reglages":"SETTINGS",
+"titre.sonOui":"SOUND: ON",
+"titre.sonNon":"SOUND: OFF",
 "err.essais_epuises_bonusPris":"Tries used up and today's bonus life already taken. Come back tomorrow.",
 "err.essais_epuises_bonusFerme":"Tries used up. Bonus lives closed during this contest.",
 "compte.prochains":"Next tries in {0}"
@@ -5772,7 +6451,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.10.2-proto';
+var VERSION='0.11.0-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -5788,7 +6467,7 @@ function T(k,a,b,c){var s=DICO[k];if(s===undefined){s=LANGUES.fr[k];if(s===undef
 function langueDe(code){code=(''+(code||'')).toLowerCase().slice(0,2);return LANGUES[code]?code:'';}
 function langueTelegram(){try{var w=window.Telegram&&Telegram.WebApp,u=w&&w.initDataUnsafe&&w.initDataUnsafe.user;return langueDe(u&&u.language_code);}catch(e){return'';}}
 /* ordre : préférence enregistrée, langue de Telegram, langue du navigateur, sinon anglais */
-function langueInitiale(){var l=langueDe(SAUV.langue)||langueTelegram(),n,i;if(l)return l;
+function langueInitiale(){var l=langueDe(SAUV.langue)||LANG_URL||langueTelegram(),n,i;if(l)return l;
   try{n=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||navigator.userLanguage];for(i=0;i<n.length;i++){l=langueDe(n[i]);if(l)return l;}}catch(e){}
   return'en';}
 function appliquerLangue(l,reconstruire){LANGUE=l;DICO=LANGUES[l];cacheLignes={};cacheGains={};try{document.documentElement.lang=l;}catch(e){}if(reconstruire)reconstruireTextes();}
@@ -5814,6 +6493,17 @@ var cv=document.getElementById('jeu'),cx=cv.getContext('2d',{alpha:false});
 var W=360,H=640,DPR=1,ECH=1,K=1,OX=0,OY=0,BW=360,BH=640,SAFE_H=0;
 var RES=2;
 var params;try{params=new URLSearchParams(location.search);}catch(e){params={get:function(){return null;}};}
+/* 0.11 : retour de « Connecter X » : ?x=<résultat> et, pour confirmer la liaison, #xc=<jeton> (fragment : jamais envoyé
+   à un serveur). Lu avant tout le reste, puis retiré de l'adresse ; le jeton reste dans cet onglet (sessionStorage,
+   5 minutes) le temps de la confirmation par la session du joueur (POST /api/x/confirmer). */
+var XRETOUR=(function(){var r='',j='',h=null;
+  try{r=String(params.get('x')||'');h=/(?:^#|&)xc=([A-Za-z0-9_-]{43})(?:&|$)/.exec(location.hash||'');if(h)j=h[1];
+    if(params.get('x')!==null||/(?:^#|&)xc=/.test(location.hash||'')){var u=new URL(location.href);u.searchParams.delete('x');history.replaceState(history.state,'',u.pathname+u.search);}}catch(e){}
+  if(j){try{window.sessionStorage.setItem('dzo.xc',JSON.stringify({j:j,t:Date.now()}));}catch(e){}}
+  else{try{var o=JSON.parse(window.sessionStorage.getItem('dzo.xc')||'null');if(o&&/^[A-Za-z0-9_-]{43}$/.test(o.j)&&Date.now()-o.t<300000)j=o.j;else window.sessionStorage.removeItem('dzo.xc');}catch(e){}}
+  return{r:/^[a-z_]{1,20}$/.test(r)?r:'',jeton:j,vu:false};})();
+/* 0.11 : ?lang=<fr|de|it|es|en> (pages de partage) : langue du jeu tant que le joueur n'en a pas choisi une */
+var LANG_URL=langueDe(params.get('lang'));
 /* 0.7.1 : ticket de connexion du bouton du bot (?t=…, ou #t=…) ; retiré tout de suite de la barre d'adresse
    (historique, favoris, captures d'écran, lien recopié). À usage unique, il est échangé contre une session.
    0.7.2 : le bot n'en émet plus (connexion confirmée dans le bot) ; lecture gardée en secours pour ceux déjà émis. */
@@ -5833,6 +6523,7 @@ var REF_CLE='dzo.ref';
 try{window.addEventListener('hashchange',function(){if(/(?:^#|&)t=/.test(location.hash||''))location.reload();});}catch(e){}
 TAB_FORCE=(function(){var c=params.get('tableau');return c&&SIM.I_TABLEAU[c]!==undefined?SIM.I_TABLEAU[c]:-1;})();
 var BOT=params.get('bot')==='1';
+var BOT_BORNES=+(params.get('bornes')||0)|0;   /* 0.11 (tests) : ?bot=1&bornes=3 : le robot parie et tient le rond */
 var C={sol1:'#231A33',sol2:'#33254A',joint:'#3A2A4F',vig:'#0A0612',cyan:'#6FE6FF',vert:'#3DFF8F',or:'#FFD23F',danger:'#FF3B5C',creme:'#F6F1E7',encre:'#0D0914',rouge:'#E3001B'};
 var TEINTES=['#5BD14F','#F2A33A','#9BBF6A','#8DAE74','#7F9A78','#F6F1E7','#2B3154','#8E6BFF','#7C86B8','#EDE7FF','#FF7AB8','#4A3A78','#2A2140','#FFC93C'];
 var T_FROMAGE=13; /* teinte des éclats et taches de fromage (0.4) */
@@ -7063,6 +7754,7 @@ function construireSprites(){
   SPR.margeD=(function(){var c=toile(40,2),g=c.getContext('2d'),gr=g.createLinearGradient(0,0,40,0);gr.addColorStop(0,'rgba(5,2,10,0.7)');gr.addColorStop(1,'rgba(5,2,10,0)');g.fillStyle=gr;g.fillRect(0,0,40,2);return c;})();
   SPR.bordOr=(function(){var c=toile(180,320),g=c.getContext('2d'),gr=g.createRadialGradient(90,160,90,90,160,205);gr.addColorStop(0,'rgba(255,210,63,0)');gr.addColorStop(1,'rgba(255,210,63,0.7)');g.fillStyle=gr;g.fillRect(0,0,180,320);return c;})();
   SPR.bordRouge=(function(){var c=toile(180,320),g=c.getContext('2d'),gr=g.createRadialGradient(90,160,70,90,160,200);gr.addColorStop(0,'rgba(255,59,92,0)');gr.addColorStop(1,'rgba(255,59,92,0.85)');g.fillStyle=gr;g.fillRect(0,0,180,320);return c;})();
+  construireBornes();   /* 0.11 : oratoire du pari, rond de sciure, leurs icônes */
 }
 function chiffres(px,coul){
   var cw=Math.ceil(px*0.72),chh=Math.ceil(px*1.3),res=RES,c=toile(cw*10*res,chh*res),g=c.getContext('2d');g.scale(res,res);
@@ -7386,6 +8078,7 @@ function traiterEv(){
     case EV.REPAS:repasT=0;pluie.length=0;son('repas');eclairBlanc=1;gel=Math.max(gel,0.14);secouer(0.8);musBaisse=2;budgetPart+=200;
       anneauFx(S.px,S.py,420,0.8,2);anneauFx(S.px,S.py,300,0.6,0);anneauFx(S.px,S.py,180,0.45,3);gerbe(S.px,S.py-20,60,1,460,11,1);gerbe(S.px,S.py-20,40,4,380,10,0.9);
       vibrer([60,40,120]);break;
+    case SIM.EV_PARI:case SIM.EV_CERCLE:evBornes(t,v,o);break;   /* 0.11 : oratoire du pari, rond de sciure */
     }
   }
   S.evN=0;
@@ -8256,6 +8949,143 @@ function tresorObjet(){
   cx.globalAlpha=1;
 }
 
+/* ---------- 0.11 (bornes) : oratoire du pari et rond de sciure ----------
+   Rendu bon marché : sprites préparés une fois (construireBornes), au plus deux arcs tracés par objet et par image,
+   aucun dégradé recalculé. Sons : uniquement ceux du jeu, par son(). Textes : clés pari.* et cercle.* des LANGUES. */
+var COUL_PARI=['#FF9F43','#FF6FA8','#8FD8FF'],COUL_SCIURE='#E8C480',aidePari=false,aideCercle=false;
+function dOratoire(g){ /* boîte 56 × 84, pied en (28, 80) : petit oratoire de bord de route, une carte de jass dans la niche */
+  corps(g,function(g){g.beginPath();rrect(g,12,64,32,15,3);},'#8C8578',28,71,15,{trait:1.6,contour:'#2E2A26',sansRim:1,sansReflet:1});
+  corps(g,function(g){g.beginPath();rrect(g,16,31,24,35,2);},'#D2CAB8',28,48,17,{trait:1.6,contour:'#2E2A26',sansRim:1});
+  g.fillStyle='#2A1A30';g.beginPath();g.moveTo(20.5,58);g.lineTo(20.5,42);g.quadraticCurveTo(28,32,35.5,42);g.lineTo(35.5,58);g.closePath();g.fill();
+  g.save();g.translate(28,49);g.rotate(-0.14);g.fillStyle='#FFF6E6';g.strokeStyle='#5A3A10';g.lineWidth=0.9;g.beginPath();rrect(g,-5.5,-7.5,11,15,1.6);g.fill();g.stroke();
+  g.fillStyle='#E3001B';g.beginPath();g.moveTo(0,4.5);g.bezierCurveTo(-6,0,-3.5,-4.5,0,-1.6);g.bezierCurveTo(3.5,-4.5,6,0,0,4.5);g.fill();g.restore();
+  corps(g,function(g){g.beginPath();g.moveTo(8,33);g.lineTo(28,13);g.lineTo(48,33);g.closePath();},'#A2452A',28,26,17,{trait:1.6,contour:'#3A1208',sansRim:1});
+  g.fillStyle='#FFD23F';g.strokeStyle='#5C3D00';g.lineWidth=1;g.beginPath();g.moveTo(24.5,13);g.lineTo(31.5,13);g.lineTo(32.5,7);g.quadraticCurveTo(28,2.5,23.5,7);g.closePath();g.fill();g.stroke();
+}
+function construireBornes(){
+  SPR.oratoire=sprite(56,84,28,80,dOratoire,Math.max(RES,2));
+  /* rond de sciure (cercle vrai : la zone dessinée est exactement la zone qui compte), rayon 116 sur 256 */
+  SPR.rondSciure=(function(){var c=toile(256,256),g=c.getContext('2d'),r=SIM.mulberry32(77),i,a,d;
+    g.fillStyle='rgba(232,196,128,0.2)';g.beginPath();g.arc(128,128,116,0,PI2);g.fill();
+    for(i=0;i<520;i++){a=r()*PI2;d=Math.sqrt(r())*112;g.fillStyle=r()<0.5?'rgba(255,232,176,0.55)':'rgba(150,100,44,0.5)';g.fillRect(128+Math.cos(a)*d,128+Math.sin(a)*d,1.5+r()*2.5,1+r()*1.5);}
+    g.lineWidth=11;g.strokeStyle='rgba(214,170,96,0.9)';g.beginPath();g.arc(128,128,116,0,PI2);g.stroke();
+    g.lineWidth=2.5;g.strokeStyle='rgba(90,56,20,0.95)';g.beginPath();g.arc(128,128,122,0,PI2);g.stroke();g.beginPath();g.arc(128,128,110,0,PI2);g.stroke();return c;})();
+  /* icônes (boîte 64) : les trois paris, les quatre prix du rond */
+  SPR.icoPari=[
+    sprite(64,64,32,32,function(g){ /* tournée : un pot de vin et deux verres */
+      corps(g,function(g){g.beginPath();g.moveTo(22,14);g.lineTo(36,14);g.lineTo(37,22);g.quadraticCurveTo(46,30,44,46);g.quadraticCurveTo(43,54,29,54);g.quadraticCurveTo(15,54,14,46);g.quadraticCurveTo(12,30,21,22);g.closePath();},'#E8F4FF',29,38,18,{trait:1.6,contour:'#2E3A4A',sansRim:1});
+      g.fillStyle='rgba(160,20,40,0.85)';g.beginPath();g.moveTo(15,38);g.quadraticCurveTo(29,34,43,38);g.quadraticCurveTo(43,53,29,53);g.quadraticCurveTo(15,53,15,38);g.fill();
+      for(var q=0;q<2;q++){g.save();g.translate(q?54:8,44);g.fillStyle='rgba(232,244,255,0.9)';g.strokeStyle='#2E3A4A';g.lineWidth=1.2;g.beginPath();g.moveTo(-5,-8);g.lineTo(5,-8);g.lineTo(3.5,8);g.lineTo(-3.5,8);g.closePath();g.fill();g.stroke();g.fillStyle='rgba(160,20,40,0.85)';g.fillRect(-4,0,8,7.5);g.restore();}}),
+    sprite(64,64,32,32,function(g){var s=SPR.enn[E_CHAT];g.drawImage(s.c,4,4,56,56);g.fillStyle=C.danger;g.strokeStyle=C.encre;g.lineWidth=1.5;g.beginPath();g.arc(50,50,9,0,PI2);g.fill();g.stroke();g.fillStyle='#FFFFFF';g.font='bold 12px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('2',50,50.5);}),
+    sprite(64,64,32,32,function(g){ /* bise noire : trois rafales et des flocons */
+      g.lineCap='round';g.strokeStyle=C.encre;g.lineWidth=8;var q;
+      for(q=0;q<3;q++){g.beginPath();g.moveTo(8,18+q*14);g.lineTo(40,18+q*14);g.quadraticCurveTo(54,16+q*14,50,8+q*14);g.stroke();}
+      g.strokeStyle='#8FD8FF';g.lineWidth=4.5;for(q=0;q<3;q++){g.beginPath();g.moveTo(8,18+q*14);g.lineTo(40,18+q*14);g.quadraticCurveTo(54,16+q*14,50,8+q*14);g.stroke();}
+      g.fillStyle='#FFFFFF';for(q=0;q<4;q++){g.beginPath();g.arc(14+q*13,56-(q%2)*5,2.4,0,PI2);g.fill();}})];
+  SPR.icoRec=[
+    sprite(64,64,32,32,function(g){var s=SPR.coffre;g.drawImage(s.c,8,12,48,44);g.fillStyle=C.or;g.strokeStyle='#5C3D00';g.lineWidth=1.2;g.beginPath();g.moveTo(32,2);g.lineTo(35,9);g.lineTo(42,9);g.lineTo(36.5,13.5);g.lineTo(38.5,20.5);g.lineTo(32,16.5);g.lineTo(25.5,20.5);g.lineTo(27.5,13.5);g.lineTo(22,9);g.lineTo(29,9);g.closePath();g.fill();g.stroke();}),
+    sprite(64,64,32,32,function(g){var s=SPR.bricelet;g.drawImage(s.c,4,26,32,32);g.drawImage(s.c,26,30,30,30);
+      corps(g,function(g){g.beginPath();g.moveTo(32,30);g.bezierCurveTo(14,18,20,2,32,12);g.bezierCurveTo(44,2,50,18,32,30);g.closePath();},C.rouge,32,16,12,{trait:1.6,contour:'#3A0008',sansRim:1});}),
+    sprite(64,64,32,32,function(g){var q,a; /* couronne de chêne */
+      for(q=0;q<16;q++){a=q/16*PI2;g.save();g.translate(32+Math.cos(a)*20,32+Math.sin(a)*20);g.rotate(a+1.2);g.fillStyle=q%2?'#3E8E3A':'#58B04A';g.strokeStyle='#1E3A18';g.lineWidth=1.2;g.beginPath();g.ellipse(0,0,8,4,0,0,PI2);g.fill();g.stroke();g.restore();}
+      for(q=0;q<3;q++){a=1.2+q*0.35;g.fillStyle='#C98A3A';g.strokeStyle='#4A2A08';g.lineWidth=1;g.beginPath();g.ellipse(32+Math.cos(a)*24,32+Math.sin(a)*24,3.6,4.4,0,0,PI2);g.fill();g.stroke();}
+      g.fillStyle=C.or;g.font='bold 20px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('+1',32,33);}),
+    sprite(64,64,32,32,function(g){ /* le taureau du roi, son toupin au cou */
+      g.fillStyle='#F6F1E7';g.strokeStyle=C.encre;g.lineWidth=2;g.beginPath();g.moveTo(14,22);g.quadraticCurveTo(2,14,6,4);g.quadraticCurveTo(12,14,22,16);g.closePath();g.fill();g.stroke();g.beginPath();g.moveTo(50,22);g.quadraticCurveTo(62,14,58,4);g.quadraticCurveTo(52,14,42,16);g.closePath();g.fill();g.stroke();
+      corps(g,function(g){g.beginPath();g.moveTo(16,16);g.quadraticCurveTo(32,8,48,16);g.quadraticCurveTo(52,34,42,46);g.lineTo(22,46);g.quadraticCurveTo(12,34,16,16);g.closePath();},'#7A4A28',32,28,18,{trait:1.8,contour:'#2A1408',sansRim:1});
+      g.fillStyle='#E8B8A0';g.beginPath();g.ellipse(32,42,11,7,0,0,PI2);g.fill();g.fillStyle=C.encre;g.beginPath();g.arc(28,42,1.8,0,PI2);g.arc(36,42,1.8,0,PI2);g.fill();g.beginPath();g.arc(25,26,2.4,0,PI2);g.arc(39,26,2.4,0,PI2);g.fill();
+      g.fillStyle=C.or;g.strokeStyle='#5C3D00';g.lineWidth=1.2;g.beginPath();g.moveTo(27,50);g.lineTo(37,50);g.lineTo(39,60);g.lineTo(25,60);g.closePath();g.fill();g.stroke();})];
+}
+/* écran (colonne 360 × 640) d'un point du monde */
+function versEcranX(x){return 180+(x-camX)*zoom;}
+function versEcranY(y){return 320+(y-camY)*zoom;}
+/* au sol : le rond de sciure (charge en or, clignote les 8 dernières secondes) et la dalle de l'oratoire (anneau du pari) */
+function bornesSol(){
+  var b=S.bo,c=S.ce,R,k,al,dx,dy,dedans;
+  if(c.on){R=SIM.CERCLE_R;k=(SIM.CERCLE_VIE-(S.n-c.nais))/60;al=k<8&&Math.sin(tReel*14)<0?0.5:1;dx=S.px-c.x;dy=S.py-c.y;dedans=dx*dx+dy*dy<R*R;
+    cx.globalAlpha=al*(dedans?1:0.85);cx.drawImage(SPR.rondSciure,c.x-R*128/116,c.y-R*128/116,R*256/116,R*256/116);
+    cx.globalAlpha=al*0.35;cx.strokeStyle=dedans?C.or:COUL_SCIURE;cx.lineWidth=dedans?4:2;cx.beginPath();cx.arc(c.x,c.y,R+6+(dedans?2*Math.sin(tReel*10):0),0,PI2);cx.stroke();
+    if(c.ch>0){cx.globalAlpha=al;cx.strokeStyle=C.or;cx.lineWidth=6;cx.beginPath();cx.arc(c.x,c.y,R+6,-Math.PI/2,-Math.PI/2+PI2*c.ch/SIM.CERCLE_TENIR);cx.stroke();}
+    cx.globalAlpha=1;}
+  if(b.on){R=SIM.BORNE_R;k=(SIM.BORNE_VIE-(S.n-b.nais))/60;al=k<8&&Math.sin(tReel*14)<0?0.5:1;
+    cx.globalAlpha=al*0.75;cx.fillStyle='rgba(140,133,120,0.55)';cx.beginPath();cx.arc(b.x,b.y,R,0,PI2);cx.fill();
+    cx.strokeStyle=COUL_PARI[b.type];cx.lineWidth=2;cx.setLineDash([6,5]);cx.lineDashOffset=-tReel*20;cx.stroke();cx.setLineDash([]);
+    if(b.ch>0){cx.globalAlpha=1;cx.strokeStyle=COUL_PARI[b.type];cx.lineWidth=5;cx.beginPath();cx.arc(b.x,b.y,R+3,-Math.PI/2,-Math.PI/2+PI2*b.ch/SIM.BORNE_TENIR);cx.stroke();}
+    cx.globalAlpha=1;}
+}
+/* passe triée : l'oratoire, debout derrière sa dalle (DZÔ passe devant quand il parie) */
+function borneObjet(){
+  var b=S.bo,s=SPR.oratoire,k=(SIM.BORNE_VIE-(S.n-b.nais))/60,al=k<8&&Math.sin(tReel*14)<0?0.5:1,bob=b.ch>0?Math.sin(tReel*30)*1.2:0;
+  cx.drawImage(SPR.ombre,b.x-22,b.y-30,44,12);
+  cx.globalCompositeOperation='lighter';cx.globalAlpha=(0.35+0.15*Math.sin(tReel*5))*al;cx.drawImage(SPR.haloOr,b.x-26,b.y-82,52,52);cx.globalCompositeOperation='source-over';
+  cx.globalAlpha=al;cx.drawImage(s.c,b.x-s.ax+bob,b.y-24-s.ay,s.w,s.h);cx.globalAlpha=1;
+}
+/* flèche au bord de l'écran (même règle que celle du trésor) */
+function flecheBord(wx,wy,coul,ico){
+  var dx=wx-S.px,dy=wy-S.py,f,x,y,a,k;
+  if(!(dx>165||dx<-165||dy>290||dy<-230))return;
+  f=Math.min(150/(Math.abs(dx)+0.01),(dy<0?110:270)/(Math.abs(dy)+0.01));x=180+dx*f;y=320+dy*f;a=Math.atan2(dy,dx);k=1+0.15*Math.sin(tReel*8);
+  cx.save();cx.translate(x,y);cx.rotate(a);cx.scale(k,k);cx.fillStyle=C.encre;cx.beginPath();cx.moveTo(18,0);cx.lineTo(-10,-14);cx.lineTo(-3,0);cx.lineTo(-10,14);cx.closePath();cx.fill();
+  cx.fillStyle=coul;cx.beginPath();cx.moveTo(13,0);cx.lineTo(-7,-10);cx.lineTo(-1,0);cx.lineTo(-7,10);cx.closePath();cx.fill();cx.restore();
+  cx.drawImage(ico.c,x-Math.cos(a)*30-13,y-Math.sin(a)*30-13,26,26);
+}
+/* pastilles du pari sous celles du score (colonne de droite) ; renvoie le y suivant */
+function hudPari(y){
+  if(S.pariCent>0){pastille(352,y,T('pari.hud',fr(S.pariMult)),COUL_PARI[0]);y+=19;}
+  if(S.biseT>0){pastille(352,y,T('pari.biseHud',Math.ceil(S.biseT/60)),COUL_PARI[2]);y+=19;}
+  return y;
+}
+/* oratoire et rond : flèches hors champ, conditions du pari pendant que l'anneau se remplit, charge du rond, aides */
+function hudBornes(hy){
+  var b=S.bo,c=S.ce,dx,dy,d,x,y,P,k,w;
+  if(!sous&&tMort<0){
+    if(c.on)flecheBord(c.x,c.y,COUL_SCIURE,SPR.icoRec[2]);
+    if(b.on)flecheBord(b.x,b.y,COUL_PARI[b.type],SPR.icoPari[b.type]);
+    /* le rond : texte au-dessus, secondes qui restent à tenir */
+    if(c.on){dx=S.px-c.x;dy=S.py-c.y;
+      if(dx*dx+dy*dy<SIM.CERCLE_R*SIM.CERCLE_R||c.ch>0){x=versEcranX(c.x);y=versEcranY(c.y-SIM.CERCLE_R)-14;
+        ttFit(T('cercle.tenir',fr((Math.ceil((SIM.CERCLE_TENIR-c.ch)/6)/10).toFixed(1))),Math.max(90,Math.min(270,x)),Math.max(hy+150,y),14,200,C.or,'center',0,true);}}
+    /* l'oratoire : dès qu'on l'approche, ses conditions, en bas de l'écran, avec la jauge */
+    if(b.on){dx=S.px-b.x;dy=S.py-b.y;d=Math.sqrt(dx*dx+dy*dy);
+      if(d<120||b.ch>0){P=SIM.PARIS[b.type];k=b.ch/SIM.BORNE_TENIR;w=320;x=20;y=452;
+        panneau(x,y,w,64,12,'rgba(46,33,70,0.94)','rgba(26,18,40,0.94)',COUL_PARI[b.type],1.5);
+        cx.drawImage(SPR.icoPari[b.type].c,x+6,y+8,48,48);
+        ttFit(T('pari.oratoire')+' · '+T('pari.'+P.cle+'.nom'),x+60,y+14,12,w-68,COUL_PARI[b.type],'left',0,false);
+        para(lignePari(P),x+60,y+30,w-68,11,C.creme,'left',2,12.5,false);
+        cx.fillStyle='rgba(246,241,231,0.15)';cx.fillRect(x+60,y+55,w-70,5);cx.fillStyle=COUL_PARI[b.type];cx.fillRect(x+60,y+55,(w-70)*k,5);
+        if(b.ch===0)ttFit(T('pari.tenir'),180,y-9,11,320,C.creme,'center',2,true);}}
+  }
+  if(aidePari&&aideT<0&&!sous&&!BOT){aidePari=false;SAUV.aide|=16;sauver();aideTxt=T('aide.pari');aideT=0;}
+  if(aideCercle&&aideT<0&&!sous&&!BOT){aideCercle=false;SAUV.aide|=32;sauver();aideTxt=T('aide.cercle');aideT=0;}
+}
+/* événements EV_PARI et EV_CERCLE (données : v[o+1] = sous-type, puis b, c, d) */
+function evBornes(t,v,o){
+  var a=v[o+1],k,x,y,P;
+  if(t===SIM.EV_PARI){k=v[o+2]|0;x=v[o+3];y=v[o+4];P=SIM.PARIS[k];
+    if(a===0){son('tresor');anneauFx(x,y,70,0.45,2);if(!(SAUV.aide&16)&&!BOT)aidePari=true;}
+    else if(a===1){son('tampon');secouer(0.35);vibrer(40);eclairRouge=Math.max(eclairRouge,0.4);anneauFx(x,y,120,0.45,1);anneauFx(S.px,S.py,220,0.5,2);budgetPart+=40;gerbe(x,y-30,20,1,260,7,0.6);
+      bandeau(T('pari.'+P.cle+'.bandeau'),2);if(!P.auBout)parole(S.px,S.py-60,T('pari.scelle',Math.round(P.mult*100)));}
+    else if(a===2){son('combo',4);anneauFx(S.px,S.py,260,0.5,2);mot(T('pari.'+P.cle+'.fini',Math.round(P.mult*100)),C.or,24);}
+    else if(a===3)gerbe(x,y-30,10,4,120,6,0.4);}
+  else{x=v[o+2];y=v[o+3];
+    if(a===0){son('tresor');anneauFx(x,y,SIM.CERCLE_R+20,0.5,2);if(!(SAUV.aide&32)&&!BOT)aideCercle=true;}
+    else if(a===1){son('evolution');eclairBlanc=Math.max(eclairBlanc,0.4);anneauFx(x,y,SIM.CERCLE_R+40,0.55,2);anneauFx(x,y,SIM.CERCLE_R,0.4,0);budgetPart+=60;gerbe(x,y,30,1,320,8,0.7);}
+    else if(a===2){son('non');parole(S.px,S.py-58,T('cercle.perdu'));}
+    else if(a===3){k=v[o+2]|0;mot(T('cercle.'+SIM.RECOMPENSES[k].cle+'.nom').toUpperCase(),C.or,24);}}
+}
+/* conditions d'un pari, chiffres tirés du registre PARIS : {0} et {1} selon le pari, le dernier trou est le gain en % */
+function lignePari(P){var g=Math.round(P.mult*100);
+  if(P.duree)return T('pari.'+P.cle+'.ligne',Math.round(P.duree/60),fr(P.vitEnn||1),g);
+  if(P.elites)return T('pari.'+P.cle+'.ligne',P.elites,g);
+  return T('pari.'+P.cle+'.ligne',fr(P.taux||1),g);}
+/* fin de partie : une seule ligne (paris et ronds), qui cède la place si l'écran manque */
+function ligneParis(){
+  var L=[];
+  if(S.pariCent>0)L.push(T('fin.paris',fr(S.pariMult),fmtNb(Math.floor(S.scorePari||0))));
+  if(S.cePris>0)L.push(T('fin.ronds',S.cePris));
+  return L.join(' · ');
+}
+
 /* ---------- rendu du monde ---------- */
 var poussieres=[];(function(){for(var i=0;i<26;i++)poussieres.push({x:Math.random()*360,y:Math.random()*640,v:6+Math.random()*14,r:1.5+Math.random()*3,p:Math.random()*6,c:i%5===0?1:0});})();
 var IA=1,RPX=0,RPY=0,grX=new Float32Array(8),grY=new Float32Array(8),grT=new Uint8Array(8),grN=0;
@@ -8296,6 +9126,7 @@ function rendreMonde(dt){
     al=Math.min(1,taT[i]/1.5)*0.6;cx.globalAlpha=al;sc=taE[i];cx.drawImage(SPR.taches[taK[i]],x-26*sc,y-15*sc,52*sc,30*sc);
     if(taP[i]>=0){cx.globalAlpha=Math.min(1,taT[i]/1.5);spr(SPR.tampons[taP[i]],x,y);}}
   cx.globalAlpha=1;
+  if(!cache)bornesSol();   /* 0.11 : rond de sciure, dalle de l'oratoire */
   /* lumière de DZÔ sur le sol */
   cx.globalCompositeOperation='lighter';
   cx.drawImage(SPR.lumiere,px-220,py-200,440,440);
@@ -8367,6 +9198,7 @@ function rendreMonde(dt){
     OWX[i]=x;OWY[i]=y;triAjout(60000+i,y+OFR[i],y0,pasY);}
   x=wxU(MW.fu);if(x>camX-vw-30&&x<camX+vw+30){y=wyV(FCV);if(y>camY-vh-50&&y<camY+vh+50)triAjout(59999,y+36,y0,pasY);}
   for(i=0;i<S.nR;i++)triAjout(30000+i,S.R[i].y,y0,pasY);
+  if(S.bo.on&&!cache&&S.bo.x>camX-vw-30&&S.bo.x<camX+vw+30&&S.bo.y>camY-vh&&S.bo.y<camY+vh+90)triAjout(50000,S.bo.y-24,y0,pasY);   /* 0.11 : oratoire */
   for(i=0;i<S.nPI;i++){p=S.PI[i];if(p.t>=18&&!p.col)triAjout(40000+i,p.y,y0,pasY);}
   if(!cache)for(i=0;i<S.nE;i++){e=S.E[i];x=e.rx;y=e.ry;if(x<camX-vw||x>camX+vw||y<camY-vh||y>camY+vh)continue;triAjout(i,y+e.taille*0.4,y0,pasY);}
   triAjout(10000,py+15,y0,pasY);
@@ -8380,6 +9212,7 @@ function rendreMonde(dt){
       if(r.type===2)cx.drawImage(s.c,r.x-7,r.y-38-a,14,38);else spr(s,r.x,r.y-a);}
     else if(k<50000){monde();p=S.PI[k-40000];a=p.t-18;sc=a<5?a/5:1;al=p.t>38?1-(p.t-38)/10:1;if(al<0)al=0;cx.globalAlpha=al;
       s=SPR.bougie;k=p.r/26;cx.drawImage(s.c,p.x-12*k,p.y+6-62*k*sc*1.2,24*k,64*k*sc*1.2);cx.globalAlpha=1;}
+    else if(k===50000){monde();borneObjet();}
     else if(k===59999){monde();dessinerCabine();}
     else if(k>=60000){monde();dessinerObjet(k-60000,dt);}
   }
@@ -8885,7 +9718,7 @@ function voterClient(oui){
   if(sous==='vote'){sous='';}
 }
 function pasJeu(){
-  SIM.pas(S,BOT?SIM.botDir(S):(REVOIR?REVOIR.j[S.n]:dirEntree()));
+  SIM.pas(S,BOT?SIM.botDir(S,BOT_BORNES):(REVOIR?REVOIR.j[S.n]:dirEntree()));
   traiterEv();
   if(S.modal===SIM.M_VOTE&&sous!=='vote'){sous='vote';tSous=0;son('vote');}
   else if(S.modal===SIM.M_CARTE&&sous!=='cartes'&&sous!=='coffre'&&sous!=='niveau'&&sous!=='choix'){sous='cartes';tSous=0.3;}
@@ -9005,7 +9838,7 @@ function bouton(id,x,y,w,h,label,style,cb,sousLabel,px){
 }
 function zone(id,x,y,w,h,cb){var b=BT[nBT]||(BT[nBT]={});nBT++;b.id=id;b.x=x;b.y=y;b.w=w;b.h=h;b.cb=cb;return presse===id;}
 function icone(s,x,y,t){cx.drawImage(s.c,x,y,t,t);}
-function icoObjet(genre,id){return genre===0?SPR.icoArme[id]:(genre===1?SPR.icoPassif[id]:(genre===2?SPR.icoFondue:(SPR.icoSur[id]||SPR.icoTirelire)));}
+function icoObjet(genre,id){return genre===0?SPR.icoArme[id]:(genre===1?SPR.icoPassif[id]:(genre===2?SPR.icoFondue:(genre===4?SPR.icoRec[id]:(SPR.icoSur[id]||SPR.icoTirelire))));}
 function panneau(x,y,w,h,r,c1,c2,bord,ep){
   cx.fillStyle='rgba(5,2,10,0.5)';cx.beginPath();rrect(cx,x+2,y+5,w,h,r);cx.fill();
   var gr=cx.createLinearGradient(0,y,0,y+h);gr.addColorStop(0,c1);gr.addColorStop(1,c2);cx.fillStyle=gr;cx.beginPath();rrect(cx,x,y,w,h,r);cx.fill();
@@ -9039,6 +9872,7 @@ function rendreHUD(dt){
   y=hy+74;m=S.mult+S.bonusSC;
   if(S.xpMult>1){pastille(352,y,T('xpX',S.xpMult),C.or);y+=19;}
   if(m>1.001){pastille(352,y,T(S.bonusSC>0?'sansCoupX':'scoreX',fr(Math.round(m*10)/10)),C.cyan);y+=19;}
+  y=hudPari(y);   /* 0.11 : multiplicateur des paris, bise en cours */
   if(REVOIR){pastille(352,y,T('revoir.maj'),C.cyan);y+=19;
     var rv=REVOIR;bouton('rvVit',300,y+2,52,24,'×'+rv.vit,3,function(){rv.vit=rv.vit>=4?1:rv.vit*2;},null,12);y+=30;}
   else if(echauffement){pastille(352,y,T('echauffement.maj'),C.vert);y+=19;}
@@ -9063,6 +9897,7 @@ function rendreHUD(dt){
     }
   }
   hudTresor(hy);
+  hudBornes(hy);   /* 0.11 : oratoire du pari, rond de sciure */
   hudCombo(hy);
   /* bandeau : sa durée ne dépend pas de la fréquence d'affichage */
   if(bandeauT<3.2){bandeauT+=dt;var bt=bandeauT,e=bt<0.25?bt/0.25:(bt>2.8?Math.max(0,(3.2-bt)/0.4):1);e=1-(1-e)*(1-e);
@@ -9354,14 +10189,16 @@ function badgeCarte(s,x,y,or,ico){
    NOUVELLE ARME (une attaque en plus), ARME PLUS FORTE (une arme que tu as déjà), BONUS (DZÔ plus rapide, plus solide...).
    La couleur ne fait que renforcer l'étiquette écrite. Une phrase d'effet, une grosse icône, le niveau avant → après. */
 var CAT_TXT=['cat.0','cat.1','cat.2'],CAT_COUL=[C.cyan,'#7DFF9A',C.or],CAT_FOND=[['#173247','#0E1C2A'],['#173A26','#0C1F15'],['#3E3112','#201807']];
-function categorie(c){return c.genre===0?(c.niv===0?0:1):2;}
+function categorie(c){return c.genre===0?(c.niv===0?0:1):(c.genre===4?3:2);}
+CAT_TXT[3]='cat.3';CAT_COUL[3]='#E8C480';CAT_FOND[3]=['#3E2E16','#1F160A'];   /* 0.11 : prix du rond de sciure (genre 4) */
 function phraseCarte(c){
   if(c.genre===0)return c.niv===0?txtArme(c.id,'nouv'):txtArme(c.id,'phr.'+c.niv);
   if(c.genre===1)return T('passif.'+PASSIFS[c.id].cle+'.phrase');
   if(c.genre===2)return T('carte.fondue.phrase');
+  if(c.genre===4)return T('cercle.'+SIM.RECOMPENSES[c.id].cle+'.phrase');   /* 0.11 */
   return T('surcharge.'+SIM.SURCHARGES[c.id].cle+'.phrase');
 }
-function nomCarte(c){return c.genre===0?nomArme(c.id):(c.genre===1?nomPassif(c.id):(c.genre===2?T('carte.fondue.nom'):T('surcharge.'+SIM.SURCHARGES[c.id].cle+'.nom')));}
+function nomCarte(c){if(c.genre===4)return T('cercle.'+SIM.RECOMPENSES[c.id].cle+'.nom');return c.genre===0?nomArme(c.id):(c.genre===1?nomPassif(c.id):(c.genre===2?T('carte.fondue.nom'):T('surcharge.'+SIM.SURCHARGES[c.id].cle+'.nom')));}
 /* la carte est-elle un plat du menu qui manque encore ? */
 function cartePlat(c){if(!S||S.col<0||S.repasFait||c.genre>1)return false;var P=COLLECTIONS[S.col].plats,k;
   for(k=0;k<P.length;k++)if(!(S.menu&(1<<k))&&((c.genre===0&&P[k].ia===c.id)||(c.genre===1&&P[k].ip===c.id)))return true;return false;}
@@ -9392,10 +10229,10 @@ function rendreCartes(){
   cx.fillStyle='rgba(13,9,20,'+(0.7*k).toFixed(3)+')';cx.fillRect(0,0,360,640);
   projecteur();
   if(ta<0.3)return;
-  if(decouverte())cons=carteConseillee();
+  if(decouverte()&&!S.cartesCercle)cons=carteConseillee();
   /* « NIVEAU n ! » arrive gonflé puis se pose, avec une couronne d'étincelles or */
   e=Math.min(1,(ta-0.3)/0.22);a=e-1;kc=1.6-0.6*(1+2.70158*a*a*a+1.70158*a*a);
-  cx.globalAlpha=Math.min(1,e*3);cx.save();cx.translate(180,184);cx.scale(kc,kc);ttFit(T('cartes.niveau',niveauChoix),0,0,28,330,C.cyan,'center',0,true);cx.restore();
+  cx.globalAlpha=Math.min(1,e*3);cx.save();cx.translate(180,184);cx.scale(kc,kc);ttFit(S.cartesCercle?T('cercle.titre'):T('cartes.niveau',niveauChoix),0,0,28,330,S.cartesCercle?C.or:C.cyan,'center',0,true);cx.restore();
   if(!choix&&ta<0.9){t2=(ta-0.3)/0.6;cx.globalCompositeOperation='lighter';cx.globalAlpha=Math.max(0,1-t2);
     for(j=0;j<20;j++){a=j*0.9;b=24+t2*(46+(j%5)*12);cx.drawImage(SPR.haloOr,180+Math.cos(a)*b*1.7-5,184+Math.sin(a)*b*0.55-5,10,10);}
     cx.globalCompositeOperation='source-over';}
@@ -9449,7 +10286,7 @@ function rendreCartes(){
   if(choix&&carteChoisie>=0){c=S.cartes[carteChoisie];y=CARTE_Y+carteChoisie*CARTE_PAS;kc=Math.min(1,tSous/0.22);kc=kc*kc;cx.globalCompositeOperation='lighter';ico=c.genre===0?SPR.haloCyan:SPR.haloOr;cx.globalAlpha=0.9;
     for(j=0;j<24;j++){a=x+(hash2(j,7)%1000)/1000*w;b=y+(hash2(j,13)%1000)/1000*h;cx.drawImage(ico,a+(180-a)*kc-7,b+(118-b)*kc-7,14,14);}
     cx.globalAlpha=1;cx.globalCompositeOperation='source-over';}
-  if(!choix&&tSous>0.6){
+  if(!choix&&tSous>0.6&&!S.cartesCercle){
     if(S.relances>0)bouton('relance',80,CARTE_Y+3*CARTE_PAS+4,200,34,T('cartes.relancer'),1,relancerCartes,null,13);
     else ttFit(T('cartes.relanceFaite'),180,CARTE_Y+3*CARTE_PAS+20,11,320,'rgba(246,241,231,0.5)','center',2,false);
   }
@@ -9598,12 +10435,17 @@ function rendreFond(vx,vy,sombreur){
   colonne();
   cx.fillStyle='rgba(10,6,18,'+sombreur+')';cx.fillRect(0,0,360,640);
 }
+/* 0.11 : écran titre recomposé, de haut en bas : barre (classement du jour, profil, réglages), logo signé 987NES,
+   DZÔ et la horde (rien par-dessus), UNE ligne d'état, UN bouton principal, deux petits boutons, un pied de page */
+var reglagesTitre=false,reglagesT=0;
 function rendreTitre(){
   nBT=0;
   rendreFond(9,6,0.6);
-  var i,o,a,k,s,w,x,restants=essaisRestants(),t=tReel,dep=tDepart>=0?Math.min(1,tDepart/0.18):0,dj=decretConnu(),prem=premiereFois(),horsRang=HORS_RANG;
-  /* yeux idiots qui s'allument dans le noir */
-  for(i=0;i<yeuxTitre.length;i++){o=yeuxTitre[i];k=((t+o.p)%o.d)/o.d;a=k<0.15?k/0.15:(k>0.8?(1-k)/0.2:1);if(k>0.45&&k<0.5)a=0;if(a<=0)continue;
+  var i,o,a,k,s,w,x,restants=essaisRestants(),t=tReel,dep=tDepart>=0?Math.min(1,tDepart/0.18):0,prem=premiereFois(),horsRang=HORS_RANG;
+  /* réglages ouverts puis écran quitté : refermés au retour */
+  if(reglagesTitre&&tEcran<reglagesT)reglagesTitre=false;
+  /* yeux idiots qui s'allument dans le noir (pas derrière le logo) */
+  for(i=0;i<yeuxTitre.length;i++){o=yeuxTitre[i];if(o.y<200)continue;k=((t+o.p)%o.d)/o.d;a=k<0.15?k/0.15:(k>0.8?(1-k)/0.2:1);if(k>0.45&&k<0.5)a=0;if(a<=0)continue;
     cx.globalAlpha=a*0.85;var col=TEINTES[o.c===5||o.c===6||o.c===9?0:o.c],r=9*o.e;
     cx.globalCompositeOperation='lighter';cx.drawImage(SPR.haloBlanc,o.x-r*5,o.y-r*3.4,r*10,r*7);cx.globalCompositeOperation='source-over';
     cx.fillStyle='#F6F1E7';cx.beginPath();cx.ellipse(o.x-r*1.25,o.y,r,r*1.15,0,0,PI2);cx.ellipse(o.x+r*1.25,o.y+r*0.2,r*1.15,r*1.3,0,0,PI2);cx.fill();
@@ -9611,8 +10453,8 @@ function rendreTitre(){
     cx.fillStyle='#0D0914';cx.beginPath();cx.arc(o.x-r*1.25+o.s*r*0.4,o.y+r*0.2,r*0.26,0,PI2);cx.arc(o.x+r*1.25-o.s*r*0.45,o.y-r*0.1,r*0.26,0,PI2);cx.fill();}
   cx.globalAlpha=1;
   /* lumière de DZÔ, puis la foule qui sautille dans son contre-jour */
-  cx.globalCompositeOperation='lighter';cx.globalAlpha=0.8;cx.drawImage(SPR.lumiere,180-230,270-230,460,460);
-  if(boostActif()){cx.globalAlpha=0.5+0.15*Math.sin(t*3);cx.drawImage(SPR.haloOr,180-190,280-190,380,380);}
+  cx.globalCompositeOperation='lighter';cx.globalAlpha=0.8;cx.drawImage(SPR.lumiere,180-230,300-230,460,460);
+  if(boostActif()){cx.globalAlpha=0.5+0.15*Math.sin(t*3);cx.drawImage(SPR.haloOr,180-170,310-170,340,340);}
   cx.globalAlpha=1;cx.globalCompositeOperation='source-over';
   if(SPR.ennS){
     for(i=0;i<fouleTitre.length;i++){o=fouleTitre[i];s=SPR.ennSV[o.t][o.v];w=s.w*1.4;k=Math.abs(Math.sin(t*o.hz*Math.PI+o.p))*4;a=orientEnn(o.t,o.v)===0?1:orientEnn(o.t,o.v)*o.f;
@@ -9621,65 +10463,149 @@ function rendreTitre(){
     for(i=0;i<2;i++){k=((t/6+i*0.5)%1);x=i?410-k*460:-50+k*460;s=SPR.ennS[i?E_PING:I_ENN.toutou];w=s.w*1.4;a=Math.abs(Math.sin(t*9+i))*5;
       cx.drawImage(SPR.ombre,x-w*0.4,(i?402:424)-6,w*0.8,12);cx.save();cx.translate(x,(i?402:424)-a);cx.scale(i?-1:1,1);cx.drawImage(s.c,-w/2,-w*0.9,w,w);cx.restore();}
   }
-  /* DZÔ géant ; au départ il ouvre grand */
+  /* DZÔ géant, un peu plus petit : ni son poing ni sa tête sous le logo ; au départ il ouvre grand */
   s=DZO.grand;
-  if(s){var hh=340,ww=hh*s.w/s.h,resp=1+Math.sin(t*1.2*PI2*0.5)*0.014,e=Math.min(1,tEcran/0.5);e=(1-(1-e)*(1-e))*(1+0.35*dep);
-    cx.drawImage(SPR.ombre,180-100,430,200,34);
-    cx.save();cx.translate(186,446);cx.scale((2-resp)*e,resp*e);cx.drawImage(s.c,-ww*s.ax/s.w,-hh*s.ay/s.h,ww,hh);cx.restore();}
-  /* logo */
-  if(SPR.logo){k=1+Math.sin(t*2.1)*0.012;cx.save();cx.translate(180,74+SAFE_H);cx.scale(k,k);spr(SPR.logo,0,0);cx.restore();}
+  if(s){var hh=262-SAFE_H*0.75,ww=hh*s.w/s.h,resp=1+Math.sin(t*1.2*PI2*0.5)*0.014,e=Math.min(1,tEcran/0.5);e=(1-(1-e)*(1-e))*(1+0.35*dep);
+    cx.drawImage(SPR.ombre,180-78,419,156,26);
+    cx.save();cx.translate(186,432);cx.scale((2-resp)*e,resp*e);cx.drawImage(s.c,-ww*s.ax/s.w,-hh*s.ay/s.h,ww,hh);cx.restore();}
+  logoTitre();
+  /* état du jour : UNE ligne ; plus d'essai : le bouton principal devient le boost doré */
+  var yS=450,yB=482,yP=562;
+  surveillerConcours();
+  var epuise=restants<=0&&!horsRang&&!entrainementSeul()&&!(modeServeur()&&!connecte()),tpe=epuise?texteProchainsEssais():'',boostPrim=epuise&&boostPossibleTitre();
+  /* le bandeau du concours (ou de l'entraînement) prend la ligne ; essais épuisés : le compte à rebours la garde */
+  var bandeau=!horsRang&&!(epuise&&tpe)&&bandeauConcours('tconcours',30,yS-17,300,34);
+  if(!bandeau&&!horsRang)ligneEtatTitre(yS,epuise,tpe,restants);
   /* bouton principal */
   k=1+Math.sin(t*4)*0.018;
-  cx.save();cx.translate(180,455);cx.scale(k,k);cx.translate(-180,-455);
-  if(NET.debutEnCours||NET.departAttente)cx.globalAlpha=0.6;
-  bouton('mordre',52,424,256,62,T('titre.mordre'),0,function(){demarrer(true);},sousMordre(horsRang,prem,restants),30);
+  cx.save();cx.translate(180,yB+31);cx.scale(k,k);cx.translate(-180,-(yB+31));
+  if(boostPrim)bouton('boost',52,yB,256,62,T('titre.plusEssai'),2,function(){allerEcran('boosts');},T('titre.plusEssaiSous'),30);
+  else{if(NET.debutEnCours||NET.departAttente)cx.globalAlpha=0.6;
+    bouton('mordre',52,yB,256,62,T('titre.mordre'),0,function(){demarrer(true);},sousMordre(horsRang,prem,restants),30);}
   cx.globalAlpha=1;cx.restore();
-  /* 0.8 : bandeau du concours (ou de l'entraînement), touché → lots et règles */
-  surveillerConcours();
-  var bandeau=!horsRang&&bandeauConcours('tconcours',30,380,300,38);
-  /* 0.10 : plus d'essai : le compte à rebours jusqu'aux prochains, bien visible (sinon le message d'avant) */
-  var epuise=restants<=0&&!horsRang&&!entrainementSeul()&&!(modeServeur()&&!connecte()),tpe=epuise?texteProchainsEssais():'';
-  if(!bandeau&&epuise)ttFit(tpe||T('titre.demain'),180,412,tpe?15:12,340,C.or,'center',tpe?1:0,true);
   /* 0.10 : pastille « +5 % FIDÉLITÉ » collée sur le coin du bouton quand le bonus vaut aujourd'hui ; touchée → boosts (la règle) */
-  var fid=!horsRang&&!entrainementSeul()?fidelite():null;
+  /* (pas sur le bouton doré du boost : elle en cacherait le libellé ; l'écran des boosts la rappelle) */
+  var fid=!horsRang&&!boostPrim&&!entrainementSeul()?fidelite():null;
   if(fid&&fid.actif){var txf=T('fid.badge',fid.p);cx.font=police(11,0);var wf=Math.min(170,cx.measureText(txf).width+20);
-    var enf=zone('tfid',312-wf,413,wf,22,function(){allerEcran('boosts');});
-    cx.save();cx.translate(312-wf/2,424);cx.rotate(-0.07);k=1+Math.sin(t*3)*0.03;cx.scale(k,k);
+    var enf=zone('tfid',318-wf,yB-15,wf,22,function(){allerEcran('boosts');});
+    cx.save();cx.translate(318-wf/2,yB-4);cx.rotate(-0.07);k=1+Math.sin(t*3)*0.03;cx.scale(k,k);
     cx.fillStyle=enf?'#FFE27A':C.or;cx.beginPath();rrect(cx,-wf/2,-11,wf,22,11);cx.fill();cx.strokeStyle=C.encre;cx.lineWidth=2;cx.stroke();
     ttFit(txf,0,1,11,wf-14,C.encre,'center',0,false);cx.restore();}
-  /* 0.9 : signature 987NES (à la place du slogan, qui reste dans la bande basse des téléphones hauts) ; touchée → panneau 987NES */
-  ttFit(T('nes.signature'),180,500,12,336,zone('nesSig',14,494,332,15,ouvrirNes)?C.creme:C.or,'center',0,true);
-  /* infos du jour : horde, essais, record, série, compte à rebours, décret (0.7 : celui du serveur, sinon un texte neutre) */
-  var enl=connecte(),y0=510;
-  panneau(14,y0,332,88,10,'rgba(38,27,54,0.92)','rgba(20,13,32,0.92)','rgba(246,241,231,0.18)',1);
-  ttFit(libelleJour(),26,y0+12,12.5,180,C.creme,'left',0,false);
-  if(entrainementSeul())ttFit(T('concours.entrainementCourt'),334,y0+12,12.5,140,C.cyan,'right',0,false);
-  else if(modeServeur()&&!enl)ttFit(T('titre.essaisCnx'),334,y0+12,11,140,C.or,'right',0,false);
-  else ttFit(T('titre.essais',restants,essaisMax()),334,y0+12,12.5,120,restants>0?C.cyan:C.danger,'right',0,false);
-  ttFit(enl?T('titre.scoreJour',fmtNb(NET.jour.scoreJour)):T('titre.record',fmtNb(SAUV.record)),26,y0+28,12.5,190,C.or,'left',1,false);ttFit(T('titre.serie',serieAffichee()),334,y0+28,12.5,120,C.creme,'right',1,false);
-  /* 0.8 : en entraînement, pas d'essais à recharger : début du prochain concours s'il y en a un */
-  var pc=NET.prochainConcours;
-  if(entrainementSeul())ttFit(pc?T('lots.debutDans',dureeTexte(pc.debut-maintenantSrv())):T('concours.entrainementSous'),180,y0+43,10.5,316,C.cyan,'center',2,false);
-  /* 0.10 : concours qui finit avant minuit : sa fin, pas le minuit (pas deux comptes contradictoires) ; essais épuisés : en or */
-  else if(enConcours()&&resteAvantEssais()===null)ttFit(T('lots.reste',dureeTexte(NET.concours.fin-maintenantSrv())),180,y0+43,10.5,316,C.cyan,'center',2,false);
-  else if(epuise&&tpe)ttFit(tpe,180,y0+43,12,316,C.or,'center',1,true);
-  else ttFit(texteCompte(),180,y0+43,10.5,316,C.cyan,'center',2,false);
-  cx.fillStyle='rgba(246,241,231,0.14)';cx.fillRect(26,y0+52,308,1);
-  if(dj>=0){ttFit(T('decretDuJour.ligne',nomDecret(dj)),180,y0+63,12,308,C.or,'center',0,false);ttFit(ligneDecret(dj),180,y0+77,10.5,312,'rgba(246,241,231,0.85)','center',2,false);}
-  else{var nl=texteNeutre();ttFit(nl[0],180,y0+63,12,308,C.or,'center',0,false);ttFit(nl[1],180,y0+77,10.5,312,'rgba(246,241,231,0.85)','center',2,false);}
-  /* boutons secondaires */
-  bouton('boost',14,604,134,32,T(boostActif()&&!entrainementSeul()?'titre.boostActif':'titre.boost'),entrainementSeul()?1:2,function(){allerEcran(modeServeur()&&!connecte()?'connexion':'boosts');},sousBoost(),12.5);
-  bouton('entr',152,604,112,32,T('titre.entrainement'),1,function(){demarrer(false);},null,12.5);
-  bouton('langue',268,604,38,32,T('langue.code'),1,changerLangue,null,12);
-  bouton('son',310,604,36,32,SAUV.son?'♪':'×',1,function(){SAUV.son=SAUV.son?0:1;sauver();reglerSon();},null,18);
-  /* 0.7 : classement et profil (en ligne), ou la mention « hors ligne » */
+  /* deux petits boutons (un seul quand le reste ferait doublon) */
+  var bEntr=['entr',T('titre.entrainement'),function(){demarrer(false);}],
+    bSuivre=['tsuivre',T('titre.suivre'),suivreCompteX],
+    bBoost=['boost',T(enConcours()?'titre.boostSousConcours':'titre.boostSous'),function(){allerEcran(modeServeur()&&!connecte()?'connexion':'boosts');}],
+    sec=!horsRang&&entrainementSeul()?[bSuivre]:(epuise?(boostPrim?[bEntr,bSuivre]:[bSuivre]):[bBoost,bEntr]);
+  if(sec.length===1)bouton(sec[0][0],70,yP,220,40,sec[0][1],1,sec[0][2],null,14);
+  else{cx.font=police(14,0);var l0=cx.measureText(sec[0][1]).width,l1=cx.measureText(sec[1][1]).width,w0=Math.round(Math.max(130,Math.min(200,324*l0/(l0+l1))));
+    bouton(sec[0][0],14,yP,w0,40,sec[0][1],1,sec[0][2],null,14);bouton(sec[1][0],22+w0,yP,324-w0,40,sec[1][1],1,sec[1][2],null,14);}
+  /* pied de page : les liens 987NES (panneau) */
+  enf=zone('tnes',20,612,320,28,ouvrirNes);
+  cx.fillStyle='rgba(13,9,20,0.6)';cx.beginPath();rrect(cx,90,616,180,22,11);cx.fill();
+  ttFit('987nes.com  ·  X  ·  Telegram',180,627,11.5,300,enf?C.or:'rgba(246,241,231,0.72)','center',2,false);
+  /* barre du haut : classement du jour, profil, réglages */
   barreCompte();
-  /* 0.9 : podium du jour (public, sous CLASSEMENT) et accès au panneau 987NES (sous le profil) */
-  podiumTitre();
-  bouton('tnes',262,SAFE_H+37,92,32,T('nes.bouton'),1,ouvrirNes,T('nes.sous'),13);
-  if(!DZO.pret&&DZO_TENTE)tn(T('titre.secours'),180,416,10,'rgba(246,241,231,0.5)','center',2);
+  /* avant-première (avant le jour 1 du jeu) : petite pastille à gauche du logo, sous la plaque */
+  if(!horsRang&&NUM_JOUR<1){var tav=T('jour.avant',1-NUM_JOUR);cx.font=police(10,2);var wa=Math.min(104,cx.measureText(tav).width+14);
+    cx.fillStyle='rgba(13,9,20,0.8)';cx.beginPath();rrect(cx,8,SAFE_H+80,wa,18,9);cx.fill();cx.strokeStyle='rgba(246,241,231,0.35)';cx.lineWidth=1;cx.stroke();
+    ttFit(tav,8+wa/2,SAFE_H+89.5,10,wa-10,C.creme,'center',2,false);}
+  if(!DZO.pret&&DZO_TENTE)tn(T('titre.secours'),180,400,10,'rgba(246,241,231,0.5)','center',2);
+  if(reglagesTitre)panneauReglagesTitre();
   /* fondu au blanc avant la partie */
   if(tDepart>0.18){cx.fillStyle='rgba(255,255,255,'+Math.min(1,(tDepart-0.18)/0.12).toFixed(2)+')';cx.fillRect(0,0,360,640);}
+}
+/* logo : plaque dorée « 987NES présente » posée dessus, slogan dessous (en anglais : c'est le slogan) */
+function logoTitre(){
+  var y0=SAFE_H,k=1+Math.sin(tReel*2.1)*0.012,txt=T('titre.presente'),pw,gr;
+  /* la plaque s'arrête au-dessus de l'accent du Ô */
+  if(SPR.logo){cx.save();cx.translate(180,y0+120);cx.scale(k*0.8,k*0.8);spr(SPR.logo,0,0);cx.restore();}
+  cx.font=police(11,0);pw=Math.min(220,cx.measureText(txt).width+26);
+  cx.fillStyle=C.encre;cx.beginPath();rrect(cx,180-pw/2-2,y0+48,pw+4,24,8);cx.fill();
+  gr=cx.createLinearGradient(0,y0+50,0,y0+70);gr.addColorStop(0,'#FFE98A');gr.addColorStop(1,'#E0A91A');
+  cx.fillStyle=gr;cx.beginPath();rrect(cx,180-pw/2,y0+50,pw,20,7);cx.fill();
+  ttFit(txt,180,y0+60.5,11,pw-14,C.encre,'center',0,false);
+  tt('The Swiss Memecoin',180,y0+173,14,C.or,'center',0);
+}
+/* la ligne d'état du titre, sur une plaque sombre : essais (pastilles) et série, ou le compte à rebours, ou la connexion */
+function ligneEtatTitre(yc,epuise,tpe,restants){
+  var txt,ico='',coul=C.creme,cb=null,n=0,m=0,serTxt='',PX=13,wp=0,wt,ws=0,W,x0,x,i,enf=false;
+  if(modeServeur()&&!connecte()){txt=T('cl.public').replace(/[.。]\s*$/,'');coul=C.or;cb=function(){allerEcran('connexion');};}
+  else if(epuise){ico='horloge';txt=tpe||T('titre.demain');coul=C.or;}
+  else{m=Math.min(8,Math.max(restants,essaisMax()));n=Math.min(m,restants);txt=T(restants===1?'titre.essais1':'titre.essaisN',restants);
+    var se=serieAffichee();if(se>0)serTxt=T('titre.serieJ',se);}
+  cx.font=police(PX,2);wt=cx.measureText(txt).width;
+  if(m)wp=m*13+6;else if(ico)wp=24;
+  if(serTxt)ws=34+cx.measureText(serTxt).width;
+  wt=Math.min(wt,308-wp-ws);W=Math.max(200,Math.ceil((wp+wt+ws+28)/8)*8);x0=180-W/2;
+  if(cb)enf=zone('tstatut',x0,yc-16,W,32,cb);
+  cx.fillStyle=enf?'rgba(58,40,18,0.95)':'rgba(13,9,20,0.86)';cx.beginPath();rrect(cx,x0,yc-14,W,28,14);cx.fill();
+  cx.strokeStyle='rgba(255,210,63,0.4)';cx.lineWidth=1;cx.stroke();
+  x=180-(wp+wt+ws)/2;
+  if(m){for(i=0;i<m;i++){cx.beginPath();cx.arc(x+5+i*13,yc,4.5,0,PI2);if(i<n){cx.fillStyle=C.or;cx.fill();}else{cx.strokeStyle='rgba(246,241,231,0.55)';cx.lineWidth=1.5;cx.stroke();}}x+=wp;}
+  else if(ico){icoTitre(ico,x+9,yc,8,C.or);x+=wp;}
+  ttFit(txt,x,yc+0.5,PX,wt,coul,'left',2,false);x+=wt;
+  if(serTxt){icoTitre('flamme',x+22,yc,8,'#FF8A1F');ttFit(serTxt,x+34,yc+0.5,PX,ws-34,C.creme,'left',2,false);}
+}
+/* plus d'essai : le boost peut-il encore en donner un aujourd'hui (canaux ouverts, plafonds du jour) ? */
+function boostPossibleTitre(){
+  if(!modeServeur())return SAUV.boost!==JOUR;
+  if(!connecte())return true;
+  var act=boostsActifs(),i;
+  for(i=0;i<act.length;i++)if(!boostEtat(act[i]).fini)return true;
+  return false;
+}
+/* petites icônes du titre, dessinées (pas d'émoji : rendu identique partout) */
+function icoTitre(q,x,y,r,coul){
+  var i;cx.save();cx.translate(x,y);cx.fillStyle=coul;cx.strokeStyle=coul;cx.lineWidth=Math.max(1.5,r*0.22);cx.lineCap='round';cx.lineJoin='round';
+  if(q==='trophee'){
+    cx.beginPath();cx.moveTo(-r*0.62,-r*0.85);cx.lineTo(r*0.62,-r*0.85);cx.quadraticCurveTo(r*0.62,r*0.2,0,r*0.3);cx.quadraticCurveTo(-r*0.62,r*0.2,-r*0.62,-r*0.85);cx.fill();
+    cx.beginPath();cx.arc(-r*0.62,-r*0.42,r*0.34,Math.PI*0.5,Math.PI*1.5);cx.stroke();
+    cx.beginPath();cx.arc(r*0.62,-r*0.42,r*0.34,-Math.PI*0.5,Math.PI*0.5);cx.stroke();
+    cx.fillRect(-r*0.11,r*0.25,r*0.22,r*0.4);cx.fillRect(-r*0.48,r*0.62,r*0.96,r*0.24);}
+  else if(q==='profil'){
+    cx.beginPath();cx.arc(0,-r*0.38,r*0.4,0,PI2);cx.fill();
+    cx.beginPath();cx.moveTo(-r*0.8,r*0.9);cx.quadraticCurveTo(-r*0.8,r*0.12,0,r*0.12);cx.quadraticCurveTo(r*0.8,r*0.12,r*0.8,r*0.9);cx.closePath();cx.fill();}
+  else if(q==='reglages'){
+    for(i=0;i<8;i++){cx.save();cx.rotate(i*Math.PI/4);cx.fillRect(-r*0.17,-r*0.98,r*0.34,r*0.42);cx.restore();}
+    cx.lineWidth=r*0.32;cx.beginPath();cx.arc(0,0,r*0.56,0,PI2);cx.stroke();}
+  else if(q==='horloge'){
+    cx.lineWidth=r*0.2;cx.beginPath();cx.arc(0,0,r*0.86,0,PI2);cx.stroke();
+    cx.beginPath();cx.moveTo(0,0);cx.lineTo(0,-r*0.52);cx.moveTo(0,0);cx.lineTo(r*0.4,r*0.1);cx.stroke();}
+  else if(q==='flamme'){
+    cx.beginPath();cx.moveTo(0,-r);cx.bezierCurveTo(r*0.95,-r*0.15,r*0.85,r,0,r);cx.bezierCurveTo(-r*0.85,r,-r*0.9,0,-r*0.3,-r*0.5);cx.quadraticCurveTo(-r*0.15,-r*0.1,0,-r);cx.fill();
+    cx.fillStyle='#FFE27A';cx.beginPath();cx.moveTo(0,-r*0.1);cx.bezierCurveTo(r*0.45,r*0.3,r*0.4,r*0.85,0,r*0.85);cx.bezierCurveTo(-r*0.4,r*0.85,-r*0.4,r*0.35,0,-r*0.1);cx.fill();}
+  cx.restore();
+}
+/* bouton rond à icône de la barre du haut : 44 px de haut à toucher */
+function boutonIcone(id,x,y,ico,coul,cb){var b=bouton(id,x,y,42,36,'',1,cb,null,12);icoTitre(ico,x+21,y+18,10,coul);b.x=x-1;b.w=44;b.y=y-4;b.h=44;return b;}
+/* puce du classement : trophée et n° 1 du jour (et mon rang si je suis classé) ; touchée → classement */
+function puceClassement(y){
+  var lab,lab2='',top=null,i,e,moi=0,px=12,c,w1,w2,w,b;
+  if(modeServeur()){chargerPublic('jour',null);c=NET.pub.jour;top=c&&c.json?c.json.top:null;}
+  if(!modeServeur())lab=NET.actif&&NET.etat==='attente'?T('titre.connexion'):T('net.horsLigne');
+  else if(!top)lab=T('cl.titre');
+  else if(!top.length)lab=T('podium.vide');
+  else{e=top[0];
+    if(connecte())for(i=0;i<top.length;i++)if(top[i].pseudo===NET.joueur.pseudo){moi=top[i].rang;break;}
+    lab='#1 '+couperTexte(String(e.pseudo||''),moi>1?76:86,px,2);lab2=moi>1?T('titre.toi',moi):fmtNb(e.score);}
+  cx.font=police(px,2);w1=cx.measureText(lab).width;w2=lab2?cx.measureText(lab2).width+10:0;w=Math.max(100,Math.min(224,46+w1+w2));
+  b=bouton('tcl',6,y,w,36,'',1,function(){allerEcran('classement');},null,12);b.y=y-4;b.h=44;
+  icoTitre('trophee',24,y+18,9,C.or);
+  if(lab2){ttFit(lab,36,y+18.5,px,w-46-w2,C.or,'left',2,false);ttFit(lab2,w-4,y+18.5,px,w2-6,C.creme,'right',2,false);}
+  else ttFit(lab,36,y+18.5,px,w-46,C.creme,'left',2,false);
+}
+/* réglages du titre : langue et son (l'ancienne croix en bas à droite coupait le son) */
+function panneauReglagesTitre(){
+  nBT=0;
+  var y=SAFE_H+170;
+  zone('tregFond',0,0,360,640,function(){reglagesTitre=false;});
+  cx.fillStyle='rgba(13,9,20,0.8)';cx.fillRect(0,0,360,640);
+  panneau(40,y,280,222,16,'rgba(46,33,70,0.97)','rgba(20,13,32,0.97)','rgba(255,210,63,0.6)',2);
+  zone('tregPanneau',40,y,280,222,function(){});
+  ttFit(T('titre.reglages'),180,y+30,20,248,C.or,'center',0,true);
+  bouton('langue',64,y+54,232,46,T('langue.code')+' · '+T('langue.nom'),1,changerLangue,null,17);
+  bouton('son',64,y+112,232,46,T(SAUV.son?'titre.sonOui':'titre.sonNon'),1,function(){SAUV.son=SAUV.son?0:1;sauver();reglerSon();},null,17);
+  bouton('tregFermer',100,y+172,160,36,T('nes.fermer'),1,function(){reglagesTitre=false;},null,15);
 }
 
 /* ---------- fin de partie ---------- */
@@ -9758,7 +10684,8 @@ function rendreFin(){
       if(regretFin)LF.push({k:'regret',t:regretFin,c:C.cyan,p:12,g:2});
       if(S.repasFait)LF.push({k:'repas',t:T('fin.repas'),c:C.or,p:11.5,g:0});
       if(!REVOIR)LF.push({k:'record',t:T(classee?'fin.recordJour':'fin.recordPerso',fmtNb(classee?SAUV.record:SAUV.meilleur))+(nouveauRecord?T('fin.nouveau'):''),c:C.or,p:11.5,g:1});
-      var oter=['regret','repas'];
+      if(ligneParis())LF.push({k:'pari',t:ligneParis(),c:COUL_PARI[0],p:11.5,g:0});   /* 0.11 : paris et ronds, une ligne */
+      var oter=['regret','repas','pari'];
       while(LF.length>1&&dispoL/(LF.length-1)<13.5&&oter.length){var ko=oter.shift();LF=LF.filter(function(l){return l.k!==ko;});}
       pasL=LF.length>1?Math.max(12,Math.min(17,dispoL/(LF.length-1))):17;
       for(i=0;i<LF.length;i++){var lf=LF[i];
@@ -9835,11 +10762,6 @@ function decretConnu(){
   if(NET.horde&&NET.horde.jour===(NET.jour?NET.jour.jour:JOUR)&&NET.horde.decret>=0&&NET.horde.decret<SIM.DECRETS.length&&modeServeur()&&modeGraine()==='jour')return NET.horde.decret;
   return-1;
 }
-function texteNeutre(){
-  if(!modeServeur())return[T('titre.decretSecret'),T('net.horsLigne')];
-  if(modeGraine()==='essai')return[T('titre.hordeEssai'),T('titre.decretSurprise')];
-  return[T('titre.decretSecret'),T('memeHorde')];
-}
 /* règle de la horde : commune à tous (graine du jour, ou hors ligne), ou nouvelle à chaque essai (MODE_GRAINE=essai) */
 function texteRegleHorde(){return grainePropre()?T('titre.hordeEssai'):T('memeHorde');}
 function sousMordre(horsRang,prem,restants){
@@ -9866,16 +10788,16 @@ function sousBoost(){
   return T('titre.boostSous');
 }
 function barreCompte(){
+  var y=SAFE_H+4;
+  boutonIcone('treglages',312,y,'reglages',C.creme,function(){reglagesTitre=true;reglagesT=tEcran;presse=null;pressePtr=-1;});
   if(HORS_RANG)return;
-  bouton('tcl',6,SAFE_H+4,100,26,T('cl.titre'),3,function(){allerEcran('classement');},null,11);
-  if(!modeServeur()){
-    bouton('tprofil',254,SAFE_H+4,100,26,T('profil.titre'),1,function(){allerEcran('profil');},null,11);
-    ttFit(NET.actif&&NET.etat==='attente'?T('titre.connexion'):T('net.horsLigne'),180,SAFE_H+144,10,300,'rgba(246,241,231,0.7)','center',2,true);return;}
-  if(connecte())bouton('tprofil',254,SAFE_H+4,100,26,'● '+NET.joueur.pseudo,1,function(){allerEcran('profil');},null,11);
-  else bouton('tcnx',254,SAFE_H+4,100,26,T('cnx.bouton'),2,function(){allerEcran('connexion');},null,11);
+  puceClassement(y);
+  /* profil (hors ligne : l'écran « bientôt ») ; sans connexion sur le serveur : l'entrée de la connexion, en or */
+  if(!modeServeur()||connecte())boutonIcone('tprofil',264,y,'profil',C.creme,function(){allerEcran('profil');});
+  else boutonIcone('tcnx',264,y,'profil',C.or,function(){allerEcran('connexion');});
 }
 function boostDuJour(){
-  majJour();ouvrirX(texteX(2));
+  majJour();ouvrirX(textePost('boost').texte);
   if(SAUV.boost!==JOUR){SAUV.boost=JOUR;sauver();}
 }
 function carteScore(){
@@ -9898,7 +10820,7 @@ function carteScore(){
   return c;
 }
 function partager(){
-  var txt=texteX(1),fait=false;
+  var txt=textePost('fin').texte,fait=false;
   function repli(blob){
     if(fait)return;fait=true;
     if(blob){try{var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='dzo-survivors.jpg';document.body.appendChild(a);a.click();document.body.removeChild(a);}catch(e){}}
@@ -9995,8 +10917,10 @@ function appliquerSession(j){
   if(j.serveur&&typeof j.serveur.maintenant==='number'){NET.decalage=j.serveur.maintenant-Date.now();NET.prochainJour=j.serveur.prochainJour||0;}
   NET.etat='ok';NET.majT=Date.now();garderSession();
   /* la langue de Telegram sert de langue par défaut tant que le joueur n'en a pas choisi */
-  if(!SAUV.langue&&NET.joueur.langue){var l=langueDe(NET.joueur.langue);if(l&&l!==LANGUE)appliquerLangue(l,true);}
+  if(!SAUV.langue&&!LANG_URL&&NET.joueur.langue){var l=langueDe(NET.joueur.langue);if(l&&l!==LANGUE)appliquerLangue(l,true);}
   envoyerAttentes();
+  /* 0.11 : retour de « Connecter X » (confirmation), attentes d'un boost gardées dans l'onglet */
+  xApresSession();
   /* 0.10 : résultat du parrainage envoyé avec la connexion ; sinon (déjà connecté, ou serveur d'avant la 0.10) : /lier */
   if(j.parrainage&&typeof j.parrainage.resultat==='string')resultatParrainage(j.parrainage.resultat,null);
   else if(refGarde())lierParrain();
@@ -10199,8 +11123,9 @@ function lienParrainage(){
   if(/^https:\/\/[^\s"<>]+$/.test(u)||(hoteLocal()&&/^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?\/[^\s"<>]*$/.test(u)))return u;
   return URL_JEU?URL_JEU+(URL_JEU.indexOf('?')<0?'?':'&')+'ref='+encodeURIComponent(p.code):'';
 }
-function partagerParrainageX(){var l=lienParrainage();if(l)ouvrirX(T('parr.texte')+' '+l);}
-function partagerParrainageTg(){var l=lienParrainage();if(l)ouvrirLien('https://t.me/share/url?url='+encodeURIComponent(l)+'&text='+encodeURIComponent(T('parr.texte')));}
+/* 0.11 : le texte en trois lignes, dont le lien de partage avec le code de parrainage (r=) */
+function partagerParrainageX(){if(NET.parr||BX.parrain)ouvrirX(textePost('parr').texte);}
+function partagerParrainageTg(){if(NET.parr||BX.parrain)ouvrirLien(lienTgPost(textePost('parr')));}
 
 /* ---- 0.10 : vies bonus et boost de fidélité (champs absents d'un serveur plus ancien : rien ne s'affiche) ---- */
 function viesBonus(){var v=connecte()?NET.jour.viesBonus:null;return v&&typeof v==='object'&&typeof v.solde==='number'?v:null;}
@@ -10220,6 +11145,7 @@ function texteErreur(e){
   var c=String(e&&typeof e==='object'?e.erreur:(e||''));
   if(c==='x_deja_lie'&&e&&e.reprenable)return T('err.x_deja_lie_reprenable');
   if(c==='rejeu_apres_cloture'&&e&&e.disponible)return T('err.rejeu_apres_cloture_h',heureLocale(e.disponible-NET.decalage));
+  if(c==='x_delai_changement'&&e&&typeof e.disponibleLe==='number')return T('err.x_delai_changement_d',dateHeureLocale(e.disponibleLe).split(' ')[0]);
   if(c&&(DICO['err.'+c]!==undefined||LANGUES.fr['err.'+c]!==undefined))return T('err.'+c);
   try{if(window.console)console.warn('DZÔ : code du serveur inconnu',c);}catch(x){}
   return T('err.inconnu');
@@ -10422,7 +11348,8 @@ function allerEcran(e){
   if(e==='titre'&&ecran!=='titre'&&connecte()&&Date.now()-NET.majT>3000)rafraichir();
   if(e==='titre')setTimeout(verifierVersion,0);
   if(e==='profil'){var j=NET.joueur||{};NET.profilMsg='';profilVal={pseudo:j.pseudo||'',wallet:j.wallet||'',x:j.x?'@'+j.x:''};profilInit=true;}
-  if(e==='boosts'){NET.boostMsg='';chargerCode();}
+  if(e==='boosts'){NET.boostMsg='';if(boostsV2()){BX.charge=0;chargerEtatBoost();}else chargerCode();}
+  if(e==='profil'&&boostsV2()&&xApi())chargerEtatBoost();
   if(e==='parrainage'){NET.parr=null;chargerParrainage();}
   if(e==='classement'){NET.cl.defil=0;if(NET.cl.periode==='concours'&&!enConcours())NET.cl.periode='jour';chargerClassement(NET.cl.periode);}
   if(e==='connexion'){NET.widgetT=0;if(NET.cnx&&NET.cnx.etat!=='attente'&&NET.cnx.etat!=='demande')NET.cnx=null;}
@@ -10576,6 +11503,10 @@ function rendreProfil(){
   /* 0.10 : parrainage (serveur 0.10 : regles.parrainage) ; vies bonus en banque en sous-titre */
   if(parrainageDispo()){var vb=viesBonus();
     bouton('pparr',70,y+(rep?482:442),220,40,T('parr.titre'),3,function(){allerEcran('parrainage');},vb&&vb.solde>0?T('parr.vies')+' : '+vb.solde:null,15);}
+  /* 0.11 : compte X relié par « Connecter X » : délier (deux touchers) */
+  if(xApi()&&xLie()){var yx=y+(rep?530:490),conf=Date.now()-BX.delierT<4000;
+    ttFit(T('boost2.profilX',BX.x.compte.username),30,yx+16,12,184,C.vert,'left',2,false);
+    bouton('xdelier',222,yx,114,32,T(conf?'boost2.delierConfirme':'boost2.delier'),conf?0:1,delierX,null,11);}
 }
 
 /* ---- 0.10 : écran Parrainage (mon lien, partage, filleuls, vies bonus, règle) ---- */
@@ -10661,6 +11592,8 @@ function rendreBoosts(){
   /* 0.8 : hors concours en mode entraînement, les posts ne donnent rien */
   if(entrainementSeul()){para(T('boost.horsConcours'),180,y+40,300,14,C.creme,'center',2,19,true);bandeauConcours('bconcours',30,y+120,300,38);return;}
   if(!connecte()){inviterConnexion(y+140);return;}
+  /* 0.11 : boosts sans code (serveur 0.11) ; sinon l'écran de la 0.10 ci-dessous */
+  if(boostsV2()){rendreBoostsV2(y);return;}
   ttFit(T(eX.v08?'boost.regleConcours':'boost.regle'),180,y+8,12,330,C.creme,'center',2,true);
   /* 0.10 : suivi du compte à rebours des prochains essais (en or quand il n'en reste aucun) */
   var tpb=texteProchainsEssais(),vide=essaisRestants()<=0;
@@ -10718,6 +11651,387 @@ function blocFidelite(fd,y){
   ttFit(d.pret?T('fid.pret',p):T('fid.demain',d.x?'✓':'—',d.tg?'✓':'—'),180,yy+1,11.5,316,d.pret?C.vert:C.or,'center',0,false);
   return y+h+4;
 }
+/* =====================================================================
+   0.11 : TEXTES DES POSTS (X, Telegram, fin de partie, parrainage)
+   Trois lignes, dans la langue du jeu : 1. une ligne de score (post.score.1 à 6, ou post.sansScore) ;
+   2. « 987NES : <signature> » (registre ci-dessous) ; 3. le lien d'une page de partage de la bibliothèque d'images
+   (partage/p/<id>?r=<code de parrainage>&l=<langue>), qui montre une image et invite au jeu.
+   Jamais deux fois de suite la même signature (les 8 dernières sont évitées) ni la même image.
+   ===================================================================== */
+/* ---- REGISTRE DES SIGNATURES : modifiable par l'organisateur ----
+   2 à 4 mots, surtout en anglais (voix de la marque, lisible dans les cinq langues). Règles : aucune promesse ni
+   allusion de gain, de prix ou de cours (pas de « moon », « 100x », « get rich »…), aucun conseil d'investissement,
+   aucune moquerie d'un projet ou d'une personne nommés, aucun nom de jeton ou de marque d'un tiers.
+   Liste relue : conception/signatures-posts.md. */
+var SIGNATURES=[
+  'Swiss Precision','Degen Domination','The Swiss Memecoin','Not Recycled','Not a Frog',
+  'Not a Dog','Not a Clown','Born in Fribourg','Fribourg Forever','Made with Fondue',
+  'Alpine Attitude','Cowbell Certified','Raclette Energy','Fondue First','Swiss Timing',
+  'Precision Chaos','Bilingual Chaos','Röstigraben Approved','Sarine Side Story','Mountain Mentality',
+  'Moléson Mood','Cathedral Vibes','Midnight in Fribourg','Horde Approved','Bite First',
+  'Bite Responsibly','Bite Club','Big Bite Energy','Teeth of the Alps','Original Since Day One',
+  'Copied by Nobody','No Clones Allowed','One of One','Zero Clones','Neutral but Hungry',
+  'Neutral, Never Boring','Officially Unserious','Seriously Swiss','Swiss to the Bone','Cheese Grade Memes',
+  'Holey Moley Memes','The Alps Don\'t Lie','Clockwork Chaos','Built Like a Chalet','Chalet Core',
+  'Yodel Loud','Yodel Responsibly','Peak Memecoin','Above the Clouds','Snow Day Energy',
+  'Bénichon Spirit','Meringue Mode','Double Cream Squad','Vin Cuit Vibes','Bricelet Brigade',
+  'Armailli Approved','Halberd Ready','Night Shift Hero','Midnight Muncher','Survive the Horde',
+  'Ten Minutes Strong','Last Blob Standing','Blue and Unbothered','Big Blue Energy','Grin and Bite',
+  'Smile With Teeth','Pure Swiss Chaos','Degen, But Punctual','Punctual Degens','On Time, Always',
+  'Clocked In','Tick Tock Swiss Clock','Fondue Fellowship','Community Over Everything','Army of Blobs',
+  'Join the Horde','Built by the Community','For the Memes','Meme Responsibly','Pure Meme Energy',
+  'No Frogs Harmed','Frogs Fear Us','Clowns Not Invited','Dogs Stay Outside','Fresh From the Alps',
+  'Alpine Fresh','Glacier Cool','Cold Fondue, Warm Hearts','Calm Like Morat','Gothic and Proud',
+  'Cobblestone Certified','Powered by Funicular','Swiss Quality Memes','Quality Over Copies','Handmade Chaos',
+  'Mild Cheese, Wild Memes','Small Country, Big Bite','Fribourg Never Sleeps','Blob Mode Activated','Stay Swiss, Stay Weird'
+];
+/* ---- fin du registre ---- */
+var POST_LIGNES=6,POST_CLE='dzo.posts';
+/* mémoire des derniers tirages (signatures, ligne de score, image), dans le stockage local quand il est permis */
+function postMemoire(){try{var o=JSON.parse(window.localStorage.getItem(POST_CLE)||'null');if(o&&typeof o==='object')return{s:Array.isArray(o.s)?o.s.slice(-8):[],l:o.l|0,i:o.i|0};}catch(e){}return postMemoire.m||(postMemoire.m={s:[],l:0,i:0});}
+function postGarder(m){postMemoire.m=m;try{window.localStorage.setItem(POST_CLE,JSON.stringify(m));}catch(e){}}
+function tirerSignature(m){
+  var libres=[],i;for(i=0;i<SIGNATURES.length;i++)if(m.s.indexOf(i)<0)libres.push(i);
+  if(!libres.length)for(i=0;i<SIGNATURES.length;i++)if(i!==m.s[m.s.length-1])libres.push(i);
+  i=libres[Math.floor(Math.random()*libres.length)];m.s.push(i);if(m.s.length>8)m.s=m.s.slice(-8);return SIGNATURES[i]||'Swiss Precision';
+}
+/* ---- bibliothèque d'images : partage/p/manifeste.json (ids « actifs »), lu une fois, gardé un jour ---- */
+var MANIF={ids:null,enVol:false,t:0};
+function chargerManifeste(){
+  if(MANIF.ids||MANIF.enVol||typeof fetch!=='function')return;
+  try{var o=JSON.parse(window.localStorage.getItem('dzo.manif')||'null');if(o&&Array.isArray(o.a)&&o.a.length&&Date.now()-o.t<864e5){MANIF.ids=o.a;return;}}catch(e){}
+  try{if(!/^https?:$/.test(location.protocol))return;}catch(e){return;}
+  if(Date.now()-MANIF.t<60000)return;MANIF.enVol=true;MANIF.t=Date.now();
+  try{fetch('partage/p/manifeste.json',{cache:'no-cache',credentials:'omit'}).then(function(r){return r.ok?r.json():null;}).then(function(j){MANIF.enVol=false;
+    var a=j&&Array.isArray(j.actifs)?j.actifs.filter(function(n){return typeof n==='number'&&n>0&&n<1e6&&Math.floor(n)===n;}):[];
+    if(a.length){MANIF.ids=a;try{window.localStorage.setItem('dzo.manif',JSON.stringify({a:a,t:Date.now()}));}catch(e){}}},function(){MANIF.enVol=false;});}catch(e){MANIF.enVol=false;}
+}
+/* préchargé peu après l'ouverture (hors robot et export des cartes) : le premier post a déjà son image */
+try{setTimeout(function(){if(!BOT&&!MODE_CARTES)chargerManifeste();},1500);}catch(e){}
+/* code de parrainage du joueur connecté (GET /api/boost/etat → parrain, ou écran Parrainage) ; hors connexion : aucun */
+function codeParrainPost(){if(!connecte())return'';var c=BX.parrain||(NET.parr&&NET.parr.code)||'';return/^[A-Z0-9]{4,16}$/.test(c)?c:'';}
+/* ligne 3 : page de partage d'une image tirée au sort (jamais la même deux fois de suite) ; manifeste absent : les 12
+   anciennes cartes (partage/<langue>/<carte>.html), comme la 0.10 */
+function lienPartagePost(m,sc){
+  var code=codeParrainPost(),q,ids=MANIF.ids,id,n;
+  if(!ids)chargerManifeste();
+  if(ids&&ids.length&&PARTAGE_URL){
+    n=0;do{id=ids[Math.floor(Math.random()*ids.length)];n++;}while(ids.length>1&&id===m.i&&n<20);
+    m.i=id;q='?'+(code?'r='+code+'&':'')+'l='+LANGUE;
+    return PARTAGE_URL.replace(/\/*$/,'/')+'p/'+id+q;}
+  var l=lienCarte(carteDuScore(sc,false,false));
+  return l&&code?l+(l.indexOf('?')<0?'?':'&')+'r='+code:l;
+}
+/* cible : 'boost' (X, Telegram), 'fin' (fin de partie), 'parr' (parrainage). Rend {l1, l2, lien, texte}. */
+function textePost(cible){
+  var m=postMemoire(),sc=cible==='fin'&&S?scoreFin():scorePartage(),k,l1,l2,lien;
+  if(sc>0){do{k=1+Math.floor(Math.random()*POST_LIGNES);}while(k===m.l&&POST_LIGNES>1);m.l=k;l1=T('post.score.'+k,fmtNb(sc));}
+  else l1=T('post.sansScore');
+  l2='987NES : '+tirerSignature(m);
+  lien=lienPartagePost(m,sc);
+  postGarder(m);
+  var p={l1:l1,l2:l2,lien:lien,texte:l1+'\n'+l2+(lien?'\n'+lien:'')};BX.dernierPost=p;return p;
+}
+/* Telegram : la conversation est choisie par le joueur, le message est déjà écrit (le lien en tête, le texte dessous) */
+function lienTgPost(p){return'https://t.me/share/url?url='+encodeURIComponent(p.lien||'https://987nes.com/survivors/')+'&text='+encodeURIComponent(p.l1+'\n'+p.l2);}
+
+/* =====================================================================
+   0.11 : BOOSTS SANS CODE (serveur 0.11 : regles.x.sansCode)
+   X : « Connecter X » (API officielle, regles.x.api), « Suivre @987_nes » si exigé, « Poster sur X » puis détection
+   automatique au retour (délais regles.x.delaisS) ; sans API : « Coller mon lien ». Telegram : partage dans le groupe,
+   la vie arrive toute seule (le jeu interroge GET /api/boost/etat au retour, 2 minutes au plus).
+   Serveur plus ancien (pas de regles.x.sansCode) : l'écran de la 0.10 (code du jour) reste en place.
+   ===================================================================== */
+var BX={x:null,parrain:'',charge:0,enVol:false,xVerif:null,xMsg:'',xCoul:'',xFerme:null,suiviAttente:false,suiviEnVol:false,lienAttente:false,lierEnVol:false,
+  tg:null,tgMsg:'',tgCoul:'',confirmEnVol:false,delierT:0,delierEnVol:false,coller:false,dernierPost:null,dernierLien:'',xResultatVu:false};
+/* messages des cartes : traduits à l'affichage (un changement de langue les suit) */
+function TL(f){var a=Array.prototype.slice.call(arguments,1);return function(){return typeof f==='function'?f.apply(null,a):T.apply(null,[f].concat(a));};}
+function msgBX(m){return typeof m==='function'?m():(m||'');}
+function reglesX(){return NET.regles&&NET.regles.x&&typeof NET.regles.x==='object'?NET.regles.x:null;}
+function boostsV2(){var r=reglesX();return connecte()&&!!r&&r.sansCode===true;}
+function xApi(){var r=reglesX();return!!r&&r.api===true;}
+function tgAuto(){return!!(NET.regles&&NET.regles.tg&&NET.regles.tg.auto===true);}
+function compteOfficiel(){var r=reglesX(),c=String((BX.x&&BX.x.compteOfficiel)||(r&&r.compteOfficiel)||'987_nes').replace(/^@/,'');return/^[A-Za-z0-9_]{1,15}$/.test(c)?c:'987_nes';}
+function suiviRequis(){var r=reglesX();return xApi()&&!!((BX.x&&typeof BX.x.suiviRequis==='boolean')?BX.x.suiviRequis:(r&&r.suiviRequis));}
+function delaisX(){var d=(BX.x&&BX.x.delaisS)||(reglesX()&&reglesX().delaisS);d=Array.isArray(d)?d.filter(function(n){return typeof n==='number'&&n>0&&n<=600;}).slice(0,20):[];return d.length?d:[4,8,15,25,40,60];}
+function xLie(){return!!(BX.x&&BX.x.lie&&BX.x.compte&&BX.x.compte.username);}
+/* depuis : instant du départ d'une lecture de l'état (GET /api/boost/etat) ; une réponse plus récente d'une action (liaison,
+   suivi, boost) n'est jamais écrasée par une lecture partie avant elle */
+function appliquerX(x,depuis){if(!x||typeof x!=='object')return;if(depuis){if(BX.xMaj>depuis)return;}else BX.xMaj=Date.now();BX.x=x;}
+function appliquerJourBoost(j,depuis){if(!(j&&typeof j==='object'&&typeof j.jour==='string'&&NET.jour&&(!NET.jour.jour||j.jour>=NET.jour.jour)))return;if(depuis){if(BX.jourMaj>depuis)return;}else BX.jourMaj=Date.now();NET.jour=j;}
+/* état léger du jour, du compte X et du code de parrainage (jamais d'appel à X derrière) */
+function chargerEtatBoost(){
+  if(!connecte()||!boostsV2()||BX.enVol)return Promise.resolve(null);
+  BX.enVol=true;BX.essaiT=Date.now();var t0=Date.now();
+  return apiAppel('GET','/api/boost/etat').then(function(r){BX.enVol=false;var j=r.json||{};
+    if(r.statut===200){appliquerJourBoost(j.jour,t0);appliquerX(j.x,t0);if(typeof j.parrain==='string')BX.parrain=j.parrain;BX.charge=Date.now();}
+    return r;});
+}
+/* ouvrir une page de X (suivre, autoriser) : dans Telegram par openLink (navigateur), ailleurs un nouvel onglet ;
+   Android hors vue web intégrée : l'app X si elle est installée, sinon le site */
+function ouvrirPageX(u){
+  try{var w=dansTelegram();if(w&&w.openLink){w.openLink(u);return;}
+    var ua=navigator.userAgent||'';
+    if(/Android/.test(ua)&&ua.indexOf('; wv)')<0&&/^https:\/\/x\.com\/intent\//.test(u)){location.href='intent://'+u.replace(/^https:\/\/x\.com/,'twitter.com').replace(/^intent:\/\/https?:\/\//,'')+'#Intent;scheme=https;package=com.twitter.android;S.browser_fallback_url='+encodeURIComponent(u)+';end';return;}
+    window.open(u,'_blank','noopener');}catch(e){}
+}
+/* ---- 1. Connecter X : POST /api/x/lier, puis le lien de départ ouvert dans CE navigateur (le retour revient au jeu
+   par URL_JEU?x=confirmer#xc=<jeton>). Dans la Mini App : le navigateur externe (le jeu y confirme), la Mini App
+   relit l'état au retour. Hors Telegram : la page elle-même part vers X (pas de fenêtre surgissante bloquée). */
+function connecterX(){
+  if(!connecte()||BX.lierEnVol)return;
+  BX.lierEnVol=true;BX.xMsg=TL('boost2.ouverture');BX.xCoul=C.cyan;
+  apiAppel('POST','/api/x/lier',{}).then(function(r){BX.lierEnVol=false;var j=r.json||{};
+    if(r.statut===200&&/^https?:\/\/[^\s"<>]+$/.test(String(j.url||''))){
+      var u=String(j.url),w=dansTelegram();
+      if(w&&w.openLink){BX.lienAttente=true;BX.xMsg=TL('boost2.connecterAide');BX.xCoul=C.creme;w.openLink(u);return;}
+      try{location.href=u;}catch(e){}return;}
+    BX.xMsg=r.statut===0?TL('net.horsLigne'):TL(texteErreur,j);BX.xCoul=C.danger;});
+}
+/* retour de X (?x=…) : message ; avec #xc, confirmation par la session du joueur (POST /api/x/confirmer) */
+function xApresSession(){
+  /* autre joueur sur cet appareil : rien de l'état X du précédent ne reste */
+  var jid=NET.joueur?NET.joueur.id:0;if(BX.joueurId!==jid){BX.joueurId=jid;BX.x=null;BX.parrain='';BX.charge=0;BX.xVerif=null;BX.tg=null;BX.xMsg='';BX.tgMsg='';BX.xFerme=null;BX.coller=false;}
+  /* code de parrainage connu dès la connexion (ligne 3 des posts, même sans passer par l'écran des boosts) */
+  if(boostsV2()&&!BX.charge&&!BX.enVol&&Date.now()-(BX.essaiT||0)>5000)chargerEtatBoost();
+  if(!BX.reprise&&boostsV2()){BX.reprise=true;setTimeout(reprendreAttentes,500);}
+  if(XRETOUR.r&&!BX.xResultatVu&&XRETOUR.r!=='confirmer'){BX.xResultatVu=true;
+    var cle='boost2.x.'+XRETOUR.r,m=XRETOUR.r==='deja_lie'?T('err.x_deja_lie'):XRETOUR.r==='delai'?T('err.x_delai_changement'):(LANGUES.fr[cle]!==undefined?T(cle):T('boost2.x.erreur'));
+    msgApresEntree(m,XRETOUR.r==='ok'?C.vert:C.or,'boosts');}
+  if(!XRETOUR.jeton||BX.confirmEnVol)return;
+  if(!connecte()){return;}
+  BX.confirmEnVol=true;var jt=XRETOUR.jeton;
+  if(ecran!=='entree')afficherMsg(T('boost2.liaison'),C.cyan);
+  apiAppel('POST','/api/x/confirmer',{jeton:jt}).then(function(r){BX.confirmEnVol=false;var j=r.json||{};
+    /* session absente ou expirée : le jeton est gardé (5 minutes) le temps de se reconnecter */
+    if(r.statut===401)return;
+    if(r.statut===0||r.statut>=500){msgApresEntree(T('net.horsLigne'),C.danger);return;}
+    XRETOUR.jeton='';try{window.sessionStorage.removeItem('dzo.xc');}catch(e){}
+    if(r.statut===200){appliquerX(j.x);if(j.joueur&&typeof j.joueur==='object')NET.joueur=j.joueur;garderSession();
+      var u=BX.x&&BX.x.compte?BX.x.compte.username:'';BX.xMsg='';
+      msgApresEntree(T('boost2.relie',u),C.vert,'boosts');son('nouvelle');return;}
+    msgApresEntree(texteErreur(j),C.danger,'boosts');});
+}
+/* sans session à l'arrivée (jeu ouvert dans le navigateur, le joueur jouait dans la Mini App) : se connecter d'abord */
+function xRetourSansSession(){if(XRETOUR.jeton&&!connecte()&&modeServeur())msgApresEntree(T('boost2.attenteConnexion'),C.or,'connexion');}
+/* ---- 2. Suivre @987_nes : intention de X, puis au retour POST /api/x/suivi (vérification payante : seulement là) */
+function suivreCompteX(){
+  var c=compteOfficiel(),avecApi=xApi()&&connecte();
+  if(avecApi&&NET.mode==='dev'){verifierSuivi(false);return;} /* développement local : X simulé, rien n'est ouvert */
+  if(avecApi)BX.suiviAttente=true;
+  ouvrirPageX('https://x.com/intent/follow?screen_name='+c);
+}
+function verifierSuivi(silencieux){
+  if(!connecte()||!xApi()||BX.suiviEnVol)return;
+  BX.suiviEnVol=true;if(!silencieux){BX.xMsg=TL('boost2.suiviVerif');BX.xCoul=C.cyan;}
+  apiAppel('POST','/api/x/suivi',{},{delai:20000}).then(function(r){BX.suiviEnVol=false;var j=r.json||{};
+    if(r.statut===200){appliquerX(j.x);
+      if(j.credit===true){BX.xMsg=TL('boost2.credit');BX.xCoul=C.or;return;}
+      var ok=BX.x&&BX.x.suivi===true;BX.xMsg=ok?'':TL('boost2.suiviNon',compteOfficiel());BX.xCoul=ok?C.vert:C.or;return;}
+    if(silencieux&&j.erreur==='x_non_lie')return;
+    erreurX(r);});
+}
+/* ---- 3. Poster sur X, puis détection automatique au retour (POST /api/boost/x sans url) ---- */
+function posterX2(){
+  if(!connecte())return;
+  var p=textePost('boost');
+  if(NET.mode==='dev'){ /* développement local : post simulé (API simulée : sur le fil du compte lié), rien n'est envoyé à X */
+    apiAppel('POST','/api/dev/post-x',{texte:p.texte}).then(function(r){var j=r.json||{};
+      if(r.statut!==200){BX.xMsg=TL(texteErreur,j);BX.xCoul=C.danger;return;}
+      BX.dernierLien=String(j.url||'');
+      if(xApi()){BX.xVerif={etat:'parti',i:0,minu:0,t:Date.now()};demarrerVerifX();}
+      else{BX.coller=true;poserChampPlus('lienX',BX.dernierLien);BX.xMsg=TL('boost2.lienSimule');BX.xCoul=C.cyan;}});
+    return;}
+  if(xApi()){BX.xVerif={etat:'parti',i:0,minu:0,t:Date.now()};garderAttente();}
+  BX.xMsg='';ouvrirX(p.texte);
+}
+function poserChampPlus(id,v){if(CHAMPS[id])poserChamp(id,v);else BX.champInit=v;}
+function demarrerVerifX(premier){
+  var v=BX.xVerif;if(!v)v=BX.xVerif={etat:'parti',i:0,minu:0,t:Date.now()};
+  if(v.etat==='verif'&&v.minu)return;
+  if(v.minu)clearTimeout(v.minu);
+  v.etat='verif';v.i=0;BX.xMsg='';
+  v.minu=setTimeout(etapeVerifX,premier===undefined?delaisX()[0]*1000:premier);
+}
+function etapeVerifX(){
+  var v=BX.xVerif;if(!v||v.etat!=='verif')return;v.minu=0;
+  if(!connecte()){v.etat='echec';return;}
+  var d=delaisX(),avant=boostEtat('x').compte;v.enVol=true;
+  apiAppel('POST','/api/boost/x',{},{delai:20000}).then(function(r){v.enVol=false;if(BX.xVerif!==v)return;var j=r.json||{},c=String(j.erreur||'');
+    if(r.statut===200){BX.xVerif=null;oublierAttente('x');if(j.jour)appliquerJourBoost(j.jour);if(j.joueur&&typeof j.joueur==='object')NET.joueur=j.joueur;appliquerX(j.x);
+      BX.xMsg=TL('boost2.vieGagnee');BX.xCoul=C.vert;son('nouvelle');return;}
+    var suite=c==='post_pas_encore_vu'||r.statut===0||(c==='verification_indisponible')||c==='trop_de_requetes';
+    if(suite){v.i++;
+      if(v.i<d.length){var ms=c==='verification_indisponible'&&typeof j.reessayerDans==='number'?Math.min(120000,Math.max(1000,j.reessayerDans)):d[v.i]*1000;v.minu=setTimeout(etapeVerifX,ms);return;}
+      v.etat='echec';oublierAttente('x');BX.xMsg=c==='post_pas_encore_vu'?TL('boost2.pasTrouve'):(r.statut===0?TL('net.horsLigne'):TL(texteErreur,j));BX.xCoul=C.or;return;}
+    BX.xVerif=null;oublierAttente('x');erreurX(r);});
+}
+/* conduite du jeu pour chaque refus de X (client-api.md, tableau du boost) */
+function erreurX(r){
+  var j=r.json||{},c=String(j.erreur||'');
+  if(c==='x_plafond_jour_atteint'||c==='x_verifications_jour_max'){BX.xFerme={code:c,jusqu:typeof j.reessayerLe==='number'?j.reessayerLe:prochainMinuit()};BX.xMsg=TL(c==='x_plafond_jour_atteint'?'boost2.xFermeJour':'boost2.verifsMax');BX.xCoul=C.or;return;}
+  if(c==='x_credit_epuise'){BX.xMsg=TL('boost2.credit');BX.xCoul=C.or;return;}
+  if(c==='x_suivi_requis'){if(BX.x)BX.x.suivi=false;BX.xMsg=TL('boost2.suiviNon',compteOfficiel());BX.xCoul=C.or;return;}
+  if(c==='x_connexion_requise'||c==='x_a_reconnecter'||c==='x_non_lie'||c==='boost_deja_obtenu'){chargerEtatBoost();}
+  if(c==='jour_change'||c==='concours_change'){rafraichir().then(chargerEtatBoost);}
+  BX.xMsg=r.statut===0?TL('net.horsLigne'):TL(texteErreur,j);BX.xCoul=c==='boost_deja_obtenu'?C.vert:C.danger;
+}
+/* ---- X sans API : « Coller mon lien » (presse-papiers lu au toucher, sinon un champ) ---- */
+var RE_POST_X=/https?:\/\/(?:www\.|mobile\.)?(?:x|twitter)\.com\/[A-Za-z0-9_]{1,15}\/status\/\d{1,25}[^\s"<>]*/;
+function collerLienX(){
+  var montrer=function(){BX.coller=true;BX.xMsg=TL('boost2.presseVide');BX.xCoul=C.or;};
+  try{if(navigator.clipboard&&navigator.clipboard.readText){navigator.clipboard.readText().then(function(t){var m=RE_POST_X.exec(String(t||''));if(m)envoyerLienX(m[0]);else montrer();},montrer);return;}}catch(e){}
+  montrer();
+}
+function envoyerLienX(u){
+  var m=RE_POST_X.exec(String(u||'').trim());if(!m){BX.coller=true;BX.xMsg=TL('boost.colle');BX.xCoul=C.or;return;}
+  BX.xMsg=TL('boost.verif');BX.xCoul=C.cyan;
+  var corps={url:m[0]};if(NET.joueur&&NET.joueur.x)corps.x=NET.joueur.x;
+  apiAppel('POST','/api/boost/x',corps,{delai:20000}).then(function(r){var j=r.json||{};
+    if(r.statut===200){if(j.jour)appliquerJourBoost(j.jour);if(j.joueur&&typeof j.joueur==='object')NET.joueur=j.joueur;poserChamp('lienX','');BX.coller=false;
+      BX.xMsg=TL('boost2.vieGagnee');BX.xCoul=C.vert;son('nouvelle');return;}
+    erreurX(r);});
+}
+/* ---- Telegram : partage dans le groupe, puis la vie arrive toute seule (GET /api/boost/etat toutes les 4 s, 2 min) ---- */
+function envoyerTg(){
+  if(!connecte())return;
+  var p=textePost('boost'),u=lienTgPost(p);BX.dernierTg=u;
+  BX.tg={etat:'parti',avant:boostEtat('tg').compte,t0:Date.now(),minu:0,n:0};BX.tgMsg='';garderAttente();
+  if(NET.mode==='dev'){demarrerSondeTg();return;} /* développement local : Telegram simulé par le webhook, rien n'est ouvert */
+  ouvrirLien(u);
+}
+function demarrerSondeTg(){var g=BX.tg;if(!g||g.etat==='sonde')return;g.etat='sonde';g.fin=Date.now()+120000;if(g.minu)clearTimeout(g.minu);g.minu=setTimeout(sonderTg,1500);}
+function sonderTg(){
+  var g=BX.tg;if(!g||g.etat!=='sonde')return;g.minu=0;
+  if(!connecte()){g.etat='expire';return;}
+  chargerEtatBoost().then(function(r){if(BX.tg!==g)return;
+    var e=boostEtat('tg');
+    if(e.compte>g.avant){BX.tg=null;oublierAttente('tg');BX.tgMsg=TL('boost2.vieGagnee');BX.tgCoul=C.vert;son('nouvelle');return;}
+    if(Date.now()>=g.fin||e.fini){g.etat='expire';oublierAttente('tg');BX.tgMsg=TL('boost2.tgPasRecu');BX.tgCoul=C.or;return;}
+    g.minu=setTimeout(sonderTg,r&&r.statut===429?8000:4000);});
+}
+/* attentes gardées dans l'onglet (sessionStorage) : sur iPhone, ouvrir X peut recharger la page au retour */
+function garderAttente(){try{window.sessionStorage.setItem('dzo.bx',JSON.stringify({x:BX.xVerif&&BX.xVerif.etat==='parti'?BX.xVerif.t:0,tg:BX.tg?{t:BX.tg.t0,a:BX.tg.avant}:null}));}catch(e){}}
+function oublierAttente(q){try{var o=JSON.parse(window.sessionStorage.getItem('dzo.bx')||'null')||{};if(q==='x')o.x=0;else o.tg=null;window.sessionStorage.setItem('dzo.bx',JSON.stringify(o));}catch(e){}}
+function reprendreAttentes(){
+  try{var o=JSON.parse(window.sessionStorage.getItem('dzo.bx')||'null');if(!o)return;var t=Date.now();
+    if(o.x&&t-o.x<600000&&!BX.xVerif&&xApi()){BX.xVerif={etat:'parti',i:0,minu:0,t:o.x};demarrerVerifX();}
+    if(o.tg&&t-o.tg.t<600000&&!BX.tg){BX.tg={etat:'parti',avant:o.tg.a|0,t0:o.tg.t,minu:0,n:0};demarrerSondeTg();}}catch(e){}
+}
+/* retour au jeu (visibilitychange / focus) : ce que le joueur est allé faire dans X ou Telegram */
+var retourT=0;
+function retourAuJeu(){
+  if(typeof document!=='undefined'&&document.hidden)return;
+  var t=Date.now();if(t-retourT<800)return;retourT=t;
+  if(!connecte()||!boostsV2())return;
+  if(BX.suiviAttente){BX.suiviAttente=false;if(xLie())verifierSuivi(ecran!=='boosts');else chargerEtatBoost().then(function(){if(xLie())verifierSuivi(true);});}
+  if(BX.xVerif&&BX.xVerif.etat==='parti')demarrerVerifX();
+  if(BX.tg&&BX.tg.etat==='parti')demarrerSondeTg();
+  if(BX.lienAttente||ecran==='boosts'||ecran==='profil'){BX.lienAttente=false;chargerEtatBoost();}
+}
+try{document.addEventListener('visibilitychange',retourAuJeu);window.addEventListener('focus',retourAuJeu);window.addEventListener('pageshow',retourAuJeu);}catch(e){}
+/* ---- délier (écran Profil) : deux touchers ---- */
+function delierX(){
+  var t=Date.now();if(t-BX.delierT>4000){BX.delierT=t;return;}
+  if(BX.delierEnVol)return;BX.delierEnVol=true;BX.delierT=0;
+  apiAppel('POST','/api/x/delier',{}).then(function(r){BX.delierEnVol=false;var j=r.json||{};
+    if(r.statut===200){appliquerX(j.x);if(j.joueur&&typeof j.joueur==='object')NET.joueur=j.joueur;garderSession();NET.profilMsg=T('boost2.delie');NET.profilCoul=C.creme;return;}
+    NET.profilMsg=texteErreur(j);NET.profilCoul=C.danger;});
+}
+/* ---- dessin : une étape numérotée (fait ✓, en cours, à venir) ---- */
+function pastilleEtape(n,etat,x,y){
+  cx.beginPath();cx.arc(x,y,10,0,PI2);
+  if(etat==='fait'){cx.fillStyle=C.vert;cx.fill();cx.strokeStyle=C.encre;cx.lineWidth=2.4;cx.lineCap='round';cx.lineJoin='round';cx.beginPath();cx.moveTo(x-4.5,y+0.5);cx.lineTo(x-1.2,y+4);cx.lineTo(x+5,y-3.5);cx.stroke();return;}
+  cx.fillStyle=etat==='actif'?'rgba(111,230,255,0.18)':'rgba(13,9,20,0.5)';cx.fill();cx.strokeStyle=etat==='actif'?C.cyan:'rgba(246,241,231,0.35)';cx.lineWidth=1.6;cx.stroke();
+  tn(''+n,x,y+0.5,11,etat==='actif'?C.cyan:'rgba(246,241,231,0.5)','center',0);
+}
+/* une étape : rend la hauteur occupée. o = {fait, actif, libelle, bouton:[id, texte, style, cb], aide, attente} */
+function etapeBoost(n,o,y){
+  var x0=34,xl=52,wl=290;
+  pastilleEtape(n,o.fait?'fait':(o.actif?'actif':'avenir'),x0,y+12);
+  ttFit(o.libelle,xl,y+12.5,12.5,wl,o.fait?C.vert:(o.actif?C.creme:'rgba(246,241,231,0.5)'),'left',o.fait?0:2,false);
+  var h=28;
+  if(o.actif&&o.bouton){bouton(o.bouton[0],xl,y+h,wl-6,36,o.bouton[1],o.bouton[2],o.bouton[3],null,13);h+=42;}
+  if(o.actif&&o.aide){var nl=para(o.aide,xl,y+h+5,wl-6,10.5,'rgba(246,241,231,0.72)','left',2,13,false);h+=nl*13+4;}
+  return h;
+}
+/* points qui s'allument tour à tour (attente) */
+function pointsAttente(x,y,coul){for(var i=0;i<3;i++){var a=0.25+0.75*Math.max(0,Math.sin(tEcran*5-i*0.9));cx.fillStyle=alpha(coul,a);cx.beginPath();cx.arc(x+i*12,y,3.5,0,PI2);cx.fill();}}
+function carteBoost(y,h,coul){panneau(12,y,336,h,12,'rgba(23,40,58,0.95)','rgba(12,22,34,0.95)',coul||'rgba(111,230,255,0.4)',1);}
+/* hauteur d'une carte : dessinée une première fois hors écran ? non : mesurée par un premier passage sans dessin.
+   Plus simple : la carte est dessinée après son contenu (fond posé en dessous par un calque). */
+function rendreBoostsV2(y){
+  var act=boostsActifs(),eX=boostEtat('x'),eT=boostEtat('tg'),j=NET.jour||{},h,y0;
+  if(!BX.charge&&!BX.enVol&&Date.now()-(BX.essaiT||0)>5000)chargerEtatBoost();
+  chargerManifeste();
+  ttFit(T(eX.v08?'boost.regleConcours':'boost.regle'),180,y+8,12,330,C.creme,'center',2,true);
+  var tpb=texteProchainsEssais(),vide=essaisRestants()<=0;
+  if(eX.v08&&j.boostsMax)ttFit(T('boost.viesGagnees',j.viesGagnees||0,j.boostsMax.total)+(tpb?' · '+tpb:''),180,y+26,13,330,vide&&tpb?C.or:((j.viesGagnees||0)<j.boostsMax.total?C.cyan:C.vert),'center',0,true);
+  else ttFit(T('titre.essais',essaisRestants(),essaisMax())+(tpb?' · '+tpb:''),180,y+26,13,330,essaisRestants()>0?C.cyan:C.danger,'center',0,true);
+  y+=42;
+  if(!act.length){ttFit(T('boost.aucun'),180,y+40,13,320,C.creme,'center',2,true);return;}
+  if(act.indexOf('x')>=0){y0=y;h=carteX2(y,eX,true);carteBoost(y0,h);carteX2(y0,eX,false);y+=h+8;}
+  if(act.indexOf('tg')>=0){y0=y;h=carteTg2(y,eT,true);carteBoost(y0,h);carteTg2(y0,eT,false);y+=h+8;}
+  var fd=fidelite();if(fd&&y<520)y=blocFidelite(fd,y);
+  if(NET.boostMsg)para(NET.boostMsg,180,Math.min(y+8,612),330,12,NET.boostCoul||C.creme,'center',2,15,true);
+}
+/* la carte X ; mesure=true : rien n'est dessiné ni rendu touchable, seule la hauteur compte */
+function carteX2(y,e,mesure){
+  var sv=mesureDebut(mesure),h=0,yy=y+30,api=xApi(),lie=xLie(),f=BX.xFerme&&BX.xFerme.jusqu>maintenantSrv()?BX.xFerme:null;
+  try{
+    tt(T('boost.x'),24,y+16,15,C.cyan,'left',0);
+    tn(e.v08?(e.fini?T('boost.plafond'):T('boost.canal',e.compte,e.max)):(e.fini?T('boost.obtenu'):T('boost.plusUn')),336,y+16,11,e.fini?C.vert:C.creme,'right',0);
+    if(e.fini){ttFit(BX.xMsg&&BX.xCoul===C.vert?msgBX(BX.xMsg):(e.v08?T('boost.canal',e.compte,e.max):T('boost.okX')),180,y+42,12,310,C.vert,'center',2,false);return 60;}
+    if(f){para(T(f.code==='x_plafond_jour_atteint'?'boost2.xFermeJour':'boost2.verifsMax'),180,y+42,310,12,C.or,'center',2,15,false);return 66;}
+    var c=compteOfficiel(),n=1,v=BX.xVerif,attente=!!v&&(v.etat==='parti'||v.etat==='verif');
+    if(api){
+      var re=!!(BX.x&&BX.x.aReconnecter);
+      if(!lie||re)yy+=etapeBoost(n++,{actif:true,libelle:T('boost2.etapeRelier'),bouton:['xlier',T(re?'boost2.reconnecter':'boost2.connecter'),0,connecterX],aide:T(re?'boost2.reconnecterAide':'boost2.connecterAide')},yy);
+      else yy+=etapeBoost(n++,{fait:true,libelle:T('boost2.relie',BX.x.compte.username)},yy);
+      if(suiviRequis()){var suit=BX.x&&BX.x.suivi===true;
+        if(suit)yy+=etapeBoost(n++,{fait:true,libelle:T('boost2.suiviOk',c)},yy);
+        else yy+=etapeBoost(n++,{actif:lie&&!re&&!attente,libelle:T('boost2.etapeSuivre',c),bouton:['xsuivre',T('boost2.suivre',c),3,suivreCompteX],aide:BX.x&&BX.x.suivi===false?T('boost2.suiviNon',c):T('boost2.suivreAide',c)},yy);}
+      var peut=lie&&!re&&(!suiviRequis()||BX.x.suivi!==false);
+      if(attente){yy+=etapeBoost(n++,{actif:true,libelle:T('boost2.etapePoster')},yy);
+        if(v.etat==='verif'){ttFit(T('boost2.attentePost',Math.min(v.i+1,delaisX().length),delaisX().length),52,yy+8,11.5,250,C.cyan,'left',2,false);pointsAttente(306,yy+8,C.cyan);yy+=22;}
+        else{ttFit(T('boost2.retourPost'),52,yy+8,11.5,284,C.cyan,'left',2,false);yy+=18;bouton('xjaiposte',52,yy,284,32,T('boost2.jaiPoste'),1,function(){demarrerVerifX(300);},null,12);yy+=38;}}
+      else yy+=etapeBoost(n++,{actif:peut,libelle:T('boost2.etapePoster'),bouton:['posterX',NET.mode==='dev'?T('boost.posterSimule'):T('boost2.poster'),peut&&v&&v.etat==='echec'?1:3,posterX2],aide:v&&v.etat==='echec'?null:T('boost2.posterAide')},yy);
+      if(v&&v.etat==='echec'&&peut){bouton('xreessayer',52,yy,284,32,T('boost2.reessayer'),0,function(){demarrerVerifX(300);},null,12);yy+=38;}
+    }else{
+      /* sans API : poster (depuis le compte X du profil), puis coller le lien du post */
+      if(!NET.joueur.x){para(T('boost.xProfil'),24,yy+6,310,11,C.or,'left',2,14,false);bouton('xprofil',24,yy+26,150,32,T('profil.titre'),1,function(){allerEcran('profil');},null,12);yy+=66;}
+      else{
+        yy+=etapeBoost(n++,{actif:true,libelle:T('boost2.etapePoster')+' (@'+NET.joueur.x+')',bouton:['posterX',NET.mode==='dev'?T('boost.posterSimule'):T('boost2.poster'),3,posterX2]},yy);
+        yy+=etapeBoost(n++,{actif:true,libelle:T('boost2.etapeColler'),bouton:BX.coller?null:['xcoller',T('boost2.coller'),0,collerLienX],aide:BX.coller?null:T('boost2.collerAide')},yy);
+        if(BX.coller){if(!mesure){cadreChamp('',52,yy,196,36);var el=champ('lienX',52,yy,196,36,{max:300,aide:'https://x.com/…/status/…'});if(el&&BX.champInit){el.value=BX.champInit;BX.champInit='';}}
+          bouton('verifX',256,yy,80,36,T('boost.verifier'),0,function(){envoyerLienX(valeurChamp('lienX'));},null,12);yy+=44;}
+      }
+    }
+    if(BX.xMsg){var nl=para(msgBX(BX.xMsg),180,yy+6,310,11.5,BX.xCoul||C.creme,'center',2,14,false);yy+=nl*14+4;}
+    return yy-y+6;
+  }finally{mesureFin(sv);}
+}
+function carteTg2(y,e,mesure){
+  var sv=mesureDebut(mesure),yy=y+30,g=BX.tg;
+  try{
+    tt(T('boost.tg'),24,y+16,15,C.cyan,'left',0);
+    tn(e.v08?(e.fini?T('boost.plafond'):T('boost.canal',e.compte,e.max)):(e.fini?T('boost.obtenu'):T('boost.plusUn')),336,y+16,11,e.fini?C.vert:C.creme,'right',0);
+    if(e.fini){ttFit(BX.tgMsg&&BX.tgCoul===C.vert?msgBX(BX.tgMsg):(e.v08?T('boost.canal',e.compte,e.max):T('boost.okTg')),180,y+42,12,310,C.vert,'center',2,false);return 60;}
+    var bloque=!!(reglesX()&&reglesX().suiviTg===true)&&!(xLie()&&BX.x.suivi===true);
+    if(bloque){para(T('boost2.tgSuiviX',compteOfficiel()),180,yy+6,310,11.5,C.or,'center',2,14,false);return 70;}
+    var att=!!g&&(g.etat==='parti'||g.etat==='sonde');
+    yy+=etapeBoost(1,{actif:true,libelle:T('boost2.etapeTg'),bouton:['tgEnvoyer',T('boost2.tgEnvoyer'),att?1:3,envoyerTg],aide:att?null:T('boost2.tgAide')},yy);
+    if(att){ttFit(T('boost2.tgAttente'),52,yy+8,11.5,250,C.cyan,'left',2,false);pointsAttente(306,yy+8,C.cyan);yy+=20;}
+    if(BX.tgMsg){var nl=para(msgBX(BX.tgMsg),180,yy+6,310,11.5,BX.tgCoul||C.creme,'center',2,14,false);yy+=nl*14+4;}
+    else if(!att){ttFit(T('boost2.tgPasRecu'),180,yy+6,10,310,'rgba(246,241,231,0.55)','center',2,false);yy+=16;}
+    return yy-y+6;
+  }finally{mesureFin(sv);}
+}
+/* mesure sans dessin : le contexte est remplacé par un contexte muet le temps de la mesure, et les boutons posés pendant
+   la mesure sont retirés (nBT remis) */
+var CX_MUET=null;
+function mesureDebut(m){if(!m)return null;if(!CX_MUET){var c=toile(4,4);CX_MUET=c.getContext('2d');}var sv={cx:cx,nBT:nBT};CX_MUET.font=cx.font;cx=CX_MUET;return sv;}
+function mesureFin(sv){if(!sv)return;cx=sv.cx;nBT=sv.nBT;}
 
 /* ---- 0.8 : écran du concours (lots, dates, vies, mode de classement) ---- */
 function rendreLots(){
@@ -10768,22 +12082,6 @@ function chargerPublic(per,cb){
     c.enVol=false;
     if(r.statut===200&&r.json&&Array.isArray(r.json.top)){c.t=Date.now();c.json=r.json;c.echec=null;}else{c.echecT=Date.now();c.echec=r;}
     var a=c.att;c.att=[];for(var i=0;i<a.length;i++)a[i](r);});
-}
-/* podium du jour de l'écran titre : les 3 premiers du classement public du jour (pseudo et score), visible par tous */
-function podiumTitre(){
-  if(!modeServeur()||HORS_RANG)return;
-  chargerPublic('jour',null);
-  var c=NET.pub.jour,top=c&&c.json?c.json.top.slice(0,3):null,x=6,y=SAFE_H+36,w=102,h=46,i,e,enf;
-  if(!top)return;
-  enf=zone('tpodium',x,y,w,h,function(){NET.cl.periode='jour';allerEcran('classement');});
-  cx.fillStyle=enf?'rgba(38,27,54,0.92)':'rgba(13,9,20,0.66)';cx.beginPath();rrect(cx,x,y,w,h,8);cx.fill();
-  cx.strokeStyle='rgba(255,210,63,0.45)';cx.lineWidth=1;cx.stroke();
-  ttFit(T('podium.titre'),x+w/2,y+8,8.5,w-8,C.cyan,'center',0,false);
-  if(!top.length){ttFit(T('podium.vide'),x+w/2,y+27,9.5,w-10,C.creme,'center',2,false);return;}
-  for(i=0;i<top.length;i++){e=top[i];var yy=y+19+i*11,cr=i===0?C.or:(i===1?'#D9DDE8':'#E0A15A');
-    tn(''+e.rang,x+11,yy,9.5,cr,'right',1);
-    ttFit(couperTexte(String(e.pseudo||''),42,9.5,2),x+15,yy,9.5,42,cr,'left',2,false);
-    ttFit(fmtNb(e.score),x+w-5,yy,9.5,38,C.creme,'right',1,false);}
 }
 /* texte coupé par « … » s'il dépasse la largeur (pseudo long dans une colonne étroite) */
 function couperTexte(s,larg,px,style){
@@ -11160,6 +12458,8 @@ function majReseau(){
   if(!NET.tmaTente&&!NET.jeton&&NET.etat!=='attente'&&initDataTg()){ouvrirSession();return;}
   if(NET.departAttente&&NET.etat!=='attente'){NET.departAttente=false;if(ecran==='titre')demarrer(true);}
   if(NET.etat==='hors'&&now-NET.majT>30000&&ecran!=='jeu'){ouvrirSession();return;}
+  /* 0.11 : retour de X sans session ici (le joueur jouait dans la Mini App) : se connecter, puis confirmer */
+  if(!XRETOUR.vu&&(XRETOUR.r||XRETOUR.jeton)&&NET.etat==='ok'&&!NET.jeton&&!NET.cnx){XRETOUR.vu=true;xApresSession();xRetourSansSession();}
   if(connecte()&&NET.prochainJour&&now+NET.decalage>=NET.prochainJour+1500&&now-NET.majT>8000&&ecran!=='jeu')rafraichir();
 }
 
@@ -11168,7 +12468,7 @@ var tPrec=0,DZO_TENTE=false,msImage=0,fige=false,regardX=null,regardY=0;
 function rendre(dt){
   if(MODE_CARTES){rendreCartesPartage();return;}
   rendreEcran(dt);
-  if(NET.msg&&NET.msgT<4.5){colonne();cx.globalAlpha=Math.min(1,(4.5-NET.msgT)/0.4);var tm=NET.msg+(NET.msgCompte&&texteProchainsEssais()?' '+texteProchainsEssais():''),lm=lignes(tm,300,12,2),hm=lm.length*16+14,ym=SAFE_H+40;
+  if(NET.msg&&NET.msgT<4.5){colonne();cx.globalAlpha=Math.min(1,(4.5-NET.msgT)/0.4);var tm=NET.msg+(NET.msgCompte&&texteProchainsEssais()?' '+texteProchainsEssais():''),lm=lignes(tm,300,12,2),hm=lm.length*16+14,ym=ecran==='titre'?Math.max(SAFE_H+196,428-hm):ecran==='boosts'?628-hm:SAFE_H+40;
     cx.fillStyle='rgba(13,9,20,0.92)';cx.beginPath();rrect(cx,20,ym,320,hm,10);cx.fill();cx.strokeStyle=NET.msgCoul||C.creme;cx.lineWidth=1.5;cx.stroke();
     para(tm,180,ym+14,300,12,NET.msgCoul||C.creme,'center',2,16,false);cx.globalAlpha=1;}
   finChamps();
@@ -11222,6 +12522,7 @@ window.__dzo={
     if(S){o.graine=S.graine;o.px=Math.round(S.px);o.py=Math.round(S.py);o.pas=S.n;o.temps=S.n/60;o.pv=Math.round(S.pv);o.pvMax=S.pvMax;o.niveau=S.niveau;o.score=SIM.score(S);o.ennemis=S.nE;o.gemmes=S.nG;o.projectiles=S.nP;o.particules=pN;o.tues=S.tues;o.fini=!!S.fini;o.victoire=!!S.victoire;o.modal=S.modal;o.bossVivant=!!S.bossVivant;o.bossTue=!!S.bossTue;
       o.armes=[];for(var i=0;i<S.nA;i++)o.armes.push(ARMES[S.armes[i].id].cle+(S.armes[i].evo?'*':S.armes[i].niv));o.passifs=[];for(i=0;i<S.nPa;i++)o.passifs.push(PASSIFS[S.passifs[i].id].cle+S.passifs[i].niv);
       o.combo=S.combo;o.comboMax=S.comboMax;o.tresor=S.tre.on?SIM.TRESORS[S.tre.type].cle:'';o.tresorsPris=S.tresorsPris;o.tresorsVus=S.treN;}
+    if(S){o.paris=S.nParis||0;o.pariMult=S.pariMult||1;o.ronds=S.cePris||0;}   /* 0.11 (bornes) */
     o.manette={actif:joy.actif,id:joy.id,dir:joy.dir,doigts:doigts.length};
     return o;
   },
@@ -11236,7 +12537,11 @@ window.__dzo={
     podium:NET.pub.jour&&NET.pub.jour.json?NET.pub.jour.json.top.slice(0,3):null,clPeriode:NET.cl.periode,
     /* 0.10 : parrainage (code gardé de ?ref=, dernier résultat, écran) ; vies bonus, fidélité, essais affichés */
     ref:refGarde(),parrResultat:NET.parrResultat||'',parr:NET.parr,parrErr:NET.parrErr||'',lienParr:lienParrainage(),
-    essaisRestants:essaisRestants(),essaisMax:essaisMax(),compteEssais:texteProchainsEssais(),fidelite:fidelite(),vieBonusPartie:!!(partieSrv&&partieSrv.vieBonus)};},
+    essaisRestants:essaisRestants(),essaisMax:essaisMax(),compteEssais:texteProchainsEssais(),fidelite:fidelite(),vieBonusPartie:!!(partieSrv&&partieSrv.vieBonus),
+    /* 0.11 : boosts sans code (état X, attentes, dernier texte de post), langue de l'adresse */
+    bx:{v2:boostsV2(),api:xApi(),x:BX.x,parrain:BX.parrain,charge:BX.charge,xVerif:BX.xVerif?BX.xVerif.etat:'',xMsg:msgBX(BX.xMsg),xFerme:BX.xFerme,tg:BX.tg?BX.tg.etat:'',tgMsg:msgBX(BX.tgMsg),coller:BX.coller,post:BX.dernierPost,tgLien:BX.dernierTg||'',lienSimule:BX.dernierLien,manif:MANIF.ids?MANIF.ids.length:0,xc:!!XRETOUR.jeton},langUrl:LANG_URL};},
+  /* 0.11 : texte d'un post tel que le jeu le compose (cible : boost, fin, parr) */
+  textePost:function(c){return textePost(c||'boost');},verifX:function(){BX.xVerif={etat:'parti',i:0,minu:0,t:Date.now()};demarrerVerifX(0);return 1;},signatures:function(){return SIGNATURES.slice();},
   /* 0.9 : panneau 987NES (ouvert ou non, liens configurés) et version affichée */
   nes:function(){return{ouvert:NES_OUVERT,liens:{site:URL_SITE,x:URL_X,tg:URL_TG},public:PUBLIC,versionAffichee:versionAffichee()};},
   ecran:function(e){if(e==='titre'&&ecran==='entree')entrer();else if(e)allerEcran(e);return ecran;},
