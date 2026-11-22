@@ -7141,7 +7141,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.12.0-proto';
+var VERSION='0.12.1-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -11220,9 +11220,7 @@ function rendreTitre(){
   /* bêta : petite pastille à gauche du logo, sous la plaque (touchée : panneau bêta) ;
      l'avant-première (avant le jour 1 du jeu) passe juste dessous tant qu'elle dure */
   var hBeta=pastilleBeta(8,SAFE_H+78);
-  if(!horsRang&&NUM_JOUR<1){var tav=T('jour.avant',1-NUM_JOUR),ya=SAFE_H+84+hBeta;cx.font=police(10,2);var wa=Math.min(104,cx.measureText(tav).width+14);
-    cx.fillStyle='rgba(13,9,20,0.8)';cx.beginPath();rrect(cx,8,ya,wa,18,9);cx.fill();cx.strokeStyle='rgba(246,241,231,0.35)';cx.lineWidth=1;cx.stroke();
-    ttFit(tav,8+wa/2,ya+9.5,10,wa-10,C.creme,'center',2,false);}
+  /* étiquette « Avant-première » retirée (0.12.1) : le bandeau bêta suffit */
   if(!DZO.pret&&DZO_TENTE)tn(T('titre.secours'),180,400,10,'rgba(246,241,231,0.5)','center',2);
   if(reglagesTitre)panneauReglagesTitre();
   /* fondu au blanc avant la partie */
