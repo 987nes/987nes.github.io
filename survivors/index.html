@@ -2405,8 +2405,8 @@ LANGUES.fr={
 "profil.wallet":"WALLET SOLANA (FACULTATIF)",
 "profil.walletAide":"adresse publique",
 "profil.walletAvert":"Uniquement pour recevoir un lot. Ne donne jamais ta phrase secrète : personne ne te la demandera.",
-"profil.x":"COMPTE X (POUR LE BOOST)",
-"profil.xAide":"Le boost X vérifie que le post vient de ce compte.",
+"profil.x":"COMPTE X",
+"profil.xAide":"Il compte pour ton niveau. Il se règle dans « Mon niveau ».",
 "profil.enregistrer":"ENREGISTRER",
 "profil.envoi":"Enregistrement…",
 "profil.ok":"Profil enregistré.",
@@ -2498,7 +2498,7 @@ LANGUES.fr={
 "err.version_inconnue":"Version du jeu inconnue du serveur : recharge la page.",
 "err.version_perimee":"Nouvelle version du jeu : la page se recharge.",
 "err.version_differente":"Partie commencée avec une autre version du jeu.",
-"err.essais_epuises":"Essais classés épuisés pour aujourd'hui. Reviens demain, ou prends un boost.",
+"err.essais_epuises":"Essais classés épuisés pour aujourd'hui. Reviens demain.",
 "err.parties_en_attente":"Une partie est encore en cours d'envoi. Un instant.",
 "err.jour_change":"Minuit est passé : nouvelle horde. Relance un essai.",
 "err.jeton_inconnu":"Partie inconnue du serveur.",
@@ -2531,7 +2531,7 @@ LANGUES.fr={
 "err.wallet_invalide":"Adresse Solana invalide (une adresse publique, pas une phrase).",
 "err.x_invalide":"Compte X invalide (1 à 15 caractères : lettres, chiffres, _).",
 "err.x_deja_lie":"Ce compte X est déjà lié à un autre joueur.",
-"err.x_deja_lie_reprenable":"Ce compte X est lié à un autre joueur. Prouve qu'il est à toi avec un boost X : il passera sur ton profil.",
+"err.x_deja_lie_reprenable":"Ce compte X est lié à un autre joueur. S'il est à toi, prouve-le dans « Mon niveau ».",
 "err.x_non_renseigne":"Indique d'abord ton compte X dans le profil.",
 "err.boost_inactif":"Ce boost n'est pas proposé aujourd'hui.",
 "err.boost_deja_obtenu":"Boost déjà obtenu aujourd'hui.",
@@ -2608,7 +2608,7 @@ LANGUES.fr={
 "boost2.pasTrouve":"Post pas trouvé : vérifie qu'il contient 987NES ou le lien, puis réessaie.",
 "boost2.reessayer":"VÉRIFIER ENCORE",
 "boost2.vieGagnee":"Vie gagnée !",
-"boost2.xFermeJour":"Boost X indisponible aujourd'hui, réessaie demain.",
+"boost2.xFermeJour":"Vérification X indisponible aujourd'hui, réessaie demain.",
 "boost2.verifsMax":"Trop de vérifications X aujourd'hui, réessaie demain.",
 "boost2.credit":"Vérification X indisponible pour le moment : réessaie plus tard.",
 "boost2.etapeTg":"Envoyer dans le groupe",
@@ -2645,7 +2645,7 @@ LANGUES.fr={
 "err.x_connexion_requise":"Connecte d'abord ton compte X.",
 "err.x_a_reconnecter":"X ne reconnaît plus le jeu : reconnecte ton compte X.",
 "err.x_credit_epuise":"Vérification X indisponible pour le moment : réessaie plus tard.",
-"err.x_plafond_jour_atteint":"Boost X indisponible aujourd'hui, réessaie demain.",
+"err.x_plafond_jour_atteint":"Vérification X indisponible aujourd'hui, réessaie demain.",
 "err.x_verifications_jour_max":"Trop de vérifications X aujourd'hui, réessaie demain.",
 "err.x_suivi_requis":"Suis d'abord @987_nes sur X, puis reviens.",
 "err.post_pas_encore_vu":"Ton post n'est pas encore visible sur X. Encore un instant.",
@@ -2856,6 +2856,35 @@ LANGUES.fr={
 "niv.pChanger":"CHANGER",
 "niv.pRetirer":"RETIRER",
 "niv.pRetirerConf":"SÛR ?",
+"niv.xTonCompte":"Ton compte X : @{0}",
+"niv.xChampAide":"@ton_compte",
+"niv.xValider":"OK",
+"niv.xDeclAide":"Ton @ sur X. Aucun mot de passe, aucune connexion.",
+"niv.xGarder":"Garder @{0}",
+"niv.xChanger":"Pas ton compte ? Changer",
+"niv.xDemain":"Compte X prouvé : il compte à partir de demain.",
+"niv.xAttente":"Vérification X impossible pour le moment. Réessaie plus tard.",
+"niv.xPreuve":"@{0} suit déjà @{1} : prouve qu'il est à toi.",
+"niv.xPasVu":"Pas encore vu. Fais le changement, puis reviens ici.",
+"niv.xAjouterNom":"AJOUTER {0} À MON NOM",
+"niv.xMeme":"Suis-le avec @{0}.",
+"niv.xPerdu":"Ton compte X @{0} a été prouvé depuis un autre compte du jeu. Si c'est bien le tien, prouve-le à nouveau.",
+"niv.profilXAucun":"Aucun compte X",
+"niv.profilXOk":"{0} · vérifié",
+"niv.profilXAPreuve":"{0} · à prouver",
+"niv.profilXRelie":"{0} · relié",
+"err.x_mode_joueur":"Relie plutôt ton compte avec « RELIER X ».",
+"err.x_compte_invalide":"Compte X invalide (1 à 15 caractères : lettres, chiffres, _).",
+"err.x_compte_officiel":"C'est le compte officiel : indique ton propre compte X.",
+"err.x_compte_introuvable":"X ne connaît pas ce compte. Vérifie l'orthographe.",
+"niv.xPreuveCode":"Prouve que @{0} est à toi : ajoute ce texte à ton nom X.",
+"niv.xCodeEnlever":"Tu pourras l’enlever une fois validé.",
+"niv.xAvant":"À faire avant {0}.",
+"niv.xExpiree":"Délai de 30 minutes passé pour @{0} : à refaire.",
+"niv.xRefaire":"RECOMMENCER",
+"err.x_declarations_jour_max":"3 comptes X déclarés aujourd'hui au plus. Réessaie demain.",
+"err.x_compte_trop_declare":"Trop de joueurs ont déclaré ce compte X en ce moment. Réessaie plus tard.",
+"err.x_conditions_telegram":"D'abord le groupe et le canal Telegram, puis ton compte X.",
 "err.niveau_touriste":"Touriste aujourd’hui : partie hors classement.",
 "err.quoi_invalide":"Vérification inconnue.",
 "err.wallet_changement_trop_tot":"Un seul changement de wallet par 7 jours.",
@@ -3479,8 +3508,8 @@ LANGUES.de={
 "profil.wallet":"SOLANA-WALLET (FREIWILLIG)",
 "profil.walletAide":"öffentliche Adresse",
 "profil.walletAvert":"Nur um einen Preis zu erhalten. Gib nie deine geheime Wortfolge weiter: niemand wird danach fragen.",
-"profil.x":"X-KONTO (FÜR DEN BOOST)",
-"profil.xAide":"Der X-Boost prüft, ob der Post von diesem Konto stammt.",
+"profil.x":"X-KONTO",
+"profil.xAide":"Es zählt für deine Stufe. Einstellen unter „Meine Stufe“.",
 "profil.enregistrer":"SPEICHERN",
 "profil.envoi":"Speichern…",
 "profil.ok":"Profil gespeichert.",
@@ -3572,7 +3601,7 @@ LANGUES.de={
 "err.version_inconnue":"Spielversion dem Server unbekannt: Seite neu laden.",
 "err.version_perimee":"Neue Spielversion: die Seite lädt neu.",
 "err.version_differente":"Runde mit einer anderen Spielversion begonnen.",
-"err.essais_epuises":"Gewertete Versuche für heute aufgebraucht. Morgen wieder, oder hol dir einen Boost.",
+"err.essais_epuises":"Gewertete Versuche für heute aufgebraucht. Morgen wieder.",
 "err.parties_en_attente":"Eine Runde wird noch gesendet. Einen Moment.",
 "err.jour_change":"Mitternacht vorbei: neue Horde. Starte einen neuen Versuch.",
 "err.jeton_inconnu":"Runde dem Server unbekannt.",
@@ -3605,7 +3634,7 @@ LANGUES.de={
 "err.wallet_invalide":"Ungültige Solana-Adresse (öffentliche Adresse, keine Wortfolge).",
 "err.x_invalide":"Ungültiges X-Konto (1 bis 15 Zeichen: Buchstaben, Ziffern, _).",
 "err.x_deja_lie":"Dieses X-Konto ist schon mit einem anderen Spieler verknüpft.",
-"err.x_deja_lie_reprenable":"Dieses X-Konto gehört zu einem anderen Spieler. Beweise mit einem X-Boost, dass es deins ist.",
+"err.x_deja_lie_reprenable":"Dieses X-Konto gehört zu einem anderen Spieler. Ist es deins, beweise es unter „Meine Stufe“.",
 "err.x_non_renseigne":"Gib zuerst dein X-Konto im Profil an.",
 "err.boost_inactif":"Dieser Boost ist heute nicht verfügbar.",
 "err.boost_deja_obtenu":"Boost heute schon erhalten.",
@@ -3682,7 +3711,7 @@ LANGUES.de={
 "boost2.pasTrouve":"Post nicht gefunden: enthält er 987NES oder den Link? Dann nochmal versuchen.",
 "boost2.reessayer":"NOCHMAL PRÜFEN",
 "boost2.vieGagnee":"Leben gewonnen!",
-"boost2.xFermeJour":"X-Boost heute nicht verfügbar, versuch es morgen wieder.",
+"boost2.xFermeJour":"X-Prüfung heute nicht verfügbar, versuch es morgen wieder.",
 "boost2.verifsMax":"Zu viele X-Prüfungen heute, versuch es morgen wieder.",
 "boost2.credit":"X-Prüfung gerade nicht verfügbar: versuch es später.",
 "boost2.etapeTg":"In die Gruppe senden",
@@ -3719,7 +3748,7 @@ LANGUES.de={
 "err.x_connexion_requise":"Verbinde zuerst dein X-Konto.",
 "err.x_a_reconnecter":"X erkennt das Spiel nicht mehr: verbinde dein X-Konto neu.",
 "err.x_credit_epuise":"X-Prüfung gerade nicht verfügbar: versuch es später.",
-"err.x_plafond_jour_atteint":"X-Boost heute nicht verfügbar, versuch es morgen wieder.",
+"err.x_plafond_jour_atteint":"X-Prüfung heute nicht verfügbar, versuch es morgen wieder.",
 "err.x_verifications_jour_max":"Zu viele X-Prüfungen heute, versuch es morgen wieder.",
 "err.x_suivi_requis":"Folge zuerst @987_nes auf X und komm zurück.",
 "err.post_pas_encore_vu":"Dein Post ist auf X noch nicht sichtbar. Einen Moment noch.",
@@ -3930,6 +3959,35 @@ LANGUES.de={
 "niv.pChanger":"WECHSELN",
 "niv.pRetirer":"ENTFERNEN",
 "niv.pRetirerConf":"SICHER?",
+"niv.xTonCompte":"Dein X-Konto: @{0}",
+"niv.xChampAide":"@dein_konto",
+"niv.xValider":"OK",
+"niv.xDeclAide":"Dein @ auf X. Kein Passwort, keine Anmeldung.",
+"niv.xGarder":"@{0} behalten",
+"niv.xChanger":"Nicht dein Konto? Ändern",
+"niv.xDemain":"X-Konto bestätigt: es zählt ab morgen.",
+"niv.xAttente":"X-Prüfung gerade nicht möglich. Versuch es später.",
+"niv.xPreuve":"@{0} folgt @{1} schon: beweise, dass es deins ist.",
+"niv.xPasVu":"Noch nicht gesehen. Ändere es, dann komm zurück.",
+"niv.xAjouterNom":"{0} IN MEINEN NAMEN",
+"niv.xMeme":"Folge mit @{0}.",
+"niv.xPerdu":"Dein X-Konto @{0} wurde von einem anderen Spielkonto bestätigt. Wenn es deins ist, beweise es erneut.",
+"niv.profilXAucun":"Kein X-Konto",
+"niv.profilXOk":"{0} · bestätigt",
+"niv.profilXAPreuve":"{0} · zu beweisen",
+"niv.profilXRelie":"{0} · verbunden",
+"err.x_mode_joueur":"Verbinde dein Konto lieber mit „X VERBINDEN“.",
+"err.x_compte_invalide":"Ungültiges X-Konto (1 bis 15 Zeichen: Buchstaben, Ziffern, _).",
+"err.x_compte_officiel":"Das ist das offizielle Konto: gib dein eigenes X-Konto an.",
+"err.x_compte_introuvable":"X kennt dieses Konto nicht. Prüfe die Schreibweise.",
+"niv.xPreuveCode":"Beweise, dass @{0} dir gehört: füge diesen Text zu deinem X-Namen hinzu.",
+"niv.xCodeEnlever":"Du kannst ihn nach der Bestätigung wieder entfernen.",
+"niv.xAvant":"Bis {0} Uhr erledigen.",
+"niv.xExpiree":"Die 30 Minuten für @{0} sind um: nochmal versuchen.",
+"niv.xRefaire":"NEU STARTEN",
+"err.x_declarations_jour_max":"Höchstens 3 X-Konten pro Tag. Versuch es morgen wieder.",
+"err.x_compte_trop_declare":"Zu viele Spieler haben dieses X-Konto gerade angegeben. Versuch es später.",
+"err.x_conditions_telegram":"Zuerst die Telegram-Gruppe und den Kanal, dann dein X-Konto.",
 "err.niveau_touriste":"Heute Tourist: Runde ohne Rangliste.",
 "err.quoi_invalide":"Unbekannte Prüfung.",
 "err.wallet_changement_trop_tot":"Nur ein Wallet-Wechsel pro 7 Tage.",
@@ -4553,8 +4611,8 @@ LANGUES.it={
 "profil.wallet":"WALLET SOLANA (FACOLTATIVO)",
 "profil.walletAide":"indirizzo pubblico",
 "profil.walletAvert":"Solo per ricevere un premio. Non dare mai la tua frase segreta: nessuno te la chiederà.",
-"profil.x":"ACCOUNT X (PER IL BOOST)",
-"profil.xAide":"Il boost X verifica che il post venga da questo account.",
+"profil.x":"ACCOUNT X",
+"profil.xAide":"Conta per il tuo livello. Si gestisce in «Il mio livello».",
 "profil.enregistrer":"SALVA",
 "profil.envoi":"Salvataggio…",
 "profil.ok":"Profilo salvato.",
@@ -4646,7 +4704,7 @@ LANGUES.it={
 "err.version_inconnue":"Versione del gioco sconosciuta al server: ricarica la pagina.",
 "err.version_perimee":"Nuova versione del gioco: la pagina si ricarica.",
 "err.version_differente":"Partita iniziata con un'altra versione del gioco.",
-"err.essais_epuises":"Tentativi in classifica esauriti per oggi. Torna domani, o prendi un boost.",
+"err.essais_epuises":"Tentativi in classifica esauriti per oggi. Torna domani.",
 "err.parties_en_attente":"Una partita è ancora in invio. Un attimo.",
 "err.jour_change":"È passata mezzanotte: nuova orda. Rilancia un tentativo.",
 "err.jeton_inconnu":"Partita sconosciuta al server.",
@@ -4679,7 +4737,7 @@ LANGUES.it={
 "err.wallet_invalide":"Indirizzo Solana non valido (un indirizzo pubblico, non una frase).",
 "err.x_invalide":"Account X non valido (da 1 a 15 caratteri: lettere, cifre, _).",
 "err.x_deja_lie":"Questo account X è già collegato a un altro giocatore.",
-"err.x_deja_lie_reprenable":"Questo account X è collegato a un altro giocatore. Dimostra che è tuo con un boost X.",
+"err.x_deja_lie_reprenable":"Questo account X è collegato a un altro giocatore. Se è tuo, dimostralo in «Il mio livello».",
 "err.x_non_renseigne":"Indica prima il tuo account X nel profilo.",
 "err.boost_inactif":"Questo boost non è disponibile oggi.",
 "err.boost_deja_obtenu":"Boost già ottenuto oggi.",
@@ -4756,7 +4814,7 @@ LANGUES.it={
 "boost2.pasTrouve":"Post non trovato: controlla che contenga 987NES o il link, poi riprova.",
 "boost2.reessayer":"VERIFICA ANCORA",
 "boost2.vieGagnee":"Vita guadagnata!",
-"boost2.xFermeJour":"Boost X non disponibile oggi, riprova domani.",
+"boost2.xFermeJour":"Verifica X non disponibile oggi, riprova domani.",
 "boost2.verifsMax":"Troppe verifiche X oggi, riprova domani.",
 "boost2.credit":"Verifica X non disponibile al momento: riprova più tardi.",
 "boost2.etapeTg":"Inviare nel gruppo",
@@ -4793,7 +4851,7 @@ LANGUES.it={
 "err.x_connexion_requise":"Collega prima il tuo account X.",
 "err.x_a_reconnecter":"X non riconosce più il gioco: ricollega il tuo account X.",
 "err.x_credit_epuise":"Verifica X non disponibile al momento: riprova più tardi.",
-"err.x_plafond_jour_atteint":"Boost X non disponibile oggi, riprova domani.",
+"err.x_plafond_jour_atteint":"Verifica X non disponibile oggi, riprova domani.",
 "err.x_verifications_jour_max":"Troppe verifiche X oggi, riprova domani.",
 "err.x_suivi_requis":"Segui prima @987_nes su X, poi torna.",
 "err.post_pas_encore_vu":"Il tuo post non è ancora visibile su X. Ancora un attimo.",
@@ -5004,6 +5062,35 @@ LANGUES.it={
 "niv.pChanger":"CAMBIA",
 "niv.pRetirer":"RIMUOVI",
 "niv.pRetirerConf":"SICURO?",
+"niv.xTonCompte":"Il tuo account X: @{0}",
+"niv.xChampAide":"@il_tuo_account",
+"niv.xValider":"OK",
+"niv.xDeclAide":"Il tuo @ su X. Nessuna password, nessun accesso.",
+"niv.xGarder":"Tieni @{0}",
+"niv.xChanger":"Non è il tuo account? Cambia",
+"niv.xDemain":"Account X dimostrato: conta da domani.",
+"niv.xAttente":"Verifica X impossibile al momento. Riprova più tardi.",
+"niv.xPreuve":"@{0} segue già @{1}: dimostra che è tuo.",
+"niv.xPasVu":"Non ancora visto. Fai la modifica, poi torna qui.",
+"niv.xAjouterNom":"AGGIUNGI {0} AL NOME",
+"niv.xMeme":"Seguilo con @{0}.",
+"niv.xPerdu":"Il tuo account X @{0} è stato dimostrato da un altro account del gioco. Se è davvero tuo, dimostralo di nuovo.",
+"niv.profilXAucun":"Nessun account X",
+"niv.profilXOk":"{0} · verificato",
+"niv.profilXAPreuve":"{0} · da dimostrare",
+"niv.profilXRelie":"{0} · collegato",
+"err.x_mode_joueur":"Collega piuttosto il tuo account con «COLLEGA X».",
+"err.x_compte_invalide":"Account X non valido (da 1 a 15 caratteri: lettere, cifre, _).",
+"err.x_compte_officiel":"È l'account ufficiale: indica il tuo account X.",
+"err.x_compte_introuvable":"X non conosce questo account. Controlla l'ortografia.",
+"niv.xPreuveCode":"Dimostra che @{0} è tuo: aggiungi questo testo al tuo nome X.",
+"niv.xCodeEnlever":"Potrai toglierlo una volta convalidato.",
+"niv.xAvant":"Da fare entro le {0}.",
+"niv.xExpiree":"Tempo di 30 minuti scaduto per @{0}: da rifare.",
+"niv.xRefaire":"RICOMINCIA",
+"err.x_declarations_jour_max":"Al massimo 3 account X dichiarati al giorno. Riprova domani.",
+"err.x_compte_trop_declare":"Troppi giocatori hanno dichiarato questo account X ora. Riprova più tardi.",
+"err.x_conditions_telegram":"Prima il gruppo e il canale Telegram, poi il tuo account X.",
 "err.niveau_touriste":"Turista oggi: partita fuori classifica.",
 "err.quoi_invalide":"Verifica sconosciuta.",
 "err.wallet_changement_trop_tot":"Un solo cambio di wallet ogni 7 giorni.",
@@ -5627,8 +5714,8 @@ LANGUES.es={
 "profil.wallet":"WALLET SOLANA (OPCIONAL)",
 "profil.walletAide":"dirección pública",
 "profil.walletAvert":"Solo para recibir un premio. Nunca des tu frase secreta: nadie te la pedirá.",
-"profil.x":"CUENTA DE X (PARA EL BOOST)",
-"profil.xAide":"El boost de X comprueba que el post viene de esta cuenta.",
+"profil.x":"CUENTA DE X",
+"profil.xAide":"Cuenta para tu nivel. Se gestiona en «Mi nivel».",
 "profil.enregistrer":"GUARDAR",
 "profil.envoi":"Guardando…",
 "profil.ok":"Perfil guardado.",
@@ -5720,7 +5807,7 @@ LANGUES.es={
 "err.version_inconnue":"Versión del juego desconocida para el servidor: recarga la página.",
 "err.version_perimee":"Nueva versión del juego: la página se recarga.",
 "err.version_differente":"Partida empezada con otra versión del juego.",
-"err.essais_epuises":"Intentos clasificados agotados por hoy. Vuelve mañana o consigue un boost.",
+"err.essais_epuises":"Intentos clasificados agotados por hoy. Vuelve mañana.",
 "err.parties_en_attente":"Una partida aún se está enviando. Un momento.",
 "err.jour_change":"Pasó la medianoche: nueva horda. Lanza otro intento.",
 "err.jeton_inconnu":"Partida desconocida para el servidor.",
@@ -5753,7 +5840,7 @@ LANGUES.es={
 "err.wallet_invalide":"Dirección Solana no válida (una dirección pública, no una frase).",
 "err.x_invalide":"Cuenta de X no válida (de 1 a 15 caracteres: letras, cifras, _).",
 "err.x_deja_lie":"Esta cuenta de X ya está vinculada a otro jugador.",
-"err.x_deja_lie_reprenable":"Esta cuenta de X está vinculada a otro jugador. Demuestra que es tuya con un boost de X.",
+"err.x_deja_lie_reprenable":"Esta cuenta de X está vinculada a otro jugador. Si es tuya, demuéstralo en «Mi nivel».",
 "err.x_non_renseigne":"Indica primero tu cuenta de X en el perfil.",
 "err.boost_inactif":"Este boost no está disponible hoy.",
 "err.boost_deja_obtenu":"Boost ya conseguido hoy.",
@@ -5830,7 +5917,7 @@ LANGUES.es={
 "boost2.pasTrouve":"Post no encontrado: comprueba que contiene 987NES o el enlace y vuelve a intentarlo.",
 "boost2.reessayer":"COMPROBAR OTRA VEZ",
 "boost2.vieGagnee":"¡Vida ganada!",
-"boost2.xFermeJour":"Boost X no disponible hoy, vuelve a intentarlo mañana.",
+"boost2.xFermeJour":"Verificación de X no disponible hoy, vuelve a intentarlo mañana.",
 "boost2.verifsMax":"Demasiadas comprobaciones de X hoy, vuelve mañana.",
 "boost2.credit":"Comprobación de X no disponible por ahora: inténtalo más tarde.",
 "boost2.etapeTg":"Enviar al grupo",
@@ -5867,7 +5954,7 @@ LANGUES.es={
 "err.x_connexion_requise":"Primero conecta tu cuenta de X.",
 "err.x_a_reconnecter":"X ya no reconoce el juego: vuelve a conectar tu cuenta de X.",
 "err.x_credit_epuise":"Comprobación de X no disponible por ahora: inténtalo más tarde.",
-"err.x_plafond_jour_atteint":"Boost X no disponible hoy, vuelve a intentarlo mañana.",
+"err.x_plafond_jour_atteint":"Verificación de X no disponible hoy, vuelve a intentarlo mañana.",
 "err.x_verifications_jour_max":"Demasiadas comprobaciones de X hoy, vuelve mañana.",
 "err.x_suivi_requis":"Primero sigue a @987_nes en X y vuelve.",
 "err.post_pas_encore_vu":"Tu post aún no se ve en X. Un momento más.",
@@ -6078,6 +6165,35 @@ LANGUES.es={
 "niv.pChanger":"CAMBIAR",
 "niv.pRetirer":"QUITAR",
 "niv.pRetirerConf":"¿SEGURO?",
+"niv.xTonCompte":"Tu cuenta de X: @{0}",
+"niv.xChampAide":"@tu_cuenta",
+"niv.xValider":"OK",
+"niv.xDeclAide":"Tu @ en X. Sin contraseña, sin iniciar sesión.",
+"niv.xGarder":"Mantener @{0}",
+"niv.xChanger":"¿No es tu cuenta? Cambiar",
+"niv.xDemain":"Cuenta de X demostrada: cuenta a partir de mañana.",
+"niv.xAttente":"Verificación de X imposible por ahora. Inténtalo más tarde.",
+"niv.xPreuve":"@{0} ya sigue a @{1}: demuestra que es tuya.",
+"niv.xPasVu":"Aún no visto. Haz el cambio y vuelve aquí.",
+"niv.xAjouterNom":"AÑADIR {0} A MI NOMBRE",
+"niv.xMeme":"Síguelo con @{0}.",
+"niv.xPerdu":"Tu cuenta de X @{0} se demostró desde otra cuenta del juego. Si es tuya, demuéstralo de nuevo.",
+"niv.profilXAucun":"Ninguna cuenta de X",
+"niv.profilXOk":"{0} · verificada",
+"niv.profilXAPreuve":"{0} · por demostrar",
+"niv.profilXRelie":"{0} · vinculada",
+"err.x_mode_joueur":"Mejor vincula tu cuenta con «VINCULAR X».",
+"err.x_compte_invalide":"Cuenta de X no válida (de 1 a 15 caracteres: letras, cifras, _).",
+"err.x_compte_officiel":"Es la cuenta oficial: indica tu propia cuenta de X.",
+"err.x_compte_introuvable":"X no conoce esta cuenta. Revisa la ortografía.",
+"niv.xPreuveCode":"Demuestra que @{0} es tuya: añade este texto a tu nombre de X.",
+"niv.xCodeEnlever":"Podrás quitarlo una vez validado.",
+"niv.xAvant":"Hazlo antes de las {0}.",
+"niv.xExpiree":"Plazo de 30 minutos agotado para @{0}: hay que repetirlo.",
+"niv.xRefaire":"EMPEZAR DE NUEVO",
+"err.x_declarations_jour_max":"Máximo 3 cuentas de X declaradas al día. Vuelve a intentarlo mañana.",
+"err.x_compte_trop_declare":"Demasiados jugadores han declarado esta cuenta de X ahora. Inténtalo más tarde.",
+"err.x_conditions_telegram":"Primero el grupo y el canal de Telegram, luego tu cuenta de X.",
 "err.niveau_touriste":"Turista hoy: partida sin ranking.",
 "err.quoi_invalide":"Comprobación desconocida.",
 "err.wallet_changement_trop_tot":"Solo un cambio de wallet cada 7 días.",
@@ -6701,8 +6817,8 @@ LANGUES.en={
 "profil.wallet":"SOLANA WALLET (OPTIONAL)",
 "profil.walletAide":"public address",
 "profil.walletAvert":"Only to receive a prize. Never give your secret phrase: nobody will ever ask for it.",
-"profil.x":"X ACCOUNT (FOR THE BOOST)",
-"profil.xAide":"The X boost checks that the post comes from this account.",
+"profil.x":"X ACCOUNT",
+"profil.xAide":"It counts for your level. Manage it in \"My level\".",
 "profil.enregistrer":"SAVE",
 "profil.envoi":"Saving…",
 "profil.ok":"Profile saved.",
@@ -6794,7 +6910,7 @@ LANGUES.en={
 "err.version_inconnue":"Game version unknown to the server: reload the page.",
 "err.version_perimee":"New game version: the page is reloading.",
 "err.version_differente":"Run started with another game version.",
-"err.essais_epuises":"Ranked tries used up for today. Come back tomorrow, or get a boost.",
+"err.essais_epuises":"Ranked tries used up for today. Come back tomorrow.",
 "err.parties_en_attente":"A run is still being sent. One moment.",
 "err.jour_change":"Midnight has passed: new horde. Start a new try.",
 "err.jeton_inconnu":"Run unknown to the server.",
@@ -6827,7 +6943,7 @@ LANGUES.en={
 "err.wallet_invalide":"Invalid Solana address (a public address, not a phrase).",
 "err.x_invalide":"Invalid X account (1 to 15 characters: letters, digits, _).",
 "err.x_deja_lie":"This X account is already linked to another player.",
-"err.x_deja_lie_reprenable":"This X account is linked to another player. Prove it's yours with an X boost: it will move to your profile.",
+"err.x_deja_lie_reprenable":"This X account is linked to another player. If it's yours, prove it in \"My level\".",
 "err.x_non_renseigne":"Add your X account in your profile first.",
 "err.boost_inactif":"This boost is not available today.",
 "err.boost_deja_obtenu":"Boost already earned today.",
@@ -6904,7 +7020,7 @@ LANGUES.en={
 "boost2.pasTrouve":"Post not found: check it contains 987NES or the link, then try again.",
 "boost2.reessayer":"CHECK AGAIN",
 "boost2.vieGagnee":"Life earned!",
-"boost2.xFermeJour":"X boost unavailable today, try again tomorrow.",
+"boost2.xFermeJour":"X check unavailable today, try again tomorrow.",
 "boost2.verifsMax":"Too many X checks today, try again tomorrow.",
 "boost2.credit":"X check unavailable right now: try again later.",
 "boost2.etapeTg":"Send to the group",
@@ -6941,7 +7057,7 @@ LANGUES.en={
 "err.x_connexion_requise":"Connect your X account first.",
 "err.x_a_reconnecter":"X no longer recognises the game: reconnect your X account.",
 "err.x_credit_epuise":"X check unavailable right now: try again later.",
-"err.x_plafond_jour_atteint":"X boost unavailable today, try again tomorrow.",
+"err.x_plafond_jour_atteint":"X check unavailable today, try again tomorrow.",
 "err.x_verifications_jour_max":"Too many X checks today, try again tomorrow.",
 "err.x_suivi_requis":"Follow @987_nes on X first, then come back.",
 "err.post_pas_encore_vu":"Your post isn't visible on X yet. One more moment.",
@@ -7152,6 +7268,35 @@ LANGUES.en={
 "niv.pChanger":"CHANGE",
 "niv.pRetirer":"REMOVE",
 "niv.pRetirerConf":"SURE?",
+"niv.xTonCompte":"Your X account: @{0}",
+"niv.xChampAide":"@your_account",
+"niv.xValider":"OK",
+"niv.xDeclAide":"Your @ on X. No password, no sign-in.",
+"niv.xGarder":"Keep @{0}",
+"niv.xChanger":"Not your account? Change",
+"niv.xDemain":"X account proven: it counts from tomorrow.",
+"niv.xAttente":"Can't check X right now. Try again later.",
+"niv.xPreuve":"@{0} already follows @{1}: prove it's yours.",
+"niv.xPasVu":"Not seen yet. Make the change, then come back.",
+"niv.xAjouterNom":"ADD {0} TO MY NAME",
+"niv.xMeme":"Follow with @{0}.",
+"niv.xPerdu":"Your X account @{0} was proven from another game account. If it's really yours, prove it again.",
+"niv.profilXAucun":"No X account",
+"niv.profilXOk":"{0} · verified",
+"niv.profilXAPreuve":"{0} · to prove",
+"niv.profilXRelie":"{0} · linked",
+"err.x_mode_joueur":"Link your account with \"LINK X\" instead.",
+"err.x_compte_invalide":"Invalid X account (1 to 15 characters: letters, digits, _).",
+"err.x_compte_officiel":"That's the official account: enter your own X account.",
+"err.x_compte_introuvable":"X doesn't know this account. Check the spelling.",
+"niv.xPreuveCode":"Prove @{0} is yours: add this text to your X name.",
+"niv.xCodeEnlever":"You can remove it once validated.",
+"niv.xAvant":"Do it before {0}.",
+"niv.xExpiree":"The 30 minutes for @{0} are over: start again.",
+"niv.xRefaire":"START AGAIN",
+"err.x_declarations_jour_max":"At most 3 X accounts declared per day. Try again tomorrow.",
+"err.x_compte_trop_declare":"Too many players have declared this X account right now. Try again later.",
+"err.x_conditions_telegram":"First the Telegram group and channel, then your X account.",
 "err.niveau_touriste":"Tourist today: run not ranked.",
 "err.quoi_invalide":"Unknown check.",
 "err.wallet_changement_trop_tot":"Only one wallet change every 7 days.",
@@ -7191,7 +7336,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.13.0-proto';
+var VERSION='0.13.1-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -11758,7 +11903,7 @@ function appliquerSession(j){
   if(j.serveur&&typeof j.serveur.maintenant==='number'){NET.decalage=j.serveur.maintenant-Date.now();NET.prochainJour=j.serveur.prochainJour||0;}
   NET.etat='ok';NET.majT=Date.now();garderSession();
   /* 0.12 : niveau du jour (serveur 0.12) ; autre joueur sur cet appareil : rien du niveau du précédent ne reste */
-  if(NIV.joueurId!==NET.joueur.id){NIV.joueurId=NET.joueur.id;NIV.d=null;NIV.verif=null;NIV.attente=null;NIV.feuille=null;NIV.maj=0;}
+  if(NIV.joueurId!==NET.joueur.id){NIV.joueurId=NET.joueur.id;NIV.d=null;NIV.verif=null;NIV.attente=null;NIV.feuille=null;NIV.maj=0;XO.edit=false;XO.msg='';}
   if(j.niveau&&typeof j.niveau==='object')appliquerNiveau(j.niveau);
   /* la langue de Telegram sert de langue par défaut tant que le joueur n'en a pas choisi */
   if(!SAUV.langue&&!LANG_URL&&NET.joueur.langue){var l=langueDe(NET.joueur.langue);if(l&&l!==LANGUE)appliquerLangue(l,true);}
@@ -12246,6 +12391,7 @@ function champ(id,x,y,w,h,o){
     if(o.valeur!==undefined)el.value=o.valeur;
   }
   champsVus[id]=1;
+  if(!o.div&&o.aide&&c.el.placeholder!==o.aide){c.el.placeholder=o.aide;try{c.el.setAttribute('aria-label',o.aide);}catch(e){}}
   var l=Math.round((OX+x*K)/DPR),t=Math.round((OY+y*K)/DPR),ww=Math.round(w*K/DPR),hh=Math.round(h*K/DPR),cle=l+','+t+','+ww+','+hh;
   if(c.cle!==cle){c.cle=cle;st=c.el.style;st.left=l+'px';st.top=t+'px';st.width=ww+'px';st.height=hh+'px';if(!o.div)st.fontSize=Math.max(16,Math.round(hh*0.42))+'px';}
   if(c.cache){c.cache=false;c.el.style.display=o.div?'flex':'block';}
@@ -12333,7 +12479,8 @@ function sauverProfil(){
   if(p!==j.pseudo)c.pseudo=p;
   /* 0.12 : le wallet se relie par signature (« Mon niveau ») : plus de saisie ici */
   if(!niveauxActifs()&&w!==(j.wallet||''))c.wallet=w;
-  if(x!==(j.x||''))c.x=x;
+  /* 0.13.1 : le compte X se règle dans « Mon niveau » (lecture seule ici) */
+  if(!niveauxActifs()&&x!==(j.x||''))c.x=x;
   if(!Object.keys(c).length){NET.profilMsg=T('profil.rien');NET.profilCoul=C.creme;return;}
   NET.profilErr='';NET.profilMsg=T('profil.envoi');NET.profilCoul=C.cyan;
   apiAppel('POST','/api/profil',c).then(function(r){
@@ -12354,8 +12501,9 @@ function rendreProfil(){
   if(niveauxActifs())walletProfil(y,j);
   else{cadreChamp(T('profil.wallet'),28,y+118,304,40);champ('wallet',28,y+118,304,40,{max:64,aide:T('profil.walletAide'),valeur:profilVal.wallet});
   para(T('profil.walletAvert'),30,y+172,300,10.5,C.or,'left',2,13,false);}
-  cadreChamp(T('profil.x'),28,y+218,304,40);champ('x',28,y+218,304,40,{max:16,aide:'@compte',valeur:profilVal.x});
-  para(T('profil.xAide'),30,y+272,300,10,'rgba(246,241,231,0.65)','left',2,13,false);
+  if(niveauxActifs())xProfil(y);
+  else{cadreChamp(T('profil.x'),28,y+218,304,40);champ('x',28,y+218,304,40,{max:16,aide:'@compte',valeur:profilVal.x});
+  para(T('profil.xAide'),30,y+272,300,10,'rgba(246,241,231,0.65)','left',2,13,false);}
   bouton('psauver',60,y+310,240,50,T('profil.enregistrer'),0,sauverProfil,null,20);
   if(NET.profilMsg)ttFit(NET.profilMsg,180,y+378,12,320,NET.profilCoul||C.creme,'center',2,true);
   if(j&&NET.mode!=='miniapp')bouton('pdeco',100,y+400,160,32,T('profil.deconnecter'),1,deconnecter,null,11);
@@ -12365,11 +12513,22 @@ function rendreProfil(){
     bouton('pparr',70,y+(rep?482:442),220,40,T('parr.titre'),3,function(){allerEcran('parrainage');},vb&&vb.solde>0?T('parr.vies')+' : '+vb.solde:null,15);}
   /* 0.11 : compte X relié par « Connecter X » : délier (deux touchers) */
   var cxn=niveauxActifs()?condNiv('x'):null,ux=xLie()?BX.x.compte.username:(cxn&&cxn.relie&&cxn.compte?String(cxn.compte):'');
+  if(niveauxActifs()&&xOfficiel())ux=xDeclare();
   if((xApi()||(reglesNiv()&&reglesNiv().x&&reglesNiv().x.api))&&ux){var yx=y+(rep?530:490),conf=Date.now()-BX.delierT<4000;
-    ttFit(T('boost2.profilX',ux),30,yx+16,12,184,C.vert,'left',2,false);
+    ttFit(xOfficiel()?T('niv.xTonCompte',ux):T('boost2.profilX',ux),30,yx+16,12,184,C.vert,'left',2,false);
     bouton('xdelier',222,yx,114,32,T(conf?'boost2.delierConfirme':'boost2.delier'),conf?0:1,delierX,null,11);}
 }
 
+/* 0.13.1 : rangée « COMPTE X » du profil (niveaux) : le compte en lecture seule avec son état, et « Mon niveau » où il se règle */
+function xProfil(y){
+  var x=condNiv('x'),xo=xOfficiel(),c=xo?xDeclare():(x.relie?compteXValide(x.compte):''),prouve=!!c&&!!x.relie&&compteXValide(x.compte)===c,ok=prouve&&etatOk(x.etat),t;
+  if(!c)t=T('niv.profilXAucun');else t=T(ok?'niv.profilXOk':(prouve?'niv.profilXRelie':'niv.profilXAPreuve'),'@'+c);
+  cadreChamp(T('profil.x'),28,y+218,304,40);
+  cx.fillStyle='#1A1228';cx.beginPath();rrect(cx,28,y+218,170,40,10);cx.fill();cx.strokeStyle=ok?'rgba(61,255,127,0.45)':'rgba(111,230,255,0.3)';cx.lineWidth=1.5;cx.stroke();
+  ttFit(t,38,y+238.5,12.5,152,ok?C.vert:(c?C.creme:COUL_NIV.petit),'left',1,false);
+  bouton('pxniveau',206,y+218,126,40,T('niv.titre'),3,function(){allerEcran('niveau');},null,12);
+  ttFit(T('profil.xAide'),30,y+272,10.5,300,'rgba(246,241,231,0.72)','left',2,false);
+}
 /* 0.13 : état du wallet (aucun, saisi pas signé, signé) d'après GET /api/niveau, sinon la session */
 function etatWalletJoueur(){
   var wn=NIV.d&&NIV.d.wallet,j=NET.joueur||{};
@@ -12953,7 +13112,7 @@ function attenteNiv(y){
 /* « pas encore » : ce qui manque, l'aide précise, Rejoindre / Revérifier */
 function pasEncoreNiv(y,q,mesure){
   var v=NIV.verif,t=q==='groupe'?T('niv.pasGroupe'):q==='canal'?T('niv.pasCanal'):q==='nom'?T('niv.pasNom'):T('niv.pasX',compteX()),
-    a=v&&v.err?v.err:(q==='x'?T('niv.memeX'):q==='nom'?T('niv.nomDelai'):T('niv.memeTg')),h=6;
+    a=v&&v.err?v.err:(q==='x'?(xOfficiel()&&xDeclare()?T('niv.xMeme',xDeclare()):T('niv.memeX')):q==='nom'?T('niv.nomDelai'):T('niv.memeTg')),h=6;
   ttFit(t,24,y+h+8,13.5,312,C.creme,'left',2,false);h+=18;
   var n=lignes(a,312,11,2).length;para(a,24,y+h+6,312,11,v&&v.err?C.or:COUL_NIV.petit,'left',2,13,false);h+=n*13+6;
   var aller=q==='x'?suivreX:q==='nom'?modifierNomX:function(){rejoindreTg(q);};
@@ -12973,6 +13132,98 @@ function actionNiv(y,q,b,aide,mesure){
   if(aide)h+=aideNiv(aide,y+h-4)-2;
   return h;
 }
+/* =====================================================================
+   0.13.1 : X SANS CONNEXION DU JOUEUR (mode « officiel » du serveur)
+   Le compte officiel @987_nes a autorisé le serveur une fois ; le joueur ne se connecte plus à X : il donne son @, suit
+   @987_nes (ouvreur existant : intention de X), et le serveur prouve que le compte est à lui en observant un changement
+   que seul son propriétaire peut faire (abonnement, ou 987NES ajouté au nom). Mode « joueur » : parcours d'avant.
+   ===================================================================== */
+var XO={enVol:false,msg:'',edit:false};
+/* mode du serveur : conditions.x.mode, sinon regles.niveaux.x.mode ; absent (serveur ≤ 0.13.0) = « joueur » */
+function xOfficiel(){var x=condNiv('x'),r=reglesNiv(),m=x.mode||(r&&r.x&&r.x.mode);return m==='officiel';}
+function compteXValide(c){c=String(c||'');return/^[A-Za-z0-9_]{1,15}$/.test(c)?c:'';}
+/* compte en cours : la déclaration pas encore prouvée, sinon le compte prouvé */
+function xDeclare(){var x=condNiv('x'),d=x.declaration&&typeof x.declaration==='object'?x.declaration:null;return compteXValide(d&&d.compte)||(x.relie?compteXValide(x.compte):'');}
+function xSousEtat(){var x=condNiv('x'),s=String(x.sousEtat||'');
+  if(s==='preuve_nom_ou_resuivre')s='preuve_nom';
+  if(['a_declarer','a_suivre','preuve_nom','preuve_code','expiree','en_attente','prouve_demain','ok'].indexOf(s)>=0)return s;
+  return xDeclare()?'a_suivre':'a_declarer';}
+/* compte prouvé repris par un autre compte du jeu (conditions.x.perdu) : bannière neutre, comme le wallet repris */
+function xPerdu(){var p=condNiv('x').perdu;return p&&typeof p==='object'?compteXValide(p.compte)||'?':'';}
+function declarerX(refaire){
+  if(XO.enVol||!connecte())return;
+  var v=(typeof refaire==='string'?refaire:valeurChamp('xdecl')).trim().replace(/^https?:\/\/(www\.|mobile\.)?(x|twitter)\.com\//i,'').replace(/^@/,'').replace(/[\/?#].*$/,'');
+  if(!/^[A-Za-z0-9_]{1,15}$/.test(v)){XO.msg=TL('err.x_compte_invalide');return;}
+  XO.enVol=true;XO.msg='';NIV.verif=null;
+  apiAppel('POST','/api/x/declarer',{compte:v},{delai:25000}).then(function(r){XO.enVol=false;var j=r.json||{};
+    if(r.statut===200&&NIVEAUX.indexOf(j.niveau)>=0){XO.edit=false;poserChamp('xdecl','');appliquerNiveau(j);if(etatOk(condNiv('x').etat))son('nouvelle');return;}
+    if(j.erreur==='x_mode_joueur')chargerNiveau();
+    if(j.erreur==='x_conditions_telegram')chargerNiveau();
+    XO.msg=r.statut===0?TL('net.horsLigne'):TL(texteErreur,j);});
+}
+function xPerduNiv(y){
+  var t=T('niv.xPerdu',xPerdu()),n=lignes(t,296,12,2).length,hb=n*15+16;
+  cx.fillStyle='rgba(111,230,255,0.07)';cx.beginPath();rrect(cx,20,y+2,320,hb,8);cx.fill();cx.strokeStyle='#3A4F6E';cx.lineWidth=1;cx.stroke();
+  para(t,32,y+2+8+7,296,12,COUL_NIV.texte,'left',2,15,false);
+  return hb+10;
+}
+/* champ du @ : un élément HTML posé sur la carte, seulement quand il est entièrement visible sous l'en-tête */
+function champXNiv(y,mesure){
+  var h=4;
+  if(!mesure&&y+h>=SAFE_H+50&&y+h+42<=BAS_DEFIL)champ('xdecl',24,y+h,206,42,{max:40,aide:T('niv.xChampAide')});
+  else if(!mesure){cx.fillStyle='#1A1228';cx.beginPath();rrect(cx,24,y+h,206,42,10);cx.fill();}
+  if(XO.enVol)cx.globalAlpha=0.5;
+  bouton('nivXDeclarer',238,y+h,98,42,T('niv.xValider'),3,declarerX,null,15);cx.globalAlpha=1;
+  h+=52;
+  if(XO.enVol){ttFit(T('niv.verif'),24,y+h+6,11.5,312,'#9FDCF0','left',2,false);h+=20;}
+  else if(XO.msg){var xm=msgBX(XO.msg),n=lignes(xm,312,11,2).length;para(xm,24,y+h+4,312,11,C.or,'left',2,13,false);h+=n*13+6;}
+  h+=aideNiv(T('niv.xDeclAide'),y+h-4,'left');
+  if(xDeclare()&&XO.edit){var ea=!mesure&&zone('nivXAnnuler',24,y+h-4,312,26,function(){XO.edit=false;XO.msg='';});ttFit(T('niv.xGarder',xDeclare()),24,y+h+8,11.5,312,ea?C.creme:'#9FDCF0','left',2,false);h+=24;}
+  return h;
+}
+/* « Pas ton compte ? Changer » : petit lien sous l'action */
+function lienChangerX(y,mesure){
+  var e=!mesure&&zone('nivXChanger',24,y,312,26,function(){XO.edit=true;XO.msg='';NIV.verif=null;});
+  ttFit(T('niv.xChanger'),24,y+12,11.5,312,e?C.creme:'#9FDCF0','left',2,false);return 26;
+}
+/* Revérifier, grisé avec le compte à rebours tant que reverifiableLe n'est pas passé */
+function reverifierX(x0,y,w,px){
+  var xc=condNiv('x'),rl=typeof xc.reverifiableLe==='number'?xc.reverifiableLe:xc.declarationRelire,rs=typeof rl==='number'?Math.ceil((rl-maintenantSrv())/1000):0;
+  if(rs>0){cx.globalAlpha=0.5;bouton('nivReverifier',x0,y,w,36,T('niv.reverifierDans',rs),1,function(){},null,px);cx.globalAlpha=1;}
+  else bouton('nivReverifier',x0,y,w,36,T('niv.reverifier'),1,function(){verifierNiveau('x');},null,px);
+  return 44;
+}
+/* l'étape 4 en mode officiel (sousEtat du serveur) : déclarer son @, suivre @987_nes, prouver un compte qui suivait déjà */
+function actionXOfficiel(y,mesure){
+  var c=xDeclare(),se=xSousEtat(),cX=compteX(),v=NIV.verif,x=condNiv('x'),d=x.declaration||{},h,t,n;
+  if(!c||XO.edit||se==='a_declarer')return champXNiv(y,mesure);
+  if(v&&v.quoi==='x'&&v.etat==='verif')return attenteNiv(y);
+  if(se==='prouve_demain'){t=T('niv.xDemain');n=lignes(t,312,12,2).length;para(t,24,y+12,312,12,COUL_NIV.vertTxt,'left',2,15,false);return n*15+16;}
+  if(se==='en_attente'){
+    t=v&&v.quoi==='x'&&v.etat==='pas'&&v.err?v.err:T('niv.xAttente');n=lignes(t,312,11.5,2).length;para(t,24,y+12,312,11.5,C.or,'left',2,14,false);h=n*14+14;
+    h+=reverifierX(24,y+h,312,14);return h+lienChangerX(y+h-4,mesure);}
+  /* audit 0.13.1 : fenêtre de 30 minutes fixe depuis la déclaration ; passée → « à refaire » (déclarer à nouveau) */
+  if(se==='expiree'){
+    t=T('niv.xExpiree',c);n=lignes(t,312,12,2).length;para(t,24,y+12,312,12,C.or,'left',2,15,false);h=n*15+16;
+    if(XO.enVol)cx.globalAlpha=0.5;bouton('nivXRefaire',24,y+h,312,40,T('niv.xRefaire'),3,function(){XO.msg='';declarerX(c);},null,15);cx.globalAlpha=1;h+=50;
+    if(XO.msg){var em=msgBX(XO.msg),ne=lignes(em,312,11,2).length;para(em,24,y+h+2,312,11,C.or,'left',2,13,false);h+=ne*13+6;}
+    return h+lienChangerX(y+h-4,mesure);}
+  /* compte qui suivait déjà : 987NES à ajouter au nom (preuve_nom), ou un texte donné par le serveur (preuve_code : il
+     avait déjà 987NES, plusieurs joueurs l'ont déclaré, ou un autre compte du jeu le tient) */
+  if(se==='preuve_nom'||se==='preuve_code'){
+    var code=se==='preuve_code'?String(d.code||''):'';if(!/^[A-Za-z0-9_-]{1,24}$/.test(code))code='';
+    h=6;t=se==='preuve_code'?T('niv.xPreuveCode',c):T('niv.xPreuve',c,cX);n=lignes(t,312,12,2).length;para(t,24,y+h+7,312,12,C.creme,'left',2,15,false);h+=n*15+6;
+    if(code){cx.save();cx.setLineDash([4,3]);cx.fillStyle='rgba(42,33,16,0.95)';cx.strokeStyle='#A8842A';cx.lineWidth=1.2;cx.beginPath();rrect(cx,24,y+h+2,208,40,10);cx.fill();cx.stroke();cx.restore();
+      ttFit(code,128,y+h+22.5,20,190,C.or,'center',1,false);bouton('nivXCopier',240,y+h+2,96,40,T('boost.copier'),2,function(){copier(code);},null,11);h+=48;
+      h+=aideNiv(T('niv.xCodeEnlever'),y+h-6,'left')-2;}
+    if(v&&v.quoi==='x'&&v.etat==='pas'){t=v.err||T('niv.xPasVu');n=lignes(t,312,11,2).length;para(t,24,y+h+5,312,11,C.or,'left',2,13,false);h+=n*13+6;}
+    bouton('nivXNom',24,y+h+2,312,46,se==='preuve_code'?T('niv.bonusBouton'):T('niv.xAjouterNom',texteBonusNom()),2,function(){partirPour('x','https://x.com/settings/profile',true);},se==='preuve_code'?null:T('niv.bonusGain'),14);h+=56;
+    if(typeof d.expireLe==='number'&&d.expireLe>maintenantSrv()){ttFit(T('niv.xAvant',heureLocale(d.expireLe-NET.decalage)),24,y+h+4,11.5,312,COUL_NIV.petit,'left',2,false);h+=22;}
+    h+=reverifierX(24,y+h,312,14);
+    return h+lienChangerX(y+h-4,mesure);}
+  h=actionNiv(y,'x',['nivXSuivre',T('niv.e4b',cX.toUpperCase()),3,suivreX],T('niv.aideSuivre'),mesure);
+  return h+lienChangerX(y+h-6,mesure)-6;
+}
 /* carte « Devenir Dzodzet » (ou « Redevenir ») : les quatre étapes, une seule action mise en avant */
 function carteEtapesNiv(y,mesure,o){
   var e=etapesNiv(),fait=0,i,act=-1,h=10,x=condNiv('x'),cX=compteX(),co=connecte();
@@ -12980,15 +13231,16 @@ function carteEtapesNiv(y,mesure,o){
   tt(o.redevenir?T('niv.redevenir'):T('niv.devenir'),24,y+h+10,15,C.cyan,'left',0);
   ttFit(fait+'/4',336,y+h+10,11.5,40,C.creme,'right',2,false);h+=24;
   if(!o.redevenir){ttFit(T('niv.sousMembre',essaisNiveau('dzodzet')),24,y+h+6,12,312,COUL_NIV.texte,'left',2,false);h+=18;}
-  var L=[[T('niv.e1'),T('niv.e1ok')],[T('niv.e2'),T('niv.e2ok')],[T('niv.e3'),T('niv.e3ok')],[x.relie&&!x.aReconnecter?T('niv.e4suivre',cX):T('niv.e4',cX),T('niv.e4ok',cX)]];
+  var xo=xOfficiel(),L=[[T('niv.e1'),T('niv.e1ok')],[T('niv.e2'),T('niv.e2ok')],[T('niv.e3'),T('niv.e3ok')],[xo||x.relie&&!x.aReconnecter?T('niv.e4suivre',cX):T('niv.e4',cX),T('niv.e4ok',cX)]];
   for(i=0;i<4;i++){
     var et=e[i]?'fait':(i===act?(o.redevenir?'perdu':'actif'):'avenir'),
-      sous=i===3&&et!=='fait'&&x.relie&&x.compte&&!x.aReconnecter?T('niv.e4relie',String(x.compte)):null;
+      sous=i===3&&et!=='fait'&&(xo?(xDeclare()&&!XO.edit?T('niv.xTonCompte',xDeclare()):null):(x.relie&&x.compte&&!x.aReconnecter?T('niv.e4relie',String(x.compte)):null));
     h+=ligneNiv(y+h,{puce:true,n:et==='perdu'?'!':i+1,etat:et,texte:e[i]?L[i][1]:L[i][0],sous:sous},i>0&&!(i===act+1&&act>=0));
     if(i!==act)continue;
     if(i===0)h+=actionNiv(y+h,'telegram',['nivCnx',T('cnx.bouton'),3,function(){allerEcran('connexion');}],null,mesure);
     else if(i===1)h+=actionNiv(y+h,'groupe',['nivGroupe',T('niv.e2b'),3,function(){rejoindreTg('groupe');}],T('niv.aide'),mesure);
     else if(i===2)h+=actionNiv(y+h,'canal',['nivCanal',T('niv.e3b'),3,function(){rejoindreTg('canal');}],T('niv.aide'),mesure);
+    else if(xo)h+=actionXOfficiel(y+h,mesure);
     else if(!x.relie||x.aReconnecter)h+=actionNiv(y+h,'xlier',['nivXLier',T(x.aReconnecter?'niv.e4reco':'niv.e4lier'),3,lierXNiv],T('niv.aideLier'),mesure);
     else h+=actionNiv(y+h,'x',['nivXSuivre',T('niv.e4b',cX.toUpperCase()),3,suivreX],T('niv.aideSuivre'),mesure);
   }
@@ -13122,6 +13374,7 @@ function rendreNiveau(){
   var il=illimiteNiv();
   if(il){ttFit(T('sec.ok',dateIllimite(il)),180,y-2,11.5,320,il.applicable?C.or:COUL_NIV.petit,'center',2,false);y+=18;}
   var ya=y;
+  if(xPerdu())y+=xPerduNiv(y);
   if(!memb||perdu)y=carteNiv(y,'cyan',function(yy,m){return carteEtapesNiv(yy,m,{redevenir:!!perdu});});
   if(memb){
     if(!(reglesNiv().x&&reglesNiv().x.api===false))y=carteNiv(y,'or',carteBonusNiv);
@@ -13873,7 +14126,7 @@ window.__dzo={
     essaisRestants:essaisRestants(),essaisMax:essaisMax(),compteEssais:texteProchainsEssais(),fidelite:fidelite(),vieBonusPartie:!!(partieSrv&&partieSrv.vieBonus),
     /* 0.11 : boosts sans code (état X, attentes, dernier texte de post), langue de l'adresse */
     /* 0.12 : niveau du jour, revérification en cours, feuille du wallet, Touriste (compteur local) */
-    niv:{actifs:niveauxActifs(),niveau:niveauDuJour(),touriste:touriste(),d:NIV.d,verif:NIV.verif?{quoi:NIV.verif.quoi,etat:NIV.verif.etat,err:NIV.verif.err||''}:null,attente:NIV.attente?NIV.attente.quoi:'',feuille:NIV.feuille?{etat:NIV.feuille.etat,msg:NIV.feuille.msg||'',message:NIV.feuille.defi?NIV.feuille.defi.message:'',lien:NIV.dernierLienWallet||''}:null,defil:NIV.defil,hTot:NIV.hTot,essaiTouriste:essaiTouriste,walletPerdu:NIV.walletPerdu||''},
+    niv:{actifs:niveauxActifs(),niveau:niveauDuJour(),touriste:touriste(),d:NIV.d,verif:NIV.verif?{quoi:NIV.verif.quoi,etat:NIV.verif.etat,err:NIV.verif.err||''}:null,attente:NIV.attente?NIV.attente.quoi:'',feuille:NIV.feuille?{etat:NIV.feuille.etat,msg:NIV.feuille.msg||'',message:NIV.feuille.defi?NIV.feuille.defi.message:'',lien:NIV.dernierLienWallet||''}:null,defil:NIV.defil,hTot:NIV.hTot,essaiTouriste:essaiTouriste,walletPerdu:NIV.walletPerdu||'',xo:{officiel:xOfficiel(),sousEtat:xSousEtat(),compte:xDeclare(),msg:msgBX(XO.msg),edit:XO.edit,perdu:xPerdu()}},
     signer:WSIGNE?{etat:WSIGNE.etat,msg:WSIGNE.msg,message:WSIGNE.message,court:WSIGNE.court,compte:WSIGNE.compte||null}:null,
     bx:{v2:boostsV2(),api:xApi(),x:BX.x,parrain:BX.parrain,charge:BX.charge,xVerif:BX.xVerif?BX.xVerif.etat:'',xMsg:msgBX(BX.xMsg),xFerme:BX.xFerme,tg:BX.tg?BX.tg.etat:'',tgMsg:msgBX(BX.tgMsg),coller:BX.coller,post:BX.dernierPost,tgLien:BX.dernierTg||'',lienSimule:BX.dernierLien,manif:MANIF.ids?MANIF.ids.length:0,xc:!!XRETOUR.jeton},langUrl:LANG_URL};},
   /* 0.11 : texte d'un post tel que le jeu le compose (cible : boost, fin, parr) */
