@@ -2875,6 +2875,8 @@ LANGUES.fr={
 "niv.signerRecherche":"Recherche de ton wallet…",
 "niv.lienCopie":"Lien copié. Colle-le dans le navigateur de ton wallet.",
 "niv.collerLien":"Colle ce lien dans le navigateur de ton wallet",
+"niv.aideApp":"L'app ne s'est pas ouverte ? Copie le lien et colle-le dans le navigateur de ton wallet.",
+"niv.aideBitget":"Si Bitget demande de changer de portefeuille, touche Annuler.",
 "niv.signerFait":"C'est relié, retourne dans le jeu.",
 "niv.signerEnvoi":"Envoi de la signature…",
 "niv.signerLien":"Lien de signature invalide. Recommence depuis le jeu.",
@@ -3992,6 +3994,8 @@ LANGUES.de={
 "niv.signerRecherche":"Suche nach deinem Wallet…",
 "niv.lienCopie":"Link kopiert. Füge ihn im Browser deines Wallets ein.",
 "niv.collerLien":"Füge diesen Link im Browser deines Wallets ein",
+"niv.aideApp":"Die App hat sich nicht geöffnet? Kopiere den Link und füge ihn im Browser deines Wallets ein.",
+"niv.aideBitget":"Wenn Bitget fragt, das Wallet zu wechseln, tippe auf Abbrechen.",
 "niv.signerFait":"Verbunden, geh zurück ins Spiel.",
 "niv.signerEnvoi":"Signatur wird gesendet…",
 "niv.signerLien":"Ungültiger Signaturlink. Starte im Spiel neu.",
@@ -5109,6 +5113,8 @@ LANGUES.it={
 "niv.signerRecherche":"Cerco il tuo wallet…",
 "niv.lienCopie":"Link copiato. Incollalo nel browser del tuo wallet.",
 "niv.collerLien":"Incolla questo link nel browser del tuo wallet",
+"niv.aideApp":"L'app non si è aperta? Copia il link e incollalo nel browser del tuo wallet.",
+"niv.aideBitget":"Se Bitget chiede di cambiare portafoglio, tocca Annulla.",
 "niv.signerFait":"Collegato, torna nel gioco.",
 "niv.signerEnvoi":"Invio della firma…",
 "niv.signerLien":"Link di firma non valido. Ricomincia dal gioco.",
@@ -6226,6 +6232,8 @@ LANGUES.es={
 "niv.signerRecherche":"Buscando tu wallet…",
 "niv.lienCopie":"Enlace copiado. Pégalo en el navegador de tu wallet.",
 "niv.collerLien":"Pega este enlace en el navegador de tu wallet",
+"niv.aideApp":"¿La app no se abrió? Copia el enlace y pégalo en el navegador de tu wallet.",
+"niv.aideBitget":"Si Bitget pide cambiar de billetera, toca Cancelar.",
 "niv.signerFait":"Vinculado, vuelve al juego.",
 "niv.signerEnvoi":"Enviando la firma…",
 "niv.signerLien":"Enlace de firma no válido. Vuelve a empezar desde el juego.",
@@ -7343,6 +7351,8 @@ LANGUES.en={
 "niv.signerRecherche":"Looking for your wallet…",
 "niv.lienCopie":"Link copied. Paste it in your wallet's browser.",
 "niv.collerLien":"Paste this link in your wallet's browser",
+"niv.aideApp":"The app did not open? Copy the link and paste it in your wallet's browser.",
+"niv.aideBitget":"If Bitget asks you to switch wallet, tap Cancel.",
 "niv.signerFait":"Linked, go back to the game.",
 "niv.signerEnvoi":"Sending the signature…",
 "niv.signerLien":"Invalid signing link. Start again from the game.",
@@ -7431,7 +7441,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.14.2-proto';
+var VERSION='0.14.3-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -7485,10 +7495,13 @@ var XRETOUR=(function(){var r='',j='',h=null;
 /* 0.12 : page de signature du wallet (?w=signer#wj=<jeton>), ouverte dans le navigateur de l'app Phantom ou Solflare :
    le jeton (capacité à usage unique, 10 minutes) est lu dans le fragment avant tout, retiré de l'adresse et gardé dans
    l'onglet (sessionStorage) le temps de la signature */
-var WSIGNE=(function(){var j='',h=null;
+var WSIGNE=(function(){var j='',h=null,q='',u=null;
   try{if(params.get('w')!=='signer')return null;
     h=/(?:^#|&)wj=([A-Za-z0-9_-]{43})(?:&|$)/.exec(location.hash||'');if(h)j=h[1];
-    if(location.hash)history.replaceState(history.state,'',location.pathname+location.search);}catch(e){}
+    /* 0.14.3 : le jeton peut aussi venir de la requête (?wj=) : les liens d'ouverture des apps l'y mettent, certains chemins
+       (intent://, schémas des wallets) perdant le fragment. Même jeton (usage unique, 10 minutes), retiré de l'adresse aussitôt. */
+    q=params.get('wj');if(!j&&q&&/^[A-Za-z0-9_-]{43}$/.test(q))j=q;
+    if(location.hash||q!==null){u=new URL(location.href);u.hash='';u.searchParams.delete('wj');history.replaceState(history.state,'',u.pathname+u.search);}}catch(e){}
   if(j){try{window.sessionStorage.setItem('dzo.wj',JSON.stringify({j:j,t:Date.now()}));}catch(e){}}
   else{try{var o=JSON.parse(window.sessionStorage.getItem('dzo.wj')||'null');if(o&&/^[A-Za-z0-9_-]{43}$/.test(o.j)&&Date.now()-o.t<600000)j=o.j;}catch(e){}}
   return{jeton:j,etat:j?'charge':'invalide',message:'',msg:'',court:'',t0:Date.now(),copie:false};})();
@@ -13103,11 +13116,19 @@ function base58(b){var d=[],s='',i,j,c,z=0;
 /* 0.14.2 : wallets reconnus (documentation officielle, voir conception/wallets.md) : lien qui ouvre une URL dans le
    navigateur de l'app (u = URL encodée, r = origine du jeu encodée) et variable injectée dans ce navigateur */
 var WALLETS=[
-  {id:'phantom',nom:'Phantom',lien:function(u,r){return'https://phantom.com/ul/browse/'+u+'?ref='+r;},g:function(w){return w.phantom&&w.phantom.solana;}},
-  {id:'solflare',nom:'Solflare',lien:function(u,r){return'https://solflare.com/ul/v1/browse/'+u+'?ref='+r;},g:function(w){return w.solflare;}},
-  {id:'bitget',nom:'Bitget Wallet',lien:function(u){return'https://bkcode.vip?action=dapp&url='+u;},g:function(w){return w.bitkeep&&w.bitkeep.solana;}},
-  {id:'okx',nom:'OKX Wallet',lien:function(u){return'https://web3.okx.com/download?deeplink='+encodeURIComponent('okx://wallet/dapp/url?dappUrl='+u);},g:function(w){return w.okxwallet&&w.okxwallet.solana;}},
-  {id:'backpack',nom:'Backpack',lien:function(u,r){return'https://backpack.app/ul/v1/browse/'+u+'?ref='+r;},g:function(w){return w.backpack;}}
+  /* pkg : paquet Android (Google Play) ; intent : ce qui suit « intent:// » (schéma sch) ; ios : schéma propre au wallet, essayé avant le lien web sur iPhone */
+  {id:'phantom',nom:'Phantom',pkg:'app.phantom',sch:'https',intent:function(u,r){return'phantom.com/ul/browse/'+u+'?ref='+r;},
+    lien:function(u,r){return'https://phantom.com/ul/browse/'+u+'?ref='+r;},g:function(w){return w.phantom&&w.phantom.solana;}},
+  {id:'solflare',nom:'Solflare',pkg:'com.solflare.mobile',sch:'https',intent:function(u,r){return'solflare.com/ul/v1/browse/'+u+'?ref='+r;},
+    lien:function(u,r){return'https://solflare.com/ul/v1/browse/'+u+'?ref='+r;},g:function(w){return w.solflare;}},
+  {id:'bitget',nom:'Bitget Wallet',sol:true,pkg:'com.bitkeep.wallet',sch:'bitkeep',intent:function(u){return'bkconnect?action=dapp&url='+u+'&version=1';},
+    ios:function(u){return'bitkeep://bkconnect?action=dapp&url='+u+'&version=1';},
+    lien:function(u){return'https://bkcode.vip?action=dapp&url='+u;},g:function(w){return w.bitkeep&&w.bitkeep.solana;}},
+  {id:'okx',nom:'OKX Wallet',pkg:'com.okx.wallet',sch:'okx',intent:function(u){return'wallet/dapp/url?dappUrl='+u;},
+    ios:function(u){return'okx://wallet/dapp/url?dappUrl='+u;},
+    lien:function(u){return'https://web3.okx.com/download?deeplink='+encodeURIComponent('okx://wallet/dapp/url?dappUrl='+u);},g:function(w){return w.okxwallet&&w.okxwallet.solana;}},
+  {id:'backpack',nom:'Backpack',pkg:'app.backpack.mobile',sch:'https',intent:function(u,r){return'backpack.app/ul/v1/browse/'+u+'?ref='+r;},
+    lien:function(u,r){return'https://backpack.app/ul/v1/browse/'+u+'?ref='+r;},g:function(w){return w.backpack;}}
 ];
 function walletParId(id){for(var i=0;i<WALLETS.length;i++)if(WALLETS[i].id===id)return WALLETS[i];return null;}
 /* Wallet Standard : les wallets s'annoncent par événements (wallet-standard:register-wallet, ou en réponse à wallet-standard:app-ready) */
@@ -13198,14 +13219,64 @@ function ouvrirFeuilleWallet(changer){
 function fermerFeuilleWallet(){var f=NIV.feuille;NIV.feuille=null;if(f&&f.etat==='attente')NIV.attente={quoi:'wallet',t:Date.now()};retourProfil(f);}
 /* 0.13 : feuille ouverte depuis le profil : on y revient en la fermant ou une fois le wallet relié */
 function retourProfil(f){if(f&&f.de==='profil'&&ecran==='niveau')allerEcran('profil');}
-function lienAppWallet(app,lien){var o='';try{o=location.origin;}catch(e){}if(!/^https?:\/\//.test(o))o='https://987nes.com';
-  var u=encodeURIComponent(lien),ref=encodeURIComponent(o),W=walletParId(app)||WALLETS[0];return W.lien(u,ref);}
+/* 0.14.3 : la page de signature avec le jeton dans la REQUÊTE (?wj=) au lieu du fragment (#wj=) : un lien intent:// ou un schéma
+   de wallet peut perdre le fragment ; la page de signature accepte les deux (jeton à usage unique, 10 minutes, dans les deux cas) */
+/* sol : ajoute _needChain=sol, le paramètre de lien de Bitget qui règle la chaîne principale de son navigateur (sans lui, il demande « Changer de portefeuille : ne prend pas en charge le mainnet Ethereum ») */
+function lienSignatureRequete(l,sol){
+  try{var u=new URL(l),m=/(?:^#|&)wj=([A-Za-z0-9_-]{43})/.exec(u.hash||'');if(!m&&!sol)return l;if(m){u.hash='';u.searchParams.set('wj',m[1]);}if(sol)u.searchParams.set('_needChain','sol');return u.toString();}catch(e){return l;}
+}
+/* d'où le jeu est ouvert : Android (Chrome), vue web Android (dont Telegram), iPhone/iPad, Telegram (WebApp), autre */
+function plateformeWallet(){
+  var ua=navigator.userAgent||'',tg=!!dansTelegram(),and=/Android/.test(ua),wv=ua.indexOf('; wv)')>=0;
+  var ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
+  return{tg:tg,android:and&&!wv&&!tg,ios:ios&&!tg};
+}
+/* comment ouvrir l'app d'un wallet sur la page de signature (même méthode que ouvrirX pour X) :
+   - Telegram : le lien web par openLink (navigateur du téléphone) ; les liens intent:// n'y passent pas ;
+   - Android (navigateur) : intent:// qui nomme le paquet de l'app (schéma https des liens universels, ou le schéma du wallet
+     là où c'est ce qu'il documente), avec S.browser_fallback_url = le lien web : l'app s'ouvre si elle est installée, sinon le site ;
+   - iPhone : le lien universel par navigation directe (geste du joueur) ; schéma du wallet d'abord si documenté (repli web après 1,5 s) ;
+   - sinon : lien web dans un nouvel onglet.
+   Rend { url, via : 'telegram' | 'intent' | 'schema' | 'web' | 'onglet', web } */
+function lienOuverture(app,lien,pf){
+  var o='';try{o=location.origin;}catch(e){}if(!/^https?:\/\//.test(o))o='https://987nes.com';
+  var W=walletParId(app)||WALLETS[0],u=encodeURIComponent(lienSignatureRequete(lien,W.sol)),r=encodeURIComponent(o),web=W.lien(u,r);
+  pf=pf||plateformeWallet();
+  if(pf.tg)return{url:web,via:'telegram',web:web};
+  if(pf.android)return{url:'intent://'+W.intent(u,r)+'#Intent;scheme='+W.sch+';package='+W.pkg+';S.browser_fallback_url='+encodeURIComponent(web)+';end',via:'intent',web:web};
+  if(pf.ios)return W.ios?{url:W.ios(u),via:'schema',web:web}:{url:web,via:'web',web:web};
+  return{url:web,via:'onglet',web:web};
+}
+/* navigateur intégré de Bitget Wallet (agent « BitKeep », documentation Bitget « Wallet Sniffer ») */
+function dansBitget(){try{return/BitKeep|Bitget/i.test(navigator.userAgent||'')||!!(window.bitkeep&&window.bitkeep.isBitKeep);}catch(e){return false;}}
+function lienAppWallet(app,lien){return lienOuverture(app,lien).url;}
 function ouvrirAppWallet(app){
   var f=NIV.feuille;if(!f||!f.defi)return;var l=String(f.defi.lienSignature||'');if(!/^https?:\/\/[^\s"<>]+$/.test(l))return;
-  f.etat='attente';f.app=app;NIV.attente={quoi:'wallet',t:Date.now()};NIV.dernierLienWallet=lienAppWallet(app,l);
-  if(NET.mode==='dev'){NIV.attente=null;sonderWallet();return;}
-  ouvrirLien(NIV.dernierLienWallet);
+  var o=lienOuverture(app,l);
+  f.etat='attente';f.app=app;f.info='';f.via=o.via;NIV.attente={quoi:'wallet',t:Date.now()};NIV.dernierLienWallet=o.url;
+  surveillerOuverture(f);
+  if(NET.mode==='dev'&&o.via!=='telegram'){NIV.attente=null;sonderWallet();return;}   /* développement : rien n'est ouvert (le lien Telegram passe par openLink, simulé par l'essai) */
+  try{
+    if(o.via==='telegram'){var w=dansTelegram();if(w&&w.openLink){w.openLink(o.url);return;}}
+    if(o.via==='intent'){location.href=o.url;return;}
+    if(o.via==='schema'){
+      /* le schéma du wallet ne fait rien si l'app est absente : si la page est toujours visible après 1,5 s, le lien web */
+      var parti=false,vu=function(){if(document.hidden)parti=true;};
+      document.addEventListener('visibilitychange',vu);
+      setTimeout(function(){document.removeEventListener('visibilitychange',vu);if(!parti&&!document.hidden)location.href=o.web;},1500);
+      location.href=o.url;return;}
+    if(o.via==='web'){location.href=o.url;return;}
+    ouvrirLien(o.url);
+  }catch(e){try{window.open(o.web,'_blank','noopener');}catch(e2){}}
 }
+/* si l'app a pris la main, la page du jeu passe en arrière-plan : sinon (page encore visible 2,5 s plus tard) l'aide s'affiche */
+function surveillerOuverture(f){
+  f.ouvertT=Date.now();f.parti=false;
+  var vu=function(){if(document.hidden){f.parti=true;document.removeEventListener('visibilitychange',vu);}};
+  document.addEventListener('visibilitychange',vu);
+  setTimeout(function(){document.removeEventListener('visibilitychange',vu);},120000);
+}
+function aideAppVisible(f){return!!f&&f.etat==='attente'&&!!f.app&&f.app!=='copie'&&!f.parti&&!document.hidden&&Date.now()-(f.ouvertT||0)>2500;}
 /* texte dans le presse-papiers (API moderne, sinon execCommand, sinon invite de copie) : cb(copié ?) */
 function copierTexte(txt,cb){
   var fin=function(ok){if(cb)cb(ok);};
@@ -13221,7 +13292,7 @@ function copierLienWallet(){
   var f=NIV.feuille;if(!f||!f.defi)return;var l=String(f.defi.lienSignature||'');if(!/^https?:\/\/[^\s"<>]+$/.test(l))return;
   f.etat='attente';f.app='copie';f.info='';NIV.attente={quoi:'wallet',t:Date.now()};
   if(NET.mode==='dev'){NIV.attente=null;sonderWallet();}
-  copierTexte(l,function(ok){if(NIV.feuille===f&&ok)f.info=T('niv.lienCopie');});
+  copierTexte(lienSignatureRequete(l,true),function(ok){if(NIV.feuille===f&&ok)f.info=T('niv.lienCopie');});
 }
 function signerIci(){
   var f=NIV.feuille,fw=fournisseurWallet();if(!f||!f.defi||!fw||f.etat==='envoi')return;
@@ -13607,8 +13678,10 @@ function rendreFeuilleWallet(){
   zone('nivVoile',0,0,360,640,function(){});
   cx.fillStyle='rgba(4,4,8,0.72)';cx.fillRect(0,0,360,640);
   for(i=0;i<P.length;i++)hP+=lignes(P[i],290,12.5,2).length*16+4;
-  var LB=fw?[]:listeBoutonsWallet(f),hB=fw?54:LB.length*42+6;
-  h=14+30+hP+8+(f.defi?LM.length*15+16:44)+hB+24+30+12;
+  /* 0.14.3 : l'app ne s'est pas ouverte (page encore visible 2,5 s après le toucher) : aide et COPIER LE LIEN sous les boutons ; boutons resserrés pour que tout tienne dans 640 */
+  var aide=!fw&&aideAppVisible(f),nA=aide?lignes(T('niv.aideApp'),310,12,2).length:0,hS=aide?nA*15+50:24,pas=aide?36:42,hbt=aide?30:34;
+  var LB=fw?[]:listeBoutonsWallet(f),hB=fw?54:LB.length*pas+6;
+  h=14+30+hP+8+(f.defi?LM.length*15+16:44)+hB+hS+30+12;
   y=Math.max(SAFE_H+8,640-h);
   var gr=cx.createLinearGradient(0,y,0,640);gr.addColorStop(0,'#16223C');gr.addColorStop(1,'#0C1424');cx.fillStyle=gr;cx.beginPath();rrect(cx,0,y,360,660-y,18);cx.fill();
   cx.fillStyle='#5FD8F5';cx.fillRect(14,y,332,2);
@@ -13628,13 +13701,14 @@ function rendreFeuilleWallet(){
   var actif=!!f.defi&&f.etat!=='envoi';
   if(!actif)cx.globalAlpha=f.defi?0.6:0.35;
   if(fw){bouton('nivSigner',20,yy,320,44,T('niv.signerAvec',fw.nom.toUpperCase()),3,function(){if(actif)signerIci();},null,16);yy+=54;}
-  else{for(i=0;i<LB.length;i++){var lb=LB[i];bouton(lb.id,20,yy,320,34,lb.label,i===0&&!f.autre?3:1,lb.cb(actif),null,14);yy+=42;}yy+=6;}
+  else{for(i=0;i<LB.length;i++){var lb=LB[i];bouton(lb.id,20,yy,320,hbt,lb.label,i===0&&!f.autre?3:1,lb.cb(actif),null,14);yy+=pas;}yy+=6;}
   cx.globalAlpha=1;
   if(f.etat==='envoi'){ttFit(T('niv.signerEnvoi'),180,yy+8,12,300,C.cyan,'center',2,false);}
+  else if(aide){para(T('niv.aideApp'),180,yy+8,310,12,C.or,'center',2,15,true);bouton('nivCopierAide',20,yy+nA*15+12,320,30,T('niv.copierLien'),3,function(){copierLienWallet();},null,14);}
   else if(f.etat==='attente'){ttFit(f.info||T('niv.attenteWallet'),180,yy+8,12,320,C.cyan,'center',2,false);}
   else if(f.msg&&f.defi){ttFit(f.msg,180,yy+8,12,320,C.danger,'center',2,false);}
   else ttFit(T('niv.domaine'),180,yy+8,11.5,320,COUL_NIV.petit,'center',2,false);
-  yy+=24;
+  yy+=hS;
   var ep=zone('nivPasMaintenant',100,yy,160,30,fermerFeuilleWallet),tpm=T('niv.pasMaintenant');
   tn(tpm,180,yy+14,12.5,ep?C.creme:'#9FDCF0','center',2);cx.font=police(12.5,2);var wl=cx.measureText(tpm).width;cx.fillStyle=ep?C.creme:'#9FDCF0';cx.fillRect(180-wl/2,yy+22,wl,1);
 }
@@ -13650,7 +13724,8 @@ function chargerMessageSigne(){
 /* le lien de cette page (jeton compris, qui n'est plus dans l'adresse) : à coller dans le navigateur du wallet */
 function copierLienPage(){
   var s=WSIGNE;if(!s||!s.jeton)return;
-  copierTexte(location.origin+location.pathname+location.search+'#wj='+s.jeton,function(ok){s.copie=ok;});
+  var u=new URL(location.origin+location.pathname+location.search);u.searchParams.set('wj',s.jeton);u.searchParams.set('_needChain','sol');
+  copierTexte(u.toString(),function(ok){s.copie=ok;});
 }
 function signerPage(){
   var s=WSIGNE,fw=fournisseurWallet();if(!s||s.etat!=='pret'||!fw)return;
@@ -13695,11 +13770,12 @@ function rendreSigner(){
   if(s.etat==='erreur'&&!s.message){para(s.msg||T('err.inconnu'),180,y+20,300,13,C.danger,'center',2,17,true);return;}
   if(!fw){
     /* 0.14.2 : les wallets s'annoncent parfois après le chargement : 2,5 s de recherche, puis le message et le lien à copier */
-    if(Date.now()-s.t0<2500){ttFit(T('niv.signerRecherche'),180,y+16,13,300,C.cyan,'center',2,false);pointsAttente(168,y+36,C.cyan);return;}
+    if(Date.now()-s.t0<(dansBitget()?10000:2500)){ttFit(T('niv.signerRecherche'),180,y+16,13,300,C.cyan,'center',2,false);pointsAttente(168,y+36,C.cyan);return;}
     var nl=para(T('niv.signerSansWallet'),180,y+16,300,13,C.or,'center',2,17,true),yb=y+nl*17+30;
     bouton('signerCopier',20,yb,320,44,T('niv.copierLien'),3,copierLienPage,null,16);
     if(s.copie)para(T('niv.lienCopie'),180,yb+66,300,12,C.vert,'center',2,15,true);
     else ttFit(T('niv.domaine'),180,yb+68,11.5,320,COUL_NIV.petit,'center',2,false);
+    if(dansBitget())para(T('niv.aideBitget'),180,yb+96,300,11.5,C.or,'center',2,14,true);
     return;}
   if(s.etat==='envoi')cx.globalAlpha=0.6;
   bouton('signerPage',20,y,320,50,T('niv.signerAvec',fw.nom.toUpperCase()),3,signerPage,null,17);cx.globalAlpha=1;
@@ -13707,6 +13783,7 @@ function rendreSigner(){
   if(s.etat==='envoi')ttFit(T('niv.signerEnvoi'),180,y+4,12,300,C.cyan,'center',2,false);
   else if(s.msg)para(s.msg,180,y+4,310,12,C.danger,'center',2,15,false);
   else ttFit(T('niv.domaine'),180,y+4,11.5,320,COUL_NIV.petit,'center',2,false);
+  if(dansBitget())para(T('niv.aideBitget'),180,y+30,300,11.5,C.or,'center',2,14,true);
 }
 
 /* ---- 0.8 : écran du concours (lots, dates, vies, mode de classement) ---- */
@@ -14345,8 +14422,8 @@ window.__dzo={
     essaisRestants:essaisRestants(),essaisMax:essaisMax(),compteEssais:texteProchainsEssais(),fidelite:fidelite(),vieBonusPartie:!!(partieSrv&&partieSrv.vieBonus),
     /* 0.11 : boosts sans code (état X, attentes, dernier texte de post), langue de l'adresse */
     /* 0.12 : niveau du jour, revérification en cours, feuille du wallet, Touriste (compteur local) */
-    niv:{actifs:niveauxActifs(),niveau:niveauDuJour(),touriste:touriste(),d:NIV.d,verif:NIV.verif?{quoi:NIV.verif.quoi,etat:NIV.verif.etat,err:NIV.verif.err||''}:null,attente:NIV.attente?NIV.attente.quoi:'',feuille:NIV.feuille?{etat:NIV.feuille.etat,msg:NIV.feuille.msg||'',message:NIV.feuille.defi?NIV.feuille.defi.message:'',lien:NIV.dernierLienWallet||''}:null,defil:NIV.defil,hTot:NIV.hTot,essaiTouriste:essaiTouriste,walletPerdu:NIV.walletPerdu||'',xo:{officiel:xOfficiel(),sousEtat:xSousEtat(),compte:xDeclare(),msg:msgBX(XO.msg),edit:XO.edit,perdu:xPerdu()}},
-    signer:WSIGNE?{etat:WSIGNE.etat,msg:WSIGNE.msg,message:WSIGNE.message,court:WSIGNE.court,compte:WSIGNE.compte||null,copie:WSIGNE.copie,wallet:(function(){var f=fournisseurWallet();return f?f.nom:"";})()}:null,
+    niv:{actifs:niveauxActifs(),niveau:niveauDuJour(),touriste:touriste(),d:NIV.d,verif:NIV.verif?{quoi:NIV.verif.quoi,etat:NIV.verif.etat,err:NIV.verif.err||''}:null,attente:NIV.attente?NIV.attente.quoi:'',feuille:NIV.feuille?{etat:NIV.feuille.etat,msg:NIV.feuille.msg||'',message:NIV.feuille.defi?NIV.feuille.defi.message:'',lien:NIV.dernierLienWallet||'',via:NIV.feuille.via||'',aide:aideAppVisible(NIV.feuille)}:null,defil:NIV.defil,hTot:NIV.hTot,essaiTouriste:essaiTouriste,walletPerdu:NIV.walletPerdu||'',xo:{officiel:xOfficiel(),sousEtat:xSousEtat(),compte:xDeclare(),msg:msgBX(XO.msg),edit:XO.edit,perdu:xPerdu()}},
+    signer:WSIGNE?{etat:WSIGNE.etat,msg:WSIGNE.msg,message:WSIGNE.message,court:WSIGNE.court,compte:WSIGNE.compte||null,copie:WSIGNE.copie,bitget:dansBitget(),wallet:(function(){var f=fournisseurWallet();return f?f.nom:"";})()}:null,
     bx:{v2:boostsV2(),api:xApi(),x:BX.x,parrain:BX.parrain,charge:BX.charge,xVerif:BX.xVerif?BX.xVerif.etat:'',xMsg:msgBX(BX.xMsg),xFerme:BX.xFerme,tg:BX.tg?BX.tg.etat:'',tgMsg:msgBX(BX.tgMsg),coller:BX.coller,post:BX.dernierPost,tgLien:BX.dernierTg||'',lienSimule:BX.dernierLien,manif:MANIF.ids?MANIF.ids.length:0,xc:!!XRETOUR.jeton},langUrl:LANG_URL};},
   /* 0.11 : texte d'un post tel que le jeu le compose (cible : boost, fin, parr) */
   /* 0.12 : défilement de « Mon niveau » (essais automatiques) */
