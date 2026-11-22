@@ -67,9 +67,16 @@ noscript{color:#F6F1E7;position:fixed;left:0;right:0;top:40%;text-align:center}
 var SIM=(function(){
 'use strict';
 /* ---------- constantes ---------- */
-var HZ=60,NA=1440,MAXE=256,PLAF=220,MAXG=150,MAXP=120,MAXPE=40,MAXF=60,MAXPI=16,MAXO=24,MAXR=12,MAXB=16,MAXPAS=36000,EVMAX=1024;
+var HZ=60,NA=1440,MAXE=256,PLAF=220,MAXG=150,MAXP=120,MAXPE=40,MAXF=60,MAXPI=16,MAXO=24,MAXR=12,MAXB=16,MAXPAS=108000,EVMAX=1024;
 /* Déroulé de la 0.4 : partie de 10 minutes, boss à 6:00, phase finale (Liquidation) dès 8:00. */
 var DUREE=36000,T_BOSSN=21600,T_LIQ=28800;
+/* 0.14 (prolongations) : à 10:00 (DUREE) la bougie de clôture donne son bonus et la partie continue : le « Recrotzon ».
+   Un palier par minute (PROL_PAS). À 10:00 le marché clôture : la Liquidation redescend à PROL.liq0 crans et la bougie balaie
+   les ordinaires à l'écran (PROL.balai). Ensuite elle ne monte plus toutes les 15 s mais par palier : dès le 2e (11:00),
+   chaque palier ajoute PROL.liq crans (PV, vitesse, coups des ennemis) et multiplie les apparitions (PROL.taux par palier) ;
+   à mi-palier, des élites. Fin technique à 30:00 (MAXPAS), sans bonus.
+   EV_PROL : a = 0 clôture passée (b = bonus de clôture), a = k palier k commencé. */
+var PROL_PAS=3600,EV_PROL=43,PROL={liq0:3,liq:2,dur:5,taux:0.2,elites:3,pvElite:1,balai:1};
 var EV_HIT=1,EV_MORT=2,EV_GEMME=3,EV_JTOUCHE=4,EV_NIVEAU=5,EV_COFFRE=6,EV_ONDE=7,EV_TIR=8,EV_BANDEAU=9,EV_PAROLE=10,EV_ELITE=11,EV_BOSSMORT=12,EV_RAMASSE=13,EV_PIEU=14,EV_TAPIS=15,EV_FIN=16,EV_CHAPEAU=17,EV_ASPI=19,EV_TIRENN=20,EV_BOSS=22,EV_ECLAT=23,
     EV_TRESOR=24,EV_PRISE=25,EV_TRESFIN=26,EV_COMBO=27,EV_BOMBE=28,EV_ARME=29,EV_LANCE=30,
     EV_FUNI=31,EV_FONT=32,EV_CASSE=33,EV_FUNICOUP=34,EV_ECRASE=35,
@@ -372,6 +379,7 @@ function creer(graine,tab){
   /* 0.6 : collection du tableau (menu : un bit par plat), finale, bouclier de bricelets, gâteau au vin cuit */
   s.col=TABLEAUX[s.tableau].col;s.menu=0;s.repasT=0;s.repasFait=0;s.repasN=0;s.bouclier=0;s.vcx=0;s.vcy=0;
   initBornes(s,graine);
+  s.prol=0;s.prolTaux=1;s.bonusCloture=0;s.plafond=0;   /* 0.14 : palier du Recrotzon (0 avant 10:00), apparitions en plus, bonus de clôture, fin à 30:00 */
   lier(s);
   ajouterArme(0);recalc();s.pv=s.pvMax;
   return s;
@@ -830,7 +838,7 @@ function naitre(t,x,y){
 function elite(){
   perim();var e=naitre(T_CHAT,PX,PY);if(!e)return;
   var k=S.elitesNees++;e.v=k%NVAR[T_CHAT];if(k>=PV_ELITE.length)k=PV_ELITE.length-1;e.pv=e.pvMax=PV_ELITE[k];e.chapeau=e.chapMax=CHAP_ELITE[k];
-  ev(EV_BANDEAU,B_ELITE);
+  ev(EV_BANDEAU,B_ELITE);return e;
 }
 function gemme(x,y,val,aim){
   var g,i;
@@ -864,7 +872,7 @@ function blesserJoueur(d,src,vv){
   d=Math.max(1,Math.round(d*S.degMult*REGL.deg*rp*(S.n<REGL.grace?REGL.graceDeg:(S.n<REGL.grace+3600?REGL.graceDeg+(1-REGL.graceDeg)*(S.n-REGL.grace)/3600:1))));
   S.pv-=d;S.inv=REGL.inv;S.touches++;
   if(S.combo>1){S.combo>>=1;S.comboChutes++;S.comboPal=0;while(S.comboPal<COMBO_PAL.length&&S.combo>=COMBO_PAL[S.comboPal])S.comboPal++;}S.sansCoup=0;S.bonusSC=0;ev(EV_JTOUCHE,d,src);
-  if(S.pv<=0){S.pv=0;S.fini=1;S.victoire=0;S.tueur=src;S.tueurV=vv||0;ev(EV_FIN,0,src);}
+  if(S.pv<=0){S.pv=0;S.fini=1;S.tueur=src;S.tueurV=vv||0;ev(EV_FIN,0,src);}
 }
 function blesser(i,deg,kx,ky,genre){
   var e=E[i];if(e.mort)return;
@@ -948,6 +956,7 @@ function apparitions(n){
   if(D.taux)taux=Math.round(taux*D.taux);
   if(S.bull>0)taux*=2;
   if(S.pariTaux!==1)taux=Math.round(taux*S.pariTaux);   /* 0.11 : pari « tournée générale » */
+  if(S.prolTaux!==1)taux=Math.round(taux*S.prolTaux);   /* 0.14 : Recrotzon */
   if(S.nE<PLAF){
     S.acc+=taux;
     while(S.acc>=600&&S.nE<PLAF){
@@ -1595,7 +1604,7 @@ function lancerVote(){
 function chrono(n){
   var k,a,e,i;
   if(n%1800===0||n>=T_LIQ){
-    if(n>=T_LIQ&&(n-T_LIQ)%900===0){S.liq++;S.vitMult=S.vitVote*S.vitDec*(1+REGL.liqVit*S.liq);S.degMult=1+REGL.liqDeg*S.liq;}
+    if(n>=T_LIQ&&n<=DUREE&&(n-T_LIQ)%900===0){S.liq++;S.vitMult=S.vitVote*S.vitDec*(1+REGL.liqVit*S.liq);S.degMult=1+REGL.liqDeg*S.liq;}
     var m=Math.floor(n/1800);S.pvMult=PVMIN[m<PVMIN.length?m:PVMIN.length-1];for(i=0;i<S.liq;i++)S.pvMult*=REGL.liqPv;
   }
   if(n===10800)S.comboFen=100;
@@ -1621,8 +1630,23 @@ function chrono(n){
     case 27900:S.bull=900;S.xpMult=2*(S.grenT>0?2:1);ev(EV_BANDEAU,B_BULL);break;
     case T_LIQ:S.liquidation=1;if(S.bossVivant&&S.bossRef)S.bossRef.vit=85;ev(EV_BANDEAU,B_LIQ);break;
     case 30600:elite();elite();break;
-    case DUREE:S.fini=1;S.victoire=1;S.scoreBonus+=Math.floor(S.pv)*30+(S.bossTue?5000:0);ev(EV_BANDEAU,B_CLOTURE);ev(EV_FIN,1);break;
+    case DUREE:cloturer();break;   /* 0.14 : la partie continue */
+    case MAXPAS:S.fini=1;S.plafond=1;ev(EV_FIN,1);break;   /* 0.14 : fin technique à 30:00, sans bonus */
   }
+  if(n>DUREE)prolonger(n);
+}
+/* 0.14 : bougie de clôture, une fois : +30 par PV restant, +5 000 si le boss est déjà mort (sa mort plus tard ne donne que sa prime) */
+function cloturer(){var b=Math.floor(S.pv)*30+(S.bossTue?5000:0);S.victoire=1;S.scoreBonus+=b;S.bonusCloture=b;S.prol=1;ev(EV_BANDEAU,B_CLOTURE);ev(EV_PROL,0,b);
+  /* le marché clôture : la Liquidation redescend à PROL.liq0 crans (elle remonte ensuite par paliers) ; si PROL.balai, la bougie balaie les ordinaires à l'écran */
+  if(PROL.liq0>=0&&S.liq>PROL.liq0){S.liq=PROL.liq0;S.vitMult=S.vitVote*S.vitDec*(1+REGL.liqVit*S.liq);S.degMult=1+REGL.liqDeg*S.liq;}
+  if(PROL.balai){S.balaye=1;tuerOrdinaires(0);S.balaye=0;}}
+/* 0.14 : le Recrotzon. Palier k (k = 1 de 10:00 à 11:00, sans montée : le temps de souffler) ; dès k = 2, PROL.liq crans de
+   Liquidation de plus (et k − PROL.dur de plus dès k > PROL.dur : le Recrotzon se durcit), apparitions × (1 + PROL.taux × (k − 1)) ; à mi-palier min(k, PROL.elites) chats à chapeau de PV × (1 + PROL.pvElite × k). */
+function prolonger(n){
+  var t=n-DUREE,k,e;
+  if(t%PROL_PAS===0){S.prol=1+t/PROL_PAS;S.prolTaux=1+PROL.taux*(S.prol-1);S.liq+=PROL.liq+(S.prol>PROL.dur?S.prol-PROL.dur:0);
+    S.vitMult=S.vitVote*S.vitDec*(1+REGL.liqVit*S.liq);S.degMult=1+REGL.liqDeg*S.liq;ev(EV_PROL,S.prol,0);}
+  else if(t%PROL_PAS===PROL_PAS/2)for(k=0;k<S.prol&&k<PROL.elites;k++){e=elite();if(e){e.pv=e.pvMax=Math.round(e.pvMax*(1+PROL.pvElite*S.prol));}}
 }
 
 /* 0.5 : DZÔ glisse le long des murs (deux passes : coins et murs voisins). */
@@ -1797,6 +1821,7 @@ return{HZ:HZ,NA:NA,creer:creer,pas:pas,choisir:choisir,relancer:relancer,voter:v
     D:{LAMPE:D_LAMPE,BANC:D_BANC,FLEURS:D_FLEURS,TOITPONT:D_TOITPONT,BANNIERE:D_BANNIERE}},fnv1a:fnv1a,mulberry32:mulberry32,melange:melange,sn:sn,cs:cs,
   ENN:ENN,NVAR:NVAR,VAGUES:VAGUES,PVMIN:PVMIN,REGL:REGL,ARMES:ARMES,NARMES:NARMES,PASSIFS:PASSIFS,SURCHARGES:SURCHARGES,DECRETS:DECRETS,decretDe:decretDe,VOTES:VOTES,PALIERS:PALIERS,FAMILLES:FAMILLES,XPT:XPT,M_CARTE:M_CARTE,M_VOTE:M_VOTE,MAXPAS:MAXPAS,PLAF:PLAF,
   PARIS:PARIS,RECOMPENSES:RECOMPENSES,T_BORNES:T_BORNES,T_CERCLES:T_CERCLES,BORNE_VIE:BORNE_VIE,BORNE_TENIR:BORNE_TENIR,BORNE_R:BORNE_R,PARI_MAX:PARI_MAX,CERCLE_VIE:CERCLE_VIE,CERCLE_TENIR:CERCLE_TENIR,CERCLE_R:CERCLE_R,EV_PARI:EV_PARI,EV_CERCLE:EV_CERCLE,
+  PROL:PROL,PROL_PAS:PROL_PAS,EV_PROL:EV_PROL,   /* 0.14 : Recrotzon (prolongations) */
   TRESORS:TRESORS,COLLECTIONS:COLLECTIONS,TABLEAUX:TABLEAUX,I_TABLEAU:I_TABLEAU,tableauDe:tableauDe,OBJETS:OBJETS,DECOS:DECOS,COMBO_PAL:COMBO_PAL,I_COL:I_COL,I_ENN:I_ENN,I_ARME:I_ARME,I_PASSIF:I_PASSIF,I_TRES:I_TRES,VAGUE_COL:VAGUE_COL,T_VOTES:T_VOTES,DUREE:DUREE,T_BOSSN:T_BOSSN,T_LIQ:T_LIQ,
   EV:{HIT:EV_HIT,MORT:EV_MORT,GEMME:EV_GEMME,JTOUCHE:EV_JTOUCHE,NIVEAU:EV_NIVEAU,COFFRE:EV_COFFRE,ONDE:EV_ONDE,TIR:EV_TIR,BANDEAU:EV_BANDEAU,PAROLE:EV_PAROLE,ELITE:EV_ELITE,BOSSMORT:EV_BOSSMORT,RAMASSE:EV_RAMASSE,PIEU:EV_PIEU,TAPIS:EV_TAPIS,FIN:EV_FIN,CHAPEAU:EV_CHAPEAU,ASPI:EV_ASPI,TIRENN:EV_TIRENN,BOSS:EV_BOSS,ECLAT:EV_ECLAT,
       TRESOR:EV_TRESOR,PRISE:EV_PRISE,TRESFIN:EV_TRESFIN,COMBO:EV_COMBO,BOMBE:EV_BOMBE,ARME:EV_ARME,LANCE:EV_LANCE,
@@ -2037,6 +2062,12 @@ LANGUES.fr={
 "bandeau.elite":"CHAT À CHAPEAU !",
 "bandeau.cloture":"BOUGIE DE CLÔTURE",
 "bandeau.devParti":"LE DEV A QUITTÉ LE GROUPE",
+"prol.mot":"RECROTZON !",
+"prol.motSous":"La Bénichon continue · clôture +{0} pts",
+"prol.hud":"RECROTZON {0}",
+"bandeau.prol":"RECROTZON · PALIER {0}",
+"fin.cloture":"Bougie de clôture +{0} pts · Recrotzon, palier {1}",
+"fin.titre.prol":"Tombé au Recrotzon. La fête était trop belle.",
 "parole.pause":"Petite pause, je reviens.",
 "parole.retour":"Bon. Je suis de retour.",
 "parole.conseil":"Ce n'était pas un conseil.",
@@ -3142,6 +3173,12 @@ LANGUES.de={
 "bandeau.elite":"HUTKATER!",
 "bandeau.cloture":"SCHLUSSKERZE",
 "bandeau.devParti":"DER DEV HAT DIE GRUPPE VERLASSEN",
+"prol.mot":"NACHCHILBI!",
+"prol.motSous":"Die Chilbi geht weiter · Schluss +{0} Pkt.",
+"prol.hud":"NACHCHILBI {0}",
+"bandeau.prol":"NACHCHILBI · STUFE {0}",
+"fin.cloture":"Schlusskerze +{0} Pkt. · Nachchilbi, Stufe {1}",
+"fin.titre.prol":"An der Nachchilbi gefallen. Das Fest war zu schön.",
 "parole.pause":"Kurze Pause, bin gleich zurück.",
 "parole.retour":"So. Ich bin wieder da.",
 "parole.conseil":"Das war kein Rat.",
@@ -4245,6 +4282,12 @@ LANGUES.it={
 "bandeau.elite":"GATTO COL CAPPELLO!",
 "bandeau.cloture":"CANDELA DI CHIUSURA",
 "bandeau.devParti":"IL DEV HA LASCIATO IL GRUPPO",
+"prol.mot":"RECROTZON!",
+"prol.motSous":"La sagra continua · chiusura +{0} punti",
+"prol.hud":"RECROTZON {0}",
+"bandeau.prol":"RECROTZON · LIVELLO {0}",
+"fin.cloture":"Candela di chiusura +{0} punti · Recrotzon, livello {1}",
+"fin.titre.prol":"Caduto al Recrotzon. La festa era troppo bella.",
 "parole.pause":"Piccola pausa, torno subito.",
 "parole.retour":"Bene. Sono tornato.",
 "parole.conseil":"Non era un consiglio.",
@@ -5348,6 +5391,12 @@ LANGUES.es={
 "bandeau.elite":"¡GATO CON SOMBRERO!",
 "bandeau.cloture":"VELA DE CIERRE",
 "bandeau.devParti":"EL DEV HA ABANDONADO EL GRUPO",
+"prol.mot":"¡RECROTZON!",
+"prol.motSous":"La fiesta sigue · cierre +{0} pts",
+"prol.hud":"RECROTZON {0}",
+"bandeau.prol":"RECROTZON · NIVEL {0}",
+"fin.cloture":"Vela de cierre +{0} pts · Recrotzon, nivel {1}",
+"fin.titre.prol":"Caído en el Recrotzon. La fiesta era demasiado buena.",
 "parole.pause":"Pequeña pausa, ya vuelvo.",
 "parole.retour":"Bueno. Ya estoy de vuelta.",
 "parole.conseil":"No era un consejo.",
@@ -6451,6 +6500,12 @@ LANGUES.en={
 "bandeau.elite":"HAT CAT!",
 "bandeau.cloture":"CLOSING CANDLE",
 "bandeau.devParti":"THE DEV LEFT THE GROUP",
+"prol.mot":"RECROTZON!",
+"prol.motSous":"The fair goes on · closing +{0} pts",
+"prol.hud":"RECROTZON {0}",
+"bandeau.prol":"RECROTZON · ROUND {0}",
+"fin.cloture":"Closing candle +{0} pts · Recrotzon, round {1}",
+"fin.titre.prol":"Fell at the Recrotzon. The party was too good.",
 "parole.pause":"Quick break, be right back.",
 "parole.retour":"Right. I'm back.",
 "parole.conseil":"That was not advice.",
@@ -7336,7 +7391,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.13.1-proto';
+var VERSION='0.14.0-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -8974,6 +9029,7 @@ function traiterEv(){
       anneauFx(S.px,S.py,420,0.8,2);anneauFx(S.px,S.py,300,0.6,0);anneauFx(S.px,S.py,180,0.45,3);gerbe(S.px,S.py-20,60,1,460,11,1);gerbe(S.px,S.py-20,40,4,380,10,0.9);
       vibrer([60,40,120]);break;
     case SIM.EV_PARI:case SIM.EV_CERCLE:evBornes(t,v,o);break;   /* 0.11 : oratoire du pari, rond de sciure */
+    case SIM.EV_PROL:evProl(x,y);break;   /* 0.14 : bougie de clôture passée, palier du Recrotzon */
     }
   }
   S.evN=0;
@@ -8993,6 +9049,13 @@ function sequenceVictoire(){
     for(q=0;q<3;q++){a=Math.random()*PI2;vv=90+Math.random()*160;part(e.x,e.y,Math.cos(a)*vv,Math.sin(a)*vv-60,0.4+Math.random()*0.4,3+Math.random()*3,1,e.t);}}
   budgetPart=200;gerbe(S.px,S.py-20,50,1,420,9,1.1);gerbe(S.px,S.py-20,30,3,340,9,1);
   anneauFx(S.px,S.py,380,0.7,2);anneauFx(S.px,S.py,260,0.5,0);
+}
+/* 0.14 : 10:00 passées : la fête de la bougie de clôture (sans fin de partie ni ennemis balayés), puis chaque palier du Recrotzon */
+function evProl(k,b){
+  if(k===0){gel=Math.max(gel,0.12);eclairBlanc=1;secouer(0.5);son('evolution');son('victoire');musBaisse=1.6;budgetPart+=200;vibrer([60,40,120]);
+    gerbe(S.px,S.py-20,50,1,420,9,1.1);gerbe(S.px,S.py-20,30,3,340,9,1);anneauFx(S.px,S.py,380,0.7,2);anneauFx(S.px,S.py,260,0.5,0);
+    mot(T('prol.mot'),C.vert,34,T('prol.motSous',fmtNb(b)));return;}
+  if(k>1){bandeau(T('bandeau.prol',k),3);son('alarme');anneauFx(S.px,S.py,300,0.5,1);secouer(0.2);}
 }
 function dansTelegram(){var w=window.Telegram&&Telegram.WebApp;return(w&&w.platform&&w.platform!=='unknown')?w:null;}
 function vibrer(ms){try{if(BOT)return;var w=dansTelegram(),n=typeof ms==='number'?ms:30;if(w&&w.HapticFeedback){w.HapticFeedback.impactOccurred(n>=40?'heavy':(n>=20?'medium':'light'));return;}if(tactile&&navigator.vibrate)navigator.vibrate(ms);}catch(e){}}
@@ -10576,7 +10639,7 @@ function finDePartie(){
   if(ecran!=='jeu'||!S)return;
   var sc=SIM.score(S);
   ecran='fin';sous='';tEcran=0;AU.joue=false;lacherDoigts();presse=null;pressePtr=-1;finTampon=0;apercuCarte=null;
-  if(REVOIR){recordAvant=0;nouveauRecord=false;titreFin=S.victoire?(S.bossTue?'fin.titre.victoire':'fin.titre.cloture'):'revoir.fin';tueurFin=S.victoire?-1:S.tueur;tueurVFin=S.tueurV||0;regretFin='';return;}
+  if(REVOIR){recordAvant=0;nouveauRecord=false;titreFin=S.victoire?(!S.plafond?'fin.titre.prol':(S.bossTue?'fin.titre.victoire':'fin.titre.cloture')):'revoir.fin';tueurFin=(S.victoire&&S.plafond)?-1:S.tueur;tueurVFin=S.tueurV||0;regretFin='';return;}
   /* 0.7 : partie classée en ligne : envoi du journal (gardé en stockage local jusqu'à la réponse du serveur) */
   if(classee&&partieSrv){
     var prm=pauseRestanteMs();
@@ -10594,10 +10657,10 @@ function finDePartie(){
   if(sc>SAUV.meilleur)SAUV.meilleur=sc;
   SAUV.parties=(SAUV.parties||0)+1;
   sauver();
-  if(S.victoire)titreFin=S.bossTue?'fin.titre.victoire':'fin.titre.cloture';
+  if(S.victoire)titreFin=!S.plafond?'fin.titre.prol':(S.bossTue?'fin.titre.victoire':'fin.titre.cloture');   /* 0.14 : mort au Recrotzon */
   else if(S.tueur===0)titreFin=TITRES_FIN[2];
   else titreFin=TITRES_FIN[(S.n+S.tues)%2];
-  tueurFin=S.victoire?-1:S.tueur;tueurVFin=S.tueurV||0;regretFin=calcRegret();
+  tueurFin=(S.victoire&&S.plafond)?-1:S.tueur;tueurVFin=S.tueurV||0;regretFin=calcRegret();
 }
 function mettreEnPause(){if(ecran==='jeu'&&!sous&&S&&!S.fini){sous='pause';tSous=0;lacherDoigts();}}
 function reprendre(){if(sous==='pause'){sous='';}}
@@ -10662,7 +10725,7 @@ function maj(dt){
         if(S.repasT>0&&Math.random()<0.7){var ra=Math.random()*PI2;part(S.px+Math.cos(ra)*34,S.py-20+Math.sin(ra)*30,Math.cos(ra)*60,-80,0.6,9,0,1);}
       }else{tJeu+=dt*0.3;}
       /* filet de sécurité : la partie est finie même si l'événement de fin s'est perdu en route */
-      if(S.fini&&tMort<0&&tVict<0&&ecran==='jeu'){if(S.victoire)sequenceVictoire();else sequenceMort();}
+      if(S.fini&&tMort<0&&tVict<0&&ecran==='jeu'){if(S.victoire&&S.plafond)sequenceVictoire();else sequenceMort();}
     }else if(sous==='niveau'){
       tJeu+=dt*0.2;if(tSous>=0.25){sous='cartes';tSous=0;}
     }else if(sous==='choix'){
@@ -10771,7 +10834,8 @@ function rendreHUD(dt){
   cx.fillStyle='rgba(13,9,20,0.7)';cx.beginPath();rrect(cx,6,hy+28,40,40,11);cx.fill();cx.strokeStyle='rgba(246,241,231,0.35)';cx.lineWidth=1.5;cx.stroke();
   cx.fillStyle=enf?C.cyan:C.creme;cx.beginPath();rrect(cx,18,hy+39,6,18,2);rrect(cx,28,hy+39,6,18,2);cx.fill();
   /* minuteur et son objectif, score, éliminés, niveau */
-  tt(fmtTemps(S.n>SIM.DUREE?SIM.DUREE:S.n),172,hy+42,22,S.liquidation?C.danger:C.creme,'center',1);
+  tt(fmtTemps(S.n),172,hy+42,22,S.liquidation?C.danger:C.creme,'center',1);
+  if(S.prol>0)tn(T('prol.hud',S.prol),204,hy+44,10,C.or,'left',1);else   /* 0.14 : palier du Recrotzon */
   tn('/ 10:00',204,hy+44,10,'rgba(246,241,231,0.6)','left',1);
   tt(T('pts',fmtNb(SIM.score(S))),180,hy+62,13,C.or,'center',1);
   tt(''+S.tues,352,hy+39,16,C.creme,'right',1);
@@ -11616,7 +11680,7 @@ function rendreFin(){
   /* temps tenu, niveau, éliminés par archétype */
   e=Math.min(1,t/0.4);
   panneau(20,y+10,320,160,12,'rgba(46,33,70,0.94)','rgba(26,18,40,0.94)','rgba(246,241,231,0.2)',1);
-  ttFit(T('fin.temps'),36,y+30,10,150,'rgba(246,241,231,0.6)','left',0,false);tt(fmtTemps(Math.floor(S.n*e))+' / 10:00',324,y+31,18,C.creme,'right',1);
+  ttFit(T('fin.temps'),36,y+30,10,150,'rgba(246,241,231,0.6)','left',0,false);tt(fmtTemps(Math.floor(S.n*e))+(S.n>SIM.DUREE?'':' / 10:00'),324,y+31,18,C.creme,'right',1);
   ttFit(T('fin.niveau'),36,y+52,10,150,'rgba(246,241,231,0.6)','left',0,false);tt(''+S.niveau,324,y+52,16,C.cyan,'right',1);
   ttFit(T('elimines'),36,y+74,10,150,'rgba(246,241,231,0.6)','left',0,false);tt(fmtNb(S.tues),324,y+74,16,C.creme,'right',1);
   n=0;for(i=0;i<ORDRE_ARCH.length;i++){var ty=ORDRE_ARCH[i],nb=S.tuesType[ty];if(nb<=0)continue;
@@ -11673,7 +11737,8 @@ function rendreFin(){
       if(S.repasFait)LF.push({k:'repas',t:T('fin.repas'),c:C.or,p:11.5,g:0});
       if(!REVOIR)LF.push({k:'record',t:T(classee?'fin.recordJour':'fin.recordPerso',fmtNb(classee?SAUV.record:SAUV.meilleur))+(nouveauRecord?T('fin.nouveau'):''),c:C.or,p:11.5,g:1});
       if(ligneParis())LF.push({k:'pari',t:ligneParis(),c:COUL_PARI[0],p:11.5,g:0});   /* 0.11 : paris et ronds, une ligne */
-      var oter=['regret','repas','pari'];
+      if(S.prol>0)LF.push({k:'cloture',t:T('fin.cloture',fmtNb(S.bonusCloture),S.prol),c:C.vert,p:11.5,g:0});   /* 0.14 : bougie de clôture, palier atteint */
+      var oter=['regret','repas','pari','cloture'];
       while(LF.length>1&&dispoL/(LF.length-1)<13.5&&oter.length){var ko=oter.shift();LF=LF.filter(function(l){return l.k!==ko;});}
       pasL=LF.length>1?Math.max(12,Math.min(17,dispoL/(LF.length-1))):17;
       for(i=0;i<LF.length;i++){var lf=LF[i];
@@ -14109,6 +14174,7 @@ window.__dzo={
       o.armes=[];for(var i=0;i<S.nA;i++)o.armes.push(ARMES[S.armes[i].id].cle+(S.armes[i].evo?'*':S.armes[i].niv));o.passifs=[];for(i=0;i<S.nPa;i++)o.passifs.push(PASSIFS[S.passifs[i].id].cle+S.passifs[i].niv);
       o.combo=S.combo;o.comboMax=S.comboMax;o.tresor=S.tre.on?SIM.TRESORS[S.tre.type].cle:'';o.tresorsPris=S.tresorsPris;o.tresorsVus=S.treN;}
     if(S){o.paris=S.nParis||0;o.pariMult=S.pariMult||1;o.ronds=S.cePris||0;}   /* 0.11 (bornes) */
+    if(S){o.prol=S.prol||0;o.bonusCloture=S.bonusCloture||0;}   /* 0.14 (Recrotzon) */
     o.manette={actif:joy.actif,id:joy.id,dir:joy.dir,doigts:doigts.length};
     return o;
   },
