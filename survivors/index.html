@@ -7451,7 +7451,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.14.4-proto';
+var VERSION='0.14.5-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -13665,7 +13665,8 @@ function rendreNiveau(){
   if(xPerdu())y+=xPerduNiv(y);
   if(!memb||perdu)y=carteNiv(y,'cyan',function(yy,m){return carteEtapesNiv(yy,m,{redevenir:!!perdu});});
   if(memb){
-    if(!(reglesNiv().x&&reglesNiv().x.api===false))y=carteNiv(y,'or',carteBonusNiv);
+    /* bonus « 987NES dans le nom X » : affiché seulement si le serveur l'annonce (retiré le 23.11.2026) */
+    if(reglesNiv().bonusNom&&!(reglesNiv().x&&reglesNiv().x.api===false))y=carteNiv(y,'or',carteBonusNiv);
     y=carteNiv(y,'cyan',carteDetenteurNiv);
     if(d.wallet&&d.wallet.relie)y=carteNiv(y,'calme',carteGestionWalletNiv);
     if(!perdu)y=carteNiv(y,'calme',function(yy,m){return 4+ligneNiv(yy+4,{puce:true,etat:'fait',texte:'Dzodzet',sous:T('niv.dzodzetRecap',compteX())})+4;});
