@@ -88,6 +88,8 @@ var MAXNU=10,PEUR_REPOS=45,PALET_V=7,PALET_R=150;
    2 malédiction finie, gain acquis (type), 3 oratoire disparu sans pari (type, x, y) ; EV_CERCLE : a = 0 rond posé (x, y),
    1 rond tenu (x, y), 2 rond perdu (x, y), 3 récompense choisie (rang dans RECOMPENSES). */
 var EV_PARI=41,EV_CERCLE=42;
+/* 0.16 (tournée) : EV_TOUR : a = 0 étape posée (rang, x, y), 1 étape atteinte (élan après l'étape, prime, x, y), 2 un cran d'élan perdu (élan restant) */
+var EV_TOUR=44;
 var M_CARTE=1,M_VOTE=2;
 var R_FONDUE=0,R_AIRDROP=1,R_BOUGIE=2,R_COFFRE=3;
 var B_MEUTE=0,B_BULL=1,B_DEV=2,B_LIQ=3,B_PAUSE=4,B_ELITE=5,B_CLOTURE=6;
@@ -247,6 +249,13 @@ var RECOMPENSES=[
  {cle:'taureau',donner:rcTaureau,bot:function(){return 5;}}
 ];
 var T_CERCLES=[9600,19800],CERCLE_VIE=2400,CERCLE_TENIR=420,CERCLE_R=72;
+/* ---- 0.16 : LA TOURNÉE (backlog 44.3). Une seule étape à la fois, dès TOUR.debut, à TOUR.dMin à TOUR.dMin+TOUR.dAmp px de la
+   précédente (la première : du départ), dans une direction qui ne dévie pas de plus de TOUR.ecart (en 1/4 de degré : 100°)
+   de la précédente. Les positions ne dépendent QUE de la graine (flux rTour, posSure avec des cassables tous intacts) : elles
+   sont absolues dans le monde (coordonnées de partie, sans retour au tore), identiques pour tous les joueurs d'une graine.
+   Atteindre (DZÔ à moins de TOUR.rayon) : +1 cran d'élan (TOUR.max au plus), le délai repart, prime d'étape ; sans nouvelle
+   étape pendant TOUR.delai pas, l'élan perd un cran. Le score des éliminations est multiplié par 1 + TOUR.coef × élan. ---- */
+var TOUR={debut:600,dMin:300,dAmp:200,ecart:400,rayon:44,delai:2700,max:4,coef:0.25,prime:150};
 
 /* ---- COMBO : paliers (un mot par palier dans le dictionnaire : combo.1 à combo.10) ---- */
 /* Paliers du combo : chaque palier atteint ajoute +10 % au score des éliminations suivantes (jusqu'à +60 %).
@@ -379,6 +388,7 @@ function creer(graine,tab){
   /* 0.6 : collection du tableau (menu : un bit par plat), finale, bouclier de bricelets, gâteau au vin cuit */
   s.col=TABLEAUX[s.tableau].col;s.menu=0;s.repasT=0;s.repasFait=0;s.repasN=0;s.bouclier=0;s.vcx=0;s.vcy=0;
   initBornes(s,graine);
+  initTournee(s,graine);
   s.prol=0;s.prolTaux=1;s.bonusCloture=0;s.plafond=0;   /* 0.14 : palier du Recrotzon (0 avant 10:00), apparitions en plus, bonus de clôture, fin à 30:00 */
   lier(s);
   ajouterArme(0);recalc();s.pv=s.pvMax;
@@ -673,6 +683,9 @@ var K_MUR=I_OBJ.mur,D_BAT=5;
 function genFribourgReel(graine){
   var F=FR,r=mulberry32(melange(graine,99)),nr=F.murs.length/4,m=nouveauMonde(graine,nr+F.font.length+F.arbres.length+130),i,k,p,a,b,c,d,NEAU=LM/16;
   m.riviere=0;m.funi=0;m.reel=1;m.fr=F;
+  /* tournée : les étapes se posent sur les places dégagées de la carte (jamais dans un mur, l'eau ou hors de la ville) */
+  if(!F.etp){F.etp=[];for(i=0;i<F.places.length;i++)F.etp.push(F.places[i][0],F.places[i][1]);}
+  m.etp=F.etp;
   m.eauG=new Uint8Array(NEAU*NEAU);for(i=0;i<F.eau.length;i+=3)for(k=F.eau[i+1];k<=F.eau[i+2];k++)m.eauG[F.eau[i]*NEAU+k]=1;
   /* ceinture : deux bandes qui se croisent au coin du tore (centre 0,0), de demi-épaisseurs F.bx0 et F.by0 (la zone jouable est centrée) */
   ajoutObjet(m,0,K_MUR,0,HLM,F.bx0,HLM-30,0,0);ajoutObjet(m,0,K_MUR,HLM,0,HLM-30,F.by0,0,0);
@@ -924,7 +937,7 @@ function tuer(i){
   /* combo : se remplit à chaque élimination, retombe après 2,5 s sans élimination (voir pas()) */
   S.combo++;S.comboT=0;if(S.combo>S.comboMax)S.comboMax=S.combo;
   if(S.comboPal<COMBO_PAL.length&&S.combo>=COMBO_PAL[S.comboPal]){S.comboPal++;ev(EV_COMBO,S.comboPal,S.combo);if(S.n>=10800)S.palApres++;}
-  S.tues++;S.tuesType[t]++;S.scoreTues+=e.xp*10*(S.mult+S.bonusSC)*(1+0.1*(S.comboPal<6?S.comboPal:6));
+  S.tues++;S.tuesType[t]++;S.scoreTues+=e.xp*10*(S.mult+S.bonusSC)*(1+0.1*(S.comboPal<6?S.comboPal:6))*(1+TOUR.coef*S.elan);   /* 0.16 : élan de la tournée */
   ev(EV_MORT,e.x,e.y,t,e.taille,e.v);
   if(e.xp>0)gemme(e.x,e.y,e.xp*S.xpMult,S.gemAim||S.niveau===1);
   if(ENN[t].ord){var r=S.rBut(),rf=S.dec.fondueRamassage||0.015;if(r<rf)ramassage(R_FONDUE,e.x,e.y);else if(r<rf+0.004)ramassage(R_AIRDROP,e.x,e.y);else if(r<rf+0.007)ramassage(R_BOUGIE,e.x,e.y);}
@@ -1523,6 +1536,44 @@ function majBornes(n){
     else if(c.ch>0){c.ch-=2;if(c.ch<0)c.ch=0;}
     if(c.on&&n-c.nais>=CERCLE_VIE){c.on=0;ev(EV_CERCLE,2,c.x,c.y);}}
 }
+/* ---------- 0.16 (tournée) : étapes à rallier et élan ---------- */
+function initTournee(s,graine){
+  s.rTour=mulberry32(melange(graine,141));
+  s.tour={on:0,x:0,y:0,k:0,nais:0};s.tx=0;s.ty=0;s.tdir=-1;s.tourN=0;   /* tx, ty, tdir : dernière étape posée (chaîne) */
+  s.etapes=0;s.elan=0;s.elanMax=0;s.elanT=0;
+  s.tourSans=new Int32Array(s.M.cobj.length);   /* cassables tous intacts : la pose ne dépend jamais des casses du joueur */
+}
+function poserEtape(n){
+  var r=S.rTour,a,d,x,y,sv,t=S.tour;
+  if(S.tdir<0)a=Math.floor(r()*NA);else{a=(S.tdir+Math.floor(r()*(2*TOUR.ecart+1))-TOUR.ecart)%NA;if(a<0)a+=NA;}
+  d=TOUR.dMin+r()*TOUR.dAmp;
+  x=S.tx+cs(a)*d;y=S.ty+sn(a)*d;
+  if(M.etp){etapeLieu(x,y);x=CX;y=CY;}   /* carte bornée (vraie ville) : l'étape se pose sur un lieu dégagé de la carte */
+  sv=S.cas;S.cas=S.tourSans;posSure(x,y,22);S.cas=sv;x=CX;y=CY;
+  S.tdir=a;S.tx=x;S.ty=y;
+  t.on=1;t.x=x;t.y=y;t.k=S.tourN++;t.nais=n;ev(EV_TOUR,0,t.k,x,y);
+}
+/* Carte qui fournit ses lieux dégagés (M.etp : u, v alternés, coordonnées de carte) : parmi ceux qui sont à la bonne distance de
+   l'étape précédente (TOUR.dMin à TOUR.dMin+TOUR.dAmp), le plus proche du point visé ; s'il n'y en a pas, le plus proche du point
+   visé à 150 px au moins de la précédente. Ne dépend que de la graine et de la carte. */
+function etapeLieu(x,y){
+  var e=M.etp,i,u,v,dx,dy,dp,dc,b=-1,bd=1e18,b2=-1,bd2=1e18,lo=TOUR.dMin,hi=TOUR.dMin+TOUR.dAmp;
+  for(i=0;i<e.length;i+=2){u=e[i]-M.ofu;v=e[i+1]-M.ofv;dx=u-S.tx;dy=v-S.ty;dp=Math.sqrt(dx*dx+dy*dy);dx=u-x;dy=v-y;dc=dx*dx+dy*dy;
+    if(dp>=lo&&dp<=hi){if(dc<bd){bd=dc;b=i;}}else if(dp>=150&&dc<bd2){bd2=dc;b2=i;}}
+  if(b<0)b=b2;
+  if(b<0){CX=x;CY=y;return;}
+  CX=e[b]-M.ofu;CY=e[b+1]-M.ofv;
+}
+function majTournee(n){
+  var t=S.tour,dx,dy,pr;
+  if(!t.on&&n>=TOUR.debut)poserEtape(n);
+  if(t.on){dx=wr(md(S.px-t.x));dy=wr(md(S.py-t.y));
+    if(dx*dx+dy*dy<TOUR.rayon*TOUR.rayon){
+      S.etapes++;if(S.elan<TOUR.max)S.elan++;if(S.elan>S.elanMax)S.elanMax=S.elan;S.elanT=0;
+      pr=TOUR.prime*(1+S.elan);S.scoreBonus+=pr;ev(EV_TOUR,1,S.elan,pr,t.x,t.y);
+      poserEtape(n);return;}}
+  if(S.elan>0&&++S.elanT>=TOUR.delai){S.elan--;S.elanT=0;ev(EV_TOUR,2,S.elan);}
+}
 /* rond tenu : trois récompenses sans doublon, montrées comme des cartes (genre 4), au pas où aucune autre fenêtre n'est ouverte */
 function cartesCercle(){
   var n=RECOMPENSES.length,i,j,t,c,ca;S.ceGagne=0;
@@ -1711,6 +1762,7 @@ function pas(st,dir){
   if(S.combo>0&&++S.comboT>=S.comboFen){S.combo=0;S.comboPal=0;S.comboT=0;S.comboChutes++;}
   construireGrille();
   majBornes(n);   /* 0.11 : oratoires du pari, rond de sciure, malédiction */
+  majTournee(n);   /* 0.16 : étape à rallier, élan */
   if(S.ondeNiv){S.ondeNiv=0;ondeNiveau();}
   traiterOndes();
   apparitions(n);
@@ -1764,9 +1816,9 @@ var DIRX=new Float64Array(17),DIRY=new Float64Array(17);(function(){for(var d=1;
 function quantifier(fx,fy){var best=0,bd=-1e9,d,v;for(d=1;d<=16;d++){v=fx*DIRX[d]+fy*DIRY[d];if(v>bd){bd=v;best=d;}}return best;}
 function botDir(st,o){
   lier(st);
-  var fx=0,fy=0,px=S.px,py=S.py,i,e,dx,dy,d,Rr,w,p,k,B,c,g,best,bd;
+  var fx=0,fy=0,px=S.px,py=S.py,i,e,dx,dy,d,Rr,w,p,k,B,c,g,best,bd,kF=(o&8)?BOTR.rayon:1;   /* 0.16 : kF, le robot « rond » ne fuit que le danger proche */
   for(i=0;i<S.nE;i++){e=E[i];if(e.deg===0&&e.t!==T_BULLE)continue;
-    dx=px-e.x;dy=py-e.y;d=Math.sqrt(dx*dx+dy*dy)+0.01;Rr=80+e.r*2+(e.t===T_BOSS?80:0);
+    dx=px-e.x;dy=py-e.y;d=Math.sqrt(dx*dx+dy*dy)+0.01;Rr=(80+e.r*2+(e.t===T_BOSS?80:0))*kF;
     if(d<Rr){w=(Rr-d)/Rr;w=w*w*(e.t===T_BOSS?14:(e.t===T_CHAT?8:4));fx+=dx/d*w-dy/d*w*0.35;fy+=dy/d*w+dx/d*w*0.35;}
     if(e.t===T_PING&&(e.et===1||e.et===2)&&d<330){c=dx*e.dy-dy*e.dx;if(c>-40&&c<40){w=c>=0?2.5:-2.5;fx+=e.dy*w;fy-=e.dx*w;}}
   }
@@ -1781,6 +1833,7 @@ function botDir(st,o){
     for(i=0;i<S.nG;i++){g=G[i];dx=g.x-px;dy=g.y-py;d=dx*dx+dy*dy;if(d<bd){bd=d;best=i;}}
     if(best>=0&&bd<40000){d=Math.sqrt(bd)+0.01;fx+=(G[best].x-px)/d*0.8;fy+=(G[best].y-py)/d*0.8;}
   }
+  BFUITE=Math.sqrt(fx*fx+fy*fy);
   if(o){if(botAttirer(o,px,py)){S.botD=0;return 0;}fx+=BAX;fy+=BAY;}   /* 0.11 : robots qui parient ou tiennent le rond */
   if(fx*fx+fy*fy<0.0025){if(S.n%40===0)S.botD=(S.botD%16)+1;S.botD=botEviter(st,S.botD,1);return S.botD;}
   S.botD=botEviter(st,quantifier(fx,fy),1);return S.botD;
@@ -1805,17 +1858,45 @@ function botEviter(st,q,eau){
    jusqu'à ce que l'anneau soit plein) ; o & 2 : il va au rond de sciure et y reste en esquivant (rappel vers le centre).
    Renvoie 1 pour « ne bouge pas » ; sinon ajoute son attirance dans BAX, BAY. */
 var BAX=0,BAY=0;
+/* 0.16 (tournée, tests) : o & 4 : le robot « tournée » va vers l'étape (poids BOT_TOUR, il fuit toujours d'abord, comme pour le reste) ;
+   o & 8 : le robot « rond » tourne autour de l'obstacle (maison ou fontaine) le plus proche du départ, sans autre but, et ne fuit
+   que le danger proche (BOT_RAYON_ROND × la portée de fuite ordinaire). C'est la tactique que la tournée doit rendre moins payante. */
+var BFUITE=0;   /* intensité de la fuite au moment où les attirances s'ajoutent */
+var BOTR={attente:900,seuil:1.5,tour:2,rayon:0.7,tang:0.6,rappel:0.03,laisse:2};   /* tour : poids de l'étape ; rayon : portée de fuite du rond ; tang, rappel, laisse : orbite du rond */
 /* parieur avisé : 60 % de PV au moins, 85 % pour une malédiction, et pas d'élites en plus sans une évolution ou le niveau 15 */
 function botParie(P){return S.pv>=S.pvMax*(P.duree?0.85:0.6)&&(!P.elites||S.nEvo>0||S.niveau>=15);}
 function botAttirer(o,px,py){
-  var b=S.bo,c=S.ce,dx,dy,d,w;BAX=0;BAY=0;
+  var b=S.bo,c=S.ce,dx,dy,d,w,k,g;BAX=0;BAY=0;
   if((o&1)&&b.on&&(b.ch>0||botParie(PARIS[b.type]))){dx=b.x-px;dy=b.y-py;d=Math.sqrt(dx*dx+dy*dy)+0.01;
     if(d<BORNE_R*0.6)return 1;w=d<140?7:2.5;BAX+=dx/d*w;BAY+=dy/d*w;}
+  if((o&4)&&S.tour.on&&(S.elan===0||S.elanT>=BOTR.attente)){dx=wr(md(S.tour.x-px));dy=wr(md(S.tour.y-py));d=Math.sqrt(dx*dx+dy*dy)+0.01;
+    /* contournement : si la distance à l'étape ne baisse plus (rempart, maison, berge), il longe l'obstacle (attirance tournée
+       de 80°) d'un côté pendant un moment qui s'allonge, puis de l'autre */
+    var nv=S.nav;if(!nv||nv.k!==S.tour.k){nv=S.nav={k:S.tour.k,d:d,n:S.n,ec:0,fin:0,cote:1};}
+    if(nv.fin>S.n){k=nv.cote*320;g=dx*cs(k)-dy*sn(k);dy=dx*sn(k)+dy*cs(k);dx=g;}
+    else if(S.n-nv.n>=90){
+      if(nv.d-d>=30)nv.ec=0;
+      else if(BFUITE<BOTR.seuil*0.5){nv.ec++;nv.cote=-nv.cote;nv.fin=S.n+Math.min(900,240+180*nv.ec);}
+      nv.d=d;nv.n=S.n;}
+    w=BOTR.tour*Math.max(0,1-BFUITE/BOTR.seuil);BAX+=dx/d*w;BAY+=dy/d*w;}
+  if(o&8)botRond(px,py);
   if((o&2)&&c.on){dx=c.x-px;dy=c.y-py;d=Math.sqrt(dx*dx+dy*dy)+0.01;
     /* encore le temps d'arriver et de tenir ? */
     if(CERCLE_VIE-(S.n-c.nais)>Math.max(0,d-CERCLE_R)/(S.vit/HZ)+(CERCLE_TENIR-c.ch)){
       w=d>CERCLE_R*0.55?(d<CERCLE_R?9:3):0;BAX+=dx/d*w;BAY+=dy/d*w;}}
   return 0;
+}
+/* obstacle de départ du robot « rond » : maison ou fontaine la plus proche du départ du monde (M.ofu, M.ofv), choisi une fois */
+function botRond(px,py){
+  var o,k,du,dv,d,bd=1e18,bo=-1,r,w;
+  if(S.rondObs===undefined){
+    for(o=0;o<M.ox.length;o++){k=M.ok[o];if(k!==K_MAISON&&k!==K_FONT)continue;du=wr(M.ox[o]-M.ofu);dv=wr(M.oy[o]-M.ofv);d=du*du+dv*dv;if(d<bd){bd=d;bo=o;}}
+    S.rondObs=bo<0?null:{o:bo,r:(M.ot[bo]===0?Math.max(M.oa[bo],M.ob[bo]):M.oa[bo])+46};}
+  if(!S.rondObs)return;
+  o=S.rondObs.o;du=wr(md(px+M.ofu)-M.ox[o]);dv=wr(md(py+M.ofv)-M.oy[o]);d=Math.sqrt(du*du+dv*dv)+0.01;r=S.rondObs.r;
+  /* tangente (sens horaire à l'écran) et rappel vers l'anneau de rayon r */
+  w=BOTR.rappel*(r-d);if(d>r*3)w-=BOTR.laisse;   /* tenu en laisse : trop loin de l'obstacle, il y revient */
+  BAX+=-dv/d*BOTR.tang+du/d*w;BAY+=du/d*BOTR.tang+dv/d*w;
 }
 function botChoix(st){
   lier(st);
@@ -1853,7 +1934,7 @@ Object.assign(REGL,{});return{HZ:HZ,NA:NA,creer:creer,pas:pas,choisir:choisir,re
     K:{BLOC:K_BLOC,MAISON:K_MAISON,CATH:K_CATH,NEF:K_NEF,MORAT:K_MORAT,TOURR:K_TOURR,REMP:K_REMP,FONT:K_FONT,SAPIN:K_SAPIN,FEUIL:K_FEUIL,TILLEUL:K_TILLEUL,VACHE:K_VACHE,FOIN:K_FOIN,TONNEAU:K_TONNEAU,CAISSE:K_CAISSE,STH:K_STH,STB:K_STB,FROM:K_FROM,MOLESON:K_MOLESON,PANNEAU:K_PANNEAU,MUR:K_MUR},
     D:{LAMPE:D_LAMPE,BANC:D_BANC,FLEURS:D_FLEURS,TOITPONT:D_TOITPONT,BANNIERE:D_BANNIERE,BAT:D_BAT}},fnv1a:fnv1a,mulberry32:mulberry32,melange:melange,sn:sn,cs:cs,
   ENN:ENN,NVAR:NVAR,VAGUES:VAGUES,PVMIN:PVMIN,REGL:REGL,ARMES:ARMES,NARMES:NARMES,PASSIFS:PASSIFS,SURCHARGES:SURCHARGES,DECRETS:DECRETS,decretDe:decretDe,VOTES:VOTES,PALIERS:PALIERS,FAMILLES:FAMILLES,XPT:XPT,M_CARTE:M_CARTE,M_VOTE:M_VOTE,MAXPAS:MAXPAS,PLAF:PLAF,
-  PARIS:PARIS,RECOMPENSES:RECOMPENSES,T_BORNES:T_BORNES,T_CERCLES:T_CERCLES,BORNE_VIE:BORNE_VIE,BORNE_TENIR:BORNE_TENIR,BORNE_R:BORNE_R,PARI_MAX:PARI_MAX,CERCLE_VIE:CERCLE_VIE,CERCLE_TENIR:CERCLE_TENIR,CERCLE_R:CERCLE_R,EV_PARI:EV_PARI,EV_CERCLE:EV_CERCLE,
+  PARIS:PARIS,RECOMPENSES:RECOMPENSES,T_BORNES:T_BORNES,T_CERCLES:T_CERCLES,BORNE_VIE:BORNE_VIE,BORNE_TENIR:BORNE_TENIR,BORNE_R:BORNE_R,PARI_MAX:PARI_MAX,CERCLE_VIE:CERCLE_VIE,CERCLE_TENIR:CERCLE_TENIR,CERCLE_R:CERCLE_R,EV_PARI:EV_PARI,EV_CERCLE:EV_CERCLE,EV_TOUR:EV_TOUR,TOUR:TOUR,BOTR:BOTR,   /* 0.16 : tournée */
   PROL:PROL,PROL_PAS:PROL_PAS,EV_PROL:EV_PROL,   /* 0.14 : Recrotzon (prolongations) */
   TRESORS:TRESORS,COLLECTIONS:COLLECTIONS,TABLEAUX:TABLEAUX,I_TABLEAU:I_TABLEAU,tableauDe:tableauDe,OBJETS:OBJETS,DECOS:DECOS,COMBO_PAL:COMBO_PAL,I_COL:I_COL,I_ENN:I_ENN,I_ARME:I_ARME,I_PASSIF:I_PASSIF,I_TRES:I_TRES,VAGUE_COL:VAGUE_COL,T_VOTES:T_VOTES,DUREE:DUREE,T_BOSSN:T_BOSSN,T_LIQ:T_LIQ,
   EV:{HIT:EV_HIT,MORT:EV_MORT,GEMME:EV_GEMME,JTOUCHE:EV_JTOUCHE,NIVEAU:EV_NIVEAU,COFFRE:EV_COFFRE,ONDE:EV_ONDE,TIR:EV_TIR,BANDEAU:EV_BANDEAU,PAROLE:EV_PAROLE,ELITE:EV_ELITE,BOSSMORT:EV_BOSSMORT,RAMASSE:EV_RAMASSE,PIEU:EV_PIEU,TAPIS:EV_TAPIS,FIN:EV_FIN,CHAPEAU:EV_CHAPEAU,ASPI:EV_ASPI,TIRENN:EV_TIRENN,BOSS:EV_BOSS,ECLAT:EV_ECLAT,
@@ -2330,6 +2411,13 @@ LANGUES.fr={
 "aide.cercle":"Un rond de sciure ! Tiens-y 7 s pour choisir un prix.",
 "fin.paris":"Paris ×{0} : +{1} pts",
 "fin.ronds":"Ronds tenus : {0}",
+"tour.hud":"Élan {0}/{1} · {2} s",
+"tour.hud0":"Tournée · élan 0/{0}",
+"tour.dist":"{0} m",
+"tour.gain":"Étape ! Élan {0}, +{1} pts",
+"tour.perdu":"L'élan retombe…",
+"fin.tournee":"Tournée : {0} étapes, élan maximal {1}",
+"aide.tournee":"Une étape de la tournée ! Rejoins-la : l'élan multiplie tes points.",
 "cat.3":"PRIX DU ROND",
 "decret.toutous.nom":"Jour des Toutous",
 "decret.toutous.ligne":"Deux fois plus de toutous. Le Poing Levé tire un poing de plus.",
@@ -3457,6 +3545,13 @@ LANGUES.de={
 "aide.cercle":"Ein Sägemehlring! Halte ihn 7 s und wähle einen Preis.",
 "fin.paris":"Wetten ×{0}: +{1} Pkt.",
 "fin.ronds":"Ringe gehalten: {0}",
+"tour.hud":"Schwung {0}/{1} · {2} s",
+"tour.hud0":"Tour · Schwung 0/{0}",
+"tour.dist":"{0} m",
+"tour.gain":"Etappe! Schwung {0}, +{1} Pkt.",
+"tour.perdu":"Der Schwung lässt nach …",
+"fin.tournee":"Tour: {0} Etappen, maximaler Schwung {1}",
+"aide.tournee":"Eine Etappe der Tour! Erreiche sie: Schwung vervielfacht deine Punkte.",
 "cat.3":"RINGPREIS",
 "decret.toutous.nom":"Hundetag",
 "decret.toutous.ligne":"Doppelt so viele Hunde. Die Erhobene Faust wirft eine Faust mehr.",
@@ -4582,6 +4677,13 @@ LANGUES.it={
 "aide.cercle":"Un cerchio di segatura! Tienilo 7 s per scegliere un premio.",
 "fin.paris":"Scommesse ×{0}: +{1} pti",
 "fin.ronds":"Cerchi tenuti: {0}",
+"tour.hud":"Slancio {0}/{1} · {2} s",
+"tour.hud0":"Giro · slancio 0/{0}",
+"tour.dist":"{0} m",
+"tour.gain":"Tappa! Slancio {0}, +{1} pt",
+"tour.perdu":"Lo slancio cala…",
+"fin.tournee":"Giro: {0} tappe, slancio massimo {1}",
+"aide.tournee":"Una tappa del giro! Raggiungila: lo slancio moltiplica i tuoi punti.",
 "cat.3":"PREMIO DEL CERCHIO",
 "decret.toutous.nom":"Giorno dei Cagnolini",
 "decret.toutous.ligne":"Il doppio di cagnolini. Il Pugno Alzato lancia un pugno in più.",
@@ -5707,6 +5809,13 @@ LANGUES.es={
 "aide.cercle":"¡Un círculo de serrín! Aguanta 7 s para elegir un premio.",
 "fin.paris":"Apuestas ×{0}: +{1} pts",
 "fin.ronds":"Círculos aguantados: {0}",
+"tour.hud":"Impulso {0}/{1} · {2} s",
+"tour.hud0":"Ruta · impulso 0/{0}",
+"tour.dist":"{0} m",
+"tour.gain":"¡Etapa! Impulso {0}, +{1} pts",
+"tour.perdu":"El impulso decae…",
+"fin.tournee":"Ruta: {0} etapas, impulso máximo {1}",
+"aide.tournee":"¡Una etapa de la ruta! Llega hasta ella: el impulso multiplica tus puntos.",
 "cat.3":"PREMIO DEL CÍRCULO",
 "decret.toutous.nom":"Día de los Perros",
 "decret.toutous.ligne":"El doble de perros. El Puño en Alto lanza un puño más.",
@@ -6832,6 +6941,13 @@ LANGUES.en={
 "aide.cercle":"A sawdust ring! Hold it 7 s to pick a prize.",
 "fin.paris":"Bets ×{0}: +{1} pts",
 "fin.ronds":"Rings held: {0}",
+"tour.hud":"Momentum {0}/{1} · {2} s",
+"tour.hud0":"Tour · momentum 0/{0}",
+"tour.dist":"{0} m",
+"tour.gain":"Stop! Momentum {0}, +{1} pts",
+"tour.perdu":"Momentum fades…",
+"fin.tournee":"Tour: {0} stops, max momentum {1}",
+"aide.tournee":"A stop on the tour! Reach it: momentum multiplies your points.",
 "cat.3":"RING PRIZE",
 "decret.toutous.nom":"Doggo Day",
 "decret.toutous.ligne":"Twice as many dogs. The Raised Fist throws one extra fist.",
@@ -7504,7 +7620,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.15.0-fr4';
+var VERSION='0.16.0-fr1';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -9144,7 +9260,8 @@ function traiterEv(){
     case EV.REPAS:repasT=0;pluie.length=0;son('repas');eclairBlanc=1;gel=Math.max(gel,0.14);secouer(0.8);musBaisse=2;budgetPart+=200;
       anneauFx(S.px,S.py,420,0.8,2);anneauFx(S.px,S.py,300,0.6,0);anneauFx(S.px,S.py,180,0.45,3);gerbe(S.px,S.py-20,60,1,460,11,1);gerbe(S.px,S.py-20,40,4,380,10,0.9);
       vibrer([60,40,120]);break;
-    case SIM.EV_PARI:case SIM.EV_CERCLE:evBornes(t,v,o);break;   /* 0.11 : oratoire du pari, rond de sciure */
+    case SIM.EV_PARI:case SIM.EV_CERCLE:evBornes(t,v,o);break;
+    case SIM.EV_TOUR:evTour(v,o);break;   /* 0.16 : tournée */   /* 0.11 : oratoire du pari, rond de sciure */
     case SIM.EV_PROL:evProl(x,y);break;   /* 0.14 : bougie de clôture passée, palier du Recrotzon */
     }
   }
@@ -10022,7 +10139,7 @@ function tresorObjet(){
 /* ---------- 0.11 (bornes) : oratoire du pari et rond de sciure ----------
    Rendu bon marché : sprites préparés une fois (construireBornes), au plus deux arcs tracés par objet et par image,
    aucun dégradé recalculé. Sons : uniquement ceux du jeu, par son(). Textes : clés pari.* et cercle.* des LANGUES. */
-var COUL_PARI=['#FF9F43','#FF6FA8','#8FD8FF'],COUL_SCIURE='#E8C480',aidePari=false,aideCercle=false;
+var COUL_PARI=['#FF9F43','#FF6FA8','#8FD8FF'],COUL_SCIURE='#E8C480',COUL_TOUR='#4FE0C0',aidePari=false,aideCercle=false,aideTour=false;
 function dOratoire(g){ /* boîte 56 × 84, pied en (28, 80) : petit oratoire de bord de route, une carte de jass dans la niche */
   corps(g,function(g){g.beginPath();rrect(g,12,64,32,15,3);},'#8C8578',28,71,15,{trait:1.6,contour:'#2E2A26',sansRim:1,sansReflet:1});
   corps(g,function(g){g.beginPath();rrect(g,16,31,24,35,2);},'#D2CAB8',28,48,17,{trait:1.6,contour:'#2E2A26',sansRim:1});
@@ -10070,8 +10187,17 @@ function construireBornes(){
 function versEcranX(x){return 180+(x-camX)*zoom;}
 function versEcranY(y){return 320+(y-camY)*zoom;}
 /* au sol : le rond de sciure (charge en or, clignote les 8 dernières secondes) et la dalle de l'oratoire (anneau du pari) */
+/* 0.16 : balise de l'étape de la tournée : anneau turquoise qui respire et colonne de lumière (position la plus proche sur le tore) */
+function tourBalise(){
+  var t=S.tour,x=S.px+SIM.wr(SIM.md(t.x-S.px)),y=S.py+SIM.wr(SIM.md(t.y-S.py)),R=SIM.TOUR.rayon,p=1+0.06*Math.sin(tReel*5),g;
+  cx.globalAlpha=0.28;cx.fillStyle=COUL_TOUR;cx.beginPath();cx.arc(x,y,R*p,0,PI2);cx.fill();
+  cx.globalAlpha=0.9;cx.strokeStyle=COUL_TOUR;cx.lineWidth=2.5;cx.setLineDash([7,5]);cx.lineDashOffset=-tReel*24;cx.beginPath();cx.arc(x,y,R*p,0,PI2);cx.stroke();cx.setLineDash([]);
+  g=cx.createLinearGradient(0,y-120,0,y);g.addColorStop(0,'rgba(79,224,192,0)');g.addColorStop(1,'rgba(79,224,192,0.55)');
+  cx.globalAlpha=0.7+0.2*Math.sin(tReel*4);cx.fillStyle=g;cx.fillRect(x-5,y-120,10,120);cx.globalAlpha=1;
+}
 function bornesSol(){
   var b=S.bo,c=S.ce,R,k,al,dx,dy,dedans;
+  if(S.tour.on)tourBalise();
   if(c.on){R=SIM.CERCLE_R;k=(SIM.CERCLE_VIE-(S.n-c.nais))/60;al=k<8&&Math.sin(tReel*14)<0?0.5:1;dx=S.px-c.x;dy=S.py-c.y;dedans=dx*dx+dy*dy<R*R;
     cx.globalAlpha=al*(dedans?1:0.85);cx.drawImage(SPR.rondSciure,c.x-R*128/116,c.y-R*128/116,R*256/116,R*256/116);
     cx.globalAlpha=al*0.35;cx.strokeStyle=dedans?C.or:COUL_SCIURE;cx.lineWidth=dedans?4:2;cx.beginPath();cx.arc(c.x,c.y,R+6+(dedans?2*Math.sin(tReel*10):0),0,PI2);cx.stroke();
@@ -10091,13 +10217,14 @@ function borneObjet(){
   cx.globalAlpha=al;cx.drawImage(s.c,b.x-s.ax+bob,b.y-24-s.ay,s.w,s.h);cx.globalAlpha=1;
 }
 /* flèche au bord de l'écran (même règle que celle du trésor) */
-function flecheBord(wx,wy,coul,ico){
+function flecheBord(wx,wy,coul,ico,txt){
   var dx=wx-S.px,dy=wy-S.py,f,x,y,a,k;
   if(!(dx>165||dx<-165||dy>290||dy<-230))return;
   f=Math.min(150/(Math.abs(dx)+0.01),(dy<0?110:270)/(Math.abs(dy)+0.01));x=180+dx*f;y=320+dy*f;a=Math.atan2(dy,dx);k=1+0.15*Math.sin(tReel*8);
   cx.save();cx.translate(x,y);cx.rotate(a);cx.scale(k,k);cx.fillStyle=C.encre;cx.beginPath();cx.moveTo(18,0);cx.lineTo(-10,-14);cx.lineTo(-3,0);cx.lineTo(-10,14);cx.closePath();cx.fill();
   cx.fillStyle=coul;cx.beginPath();cx.moveTo(13,0);cx.lineTo(-7,-10);cx.lineTo(-1,0);cx.lineTo(-7,10);cx.closePath();cx.fill();cx.restore();
-  cx.drawImage(ico.c,x-Math.cos(a)*30-13,y-Math.sin(a)*30-13,26,26);
+  if(ico)cx.drawImage(ico.c,x-Math.cos(a)*30-13,y-Math.sin(a)*30-13,26,26);
+  if(txt)tt(txt,x-Math.cos(a)*36,y-Math.sin(a)*36,10,coul,'center',0);   /* 0.16 : distance de l'étape */
 }
 /* pastilles du pari sous celles du score (colonne de droite) ; renvoie le y suivant */
 function hudPari(y){
@@ -10105,11 +10232,21 @@ function hudPari(y){
   if(S.biseT>0){pastille(352,y,T('pari.biseHud',Math.ceil(S.biseT/60)),COUL_PARI[2]);y+=19;}
   return y;
 }
+/* 0.16 : jauge d'élan (crans et délai restant avant d'en perdre un) ; renvoie le y suivant */
+function hudTournee(y){
+  var T0=SIM.TOUR,k,w;
+  if(!S.tour.on&&S.elan===0&&S.etapes===0)return y;
+  if(S.elan>0){pastille(352,y,T('tour.hud',S.elan,T0.max,Math.ceil((T0.delai-S.elanT)/60)),COUL_TOUR);
+    k=1-S.elanT/T0.delai;w=70;cx.fillStyle='rgba(13,9,20,0.8)';cx.fillRect(352-w,y+16,w,3);cx.fillStyle=k<0.2?C.danger:COUL_TOUR;cx.fillRect(352-w,y+16,w*k,3);y+=23;}
+  else{pastille(352,y,T('tour.hud0',T0.max),'rgba(79,224,192,0.75)');y+=19;}
+  return y;
+}
 /* oratoire et rond : flèches hors champ, conditions du pari pendant que l'anneau se remplit, charge du rond, aides */
 function hudBornes(hy){
-  var b=S.bo,c=S.ce,dx,dy,d,x,y,P,k,w;
+  var b=S.bo,c=S.ce,dx,dy,d,x,y,P,k,w,tx,ty;
   if(!sous&&tMort<0){
     if(c.on)flecheBord(c.x,c.y,COUL_SCIURE,SPR.icoRec[2]);
+    if(S.tour.on){tx=S.px+SIM.wr(SIM.md(S.tour.x-S.px));ty=S.py+SIM.wr(SIM.md(S.tour.y-S.py));flecheBord(tx,ty,COUL_TOUR,null,T('tour.dist',Math.round(Math.sqrt((tx-S.px)*(tx-S.px)+(ty-S.py)*(ty-S.py))/10)));}   /* 0.16 : étape de la tournée */
     if(b.on)flecheBord(b.x,b.y,COUL_PARI[b.type],SPR.icoPari[b.type]);
     /* le rond : texte au-dessus, secondes qui restent à tenir */
     if(c.on){dx=S.px-c.x;dy=S.py-c.y;
@@ -10127,6 +10264,7 @@ function hudBornes(hy){
   }
   if(aidePari&&aideT<0&&!sous&&!BOT){aidePari=false;SAUV.aide|=16;sauver();aideTxt=T('aide.pari');aideT=0;}
   if(aideCercle&&aideT<0&&!sous&&!BOT){aideCercle=false;SAUV.aide|=32;sauver();aideTxt=T('aide.cercle');aideT=0;}
+  if(aideTour&&aideT<0&&!sous&&!BOT){aideTour=false;SAUV.aide|=64;sauver();aideTxt=T('aide.tournee');aideT=0;}   /* 0.16 */
 }
 /* événements EV_PARI et EV_CERCLE (données : v[o+1] = sous-type, puis b, c, d) */
 function evBornes(t,v,o){
@@ -10142,6 +10280,14 @@ function evBornes(t,v,o){
     else if(a===1){son('evolution');eclairBlanc=Math.max(eclairBlanc,0.4);anneauFx(x,y,SIM.CERCLE_R+40,0.55,2);anneauFx(x,y,SIM.CERCLE_R,0.4,0);budgetPart+=60;gerbe(x,y,30,1,320,8,0.7);}
     else if(a===2){son('non');parole(S.px,S.py-58,T('cercle.perdu'));}
     else if(a===3){k=v[o+2]|0;mot(T('cercle.'+SIM.RECOMPENSES[k].cle+'.nom').toUpperCase(),C.or,24);}}
+}
+/* 0.16 : événements de la tournée (a = 0 étape posée ; 1 atteinte : élan, prime, x, y ; 2 un cran perdu : élan restant) */
+function evTour(v,o){
+  var a=v[o+1],x,y;
+  if(a===0){if(!(SAUV.aide&64)&&!BOT)aideTour=true;
+    x=S.px+SIM.wr(SIM.md(v[o+3]-S.px));y=S.py+SIM.wr(SIM.md(v[o+4]-S.py));if(v[o+2]>0)anneauFx(x,y,SIM.TOUR.rayon+30,0.5,2);}
+  else if(a===1){x=S.px;y=S.py;son('combo',Math.min(7,v[o+2]));anneauFx(x,y,160,0.45,2);budgetPart+=20;gerbe(x,y-20,14,1,220,6,0.5);parole(x,y-62,T('tour.gain',v[o+2],fmtNb(v[o+3])));}
+  else if(a===2){son('non');parole(S.px,S.py-58,T('tour.perdu'));}
 }
 /* conditions d'un pari, chiffres tirés du registre PARIS : {0} et {1} selon le pari, le dernier trou est le gain en % */
 function lignePari(P){var g=Math.round(P.mult*100);
@@ -10718,6 +10864,7 @@ function lancer(rang,graineForcee,o){
   if(rang&&!srv&&modeServeur()&&!(touriste()&&!entrainementSeul()))rang=false;
   if(rang&&!srv&&essaisRestants()<=0)rang=false;
   classee=!!rang;partieSrv=classee?srv:null;essaiTouriste=classee&&!partieSrv&&modeServeur();
+  if(!partieSrv&&!(o&&o.revoir))visite('d',{t:echauffement?'c':(classee?'t':'e')});
   if(partieSrv){essaiNo=partieSrv.essai;graineCourante=partieSrv.graine>>>0;}
   else if(classee){SAUV.essais++;essaiNo=SAUV.essais;sauver();graineCourante=SIM.fnv1a('DZO-'+JOUR);}
   else graineCourante=graineForcee!==undefined?(graineForcee>>>0):SIM.melange(Date.now()&0x7fffffff,(Math.random()*1e9)|0);
@@ -10752,6 +10899,7 @@ function finDePartie(){
   var sc=SIM.score(S);
   ecran='fin';sous='';tEcran=0;AU.joue=false;lacherDoigts();presse=null;pressePtr=-1;finTampon=0;apercuCarte=null;
   if(REVOIR){recordAvant=0;nouveauRecord=false;titreFin=S.victoire?(!S.plafond?'fin.titre.prol':(S.bossTue?'fin.titre.victoire':'fin.titre.cloture')):'revoir.fin';tueurFin=(S.victoire&&S.plafond)?-1:S.tueur;tueurVFin=S.tueurV||0;regretFin='';return;}
+  if(!partieSrv)visite('f',{t:echauffement?'c':(classee?'t':'e'),score:sc|0,pas:S.n|0});
   /* 0.7 : partie classée en ligne : envoi du journal (gardé en stockage local jusqu'à la réponse du serveur) */
   if(classee&&partieSrv){
     var prm=pauseRestanteMs();
@@ -10957,6 +11105,7 @@ function rendreHUD(dt){
   if(S.xpMult>1){pastille(352,y,T('xpX',S.xpMult),C.or);y+=19;}
   if(m>1.001){pastille(352,y,T(S.bonusSC>0?'sansCoupX':'scoreX',fr(Math.round(m*10)/10)),C.cyan);y+=19;}
   y=hudPari(y);   /* 0.11 : multiplicateur des paris, bise en cours */
+  y=hudTournee(y);   /* 0.16 : élan de la tournée */
   if(REVOIR){pastille(352,y,T('revoir.maj'),C.cyan);y+=19;
     var rv=REVOIR;bouton('rvVit',300,y+2,52,24,'×'+rv.vit,3,function(){rv.vit=rv.vit>=4?1:rv.vit*2;},null,12);y+=30;}
   else if(echauffement){pastille(352,y,T('echauffement.maj'),C.vert);y+=19;}
@@ -11850,7 +11999,8 @@ function rendreFin(){
       if(!REVOIR)LF.push({k:'record',t:T(classee?'fin.recordJour':'fin.recordPerso',fmtNb(classee?SAUV.record:SAUV.meilleur))+(nouveauRecord?T('fin.nouveau'):''),c:C.or,p:11.5,g:1});
       if(ligneParis())LF.push({k:'pari',t:ligneParis(),c:COUL_PARI[0],p:11.5,g:0});   /* 0.11 : paris et ronds, une ligne */
       if(S.prol>0)LF.push({k:'cloture',t:T('fin.cloture',fmtNb(S.bonusCloture),S.prol),c:C.vert,p:11.5,g:0});   /* 0.14 : bougie de clôture, palier atteint */
-      var oter=['regret','repas','pari','cloture'];
+      if(S.etapes>0)LF.push({k:'tour',t:T('fin.tournee',S.etapes,S.elanMax),c:COUL_TOUR,p:11.5,g:0});   /* 0.16 : la tournée */
+      var oter=['regret','repas','pari','cloture','tour'];
       while(LF.length>1&&dispoL/(LF.length-1)<13.5&&oter.length){var ko=oter.shift();LF=LF.filter(function(l){return l.k!==ko;});}
       pasL=LF.length>1?Math.max(12,Math.min(17,dispoL/(LF.length-1))):17;
       for(i=0;i<LF.length;i++){var lf=LF[i];
@@ -12109,6 +12259,13 @@ function ouvrirSession(){
   if(rp){NET.cnx=rp;return sante().then(function(x){cnxPlanifier(0);return x;});}
   return sante();
 }
+/* signal de visite (backlog 45, console d'administration) : ouverture de la page, début et fin d'une partie que le serveur
+   ne voit pas (entraînement, échauffement, essai local d'un Touriste). Hors simulation, sans session, sans effet sur le jeu. */
+function visiteId(){try{var v=localStorage.getItem('dzofr.vid')||'';if(!/^[0-9a-f]{16}$/.test(v)){v='';for(var i=0;i<16;i++)v+=((Math.random()*16)|0).toString(16);localStorage.setItem('dzofr.vid',v);}return v;}catch(e){return'';}}
+function visite(e,d){try{if(!NET.actif||BOT)return;var c=d||{};c.e=e;c.v=VERSION;c.vid=visiteId();apiAppel('POST','/api/visite',c,{sansAuth:true,delai:6000});}catch(x){}}
+function visiteOuverture(){var r='',tg=0;try{r=document.referrer?new URL(document.referrer).hostname:'';}catch(e){}
+  try{tg=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData?1:0;}catch(e){}
+  visite('o',{ref:String(r).slice(0,80),l:String(navigator.language||'').slice(0,12),w:screen.width|0,h:screen.height|0,tg:tg});}
 function sante(){
   return apiAppel('GET','/api/sante').then(function(r){NET.majT=Date.now();NET.etat=r.statut===200?'ok':'hors';
     if(r.statut===200){if(r.json.versions)NET.versions=r.json.versions;if(r.json.regles&&!connecte())NET.regles=r.json.regles;if(r.json.modeGraine&&!connecte())NET.modeGraine=r.json.modeGraine;
@@ -14470,6 +14627,7 @@ window.__dzo={
     if(S){o.graine=S.graine;o.px=Math.round(S.px);o.py=Math.round(S.py);o.pas=S.n;o.temps=S.n/60;o.pv=Math.round(S.pv);o.pvMax=S.pvMax;o.niveau=S.niveau;o.score=SIM.score(S);o.ennemis=S.nE;o.gemmes=S.nG;o.projectiles=S.nP;o.particules=pN;o.tues=S.tues;o.fini=!!S.fini;o.victoire=!!S.victoire;o.modal=S.modal;o.bossVivant=!!S.bossVivant;o.bossTue=!!S.bossTue;
       o.armes=[];for(var i=0;i<S.nA;i++)o.armes.push(ARMES[S.armes[i].id].cle+(S.armes[i].evo?'*':S.armes[i].niv));o.passifs=[];for(i=0;i<S.nPa;i++)o.passifs.push(PASSIFS[S.passifs[i].id].cle+S.passifs[i].niv);
       o.combo=S.combo;o.comboMax=S.comboMax;o.tresor=S.tre.on?SIM.TRESORS[S.tre.type].cle:'';o.tresorsPris=S.tresorsPris;o.tresorsVus=S.treN;}
+    if(S){o.etapes=S.etapes||0;o.elan=S.elan||0;o.elanMax=S.elanMax||0;}   /* 0.16 (tournée) */
     if(S){o.paris=S.nParis||0;o.pariMult=S.pariMult||1;o.ronds=S.cePris||0;}   /* 0.11 (bornes) */
     if(S){o.prol=S.prol||0;o.bonusCloture=S.bonusCloture||0;}   /* 0.14 (Recrotzon) */
     o.manette={actif:joy.actif,id:joy.id,dir:joy.dir,doigts:doigts.length};
@@ -15064,6 +15222,10 @@ function frCarteDessin(grande){
   cx.strokeStyle='rgba(255,122,26,0.9)';cx.lineWidth=2;cx.strokeRect(x0-1,y0-1,T+2,H+2);
   cx.strokeStyle='rgba(255,255,255,0.55)';cx.lineWidth=1;cx.strokeRect(px-180/zoom*k,py-320/zoom*k,360/zoom*k,640/zoom*k);
   cx.fillStyle='#0D0914';cx.beginPath();cx.arc(px,py,grande?5:3.6,0,PI2);cx.fill();cx.fillStyle=Math.sin(tReel*8)>0?'#FFD23F':'#FFFFFF';cx.beginPath();cx.arc(px,py,grande?3.6:2.4,0,PI2);cx.fill();
+  /* tournée : l'étape à rallier, en turquoise, et le trait qui y mène */
+  if(S&&S.tour&&S.tour.on){var ex=x0+(mdw(S.tour.x+MW.ofu)-F.bx0)*k,ey=y0+(mdw(S.tour.y+MW.ofv)-F.by0)*k,rr=(grande?6:4)+Math.sin(tReel*5);
+    cx.strokeStyle='rgba(79,224,192,0.6)';cx.lineWidth=1;cx.setLineDash([3,3]);cx.beginPath();cx.moveTo(px,py);cx.lineTo(ex,ey);cx.stroke();cx.setLineDash([]);
+    cx.fillStyle='#0D0914';cx.beginPath();cx.arc(ex,ey,rr+1.4,0,PI2);cx.fill();cx.fillStyle='#4FE0C0';cx.beginPath();cx.arc(ex,ey,rr,0,PI2);cx.fill();}
   cx.font='700 8px system-ui,sans-serif';cx.textAlign='left';cx.fillStyle='rgba(246,241,231,0.8)';cx.fillText('N ▲',x0+3,y0+10);
   return B;
 }
@@ -15093,6 +15255,7 @@ window.addEventListener('pointerdown',function(e){
 if(typeof window!=='undefined')window.__frCarte=function(){return{grande:frCarteGrande,sous:sous,boite:frCarteBoite(false),K:K,OX:OX,OY:OY,DPR:DPR};};
 
 init();
+visiteOuverture();
 })();
 </script>
 <div id="frPastille" style="position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 11px/1 system-ui,sans-serif;padding:5px 12px 6px;border-radius:0 0 8px 8px;opacity:.92;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
