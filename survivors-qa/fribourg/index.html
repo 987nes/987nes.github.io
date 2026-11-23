@@ -254,8 +254,9 @@ var T_CERCLES=[9600,19800],CERCLE_VIE=2400,CERCLE_TENIR=420,CERCLE_R=72;
    de la précédente. Les positions ne dépendent QUE de la graine (flux rTour, posSure avec des cassables tous intacts) : elles
    sont absolues dans le monde (coordonnées de partie, sans retour au tore), identiques pour tous les joueurs d'une graine.
    Atteindre (DZÔ à moins de TOUR.rayon) : +1 cran d'élan (TOUR.max au plus), le délai repart, prime d'étape ; sans nouvelle
-   étape pendant TOUR.delai pas, l'élan perd un cran. Le score des éliminations est multiplié par 1 + TOUR.coef × élan. ---- */
-var TOUR={debut:600,dMin:300,dAmp:200,ecart:400,rayon:44,delai:2700,max:4,coef:0.25,prime:150};
+   étape pendant TOUR.delai pas, l'élan perd un cran. Le score des éliminations est multiplié par TOUR.base + TOUR.coef × élan :
+   40 % sans élan, 200 % à plein élan (décision du 23.11.2026 : rester sur place doit rapporter moins, pas seulement bouger plus). ---- */
+var TOUR={debut:600,dMin:300,dAmp:200,ecart:400,rayon:44,delai:2700,max:4,base:0.4,coef:0.4,prime:150};
 
 /* ---- COMBO : paliers (un mot par palier dans le dictionnaire : combo.1 à combo.10) ---- */
 /* Paliers du combo : chaque palier atteint ajoute +10 % au score des éliminations suivantes (jusqu'à +60 %).
@@ -937,7 +938,7 @@ function tuer(i){
   /* combo : se remplit à chaque élimination, retombe après 2,5 s sans élimination (voir pas()) */
   S.combo++;S.comboT=0;if(S.combo>S.comboMax)S.comboMax=S.combo;
   if(S.comboPal<COMBO_PAL.length&&S.combo>=COMBO_PAL[S.comboPal]){S.comboPal++;ev(EV_COMBO,S.comboPal,S.combo);if(S.n>=10800)S.palApres++;}
-  S.tues++;S.tuesType[t]++;S.scoreTues+=e.xp*10*(S.mult+S.bonusSC)*(1+0.1*(S.comboPal<6?S.comboPal:6))*(1+TOUR.coef*S.elan);   /* 0.16 : élan de la tournée */
+  S.tues++;S.tuesType[t]++;S.scoreTues+=e.xp*10*(S.mult+S.bonusSC)*(1+0.1*(S.comboPal<6?S.comboPal:6))*(TOUR.base+TOUR.coef*S.elan);   /* 0.16 : l'élan de la tournée est la base du score des éliminations */
   ev(EV_MORT,e.x,e.y,t,e.taille,e.v);
   if(e.xp>0)gemme(e.x,e.y,e.xp*S.xpMult,S.gemAim||S.niveau===1);
   if(ENN[t].ord){var r=S.rBut(),rf=S.dec.fondueRamassage||0.015;if(r<rf)ramassage(R_FONDUE,e.x,e.y);else if(r<rf+0.004)ramassage(R_AIRDROP,e.x,e.y);else if(r<rf+0.007)ramassage(R_BOUGIE,e.x,e.y);}
@@ -7620,7 +7621,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.16.0-fr1';
+var VERSION='0.16.0-fr2';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -10234,11 +10235,11 @@ function hudPari(y){
 }
 /* 0.16 : jauge d'élan (crans et délai restant avant d'en perdre un) ; renvoie le y suivant */
 function hudTournee(y){
-  var T0=SIM.TOUR,k,w;
+  var T0=SIM.TOUR,k,w,val='  ×'+(T0.base+T0.coef*S.elan).toFixed(1).replace('.',LANGUE==='en'?'.':',');
   if(!S.tour.on&&S.elan===0&&S.etapes===0)return y;
-  if(S.elan>0){pastille(352,y,T('tour.hud',S.elan,T0.max,Math.ceil((T0.delai-S.elanT)/60)),COUL_TOUR);
+  if(S.elan>0){pastille(352,y,T('tour.hud',S.elan,T0.max,Math.ceil((T0.delai-S.elanT)/60))+val,COUL_TOUR);
     k=1-S.elanT/T0.delai;w=70;cx.fillStyle='rgba(13,9,20,0.8)';cx.fillRect(352-w,y+16,w,3);cx.fillStyle=k<0.2?C.danger:COUL_TOUR;cx.fillRect(352-w,y+16,w*k,3);y+=23;}
-  else{pastille(352,y,T('tour.hud0',T0.max),'rgba(79,224,192,0.75)');y+=19;}
+  else{pastille(352,y,T('tour.hud0',T0.max)+val,'rgba(79,224,192,0.75)');y+=19;}
   return y;
 }
 /* oratoire et rond : flèches hors champ, conditions du pari pendant que l'anneau se remplit, charge du rond, aides */
@@ -11080,7 +11081,7 @@ function panneau(x,y,w,h,r,c1,c2,bord,ep){
 function rendreHUD(dt){
   colonne();
   var hy=SAFE_H,i,a,x,y,fx=Math.min(1,S.xp/S.xpSuiv),fp=Math.max(0,S.pv/S.pvMax),s,k,m,b,dx,dy,f;
-  cx.fillStyle=C.encre;cx.fillRect(0,0,360,hy+24);
+  cx.fillStyle=C.encre;cx.fillRect(0,0,360,hy+29);
   /* XP : éclat blanc à chaque gemme, trois clignotements à la montée de niveau */
   cx.fillStyle='#4A3200';cx.fillRect(0,hy,360,12);cx.fillStyle=C.or;cx.fillRect(0,hy,360*fx,12);cx.fillStyle='rgba(255,255,255,0.5)';cx.fillRect(0,hy+1.5,360*fx,2.8);
   cx.fillStyle='rgba(255,255,255,0.9)';cx.fillRect(360*fx-2,hy,2,12);
@@ -11089,6 +11090,10 @@ function rendreHUD(dt){
     else{cx.fillStyle='rgba(255,255,255,'+(Math.min(1,xpEclat/0.15)*0.6).toFixed(2)+')';cx.fillRect(0,hy,360*fx,12);}
   }
   cx.fillStyle='#3A0008';cx.fillRect(0,hy+13,360,9);cx.fillStyle=fp<0.3?C.danger:C.rouge;cx.fillRect(0,hy+13,360*fp,9);cx.fillStyle='rgba(255,255,255,0.35)';cx.fillRect(0,hy+14,360*fp,2);
+  /* 0.16 : élan de la tournée, troisième barre : quatre crans ; le dernier cran gagné se vide avec le délai */
+  for(i=0;i<SIM.TOUR.max;i++){x=i*90.5;cx.fillStyle='#06302A';cx.fillRect(x,hy+23,88.5,5);
+    k=i<S.elan-1?1:(i===S.elan-1?1-S.elanT/SIM.TOUR.delai:0);
+    if(k>0){cx.fillStyle=(i===S.elan-1&&k<0.2)?C.danger:COUL_TOUR;cx.fillRect(x,hy+23,88.5*k,5);cx.fillStyle='rgba(255,255,255,0.35)';cx.fillRect(x,hy+23.6,88.5*k,1.2);}}
   /* pause */
   var enf=zone('pause',4,hy+26,44,44,mettreEnPause);
   cx.fillStyle='rgba(13,9,20,0.7)';cx.beginPath();rrect(cx,6,hy+28,40,40,11);cx.fill();cx.strokeStyle='rgba(246,241,231,0.35)';cx.lineWidth=1.5;cx.stroke();
@@ -13867,7 +13872,8 @@ function rendreNiveau(){
   if(xPerdu())y+=xPerduNiv(y);
   if(!memb||perdu)y=carteNiv(y,'cyan',function(yy,m){return carteEtapesNiv(yy,m,{redevenir:!!perdu});});
   if(memb){
-    if(!(reglesNiv().x&&reglesNiv().x.api===false))y=carteNiv(y,'or',carteBonusNiv);
+    /* bonus « 987NES dans le nom X » : affiché seulement si le serveur l'annonce (retiré le 23.11.2026) */
+    if(reglesNiv().bonusNom&&!(reglesNiv().x&&reglesNiv().x.api===false))y=carteNiv(y,'or',carteBonusNiv);
     y=carteNiv(y,'cyan',carteDetenteurNiv);
     if(d.wallet&&d.wallet.relie)y=carteNiv(y,'calme',carteGestionWalletNiv);
     if(!perdu)y=carteNiv(y,'calme',function(yy,m){return 4+ligneNiv(yy+4,{puce:true,etat:'fait',texte:'Dzodzet',sous:T('niv.dzodzetRecap',compteX())})+4;});
