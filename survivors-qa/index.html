@@ -7471,7 +7471,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.15.0-qa2';
+var VERSION='0.15.0-qa3';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -12567,21 +12567,26 @@ function rendreConnexion(){
     /* 0.7.2 : d'abord la connexion confirmée dans le bot (code à 2 chiffres) ; le Login Widget reste en secours */
     bouton('cnxTg',20,y,320,56,T('cnx.boutonTg'),0,demanderConnexion,null,18);
     para(T('cnx.lienAide'),180,y+70,300,11,'rgba(246,241,231,0.8)','center',2,14,false);
-    ttFit(T('cnx.ou'),180,y+100,10.5,300,'rgba(246,241,231,0.55)','center',2,false);
-    var el=champ('widget',40,y+112,280,56,{div:true});
-    if(el&&!NET.widget){NET.widget=true;
-      try{var sc=document.createElement('script');sc.async=true;sc.src='https://telegram.org/js/telegram-widget.js?22';
-        sc.setAttribute('data-telegram-login',BOT_NOM);sc.setAttribute('data-size','large');sc.setAttribute('data-radius','12');
-        sc.setAttribute('data-onauth','__dzoTgAuth(user)');sc.setAttribute('data-lang',LANGUE);el.appendChild(sc);}catch(e){}}
-    NET.widgetT+=1/60;
-    if(NET.widgetT>5)para(T('cnx.widgetAide'),180,y+182,300,11,'rgba(246,241,231,0.7)','center',2,14,false);
+    /* 0.15 : sur téléphone, un seul moyen (le code confirmé dans le bot) ; le Login Widget reste sur ordinateur, où il
+       évite le code. Son aide ne s'affiche que s'il n'est pas apparu, à sa place : plus de chevauchement avec le parrainage. */
+    if(!tactile){
+      ttFit(T('cnx.ou'),180,y+100,10.5,300,'rgba(246,241,231,0.55)','center',2,false);
+      var el=champ('widget',40,y+112,280,56,{div:true});
+      if(el&&!NET.widget){NET.widget=true;
+        try{var sc=document.createElement('script');sc.async=true;sc.src='https://telegram.org/js/telegram-widget.js?22';
+          sc.setAttribute('data-telegram-login',BOT_NOM);sc.setAttribute('data-size','large');sc.setAttribute('data-radius','12');
+          sc.setAttribute('data-onauth','__dzoTgAuth(user)');sc.setAttribute('data-lang',LANGUE);el.appendChild(sc);}catch(e){}}
+      NET.widgetT+=1/60;
+      if(NET.widgetT>5&&!(el&&el.querySelector&&el.querySelector('iframe')))para(T('cnx.widgetAide'),180,y+130,300,11,'rgba(246,241,231,0.7)','center',2,14,false);
+    }
   }else para(T('cnx.pasDeBot'),180,y+20,300,12,'rgba(246,241,231,0.8)','center',2,16,true);
   /* 0.10.2 : code de parrainage, facultatif, sous les moyens de connexion */
+  var yp=y+(tactile&&BOT_NOM?124:214);
   if(NET.regles&&NET.regles.parrainage){var rg=refGarde();
-    if(rg)ttFit(T('parr.codeNote',rg),180,y+226,11.5,320,C.vert,'center',2,false);
-    else{cadreChamp(T('parr.codeLib'),40,y+214,196,32);champ('codeParrainCnx',40,y+214,196,32,{max:80,aide:'ABC123'});
-      bouton('codeParrainCnxOk',244,y+214,76,32,T('parr.valider'),2,function(){saisirParrain('codeParrainCnx');},null,12);}}
-  if(DEV_ID)bouton('dev',40,y+252,280,30,T('cnx.dev',DEV_ID),1,connexionDev,null,12);
+    if(rg)ttFit(T('parr.codeNote',rg),180,yp+12,11.5,320,C.vert,'center',2,false);
+    else{cadreChamp(T('parr.codeLib'),40,yp,196,32);champ('codeParrainCnx',40,yp,196,32,{max:80,aide:'ABC123'});
+      bouton('codeParrainCnxOk',244,yp,76,32,T('parr.valider'),2,function(){saisirParrain('codeParrainCnx');},null,12);}}
+  if(DEV_ID)bouton('dev',40,yp+38,280,30,T('cnx.dev',DEV_ID),1,connexionDev,null,12);
 }
 /* 0.7.2 : écran du code à 2 chiffres. Le lien t.me ne s'ouvre que par un vrai clic (sinon bloqué comme fenêtre surgissante). */
 function rendreCodeCnx(y0){
@@ -14496,12 +14501,13 @@ window.__dzo={
    Règle (avis du propriétaire, 39.6) : la baisse de qualité d'un petit téléphone n'allège JAMAIS la gêne (nombre de
    particules, obscurité, brume, nuages) ; elle ne retire que du décor (impacts de pluie, voile de couleur, formes).
    ===================================================================== */
-var SZ={a:0,b:0,f:0,t:0,L:null,pre:-1,fixe:-1,force:1,nom:'',meteo:''};
+var SZ={a:0,b:0,f:0,t:0,L:null,pre:-1,fixe:-1,decal:0,force:1,nom:'',meteo:''};
 var SZD={fleurs:14},SZ_COLS=null;
 var SZ_DUREE=150,SZ_FONDU=25,SZ_NOMS=['printemps','ete','automne','hiver'];
 CHK_MAX=60; /* deux saisons de tuiles à l'écran pendant un fondu */
 /* front de QA seulement (VERSION en -qa<N>) : ?saison=<secondes> fige le moment de l'année, ?gene=<0 à 2.5> règle la
-   gêne de la météo, window.__sz donne l'état. Jamais dans le jeu publié : la gêne y est la même pour tous. */
+   gêne de la météo, window.__sz donne l'état ; la pastille « QA » (outils/construire-qa.js) règle SZ.decal, la saison
+   de départ. Jamais dans le jeu publié : la gêne y est la même pour tous. */
 (function(){if(!/-qa\d+$/.test(VERSION))return;window.__sz=SZ;
   var s=params.get('saison'),g=params.get('gene');
   if(s!==null&&s!=='')SZ.fixe=Math.max(0,parseFloat(s)||0);
@@ -14687,7 +14693,7 @@ function szLum(t){
   L.nom=f<0.5?a.nom:b.nom;return L;
 }
 var szTPrec=-1;
-function szTemps(){return SZ.fixe>=0?SZ.fixe:(S?S.n/60:0);}
+function szTemps(){return SZ.fixe>=0?SZ.fixe:SZ.decal+(S?S.n/60:0);} /* decal : saison de départ, front de QA seulement */
 function szMaj(){
   var t=szTemps(),q=Math.floor(t/SZ_DUREE),r=t-q*SZ_DUREE;
   SZ.t=t;SZ.pre=-1;
@@ -14766,6 +14772,7 @@ function szCiel(dt){
 init();
 })();
 </script>
-<div style="position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:2147483647;pointer-events:none;background:#b3261e;color:#fff;font:700 10px/1 system-ui,sans-serif;padding:3px 9px 4px;border-radius:0 0 7px 7px;opacity:.9;letter-spacing:.04em">QA 0.15.0-qa2</div>
+<div id="qaPastille" style="position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 11px/1 system-ui,sans-serif;padding:5px 12px 6px;border-radius:0 0 8px 8px;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*150;p.textContent="QA 0.15.0-qa3 · départ : "+N[i]+" ▸";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();})();</script>
 </body>
 </html>
