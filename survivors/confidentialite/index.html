@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DZÔ Survivors · Confidentialité / Privacy</title>
+<meta name="description" content="Quelles données DZÔ Survivors enregistre, pourquoi, combien de temps, et comment les faire effacer.">
+<link rel="canonical" href="https://987nes.com/survivors/confidentialite/">
+<link rel="icon" href="../../favicon.png">
+<style>
+:root { color-scheme: dark; --fond: #0d0914; --carte: #171222; --bord: rgba(255,255,255,.12); --texte: #f6f1e7; --doux: #b9b2c6; --or: #e7b545; --lien: #8fc0ff; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fond); color: var(--texte); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 760px; margin: 0 auto; padding: 28px 16px 64px; }
+header a { color: var(--or); text-decoration: none; font-weight: 700; }
+h1 { font-size: 28px; line-height: 1.2; margin: 18px 0 6px; }
+h2 { font-size: 19px; margin: 34px 0 8px; color: var(--or); }
+p, li { color: var(--texte); }
+.note { color: var(--doux); font-size: 14px; }
+a { color: var(--lien); }
+table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 15px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--bord); }
+th { color: var(--doux); font-weight: 600; font-size: 13px; }
+.bloc { background: var(--carte); border: 1px solid var(--bord); border-radius: 12px; padding: 14px 16px; margin: 14px 0; }
+.defile { overflow-x: auto; }
+hr { border: 0; border-top: 1px solid var(--bord); margin: 44px 0 0; }
+</style>
+</head>
+<body>
+<main>
+<header><a href="../">← DZÔ Survivors</a> · <a href="#en">English</a></header>
+
+<h1>Confidentialité</h1>
+<p class="note">DZÔ Survivors, le jeu de 987NES. Version du 23 novembre 2026.</p>
+
+<div class="bloc">
+<p><strong>En bref.</strong> Le jeu n'a ni publicité ni traceur publicitaire, et ne revend rien. Il enregistre ce qu'il faut pour faire tourner les classements et les concours, pour repérer la triche et pour savoir combien de personnes jouent. Ton adresse IP est gardée 90 jours. Tu peux demander une copie ou l'effacement de tes données à <a href="mailto:info@987nes.com">info@987nes.com</a>.</p>
+</div>
+
+<h2>Qui est responsable</h2>
+<p>L'équipe du projet 987NES, joignable à <a href="mailto:info@987nes.com">info@987nes.com</a>. Le serveur du jeu est hébergé en Suisse, chez Infomaniak. Les pages du jeu sont servies par GitHub Pages.</p>
+
+<h2>Quand tu ouvres le jeu, sans compte</h2>
+<div class="defile"><table>
+<tr><th>Donnée</th><th>Pourquoi</th><th>Durée</th></tr>
+<tr><td>Adresse IP (pour une adresse IPv6, seulement son préfixe /64) et pays déduit de cette adresse</td><td>Limiter les abus, repérer plusieurs comptes derrière une même adresse pendant les concours, statistiques de fréquentation</td><td>90 jours</td></tr>
+<tr><td>Navigateur et système (agent du navigateur), type d'appareil, taille de l'écran, langue, site d'où tu arrives</td><td>Statistiques de fréquentation, correction des problèmes d'affichage</td><td>90 jours</td></tr>
+<tr><td>Un identifiant tiré au hasard, gardé dans ton navigateur</td><td>Compter une seule fois un même navigateur</td><td>90 jours côté serveur</td></tr>
+<tr><td>Tes parties d'entraînement : nombre, durée, score</td><td>Savoir si le jeu est joué et jusqu'où</td><td>90 jours</td></tr>
+</table></div>
+<p>Le pays est cherché sur notre serveur, dans une base téléchargée (DB-IP) : ton adresse n'est envoyée à aucun service de géolocalisation.</p>
+
+<h2>Quand tu te connectes avec Telegram</h2>
+<div class="defile"><table>
+<tr><th>Donnée</th><th>Pourquoi</th></tr>
+<tr><td>Identifiant Telegram, prénom, nom d'utilisateur, langue ; le pseudo que tu choisis</td><td>Ton compte de joueur, ton nom au classement</td></tr>
+<tr><td>Ton appartenance au groupe et au canal Telegram de 987NES</td><td>Ton niveau dans le jeu</td></tr>
+<tr><td>Ton compte X, si tu le relies, et le fait qu'il suit le compte officiel</td><td>Ton niveau, les bonus</td></tr>
+<tr><td>L'adresse publique de ton portefeuille Solana, si tu le relies, et son solde en NES</td><td>Ton niveau, l'envoi d'un lot si tu gagnes un concours</td></tr>
+<tr><td>Tes parties classées : date, déroulé de la partie, score</td><td>Vérifier le score en rejouant la partie, établir les classements</td></tr>
+<tr><td>Tes parrainages et tes messages comptés comme bonus</td><td>Attribuer les vies et les bonus</td></tr>
+</table></div>
+<p>Ces données sont gardées tant que ton compte existe. Le jeu ne voit jamais ton mot de passe Telegram ou X, ni la clé privée de ton portefeuille : relier un portefeuille se fait par une signature, sans aucune transaction.</p>
+
+<h2>Ce qui est public</h2>
+<p>Ton pseudo, ton score et ton rang apparaissent au classement, et une partie classée peut être revue par les autres joueurs. Ton adresse IP, ton identifiant Telegram, ton portefeuille et ton niveau de détenteur ne sont jamais publics.</p>
+
+<h2>Dans ton navigateur</h2>
+<p>Le jeu n'utilise pas de cookies. Il garde dans le stockage de ton navigateur ta session, tes réglages, ta progression et l'identifiant tiré au hasard. Tu peux tout effacer en vidant les données du site 987nes.com dans ton navigateur.</p>
+
+<h2>Qui d'autre reçoit quelque chose</h2>
+<ul>
+<li><strong>Infomaniak</strong> (Suisse) héberge le serveur et ses sauvegardes chiffrées.</li>
+<li><strong>GitHub</strong> sert les pages du jeu et voit donc ton adresse IP comme tout hébergeur de site.</li>
+<li><strong>Telegram</strong> : le jeu charge un script de Telegram et passe par son robot pour ta connexion.</li>
+<li><strong>X</strong> : si tu relies ton compte, le jeu demande à X si ce compte suit le compte officiel.</li>
+<li><strong>Le réseau Solana</strong> : si tu relies un portefeuille, son solde est lu auprès d'un fournisseur d'accès au réseau, qui reçoit l'adresse publique.</li>
+</ul>
+<p>Rien n'est vendu ni transmis à des fins publicitaires.</p>
+
+<h2>Tes droits</h2>
+<p>Tu peux demander quelles données te concernent, les faire corriger ou effacer, ou t'opposer à leur traitement, en écrivant à <a href="mailto:info@987nes.com">info@987nes.com</a> depuis une adresse qui permet de te reconnaître (indique ton pseudo ou ton nom d'utilisateur Telegram). L'effacement du compte retire tes scores des classements. En Suisse, tu peux aussi t'adresser au Préposé fédéral à la protection des données et à la transparence.</p>
+
+<hr>
+<h1 id="en">Privacy</h1>
+<p class="note">DZÔ Survivors, the 987NES game. Version of 23 November 2026.</p>
+
+<div class="bloc">
+<p><strong>In short.</strong> The game has no ads and no ad trackers, and sells nothing. It records what it needs to run leaderboards and contests, to spot cheating and to know how many people play. Your IP address is kept for 90 days. You can ask for a copy or deletion of your data at <a href="mailto:info@987nes.com">info@987nes.com</a>.</p>
+</div>
+
+<h2>Who is responsible</h2>
+<p>The 987NES project team, reachable at <a href="mailto:info@987nes.com">info@987nes.com</a>. The game server is hosted in Switzerland by Infomaniak. The game pages are served by GitHub Pages.</p>
+
+<h2>When you open the game, without an account</h2>
+<ul>
+<li>Your IP address (for IPv6, only its /64 prefix) and the country derived from it, to limit abuse, to spot several accounts behind one address during contests, and for audience statistics. Kept 90 days.</li>
+<li>Browser and system (user agent), device type, screen size, language and the site you came from, for audience statistics and display fixes. Kept 90 days.</li>
+<li>A random identifier stored in your browser, to count one browser once. Kept 90 days on the server.</li>
+<li>Your training games: number, duration, score. Kept 90 days.</li>
+</ul>
+<p>The country is looked up on our own server in a downloaded database (DB-IP): your address is not sent to any geolocation service.</p>
+
+<h2>When you sign in with Telegram</h2>
+<ul>
+<li>Telegram identifier, first name, username, language, and the nickname you choose: your player account and your name on the leaderboard.</li>
+<li>Your membership of the 987NES Telegram group and channel: your level in the game.</li>
+<li>Your X account if you link it, and whether it follows the official account: your level and bonuses.</li>
+<li>The public address of your Solana wallet if you link it, and its NES balance: your level, and sending a prize if you win a contest.</li>
+<li>Your ranked games (date, replay data, score): checking the score by replaying the game, building the leaderboards.</li>
+<li>Your referrals and the messages counted as bonuses.</li>
+</ul>
+<p>These are kept for as long as your account exists. The game never sees your Telegram or X password, nor your wallet's private key: linking a wallet is done by a signature, with no transaction.</p>
+
+<h2>What is public</h2>
+<p>Your nickname, score and rank appear on the leaderboard, and a ranked game can be replayed by other players. Your IP address, Telegram identifier, wallet and holder level are never public.</p>
+
+<h2>In your browser</h2>
+<p>The game uses no cookies. It keeps your session, settings, progress and the random identifier in your browser's storage. You can erase all of it by clearing the site data of 987nes.com in your browser.</p>
+
+<h2>Who else receives something</h2>
+<p>Infomaniak (Switzerland) hosts the server and its encrypted backups. GitHub serves the game pages. Telegram provides a script and the sign-in bot. X is asked whether a linked account follows the official account. A Solana network provider receives the public address of a linked wallet to read its balance. Nothing is sold or shared for advertising.</p>
+
+<h2>Your rights</h2>
+<p>You can ask what data concerns you, have it corrected or deleted, or object to its processing, by writing to <a href="mailto:info@987nes.com">info@987nes.com</a> (give your nickname or Telegram username). Deleting the account removes your scores from the leaderboards.</p>
+</main>
+</body>
+</html>
