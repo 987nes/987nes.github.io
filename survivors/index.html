@@ -10669,6 +10669,7 @@ function lancer(rang,graineForcee,o){
   if(rang&&!srv&&modeServeur()&&!(touriste()&&!entrainementSeul()))rang=false;
   if(rang&&!srv&&essaisRestants()<=0)rang=false;
   classee=!!rang;partieSrv=classee?srv:null;essaiTouriste=classee&&!partieSrv&&modeServeur();
+  if(!partieSrv&&!(o&&o.revoir))visite('d',{t:echauffement?'c':(classee?'t':'e')});
   if(partieSrv){essaiNo=partieSrv.essai;graineCourante=partieSrv.graine>>>0;}
   else if(classee){SAUV.essais++;essaiNo=SAUV.essais;sauver();graineCourante=SIM.fnv1a('DZO-'+JOUR);}
   else graineCourante=graineForcee!==undefined?(graineForcee>>>0):SIM.melange(Date.now()&0x7fffffff,(Math.random()*1e9)|0);
@@ -10703,6 +10704,7 @@ function finDePartie(){
   var sc=SIM.score(S);
   ecran='fin';sous='';tEcran=0;AU.joue=false;lacherDoigts();presse=null;pressePtr=-1;finTampon=0;apercuCarte=null;
   if(REVOIR){recordAvant=0;nouveauRecord=false;titreFin=S.victoire?(!S.plafond?'fin.titre.prol':(S.bossTue?'fin.titre.victoire':'fin.titre.cloture')):'revoir.fin';tueurFin=(S.victoire&&S.plafond)?-1:S.tueur;tueurVFin=S.tueurV||0;regretFin='';return;}
+  if(!partieSrv)visite('f',{t:echauffement?'c':(classee?'t':'e'),score:sc|0,pas:S.n|0});
   /* 0.7 : partie classée en ligne : envoi du journal (gardé en stockage local jusqu'à la réponse du serveur) */
   if(classee&&partieSrv){
     var prm=pauseRestanteMs();
@@ -12060,6 +12062,13 @@ function ouvrirSession(){
   if(rp){NET.cnx=rp;return sante().then(function(x){cnxPlanifier(0);return x;});}
   return sante();
 }
+/* signal de visite (backlog 45, console d'administration) : ouverture de la page, début et fin d'une partie que le serveur
+   ne voit pas (entraînement, échauffement, essai local d'un Touriste). Hors simulation, sans session, sans effet sur le jeu. */
+function visiteId(){try{var v=localStorage.getItem('dzo.vid')||'';if(!/^[0-9a-f]{16}$/.test(v)){v='';for(var i=0;i<16;i++)v+=((Math.random()*16)|0).toString(16);localStorage.setItem('dzo.vid',v);}return v;}catch(e){return'';}}
+function visite(e,d){try{if(!NET.actif||BOT)return;var c=d||{};c.e=e;c.v=VERSION;c.vid=visiteId();apiAppel('POST','/api/visite',c,{sansAuth:true,delai:6000});}catch(x){}}
+function visiteOuverture(){var r='',tg=0;try{r=document.referrer?new URL(document.referrer).hostname:'';}catch(e){}
+  try{tg=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData?1:0;}catch(e){}
+  visite('o',{ref:String(r).slice(0,80),l:String(navigator.language||'').slice(0,12),w:screen.width|0,h:screen.height|0,tg:tg});}
 function sante(){
   return apiAppel('GET','/api/sante').then(function(r){NET.majT=Date.now();NET.etat=r.statut===200?'ok':'hors';
     if(r.statut===200){if(r.json.versions)NET.versions=r.json.versions;if(r.json.regles&&!connecte())NET.regles=r.json.regles;if(r.json.modeGraine&&!connecte())NET.modeGraine=r.json.modeGraine;
@@ -14476,6 +14485,7 @@ window.__dzo={
   funi:function(){var m=S&&S.M;return m?{x:SIM.wr(m.fu-m.ofu),y0:SIM.wr(m.fv0-m.ofv),y1:SIM.wr(m.fv1-m.ofv)}:null;}
 };
 init();
+visiteOuverture();
 })();
 </script>
 </body>
