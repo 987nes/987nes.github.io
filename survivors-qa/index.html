@@ -2679,6 +2679,7 @@ LANGUES.fr={
 "err.version_absente":"Version du jeu manquante : recharge la page.",
 "err.version_inconnue":"Version du jeu inconnue du serveur : recharge la page.",
 "err.version_perimee":"Nouvelle version du jeu : la page se recharge.",
+"err.ville_perimee":"La ville a été mise à jour : la page se recharge.",
 "err.qa_reservee":"Version d'essai réservée aux testeurs.",
 "err.version_differente":"Partie commencée avec une autre version du jeu.",
 "err.essais_epuises":"Essais classés épuisés pour aujourd'hui. Reviens demain.",
@@ -3811,6 +3812,7 @@ LANGUES.de={
 "err.version_absente":"Spielversion fehlt: Seite neu laden.",
 "err.version_inconnue":"Spielversion dem Server unbekannt: Seite neu laden.",
 "err.version_perimee":"Neue Spielversion: die Seite lädt neu.",
+"err.ville_perimee":"Die Stadt wurde aktualisiert: die Seite lädt neu.",
 "err.qa_reservee":"Testversion: nur für Tester.",
 "err.version_differente":"Runde mit einer anderen Spielversion begonnen.",
 "err.essais_epuises":"Gewertete Versuche für heute aufgebraucht. Morgen wieder.",
@@ -4943,6 +4945,7 @@ LANGUES.it={
 "err.version_absente":"Versione del gioco mancante: ricarica la pagina.",
 "err.version_inconnue":"Versione del gioco sconosciuta al server: ricarica la pagina.",
 "err.version_perimee":"Nuova versione del gioco: la pagina si ricarica.",
+"err.ville_perimee":"La città è stata aggiornata: la pagina si ricarica.",
 "err.qa_reservee":"Versione di prova riservata ai tester.",
 "err.version_differente":"Partita iniziata con un'altra versione del gioco.",
 "err.essais_epuises":"Tentativi in classifica esauriti per oggi. Torna domani.",
@@ -6075,6 +6078,7 @@ LANGUES.es={
 "err.version_absente":"Falta la versión del juego: recarga la página.",
 "err.version_inconnue":"Versión del juego desconocida para el servidor: recarga la página.",
 "err.version_perimee":"Nueva versión del juego: la página se recarga.",
+"err.ville_perimee":"La ciudad se ha actualizado: la página se recarga.",
 "err.qa_reservee":"Versión de prueba reservada a los testers.",
 "err.version_differente":"Partida empezada con otra versión del juego.",
 "err.essais_epuises":"Intentos clasificados agotados por hoy. Vuelve mañana.",
@@ -7207,6 +7211,7 @@ LANGUES.en={
 "err.version_absente":"Game version missing: reload the page.",
 "err.version_inconnue":"Game version unknown to the server: reload the page.",
 "err.version_perimee":"New game version: the page is reloading.",
+"err.ville_perimee":"The town has been updated: the page is reloading.",
 "err.qa_reservee":"Test version: testers only.",
 "err.version_differente":"Run started with another game version.",
 "err.essais_epuises":"Ranked tries used up for today. Come back tomorrow.",
@@ -7650,7 +7655,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.16.0-qa3';
+var VERSION='0.16.0-qa4';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -10874,7 +10879,7 @@ function demarrer(rang){
   if(rang&&!HORS_RANG&&!premiereFois()){
     if(NET.actif&&NET.etat==='attente'){NET.departAttente=true;return;}
     if(modeServeur()){
-      if(!versionOk()){afficherMsg(T('err.version_perimee'),C.danger);setTimeout(function(){try{location.reload();}catch(e){}},1500);return;}
+      if(!versionOk()||!villeOk()){pagePerimee();return;}
       /* 0.12 : Touriste : essai local (compté ici, jamais envoyé), tant qu'il en reste */
       if(touriste()){if(entrainementSeul()||essaisRestants()<=0)rang=false;}
       else if(connecte()&&essaisRestants()>0){debutServeur(function(){if(ecran==='titre'&&tDepart<0){tDepart=0;departRang=true;}},function(){if(ecran==='titre'&&tDepart<0){tDepart=0;departRang=essaisRestants()>0;}});return;}
@@ -12224,6 +12229,12 @@ var REVOIR=null;
 function modeServeur(){return NET.actif&&NET.etat==='ok';}
 function connecte(){return modeServeur()&&!!NET.jeton&&!!NET.joueur&&!!NET.jour;}
 function versionOk(){return!NET.versions||NET.versions.indexOf(VERSION)>=0;}
+/* Villes (étape 2) : la ville de cette page (son paquet et l'empreinte du paquet), annoncée au serveur à /debut. Le serveur
+   n'accepte une partie classée que si cette empreinte est celle du paquet en service : sinon la page est périmée. */
+function villeAnnonce(){var d=SIM.villeDefaut?SIM.villeDefaut():null;return d&&d.fiche&&SIM.VILLE_EMPREINTE?{id:d.fiche.id,empreinte:SIM.VILLE_EMPREINTE}:undefined;}
+function villeOk(){var v=villeAnnonce(),l=NET.villes,i;if(!v||!l)return true;
+  for(i=0;i<l.length;i++)if(l[i]&&l[i].id===v.id)return l[i].empreinte===v.empreinte;return false;}
+function pagePerimee(){afficherMsg(T(versionOk()?'err.ville_perimee':'err.version_perimee'),C.danger);setTimeout(function(){try{location.reload();}catch(e){}},1500);}
 function boostsActifs(){return NET.regles&&NET.regles.boostsActifs?NET.regles.boostsActifs:[];}
 function afficherMsg(s,coul){NET.msg=s;NET.msgT=0;NET.msgCoul=coul||C.creme;NET.msgCompte=false;}
 /* message (et écran) gardés pour la sortie de l'écran d'entrée, sinon tout de suite */
@@ -12304,7 +12315,7 @@ function visiteOuverture(){var r='',tg=0;try{r=document.referrer?new URL(documen
   visite('o',{ref:String(r).slice(0,80),l:String(navigator.language||'').slice(0,12),w:screen.width|0,h:screen.height|0,tg:tg});}
 function sante(){
   return apiAppel('GET','/api/sante').then(function(r){NET.majT=Date.now();NET.etat=r.statut===200?'ok':'hors';
-    if(r.statut===200){if(r.json.versions)NET.versions=r.json.versions;if(r.json.regles&&!connecte())NET.regles=r.json.regles;if(r.json.modeGraine&&!connecte())NET.modeGraine=r.json.modeGraine;
+    if(r.statut===200){if(r.json.versions)NET.versions=r.json.versions;if(Array.isArray(r.json.villes))NET.villes=r.json.villes;if(r.json.regles&&!connecte())NET.regles=r.json.regles;if(r.json.modeGraine&&!connecte())NET.modeGraine=r.json.modeGraine;
       if(typeof r.json.maintenant==='number'&&!connecte())NET.decalage=r.json.maintenant-Date.now();appliquerConcours(r.json);}return r;});
 }
 /* ---- 0.8 : concours ----
@@ -12584,7 +12595,7 @@ function texteDebutRefuse(e){
 /* ---- partie classée : début ---- */
 function debutServeur(suite,repli){
   if(NET.debutEnCours)return;NET.debutEnCours=true;
-  apiAppel('POST','/api/partie/debut',{version:VERSION}).then(function(r){
+  apiAppel('POST','/api/partie/debut',{version:VERSION,ville:villeAnnonce()}).then(function(r){
     NET.debutEnCours=false;var e=r.json||{};
     if(e.niveau&&typeof e.niveau==='string'&&NIV.d&&NIVEAUX.indexOf(e.niveau)>=0)NIV.d.niveau=e.niveau;
     if(r.statut===200&&NIV.d&&e.essais&&typeof e.essais==='object')NIV.d.essais=e.essais;
@@ -12606,6 +12617,7 @@ function debutServeur(suite,repli){
       if(e.viesBonus&&typeof e.viesBonus==='object')NET.jour.viesBonus=e.viesBonus;
       if(typeof NET.jour.essaisRestants==='number')NET.jour.essaisRestants=0;}
     if(e.erreur==='version_perimee'&&e.versions)NET.versions=e.versions;
+    if(e.erreur==='ville_perimee'){if(Array.isArray(e.villes))NET.villes=e.villes;pagePerimee();return;}
     if(r.statut===0||r.statut>=500&&e.erreur!=='serveur_occupe'){NET.etat='hors';afficherMsg(T('net.horsLigne'),C.danger);return;}
     afficherMsg(texteDebutRefuse(e),C.danger);
     /* 0.10 : essais épuisés : le message porte le compte à rebours, qui tourne tant qu'il est affiché */
@@ -12616,7 +12628,7 @@ function debutServeur(suite,repli){
 function lancerClasse(depuis){
   if(HORS_RANG){lancer(false);return;}
   if(modeServeur()){
-    if(!versionOk()){afficherMsg(T('err.version_perimee'),C.danger);setTimeout(function(){try{location.reload();}catch(e){}},1500);return;}
+    if(!versionOk()||!villeOk()){pagePerimee();return;}
     if(touriste()){lancer(essaisRestants()>0);return;}
     if(!connecte()||essaisRestants()<=0){lancer(false);return;}
     debutServeur(function(){if(ecran===depuis)lancer(true);},function(){if(ecran===depuis)lancer(essaisRestants()>0);});return;
@@ -15313,6 +15325,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 11px/1 system-ui,sans-serif;padding:5px 12px 6px;border-radius:0 0 8px 8px;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*150;p.textContent="QA 0.16.0-qa3 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*150;p.textContent="QA 0.16.0-qa4 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();})();</script>
 </body>
 </html>
