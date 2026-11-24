@@ -7771,7 +7771,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.16.0-qa16';
+var VERSION='0.16.0-qa17';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -15015,6 +15015,7 @@ window.__dzo={
 var SZ={a:0,b:0,f:0,t:0,L:null,pre:-1,fixe:-1,decal:0,force:1,nom:'',meteo:''};
 var SZD={fleurs:14},SZ_COLS=null;
 var SZ_DUREE=150,SZ_FONDU=25,SZ_NOMS=['printemps','ete','automne','hiver'];
+var SZ_SAISON_S=60,SZ_VITESSE=SZ_DUREE/SZ_SAISON_S;   /* une saison dure SZ_SAISON_S secondes réelles ; l'année tourne en boucle */
 CHK_MAX=60; /* deux saisons de tuiles à l'écran pendant un fondu */
 /* front de QA seulement (VERSION en -qa<N>) : ?saison=<secondes> fige le moment de l'année, ?gene=<0 à 2.5> règle la
    gêne de la météo, window.__sz donne l'état ; la pastille « QA » (outils/construire-qa.js) règle SZ.decal, la saison
@@ -15206,22 +15207,25 @@ function szLum(t){
 var szTPrec=-1;
 function szTemps(){return SZ.fixe>=0?SZ.fixe:SZ.decal+(S?S.n/60:0);} /* decal : saison de départ, front de QA seulement */
 function szMaj(){
-  var t=szTemps(),q=Math.floor(t/SZ_DUREE),r=t-q*SZ_DUREE;
+  /* L'année tourne en boucle, une minute par saison (Dom, 24.11.2026 : « 1 minute chacune, et tourne en boucle »). Le calendrier
+     de lumière et de météo reste celui d'une année de 600 unités (4 × SZ_DUREE) : on y avance SZ_VITESSE fois plus vite et l'on
+     recommence après l'hiver. tr : secondes réelles ; t : position dans l'année (0 à 600). Saison fixée (?saison=) : inchangé. */
+  var tr=szTemps(),an=4*SZ_DUREE,t=SZ.fixe>=0?tr:(tr*SZ_VITESSE)%an,tour=SZ.fixe>=0?0:Math.floor(tr*SZ_VITESSE/an),q=Math.min(3,Math.floor(t/SZ_DUREE)),r=t-q*SZ_DUREE;
   SZ.t=t;SZ.pre=-1;
-  if(q>=3){SZ.a=3;SZ.b=3;SZ.f=0;}
-  else{
-    SZ.a=q;SZ.b=q;SZ.f=0;
-    if(r>SZ_DUREE-SZ_FONDU){SZ.b=q+1;SZ.f=(r-(SZ_DUREE-SZ_FONDU))/(2*SZ_FONDU);}
-    else if(r>SZ_DUREE-SZ_FONDU-20)SZ.pre=q+1;
+  SZ.a=q;SZ.b=q;SZ.f=0;
+  if(SZ.fixe<0||q<3){
+    if(r>SZ_DUREE-SZ_FONDU){SZ.b=(q+1)%4;SZ.f=(r-(SZ_DUREE-SZ_FONDU))/(2*SZ_FONDU);}
+    else if(r>SZ_DUREE-SZ_FONDU-20)SZ.pre=(q+1)%4;
   }
-  if(q>=1&&q<=3&&r<SZ_FONDU){SZ.a=q-1;SZ.b=q;SZ.f=0.5+r/(2*SZ_FONDU);}
+  /* début d'une saison : fin du fondu depuis la précédente (l'hiver, au retour du printemps, sauf au tout début de la partie) */
+  if(r<SZ_FONDU&&(q>=1||tour>=1)){SZ.a=(q+3)%4;SZ.b=q;SZ.f=0.5+r/(2*SZ_FONDU);}
   SZ.f=SZ.f*SZ.f*(3-2*SZ.f);
   SZ.L=szLum(t);
   SZ.nom=SZ_NOMS[Math.min(3,q)];SZ.meteo=SZ.L.nom;
   /* annonce du changement de saison, pendant une partie seulement */
-  if(SZ.fixe<0&&ecran==='jeu'&&szTPrec>=0&&t>szTPrec&&t-szTPrec<1){
-    var q0=Math.floor(szTPrec/SZ_DUREE);if(q>q0&&q<=3)mot(T('sz.'+SZ_NOMS[q]),[C.creme,C.or,'#FF9A3C','#BFE3FF'][q],30);}
-  szTPrec=t;
+  if(SZ.fixe<0&&ecran==='jeu'&&szTPrec>=0&&tr>szTPrec&&tr-szTPrec<1){
+    var q0=Math.min(3,Math.floor(((szTPrec*SZ_VITESSE)%an)/SZ_DUREE));if(q!==q0)mot(T('sz.'+SZ_NOMS[q]),[C.creme,C.or,'#FF9A3C','#BFE3FF'][q],30);}
+  szTPrec=tr;
 }
 
 /* ---- ciel : particules, ombres de nuages, lumière du jour, orage. Dessiné en coordonnées de colonne (360 × 640),
@@ -15734,6 +15738,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 11px/1 system-ui,sans-serif;padding:5px 12px 6px;border-radius:0 0 8px 8px;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*150;p.textContent="QA 0.16.0-qa16 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.16.0-qa17 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
