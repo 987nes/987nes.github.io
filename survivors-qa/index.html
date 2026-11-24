@@ -746,6 +746,9 @@ function genVille(P,graine,dep){
   var W=P.monde,B=W.bornes,r=mulberry32(melange(graine,99)),nr=W.murs.length/4,m=nouveauMonde(graine,nr+W.font.length+W.arbres.length+130),i,k,p,a,b,c,d,NEAU=LM/16,
       bat=P.decor&&P.decor.bat||[],lampes=P.decor&&P.decor.lampes||[];
   m.riviere=0;m.funi=0;m.reel=1;m.ville=P;m.armeOk=jeuDeVille(P).ok;
+  /* tournée à l'échelle de la ville : à 9 px par mètre (l'échelle de référence) rien ne change ; dans une ville dessinée plus
+     grand, les étapes sont plus loin d'autant (sinon elles naissent toutes à l'écran) et l'élan tient d'autant plus longtemps */
+  m.tk=P.fiche&&P.fiche.echelle>9?Math.min(4,P.fiche.echelle/9):1;
   /* tournée : les étapes se posent sur les places dégagées de la carte (jamais dans un mur, l'eau ou hors de la ville) */
   m.etp=[];for(i=0;i<W.places.length;i++)m.etp.push(W.places[i][0],W.places[i][1]);
   m.eauN=NEAU;m.eauG=new Uint8Array(NEAU*NEAU);for(i=0;i<W.eau.length;i+=3)for(k=W.eau[i+1];k<=W.eau[i+2];k++)m.eauG[W.eau[i]*NEAU+k]=1;
@@ -1612,7 +1615,7 @@ function initTournee(s,graine){
 function poserEtape(n){
   var r=S.rTour,a,d,x,y,sv,t=S.tour;
   if(S.tdir<0)a=Math.floor(r()*NA);else{a=(S.tdir+Math.floor(r()*(2*TOUR.ecart+1))-TOUR.ecart)%NA;if(a<0)a+=NA;}
-  d=TOUR.dMin+r()*TOUR.dAmp;
+  d=(TOUR.dMin+r()*TOUR.dAmp)*(M.tk||1);
   x=S.tx+cs(a)*d;y=S.ty+sn(a)*d;
   if(M.etp){etapeLieu(x,y);x=CX;y=CY;}   /* carte bornée (vraie ville) : l'étape se pose sur un lieu dégagé de la carte */
   sv=S.cas;S.cas=S.tourSans;posSure(x,y,22);S.cas=sv;x=CX;y=CY;
@@ -1623,9 +1626,9 @@ function poserEtape(n){
    l'étape précédente (TOUR.dMin à TOUR.dMin+TOUR.dAmp), le plus proche du point visé ; s'il n'y en a pas, le plus proche du point
    visé à 150 px au moins de la précédente. Ne dépend que de la graine et de la carte. */
 function etapeLieu(x,y){
-  var e=M.etp,i,u,v,dx,dy,dp,dc,b=-1,bd=1e18,b2=-1,bd2=1e18,lo=TOUR.dMin,hi=TOUR.dMin+TOUR.dAmp;
+  var e=M.etp,i,u,v,dx,dy,dp,dc,b=-1,bd=1e18,b2=-1,bd2=1e18,tk=M.tk||1,lo=TOUR.dMin*tk,hi=(TOUR.dMin+TOUR.dAmp)*tk,pres=150*tk;
   for(i=0;i<e.length;i+=2){u=e[i]-M.ofu;v=e[i+1]-M.ofv;dx=u-S.tx;dy=v-S.ty;dp=Math.sqrt(dx*dx+dy*dy);dx=u-x;dy=v-y;dc=dx*dx+dy*dy;
-    if(dp>=lo&&dp<=hi){if(dc<bd){bd=dc;b=i;}}else if(dp>=150&&dc<bd2){bd2=dc;b2=i;}}
+    if(dp>=lo&&dp<=hi){if(dc<bd){bd=dc;b=i;}}else if(dp>=pres&&dc<bd2){bd2=dc;b2=i;}}
   if(b<0)b=b2;
   if(b<0){CX=x;CY=y;return;}
   CX=e[b]-M.ofu;CY=e[b+1]-M.ofv;
@@ -1638,7 +1641,7 @@ function majTournee(n){
       S.etapes++;if(S.elan<TOUR.max)S.elan++;if(S.elan>S.elanMax)S.elanMax=S.elan;S.elanT=0;
       pr=TOUR.prime*(1+S.elan);S.scoreBonus+=pr;ev(EV_TOUR,1,S.elan,pr,t.x,t.y);
       poserEtape(n);return;}}
-  if(S.elan>0&&++S.elanT>=TOUR.delai){S.elan--;S.elanT=0;ev(EV_TOUR,2,S.elan);}
+  if(S.elan>0&&++S.elanT>=TOUR.delai*(M.tk||1)){S.elan--;S.elanT=0;ev(EV_TOUR,2,S.elan);}
 }
 /* rond tenu : trois récompenses sans doublon, montrées comme des cartes (genre 4), au pas où aucune autre fenêtre n'est ouverte */
 function cartesCercle(){
@@ -2484,6 +2487,11 @@ LANGUES.fr={
 "tour.dist":"{0} m",
 "tour.gain":"Étape ! Élan {0}, +{1} pts",
 "tour.perdu":"L'élan retombe…",
+"tour.obj.0":"Caquelon d'or",
+"tour.obj.1":"Meule de Gruyère",
+"tour.obj.2":"Biscôme",
+"tour.va":"Objectif : {0}",
+"tour.pris":"{0} ! Élan {1}, +{2} pts",
 "fin.tournee":"Tournée : {0} étapes, élan maximal {1}",
 "aide.tournee":"Une étape de la tournée ! Rejoins-la : l'élan multiplie tes points.",
 "cat.3":"PRIX DU ROND",
@@ -3627,6 +3635,11 @@ LANGUES.de={
 "tour.dist":"{0} m",
 "tour.gain":"Etappe! Schwung {0}, +{1} Pkt.",
 "tour.perdu":"Der Schwung lässt nach …",
+"tour.obj.0":"Goldenes Caquelon",
+"tour.obj.1":"Greyerzer Laib",
+"tour.obj.2":"Lebkuchen",
+"tour.va":"Ziel: {0}",
+"tour.pris":"{0}! Schwung {1}, +{2} Pkt.",
 "fin.tournee":"Tour: {0} Etappen, maximaler Schwung {1}",
 "aide.tournee":"Eine Etappe der Tour! Erreiche sie: Schwung vervielfacht deine Punkte.",
 "cat.3":"RINGPREIS",
@@ -4768,6 +4781,11 @@ LANGUES.it={
 "tour.dist":"{0} m",
 "tour.gain":"Tappa! Slancio {0}, +{1} pt",
 "tour.perdu":"Lo slancio cala…",
+"tour.obj.0":"Caquelon d'oro",
+"tour.obj.1":"Forma di Gruyère",
+"tour.obj.2":"Biscôme",
+"tour.va":"Obiettivo: {0}",
+"tour.pris":"{0}! Slancio {1}, +{2} pt",
 "fin.tournee":"Giro: {0} tappe, slancio massimo {1}",
 "aide.tournee":"Una tappa del giro! Raggiungila: lo slancio moltiplica i tuoi punti.",
 "cat.3":"PREMIO DEL CERCHIO",
@@ -5909,6 +5927,11 @@ LANGUES.es={
 "tour.dist":"{0} m",
 "tour.gain":"¡Etapa! Impulso {0}, +{1} pts",
 "tour.perdu":"El impulso decae…",
+"tour.obj.0":"Caquelon de oro",
+"tour.obj.1":"Rueda de Gruyère",
+"tour.obj.2":"Biscôme",
+"tour.va":"Objetivo: {0}",
+"tour.pris":"{0}! Impulso {1}, +{2} pts",
 "fin.tournee":"Ruta: {0} etapas, impulso máximo {1}",
 "aide.tournee":"¡Una etapa de la ruta! Llega hasta ella: el impulso multiplica tus puntos.",
 "cat.3":"PREMIO DEL CÍRCULO",
@@ -7050,6 +7073,11 @@ LANGUES.en={
 "tour.dist":"{0} m",
 "tour.gain":"Stop! Momentum {0}, +{1} pts",
 "tour.perdu":"Momentum fades…",
+"tour.obj.0":"Golden caquelon",
+"tour.obj.1":"Gruyère wheel",
+"tour.obj.2":"Gingerbread",
+"tour.va":"Target: {0}",
+"tour.pris":"{0}! Momentum {1}, +{2} pts",
 "fin.tournee":"Tour: {0} stops, max momentum {1}",
 "aide.tournee":"A stop on the tour! Reach it: momentum multiplies your points.",
 "cat.3":"RING PRIZE",
@@ -7733,7 +7761,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.16.0-qa7';
+var VERSION='0.16.0-qa9';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -10317,12 +10345,70 @@ function versEcranX(x){return 180+(x-camX)*zoom;}
 function versEcranY(y){return 320+(y-camY)*zoom;}
 /* au sol : le rond de sciure (charge en or, clignote les 8 dernières secondes) et la dalle de l'oratoire (anneau du pari) */
 /* 0.16 : balise de l'étape de la tournée : anneau turquoise qui respire et colonne de lumière (position la plus proche sur le tore) */
+/* OBJECTIFS DE LA TOURNÉE : un objet fribourgeois posé au sol, un seul à la fois (caquelon d'or, meule de Gruyère, biscôme),
+   à la place du cercle turquoise que personne ne comprenait. L'objet change à chaque étape (rang de l'étape modulo 3). */
+var TOUR_OBJETS=3,tourK=0;
+function construireObjectifs(){
+  var E='#1A1420';
+  SPR.etapes=[
+    /* caquelon d'or : la marmite à fondue, dorée, avec son manche et la fondue qui brille */
+    sprite(96,96,48,60,function(g){
+      g.lineJoin='round';g.lineCap='round';
+      g.fillStyle=E;g.beginPath();rrect(g,62,40,30,13,6);g.fill();g.fillStyle='#C8871A';g.beginPath();rrect(g,65,43,24,7,3.5);g.fill();
+      g.fillStyle=E;g.beginPath();g.moveTo(12,36);g.lineTo(76,36);g.quadraticCurveTo(76,78,44,78);g.quadraticCurveTo(12,78,12,36);g.closePath();g.fill();
+      var d=g.createLinearGradient(16,36,72,76);d.addColorStop(0,'#FFE27A');d.addColorStop(0.5,'#F2B01E');d.addColorStop(1,'#B87410');
+      g.fillStyle=d;g.beginPath();g.moveTo(16,39);g.lineTo(72,39);g.quadraticCurveTo(72,74,44,74);g.quadraticCurveTo(16,74,16,39);g.closePath();g.fill();
+      g.fillStyle=E;g.beginPath();g.ellipse(44,37,34,10,0,0,PI2);g.fill();
+      g.fillStyle='#FFF1B8';g.beginPath();g.ellipse(44,37,30,7,0,0,PI2);g.fill();
+      g.fillStyle='#FFD95A';g.beginPath();g.ellipse(40,38,18,3.5,0,0,PI2);g.fill();
+      g.fillStyle='rgba(255,255,255,0.75)';g.beginPath();g.ellipse(27,52,3,9,0.35,0,PI2);g.fill();
+      g.fillStyle='#FFFFFF';g.beginPath();g.moveTo(70,22);g.lineTo(73,29);g.lineTo(80,32);g.lineTo(73,35);g.lineTo(70,42);g.lineTo(67,35);g.lineTo(60,32);g.lineTo(67,29);g.closePath();g.fill();
+    },Math.max(RES,2)),
+    /* meule de Gruyère géante : la roue entamée d'un quartier, croûte brune, pâte jaune */
+    sprite(96,96,48,60,function(g){
+      g.lineJoin='round';
+      g.fillStyle=E;g.beginPath();g.ellipse(48,60,42,20,0,0,PI2);g.fill();g.fillRect(6,40,84,20);g.beginPath();g.ellipse(48,40,42,20,0,0,PI2);g.fill();
+      g.fillStyle='#B9772A';g.beginPath();g.ellipse(48,60,38.5,16.5,0,0,PI2);g.fill();g.fillRect(9.5,40,77,20);
+      g.fillStyle='#9A5F1E';g.fillRect(9.5,52,77,3);
+      g.fillStyle='#F6D15A';g.beginPath();g.ellipse(48,40,38.5,16.5,0,0,PI2);g.fill();
+      g.fillStyle='#E9B93A';g.beginPath();g.ellipse(48,40,38.5,16.5,0,0,PI2);g.lineWidth=5;g.strokeStyle='#C98B2C';g.stroke();
+      /* le quartier entamé */
+      g.fillStyle=E;g.beginPath();g.moveTo(48,40);g.lineTo(88,46);g.lineTo(88,66);g.lineTo(48,62);g.lineTo(62,55);g.closePath();g.fill();
+      g.fillStyle='#FFE892';g.beginPath();g.moveTo(49,42);g.lineTo(85,48);g.lineTo(85,63);g.lineTo(50,60);g.closePath();g.fill();
+      /* pas de trous : le Gruyère n'en a pas ; la marque de la croûte, en pointillé, sur le talon */
+      g.strokeStyle='#8A541A';g.lineWidth=1.6;g.setLineDash([3,3]);g.beginPath();g.moveTo(14,62);g.quadraticCurveTo(30,72,46,73);g.stroke();g.setLineDash([]);
+      g.fillStyle='rgba(255,255,255,0.6)';g.beginPath();g.ellipse(30,35,10,3,-0.2,0,PI2);g.fill();
+    },Math.max(RES,2)),
+    /* biscôme : le pain d'épices de la Saint-Nicolas, brun, bordé de sucre glace, avec son ours */
+    sprite(96,96,48,60,function(g){
+      g.lineJoin='round';g.lineCap='round';
+      g.save();g.translate(48,48);g.rotate(-0.12);
+      g.fillStyle=E;g.beginPath();rrect(g,-36,-27,72,54,9);g.fill();
+      var d=g.createLinearGradient(0,-24,0,24);d.addColorStop(0,'#B5692B');d.addColorStop(1,'#7E4318');
+      g.fillStyle=d;g.beginPath();rrect(g,-32.5,-23.5,65,47,6.5);g.fill();
+      g.strokeStyle='#FFF6E4';g.lineWidth=2.6;g.setLineDash([1,6.2]);g.beginPath();rrect(g,-27,-18,54,36,4);g.stroke();g.setLineDash([]);
+      /* l'ours en sucre */
+      g.fillStyle='#FFF6E4';g.beginPath();g.ellipse(0,3,13,9,0,0,PI2);g.fill();g.beginPath();g.arc(13,-3,6.5,0,PI2);g.fill();
+      g.beginPath();g.arc(10,-9,2.4,0,PI2);g.arc(17,-8,2.4,0,PI2);g.fill();
+      g.fillRect(-10,8,4.5,8);g.fillRect(5,8,4.5,8);
+      g.fillStyle='#7E4318';g.beginPath();g.arc(15,-4,1.2,0,PI2);g.fill();
+      g.restore();
+    },Math.max(RES,2))
+  ];
+}
+function nomObjectif(k){return T('tour.obj.'+(((k%TOUR_OBJETS)+TOUR_OBJETS)%TOUR_OBJETS));}
+function spriteObjectif(k){if(!SPR.etapes)construireObjectifs();return SPR.etapes[((k%TOUR_OBJETS)+TOUR_OBJETS)%TOUR_OBJETS];}
 function tourBalise(){
-  var t=S.tour,x=S.px+SIM.wr(SIM.md(t.x-S.px)),y=S.py+SIM.wr(SIM.md(t.y-S.py)),R=SIM.TOUR.rayon,p=1+0.06*Math.sin(tReel*5),g;
-  cx.globalAlpha=0.28;cx.fillStyle=COUL_TOUR;cx.beginPath();cx.arc(x,y,R*p,0,PI2);cx.fill();
-  cx.globalAlpha=0.9;cx.strokeStyle=COUL_TOUR;cx.lineWidth=2.5;cx.setLineDash([7,5]);cx.lineDashOffset=-tReel*24;cx.beginPath();cx.arc(x,y,R*p,0,PI2);cx.stroke();cx.setLineDash([]);
-  g=cx.createLinearGradient(0,y-120,0,y);g.addColorStop(0,'rgba(79,224,192,0)');g.addColorStop(1,'rgba(79,224,192,0.55)');
-  cx.globalAlpha=0.7+0.2*Math.sin(tReel*4);cx.fillStyle=g;cx.fillRect(x-5,y-120,10,120);cx.globalAlpha=1;
+  var t=S.tour,x=S.px+SIM.wr(SIM.md(t.x-S.px)),y=S.py+SIM.wr(SIM.md(t.y-S.py)),R=SIM.TOUR.rayon,p=1+0.06*Math.sin(tReel*5),g,sp=spriteObjectif(t.k),h=6+4*Math.sin(tReel*3),e=1.25;
+  /* la place où marcher : un halo doré au sol */
+  cx.globalAlpha=0.30;cx.fillStyle='#FFD23F';cx.beginPath();cx.ellipse(x,y,R*p,R*p*0.62,0,0,PI2);cx.fill();
+  cx.globalAlpha=0.9;cx.strokeStyle='#FFD23F';cx.lineWidth=2.5;cx.setLineDash([7,5]);cx.lineDashOffset=-tReel*24;cx.beginPath();cx.ellipse(x,y,R*p,R*p*0.62,0,0,PI2);cx.stroke();cx.setLineDash([]);
+  /* le faisceau qui le signale de loin */
+  g=cx.createLinearGradient(0,y-170,0,y-30);g.addColorStop(0,'rgba(255,210,63,0)');g.addColorStop(1,'rgba(255,210,63,0.5)');
+  cx.globalAlpha=0.7+0.2*Math.sin(tReel*4);cx.fillStyle=g;cx.fillRect(x-7,y-170,14,140);
+  /* l'objet, qui flotte un peu au-dessus de son ombre */
+  cx.globalAlpha=0.35;cx.fillStyle='#0D0914';cx.beginPath();cx.ellipse(x,y+4,26,8,0,0,PI2);cx.fill();
+  cx.globalAlpha=1;cx.drawImage(sp.c,x-sp.ax*e,y-sp.ay*e-h,sp.w*e,sp.h*e);
 }
 function bornesSol(){
   var b=S.bo,c=S.ce,R,k,al,dx,dy,dedans;
@@ -10365,8 +10451,9 @@ function hudPari(y){
 function hudTournee(y){
   var T0=SIM.TOUR,k,w,val='  ×'+(T0.base+T0.coef*S.elan).toFixed(1).replace('.',LANGUE==='en'?'.':',');
   if(!S.tour.on&&S.elan===0&&S.etapes===0)return y;
-  if(S.elan>0){pastille(352,y,T('tour.hud',S.elan,T0.max,Math.ceil((T0.delai-S.elanT)/60))+val,COUL_TOUR);
-    k=1-S.elanT/T0.delai;w=70;cx.fillStyle='rgba(13,9,20,0.8)';cx.fillRect(352-w,y+16,w,3);cx.fillStyle=k<0.2?C.danger:COUL_TOUR;cx.fillRect(352-w,y+16,w*k,3);y+=23;}
+  var dl=T0.delai*(S.M&&S.M.tk||1);
+  if(S.elan>0){pastille(352,y,T('tour.hud',S.elan,T0.max,Math.ceil((dl-S.elanT)/60))+val,COUL_TOUR);
+    k=1-S.elanT/dl;w=70;cx.fillStyle='rgba(13,9,20,0.8)';cx.fillRect(352-w,y+16,w,3);cx.fillStyle=k<0.2?C.danger:COUL_TOUR;cx.fillRect(352-w,y+16,w*k,3);y+=23;}
   else{pastille(352,y,T('tour.hud0',T0.max)+val,'rgba(79,224,192,0.75)');y+=19;}
   return y;
 }
@@ -10375,7 +10462,7 @@ function hudBornes(hy){
   var b=S.bo,c=S.ce,dx,dy,d,x,y,P,k,w,tx,ty;
   if(!sous&&tMort<0){
     if(c.on)flecheBord(c.x,c.y,COUL_SCIURE,SPR.icoRec[2]);
-    if(S.tour.on){tx=S.px+SIM.wr(SIM.md(S.tour.x-S.px));ty=S.py+SIM.wr(SIM.md(S.tour.y-S.py));flecheBord(tx,ty,COUL_TOUR,null,T('tour.dist',Math.round(Math.sqrt((tx-S.px)*(tx-S.px)+(ty-S.py)*(ty-S.py))/10)));}   /* 0.16 : étape de la tournée */
+    if(S.tour.on){tx=S.px+SIM.wr(SIM.md(S.tour.x-S.px));ty=S.py+SIM.wr(SIM.md(S.tour.y-S.py));flecheBord(tx,ty,'#FFD23F',spriteObjectif(S.tour.k),T('tour.dist',Math.round(Math.sqrt((tx-S.px)*(tx-S.px)+(ty-S.py)*(ty-S.py))/10)));}   /* 0.16 : étape de la tournée */
     if(b.on)flecheBord(b.x,b.y,COUL_PARI[b.type],SPR.icoPari[b.type]);
     /* le rond : texte au-dessus, secondes qui restent à tenir */
     if(c.on){dx=S.px-c.x;dy=S.py-c.y;
@@ -10414,8 +10501,9 @@ function evBornes(t,v,o){
 function evTour(v,o){
   var a=v[o+1],x,y;
   if(a===0){if(!(SAUV.aide&64)&&!BOT)aideTour=true;
-    x=S.px+SIM.wr(SIM.md(v[o+3]-S.px));y=S.py+SIM.wr(SIM.md(v[o+4]-S.py));if(v[o+2]>0)anneauFx(x,y,SIM.TOUR.rayon+30,0.5,2);}
-  else if(a===1){x=S.px;y=S.py;son('combo',Math.min(7,v[o+2]));anneauFx(x,y,160,0.45,2);budgetPart+=20;gerbe(x,y-20,14,1,220,6,0.5);parole(x,y-62,T('tour.gain',v[o+2],fmtNb(v[o+3])));}
+    x=S.px+SIM.wr(SIM.md(v[o+3]-S.px));y=S.py+SIM.wr(SIM.md(v[o+4]-S.py));if(v[o+2]>0)anneauFx(x,y,SIM.TOUR.rayon+30,0.5,2);
+    tourK=v[o+2];if(!BOT)bandeau(T('tour.va',nomObjectif(tourK)));}
+  else if(a===1){x=S.px;y=S.py;son('combo',Math.min(7,v[o+2]));anneauFx(x,y,160,0.45,2);budgetPart+=20;gerbe(x,y-20,14,1,220,6,0.5);parole(x,y-62,T('tour.pris',nomObjectif(tourK),v[o+2],fmtNb(v[o+3])));}
   else if(a===2){son('non');parole(S.px,S.py-58,T('tour.perdu'));}
 }
 /* conditions d'un pari, chiffres tirés du registre PARIS : {0} et {1} selon le pari, le dernier trou est le gain en % */
@@ -11220,7 +11308,7 @@ function rendreHUD(dt){
   cx.fillStyle='#3A0008';cx.fillRect(0,hy+13,360,9);cx.fillStyle=fp<0.3?C.danger:C.rouge;cx.fillRect(0,hy+13,360*fp,9);cx.fillStyle='rgba(255,255,255,0.35)';cx.fillRect(0,hy+14,360*fp,2);
   /* 0.16 : élan de la tournée, troisième barre : quatre crans ; le dernier cran gagné se vide avec le délai */
   for(i=0;i<SIM.TOUR.max;i++){x=i*90.5;cx.fillStyle='#06302A';cx.fillRect(x,hy+23,88.5,5);
-    k=i<S.elan-1?1:(i===S.elan-1?1-S.elanT/SIM.TOUR.delai:0);
+    k=i<S.elan-1?1:(i===S.elan-1?1-S.elanT/(SIM.TOUR.delai*(S.M&&S.M.tk||1)):0);
     if(k>0){cx.fillStyle=(i===S.elan-1&&k<0.2)?C.danger:COUL_TOUR;cx.fillRect(x,hy+23,88.5*k,5);cx.fillStyle='rgba(255,255,255,0.35)';cx.fillRect(x,hy+23.6,88.5*k,1.2);}}
   /* pause */
   var enf=zone('pause',4,hy+26,44,44,mettreEnPause);
@@ -15562,6 +15650,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 11px/1 system-ui,sans-serif;padding:5px 12px 6px;border-radius:0 0 8px 8px;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*150;p.textContent="QA 0.16.0-qa7 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*150;p.textContent="QA 0.16.0-qa9 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
