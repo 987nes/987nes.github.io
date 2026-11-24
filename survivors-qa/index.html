@@ -7786,7 +7786,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.16.0-qa24';
+var VERSION='0.16.0-qa27';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -11991,11 +11991,11 @@ function rendreFond(vx,vy,sombreur){
 /* 0.11 : écran titre recomposé, de haut en bas : barre (classement du jour, profil, réglages), logo signé 987NES,
    DZÔ et la horde (rien par-dessus), UNE ligne d'état, UN bouton principal, deux petits boutons, un pied de page */
 var reglagesTitre=false,reglagesT=0;
-/* zones touchables de DZÔ sur l'illustration du titre (poing levé, dents, ventre « 987 NES »), en px de la colonne, image décalée de 60 */
-var ZONES_TITRE_IMAGE=[['poing',262,256,52,50],['dents',116,282,130,60],['ventre',150,344,72,46]];
+/* zones touchables de DZÔ sur l'illustration du titre (poing levé, dents, ventre « 987 NES »), en px de la colonne, image de l'écran d'entrée, décalée de 40 comme sur lui */
+var ZT_NOMS=['poing','dents','ventre'],ZT_BOITES=[[262,292,52,46],[120,340,130,44],[150,386,72,40]];
 function rendreTitre(){
   nBT=0;
-  var illus=fondImage('titre',0,60,402);
+  var illus=fondImage('entree',0,40,402);
   if(!illus)rendreFond(9,6,0.6);
   var i,o,a,k,s,w,x,restants=essaisRestants(),t=tReel,dep=tDepart>=0?Math.min(1,tDepart/0.18):0,prem=premiereFois(),horsRang=HORS_RANG;
   /* réglages ouverts puis écran quitté : refermés au retour */
@@ -12003,7 +12003,7 @@ function rendreTitre(){
   veillerSecret();
   if(illus){
     /* l'illustration porte déjà DZÔ et ses rivaux : seules restent ses zones touchables (code secret) et la fête */
-    if(tDepart<0&&!reglagesTitre){SEC.zones=[];for(i=0;i<ZONES_TITRE_IMAGE.length;i++){o=ZONES_TITRE_IMAGE[i];zone('dzo:'+o[0],o[1],o[2],o[3],o[4],function(){});SEC.zones.push({nom:o[0],x:o[1],y:o[2],w:o[3],h:o[4]});}}
+    if(tDepart<0&&!reglagesTitre){SEC.zones=[];for(i=0;i<ZT_NOMS.length;i++){o=ZT_BOITES[i];zone('dzo:'+ZT_NOMS[i],o[0],o[1],o[2],o[3],function(){});SEC.zones.push({nom:ZT_NOMS[i],x:o[0],y:o[1],w:o[2],h:o[3]});}}
     if(t-SEC.fete<3.2)feteTitre(t-SEC.fete);
     logoTitre(true);
   }else{
@@ -12064,7 +12064,7 @@ function rendreTitre(){
   /* 0.12 : « Devenir Dzodzet » (Touriste, en or, avec ce qu'il apporte) ou « Mon niveau » (membre), et l'entraînement */
   var tour=touriste()||!modeServeur(),
     bEntr=['entr',T('titre.entrainement'),function(){demarrer(false);},1,null],
-    bNiv=tour?['niveau',T('niv.devenirMaj'),function(){allerEcran('niveau');},2,T('niv.devenirSous',essaisNiveau('dzodzet'),essaisNiveau('touriste')).replace(/^(\d+) →  /,'$1 ')]:['niveau',T('niv.titre'),function(){allerEcran('niveau');},1,null],
+    bNiv=tour?['niveau',T('niv.devenirMaj'),function(){allerEcran('niveau');},2,T('niv.devenirSous',essaisNiveau('dzodzet'),essaisNiveau('touriste')).replace(/^(\d+) → \1 /,'$1 ')]:['niveau',T('niv.titre'),function(){allerEcran('niveau');},1,null],
     sec=!horsRang&&entrainementSeul()?(tour?[bNiv]:[]):(boostPrim?[bEntr]:(tour?[bNiv,bEntr]:[bEntr]));
   /* « Mon niveau » (membre) est passé dans la barre de navigation ; seul « Devenir Dzodzet » reste ici, en or */
   if(sec.length===1)bouton(sec[0][0],70,yP,220,42,sec[0][1],sec[0][3],sec[0][2],sec[0][4],14);
@@ -12108,7 +12108,7 @@ function barreNavTitre(nivEnOr){
 }
 /* la petite étiquette « BÊTA » du titre (touchée : panneau bêta), à la place de la pastille de deux lignes */
 function etiquetteBeta(x,y){
-  var c=T('beta.court'),w,enf;cx.font=police(9,2);w=Math.ceil(cx.measureText(c).width)+12;enf=zone('tbeta',x-4,y-6,w+8,28,ouvrirBeta);
+  var c=versionEcran(),w,enf;cx.font=police(9,2);w=Math.ceil(cx.measureText(c).width)+12;enf=zone('tbeta',x-4,y-6,w+8,28,ouvrirBeta);
   cx.fillStyle=enf?'rgba(46,33,70,0.92)':'rgba(13,9,20,0.7)';cx.beginPath();rrect(cx,x,y,w,16,8);cx.fill();tn(c,x+w/2,y+8.5,9,C.or,'center',2);return 16;
 }
 /* la ligne d'état du titre, sur une plaque sombre : essais (pastilles) et série, ou le compte à rebours, ou la connexion */
@@ -13038,9 +13038,12 @@ function allerEcran(e){
   ecran=e;sous='';tEcran=0;tDepart=-1;presse=null;pressePtr=-1;
   if(e==='titre')majVilles();else majPastilleVille();
 }
+/* 24.11.2026 (relecture UX) : le retour est EN BAS À GAUCHE sur tous les menus, à portée de pouce ; le titre prend toute la largeur.
+   Les écrans pleins lui laissent ce coin : classement (ligne du bas décalée), concours (bouton à droite), niveau et parties (liste arrêtée plus haut). */
+function retourBas(cb){bouton('retour',8,596,78,32,T('menu.retour'),1,cb||function(){allerEcran('titre');},null,12);}
 function entete(titre){
-  bouton('retour',6,SAFE_H+6,70,30,T('menu.retour'),1,function(){allerEcran('titre');},null,12);
-  ttFit(titre,190,SAFE_H+22,22,220,C.creme,'center',0,true);
+  retourBas();
+  ttFit(titre,180,SAFE_H+22,22,336,C.creme,'center',0,true);
 }
 function fondMenu(){nBT=0;if(!fondImage(ECRAN_IMAGE[ecran]||'menu',0.6,0,0))rendreFond(5,3,0.8);}
 function inviterConnexion(y){
@@ -14188,7 +14191,7 @@ function rendreNiveau(){
   var n=d?d.niveau:'touriste',ess=d&&d.essais||{},bonus=d&&d.bonusNom&&etatOk(d.bonusNom.etat)&&n!=='touriste'?(ess.nom||1):0,perdu=perduNiv(),
     memb=n!=='touriste',e=etapesNiv(),fait=0,i;
   for(i=0;i<4;i++)if(e[i])fait++;
-  NIV.defil=Math.max(0,Math.min(NIV.defil,Math.max(0,NIV.hTot-(628-y0))));
+  NIV.defil=Math.max(0,Math.min(NIV.defil,Math.max(0,NIV.hTot-(BAS_DEFIL-2-y0))));
   y=y0-NIV.defil;
   cx.save();cx.beginPath();cx.rect(0,0,360,BAS_DEFIL);cx.clip();
   y=echelleNiv(y,n,bonus);
@@ -14218,8 +14221,8 @@ function rendreNiveau(){
   }else y=carteNiv(y,'calme',carteDetCalmeNiv);
   y=carteNiv(y,'calme',carteMesPartiesNiv);
   NIV.hTot=y-(y0-NIV.defil)+8;
-  if(NIV.hTot>628-y0&&NIV.defil<NIV.hTot-(628-y0)-2)indiceSuite(0,352,BAS_DEFIL);
-  cx.restore();zone('nivPied',0,BAS_DEFIL,360,400,function(){});
+  if(NIV.hTot>BAS_DEFIL-2-y0&&NIV.defil<NIV.hTot-(BAS_DEFIL-2-y0)-2)indiceSuite(0,352,BAS_DEFIL);
+  cx.restore();zone('nivPied',0,BAS_DEFIL,360,400,function(){});retourBas();
   /* en-tête par-dessus le contenu qui défile (et une zone qui arrête les touchers dessous) */
   if(NIV.defil>0){cx.save();cx.beginPath();cx.rect(0,0,360,y0);cx.clip();rendreFond(5,3,0.8);cx.restore();}
   zone('nivTete',0,0,360,y0-4,function(){});
@@ -14362,7 +14365,7 @@ function rendreLots(){
   surveillerConcours();
   if(!c){n=para(T('lots.aucun'),180,y+12,310,13,C.creme,'center',2,17,true);y+=n*17+12;
     if(!p)return;tt(T('lots.prochain'),180,y+6,14,C.cyan,'center',0);y+=22;}
-  var bas=c?548:596;
+  var bas=c?584:588;
   panneau(12,y,336,bas-y,14,'rgba(38,27,54,0.95)','rgba(20,13,32,0.95)','rgba(255,210,63,0.55)',1.5);
   ttFit(k.nom,180,y+22,20,310,C.or,'center',0,true);
   ttFit(T('lots.periode',dateHeureLocale(k.debut),dateHeureLocale(k.fin)),180,y+46,11.5,310,C.creme,'center',2,false);
@@ -14381,7 +14384,7 @@ function rendreLots(){
   n=para(T(k.modeClassement==='meilleur'?'lots.modeMeilleur':'lots.modeCumul'),180,ys,300,11,'rgba(246,241,231,0.8)','center',2,14,false);ys+=n*14+4;
   if(connecte()&&!NET.joueur.wallet)para(T('lots.wallet'),180,ys,300,11,C.or,'center',2,14,false);
   cx.restore();
-  if(c)bouton('lotsCl',50,558,260,44,T('lots.voirCl'),3,function(){NET.cl.periode='concours';allerEcran('classement');},null,15);
+  if(c)bouton('lotsCl',96,594,256,36,T('lots.voirCl'),3,function(){NET.cl.periode='concours';allerEcran('classement');},null,15);
 }
 
 /* ---- classement ---- */
@@ -14473,7 +14476,7 @@ function chargerClassement(per){
 }
 var CL_Y0=118,CL_H=26,clGlisse=null,nivGlisse=null,pjGlisse=null;
 /* bas des listes qui défilent : au-dessus du trait du pied (slogan de la bande basse) ; rien ne se dessine ni ne se touche dessous */
-var BAS_DEFIL=630;
+var BAS_DEFIL=588;
 /* la liste continue plus bas : fondu sur les dernières lignes et petite flèche */
 function indiceSuite(x,w,yb){
   var g=cx.createLinearGradient(0,yb-30,0,yb);g.addColorStop(0,'rgba(13,9,20,0)');g.addColorStop(1,'rgba(13,9,20,0.94)');
@@ -14532,8 +14535,8 @@ function allerParties(){var de=ecran;allerEcran('parties');if(de!=='parties')PJ.
 function rendreParties(){
   fondMenu();
   var de=PJ.de||'titre',y=SAFE_H+58,L=listeParties(),i,p,srv=pjServeur(),ys,hR=L.length>9?38:44,hc;
-  bouton('retour',6,SAFE_H+6,70,30,T('menu.retour'),1,function(){allerEcran(de);},null,12);
-  ttFit(T('pj.titre'),198,SAFE_H+22,20,204,C.creme,'center',0,true);
+  retourBas(function(){allerEcran(de);});
+  ttFit(T('pj.titre'),180,SAFE_H+22,20,336,C.creme,'center',0,true);
   ttFit(T('pj.sous',fmtDate(JOUR)),180,y,11.5,336,'rgba(246,241,231,0.75)','center',2,true);y+=18;
   if(!srv){ttFit(T('pj.local'),180,y,11,336,COUL_NIV.gris,'center',2,false);y+=16;}
   y+=6;
@@ -14559,7 +14562,7 @@ function rendreParties(){
   if(hT>vis&&PJ.defil<hT-vis-2)indiceSuite(0,360,BAS_DEFIL);
   cx.restore();
   zone('pjTete',0,0,360,yl-4,function(){});zone('pjPied',0,BAS_DEFIL,360,400,function(){});
-  bouton('retour',6,SAFE_H+6,70,30,T('menu.retour'),1,function(){allerEcran(de);},null,12);
+  retourBas(function(){allerEcran(de);});
   if(hT>vis){var hb=Math.max(20,vis*vis/hT),yb=yl+(vis-hb)*PJ.defil/Math.max(1,hT-vis);cx.fillStyle='rgba(111,230,255,0.4)';cx.fillRect(353,yb,3,hb);}
 }
 /* « Mon niveau » : l'entrée vers la liste */
@@ -14600,15 +14603,15 @@ function rendreClassement(){
     cx.restore();
     if(hTot>vis){var hb=Math.max(20,vis*vis/hTot),yb=y0+(vis-hb)*cl.defil/Math.max(1,hTot-vis);cx.fillStyle='rgba(111,230,255,0.4)';cx.fillRect(351,yb,3,hb);}
     if(connecte()){var mo=d.moi;
-      panneau(8,596,246,30,8,'rgba(58,40,18,0.95)','rgba(30,20,10,0.95)','rgba(255,210,63,0.5)',1);
-      ttFit(mo?T('cl.moi',mo.rang,fmtNb(mo.score)):T('cl.moiRien'),131,611,12,232,C.or,'center',2,false);
+      panneau(92,596,162,30,8,'rgba(58,40,18,0.95)','rgba(30,20,10,0.95)','rgba(255,210,63,0.5)',1);
+      ttFit(mo?T('cl.moi',mo.rang,fmtNb(mo.score)):T('cl.moiRien'),173,611,12,150,C.or,'center',2,false);
       bouton('clparties',260,596,92,30,T('pj.court'),3,allerParties,null,12);}
   }
   /* 0.9 : sans connexion : ni ligne « Toi » ni « revoir », mais une invitation claire à entrer au classement */
-  if(!connecte()&&modeServeur()){ttFit(T('cl.public'),180,575,13,336,C.or,'center',0,true);
+  if(!connecte()&&modeServeur()){ttFit(T('cl.public'),180,577,13,336,C.or,'center',0,true);
     /* 0.12 : Touriste qui a joué aujourd'hui : ses parties de cet appareil, à partager */
-    if(partiesLocales().length){bouton('clcnx',14,591,196,36,T('cnx.bouton'),2,function(){allerEcran('connexion');},null,15);bouton('clparties',216,591,130,36,T('pj.court'),3,allerParties,null,13);}
-    else bouton('clcnx',80,591,200,36,T('cnx.bouton'),2,function(){allerEcran('connexion');},null,15);}
+    if(partiesLocales().length){bouton('clcnx',92,594,150,36,T('cnx.bouton'),2,function(){allerEcran('connexion');},null,14);bouton('clparties',248,594,104,36,T('pj.court'),3,allerParties,null,13);}
+    else bouton('clcnx',112,594,200,36,T('cnx.bouton'),2,function(){allerEcran('connexion');},null,15);}
   if(NET.revoirCharge)ttFit(T('cl.chargeRevoir'),180,y0+120,14,320,C.cyan,'center',0,true);
 }
 /* hors ligne : ce que ce téléphone sait (record du jour, meilleur score, série) */
@@ -15833,7 +15836,7 @@ init();
 visiteOuverture();
 })();
 </script>
-<div id="qaPastille" style="position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 11px/1 system-ui,sans-serif;padding:5px 12px 6px;border-radius:0 0 8px 8px;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.16.0-qa24 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<div id="qaPastille" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 11px/1 system-ui,sans-serif;padding:5px 12px 6px;border-radius:8px 8px 0 0;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.16.0-qa27 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
