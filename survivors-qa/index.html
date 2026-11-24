@@ -2736,6 +2736,7 @@ LANGUES.fr={
 "carte.etape":"prochaine étape",
 "carte.pont":"pont",
 "carte.fontaine":"fontaine",
+"carte.clos":"jardin clos",
 "ville.pastille":"Ville : {0}",
 "ville.charge":"Chargement de {0}…",
 "ville.echec":"Ville indisponible : réessaie dans un instant.",
@@ -3882,6 +3883,7 @@ LANGUES.de={
 "carte.etape":"nächste Etappe",
 "carte.pont":"Brücke",
 "carte.fontaine":"Brunnen",
+"carte.clos":"geschlossener Garten",
 "ville.pastille":"Stadt: {0}",
 "ville.charge":"{0} wird geladen…",
 "ville.echec":"Stadt nicht verfügbar: versuch es gleich noch einmal.",
@@ -5028,6 +5030,7 @@ LANGUES.it={
 "carte.etape":"prossima tappa",
 "carte.pont":"ponte",
 "carte.fontaine":"fontana",
+"carte.clos":"giardino chiuso",
 "ville.pastille":"Città: {0}",
 "ville.charge":"Caricamento di {0}…",
 "ville.echec":"Città non disponibile: riprova tra un attimo.",
@@ -6174,6 +6177,7 @@ LANGUES.es={
 "carte.etape":"próxima etapa",
 "carte.pont":"puente",
 "carte.fontaine":"fuente",
+"carte.clos":"jardín cerrado",
 "ville.pastille":"Ciudad: {0}",
 "ville.charge":"Cargando {0}…",
 "ville.echec":"Ciudad no disponible: inténtalo en un momento.",
@@ -7320,6 +7324,7 @@ LANGUES.en={
 "carte.etape":"next stop",
 "carte.pont":"bridge",
 "carte.fontaine":"fountain",
+"carte.clos":"walled garden",
 "ville.pastille":"Town: {0}",
 "ville.charge":"Loading {0}…",
 "ville.echec":"Town unavailable: try again in a moment.",
@@ -7766,7 +7771,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.16.0-qa13';
+var VERSION='0.16.0-qa14';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -15319,13 +15324,27 @@ function vlChunk(ci,cj){
   g.scale(TRES,TRES);
   g.fillStyle=vlMotif(g,TEX.paves);g.fillRect(0,0,CHK,CHK);
   for(i=0;i<F.vert.length;i++){o=F.vert[i];if(!touche(o.bb,2))continue;vlTrace(g,o.p,u0,v0);g.closePath();g.fillStyle=vlMotif(g,o.t?TEX.sousbois:TEX.herbe);g.fill();}
-  /* ruelles, impasses et cours fermées (rien n'y passe) : un massif de pierre hachuré, qu'on ne confond ni avec l'herbe
-     ni avec les pavés (retour de Dom sur qa6 : en vert, on croyait pouvoir y passer) */
-  var Cq=F.clos,hx0=Math.floor(u0/8)-1,hx1=Math.floor(u1/8)+1,hy0=Math.floor(v0/8)-1,hy1=Math.floor(v1/8)+1;
-  g.fillStyle='#4B4854';g.beginPath();
-  for(i=0;i<Cq.length;i+=4){if(Cq[i]>hx1||Cq[i]+Cq[i+2]<hx0||Cq[i+1]>hy1||Cq[i+1]+Cq[i+3]<hy0)continue;g.rect(Cq[i]*8-u0-1,Cq[i+1]*8-v0-1,Cq[i+2]*8+2,Cq[i+3]*8+2);}
-  g.fill();g.save();g.clip();g.strokeStyle='rgba(14,10,22,0.32)';g.lineWidth=2;for(k=-CHK;k<CHK;k+=7){g.beginPath();g.moveTo(k,0);g.lineTo(k+CHK,CHK);g.stroke();}
-  g.strokeStyle='rgba(190,186,200,0.10)';g.lineWidth=1;for(k=-CHK+3;k<CHK;k+=7){g.beginPath();g.moveTo(k,0);g.lineTo(k+CHK,CHK);g.stroke();}g.restore();
+  /* ruelles, impasses et cours fermées (rien n'y passe) : un jardin clos, avec du VOLUME (Dom, 24.11.2026 : dessinées à plat,
+     on les prenait pour du sol et on essayait d'y entrer). Une haie taillée épaisse derrière un muret de pierre : le mur du sud
+     montre sa face, des arbustes dépassent. Cellules de 8 px ; un muret seulement là où la cour touche autre chose qu'une cour. */
+  var Cq=F.clos,hx0=Math.floor(u0/8)-2,hx1=Math.floor(u1/8)+2,hy0=Math.floor(v0/8)-2,hy1=Math.floor(v1/8)+2,cw=hx1-hx0+1,ch=hy1-hy0+1,cg=new Uint8Array(cw*ch),qi,qj,a,b,c0,c1;
+  for(i=0;i<Cq.length;i+=4){if(Cq[i]>hx1||Cq[i]+Cq[i+2]<hx0||Cq[i+1]>hy1||Cq[i+1]+Cq[i+3]<hy0)continue;
+    a=Math.max(hx0,Cq[i]);b=Math.min(hx1+1,Cq[i]+Cq[i+2]);c0=Math.max(hy0,Cq[i+1]);c1=Math.min(hy1+1,Cq[i+1]+Cq[i+3]);
+    for(qj=c0;qj<c1;qj++)for(qi=a;qi<b;qi++)cg[(qj-hy0)*cw+qi-hx0]=1;}
+  var clo=function(x,y){return x<0||y<0||x>=cw||y>=ch?1:cg[y*cw+x];},HV=hiver?'#C9D6DC':'#2E5B36',HV2=hiver?'#E6EEF2':'#3F7A47',HV3=hiver?'#AEBFC8':'#234A2B',px,py,hh;
+  /* la haie : massif vert, un peu remonté (5 px) pour qu'il ait l'air posé sur le sol */
+  g.fillStyle=HV;for(qj=0;qj<ch;qj++)for(qi=0;qi<cw;qi++)if(cg[qj*cw+qi])g.fillRect((qi+hx0)*8-u0-0.5,(qj+hy0)*8-v0-5.5,9,14);
+  /* feuillage : touffes claires et sombres, toujours au même endroit (tirées de la position de la cellule) */
+  for(qj=0;qj<ch;qj++)for(qi=0;qi<cw;qi++){if(!cg[qj*cw+qi])continue;hh=((qi+hx0)*73856093^(qj+hy0)*19349663)>>>0;px=(qi+hx0)*8-u0;py=(qj+hy0)*8-v0-5;
+    g.fillStyle=hh%3?HV2:HV3;g.beginPath();g.arc(px+2+hh%5,py+2+(hh>>3)%5,2.6+(hh>>6)%2,0,PI2);g.fill();
+    if(hh%11===0&&clo(qi-1,qj)&&clo(qi+1,qj)&&clo(qi,qj-1)&&clo(qi,qj+1)){/* un arbuste qui dépasse, au cœur du massif */
+      g.fillStyle='rgba(8,6,16,0.25)';g.beginPath();g.ellipse(px+5,py+7,7,3,0,0,PI2);g.fill();g.fillStyle=HV3;g.beginPath();g.arc(px+4,py-1,6.5,0,PI2);g.fill();g.fillStyle=HV2;g.beginPath();g.arc(px+2.5,py-2.5,3.6,0,PI2);g.fill();}}
+  /* le muret : dessus clair sur tous les bords, face de pierre plus haute et plus sombre au sud, ombre portée au pied */
+  for(qj=0;qj<ch;qj++)for(qi=0;qi<cw;qi++){if(!cg[qj*cw+qi])continue;px=(qi+hx0)*8-u0;py=(qj+hy0)*8-v0;
+    if(!clo(qi,qj+1)){g.fillStyle='rgba(8,6,16,0.28)';g.fillRect(px-0.5,py+8,9,3);g.fillStyle='#7C7466';g.fillRect(px-0.5,py+1,9,7.5);g.fillStyle='rgba(20,14,24,0.30)';g.fillRect(px+((qi+hx0)%2?1:5),py+3,0.9,4);g.fillStyle='#CFC6B2';g.fillRect(px-0.5,py-1.5,9,3);}
+    if(!clo(qi,qj-1)){g.fillStyle='#B9B09C';g.fillRect(px-0.5,py-6,9,3);}
+    if(!clo(qi-1,qj)){g.fillStyle='#A39A88';g.fillRect(px-0.5,py-6,3,14);g.fillStyle='#CFC6B2';g.fillRect(px-0.5,py-6,3,2);}
+    if(!clo(qi+1,qj)){g.fillStyle='#8E8676';g.fillRect(px+5.5,py-6,3,14);g.fillStyle='#CFC6B2';g.fillRect(px+5.5,py-6,3,2);}}
   g.lineCap='round';g.lineJoin='round';
   /* chaussées (à peine plus claires) et sentiers */
   for(i=0;i<F.rues.length;i++){o=F.rues[i];if(o.pont||!touche(o.bb,30))continue;vlTrace(g,o.p,u0,v0);
@@ -15598,6 +15617,8 @@ function vlCarteCuire(){
   for(i=0;i<F.ileP.length;i++){vlTrace(g,F.ileP[i],0,0);g.closePath();g.fillStyle='#3B6A45';g.fill();}
   g.lineCap='round';g.lineJoin='round';
   for(i=0;i<F.rues.length;i++){o=F.rues[i];if(o.t>=2&&!o.pont)continue;vlTrace(g,o.p,0,0);g.strokeStyle=o.pont?'#E3CFA0':'#5A5C70';g.lineWidth=o.pont?90:64;g.stroke();}
+  /* cours et jardins fermés : on n'y passe pas */
+  g.fillStyle='#35523A';for(i=0;i<F.clos.length;i+=4)g.fillRect(F.clos[i]*8,F.clos[i+1]*8,F.clos[i+2]*8,F.clos[i+3]*8);
   for(i=0;i<F.bat.length;i++){o=F.bat[i];vlTrace(g,o.p,0,0);g.closePath();g.fillStyle=o.s===2?'#E8ECF6':(o.s===1?'#A9B3C8':'#C4694A');g.fill();}
   for(i=0;i<F.font.length;i++){g.fillStyle='#7FE9FF';g.beginPath();g.arc(F.font[i][0],F.font[i][1],26,0,PI2);g.fill();}
   return c;
@@ -15662,7 +15683,7 @@ function vlCarteDessus(){
   ttFit(T('pause.titre'),180,SAFE_H+48,36,330,C.creme,'center',0,true);
   var B=vlCarteDessin(true);
   /* légende (demande de Dom, 24.11.2026 : « des points jaunes et bleus, on comprend pas bien ») : ce que montre chaque marque */
-  var L=[['#2F9BFF',T('carte.toi'),0],['#E5302A',T('carte.etape'),3],['#E3CFA0',T('carte.pont'),1],['#7FE9FF',T('carte.fontaine'),2]],i,w=0,x,yl=B.y+B.H+18;
+  var L=[['#2F9BFF',T('carte.toi'),0],['#E5302A',T('carte.etape'),3],['#E3CFA0',T('carte.pont'),1],['#7FE9FF',T('carte.fontaine'),2],['#35523A',T('carte.clos'),1]],i,w=0,x,yl=B.y+B.H+18;
   cx.font='700 10px system-ui,sans-serif';cx.textAlign='left';
   for(i=0;i<L.length;i++)w+=16+cx.measureText(L[i][1]).width+(i?12:0);
   x=180-w/2;
@@ -15713,6 +15734,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 11px/1 system-ui,sans-serif;padding:5px 12px 6px;border-radius:0 0 8px 8px;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*150;p.textContent="QA 0.16.0-qa13 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*150;p.textContent="QA 0.16.0-qa14 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
