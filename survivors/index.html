@@ -12393,14 +12393,21 @@ function carteScore(){
   /* 0.10 : score final du serveur (bonus de fidélité compris) une fois la partie validée, comme le texte du post */
   var c=toile(1080,1350),g=c.getContext('2d'),sc=scoreFin(),pal=SIM.palier(sc,S),i,x;
   var gr=g.createLinearGradient(0,0,0,1350);gr.addColorStop(0,'#261B36');gr.addColorStop(1,'#0D0914');g.fillStyle=gr;g.fillRect(0,0,1080,1350);
-  /* 0.5 : en fond, le quartier où la partie a commencé */
-  if(S&&S.M){changerMonde(S.M);var c0=Math.floor(MW.ofu/CHK)-2,r0=Math.floor(MW.ofv/CHK)-2,j;g.globalAlpha=0.55;
+  /* 24.11.2026 (Dom : « image à changer aussi ») : l'illustration du jeu en fond (victoire : DZÔ et sa bannière ; sinon DZÔ et
+     ses rivaux devant Fribourg), cadrée sur les mascottes, assombrie en haut (titre) et en bas (score). Sans image chargée :
+     l'ancien dessin (quartier et DZÔ détouré). */
+  var vic=!!(S&&S.victoire),ill=(vic&&imageEcran('victoire'))||imageEcran('entree'),illV=vic&&ill===imageEcran('victoire'),ih;
+  if(ill){ih=1080*ill.naturalHeight/ill.naturalWidth;g.drawImage(ill,0,illV?-360:-560,1080,ih);
+    gr=g.createLinearGradient(0,0,0,300);gr.addColorStop(0,'rgba(13,9,20,0.92)');gr.addColorStop(0.62,'rgba(13,9,20,0.6)');gr.addColorStop(1,'rgba(13,9,20,0)');g.fillStyle=gr;g.fillRect(0,0,1080,300);
+    gr=g.createLinearGradient(0,690,0,850);gr.addColorStop(0,'rgba(13,9,20,0)');gr.addColorStop(1,'rgba(13,9,20,0.94)');g.fillStyle=gr;g.fillRect(0,690,1080,160);g.fillStyle='rgba(13,9,20,0.94)';g.fillRect(0,850,1080,500);
+    g.lineWidth=10;g.strokeStyle='#6FE6FF';g.strokeRect(5,5,1070,1340);}
+  else if(S&&S.M){changerMonde(S.M);var c0=Math.floor(MW.ofu/CHK)-2,r0=Math.floor(MW.ofv/CHK)-2,j;g.globalAlpha=0.55;
     for(j=0;j<5;j++)for(i=0;i<4;i++)g.drawImage(chunk(((c0+i)%NCHK+NCHK)%NCHK,((r0+j)%NCHK+NCHK)%NCHK),i*270,j*270,271,271);g.globalAlpha=1;}
-  gr=g.createRadialGradient(540,620,100,540,620,900);gr.addColorStop(0,'rgba(111,230,255,0.22)');gr.addColorStop(0.5,'rgba(13,9,20,0.2)');gr.addColorStop(1,'rgba(13,9,20,0.92)');g.fillStyle=gr;g.fillRect(0,0,1080,1350);
+  if(!ill){gr=g.createRadialGradient(540,620,100,540,620,900);gr.addColorStop(0,'rgba(111,230,255,0.22)');gr.addColorStop(0.5,'rgba(13,9,20,0.2)');gr.addColorStop(1,'rgba(13,9,20,0.92)');g.fillStyle=gr;g.fillRect(0,0,1080,1350);}
   function TC(s,x,y,px,coul,al,mono){var lw;g.font=(mono?'700 ':'900 italic ')+px+'px '+(mono?F_CHIFFRE:F_TITRE);lw=g.measureText(s).width;if(lw>1020)px=px*1020/lw;g.font=(mono?'700 ':'900 italic ')+px+'px '+(mono?F_CHIFFRE:F_TITRE);g.textAlign=al||'center';g.textBaseline='middle';g.lineJoin='round';g.lineWidth=px*0.16;g.strokeStyle=C.encre;g.strokeText(s,x,y+px*0.07);g.strokeText(s,x,y);g.fillStyle=coul;g.fillText(s,x,y);}
   TC(etiquetteJour(),540,100,84,C.creme);
   TC(T('decretDuJour.ligne',nomDecret(S.decret)),540,172,34,C.or);
-  var s=DZO.grand;if(s){var hh=600,ww=hh*s.w/s.h;g.drawImage(s.c,540-ww/2,200,ww,hh);}
+  var s=DZO.grand;if(s&&!ill){var hh=600,ww=hh*s.w/s.h;g.drawImage(s.c,540-ww/2,200,ww,hh);}
   TC(fmtNb(sc),540,900,170,C.or,'center',true);
   TC(nomPalier(pal).toUpperCase(),540,1020,58,C.cyan);
   TC(T('carte.tenu',fmtTemps(S.n),fmtNb(S.tues),S.niveau),540,1096,36,C.creme,'center',true);
