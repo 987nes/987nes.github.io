@@ -7787,7 +7787,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.16.0-proto';
+var VERSION='0.16.1-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -10393,6 +10393,8 @@ function spriteObjectif(){if(!SPR.drapeau)SPR.drapeau=sprite(64,64,32,32,functio
 /* nom du lieu de l'objectif : l'édifice, le pont ou la fontaine le plus proche à 60 m au plus, sinon la rue la plus proche */
 var tourNomK=-1,tourNom='';
 function nomLieuObjectif(){
+  /* plus de nom de rue ni d'édifice dans l'annonce de l'objectif (Dom, 24.11.2026) : « étape », tout court */
+  if(S)return (tourNom=T('tour.etape'));
   var t=S.tour;if(tourNomK===t.k&&tourNom)return tourNom;
   var nom='',F,u,v,i,o,d,best=1e18,k,p,a,b,dx,dy,l2,q,px,py;
   if(MW&&MW.reel&&MW.ville){F=vlD();u=mdw(t.x+MW.ofu);v=mdw(t.y+MW.ofv);
@@ -15427,7 +15429,7 @@ function vlChunk(ci,cj){
     g.fillStyle=fond;g.beginPath();rrect(g,px-w/2+1.5,py-h/2+1.5,w-3,h-3,3);g.fill();
     g.fillStyle=encre;g.fillText(txt,px,py+0.5);};
   /* noms de rue retirés (Dom, 24.11.2026 : « ça apporte rien ») : seuls les édifices gardent leur plaque */
-  for(i=0;i<F.bat.length;i++){o=F.bat[i];if(!o.s||!o.n)continue;var mx=(o.bb[0]+o.bb[2])/2,my2=o.bb[3]+24;if(mx<u0-220||mx>u1+220||my2<v0-40||my2>v1+40)continue;plaque(o.n,mx-u0,my2-v0,'#5A2E1A','#FFE9B0',true);}
+  /* noms des édifices retirés aussi (Dom, 24.11.2026 : « il y a encore le nom de rue et bâtiment ») : plus aucun nom sur la carte */
   g.textBaseline='alphabetic';
   /* hors de la ville : terre brûlée */
   g.fillStyle='#170907';
