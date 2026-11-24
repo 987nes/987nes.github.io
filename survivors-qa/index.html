@@ -7781,7 +7781,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.16.0-qa22';
+var VERSION='0.16.0-qa23';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -11947,6 +11947,22 @@ function faireLogo(){
 }
 /* 0.5 : l'écran titre survole la vieille ville du jour (sol, maisons, cathédrale), sans personne dedans */
 var MW_TITRE=null,MW_TITRE_J='',FAUXS=null;
+/* ILLUSTRATIONS DES ÉCRANS (Dom, 24.11.2026) : une image par écran fixe (assets/ecrans/<nom>.jpg, 720 px de large, portrait),
+   à la place du fond dessiné par le code. Chargée à la demande ; tant qu'elle n'est pas là, l'ancien fond sert.
+   fondImage(nom, voile, dy, bas) : l'image sur toute la largeur de la colonne (360 px), décalée de dy vers le haut, puis un voile
+   sombre uniforme (voile) et, si bas > 0, un fondu vers le noir à partir de bas (pour que les boutons se lisent). */
+var IMG_ECRANS={},ECRAN_IMAGE={classement:'podium',niveau:'niveau',boosts:'niveau'};
+function imageEcran(nom){var o=IMG_ECRANS[nom];
+  if(!o){o=IMG_ECRANS[nom]={im:null,ok:false};try{o.im=new Image();o.im.onload=function(){o.ok=true;};o.im.src='assets/ecrans/'+nom+'.jpg';}catch(e){}}
+  return o.ok?o.im:null;}
+function fondImage(nom,voile,dy,bas){
+  var im=imageEcran(nom),h,g;if(!im)return false;
+  colonne();h=360*im.naturalHeight/im.naturalWidth;
+  cx.fillStyle='#0D0914';cx.fillRect(0,0,360,640);cx.drawImage(im,0,-(dy||0),360,h);
+  if(voile){cx.fillStyle='rgba(10,6,18,'+voile+')';cx.fillRect(0,0,360,640);}
+  if(bas){g=cx.createLinearGradient(0,bas,0,bas+90);g.addColorStop(0,'rgba(10,6,18,0)');g.addColorStop(1,'rgba(10,6,18,0.92)');cx.fillStyle=g;cx.fillRect(0,bas,360,90);cx.fillStyle='rgba(10,6,18,0.92)';cx.fillRect(0,bas+90,360,640-bas-90);}
+  return true;
+}
 function rendreFond(vx,vy,sombreur){
   if(MW_TITRE_J!==JOUR){MW_TITRE_J=JOUR;MW_TITRE=SIM.mondeDe(SIM.fnv1a('DZO-'+JOUR),tableauDecor());FAUXS=null;}
   var m=S&&S.M?S.M:MW_TITRE;changerMonde(m);
@@ -11969,13 +11985,22 @@ function rendreFond(vx,vy,sombreur){
 /* 0.11 : écran titre recomposé, de haut en bas : barre (classement du jour, profil, réglages), logo signé 987NES,
    DZÔ et la horde (rien par-dessus), UNE ligne d'état, UN bouton principal, deux petits boutons, un pied de page */
 var reglagesTitre=false,reglagesT=0;
+/* zones touchables de DZÔ sur l'illustration du titre (poing levé, dents, ventre « 987 NES »), en px de la colonne, image décalée de 60 */
+var ZONES_TITRE_IMAGE=[['poing',262,256,52,50],['dents',116,282,130,60],['ventre',150,344,72,46]];
 function rendreTitre(){
   nBT=0;
-  rendreFond(9,6,0.6);
+  var illus=fondImage('titre',0,60,418);
+  if(!illus)rendreFond(9,6,0.6);
   var i,o,a,k,s,w,x,restants=essaisRestants(),t=tReel,dep=tDepart>=0?Math.min(1,tDepart/0.18):0,prem=premiereFois(),horsRang=HORS_RANG;
   /* réglages ouverts puis écran quitté : refermés au retour */
   if(reglagesTitre&&tEcran<reglagesT)reglagesTitre=false;
   veillerSecret();
+  if(illus){
+    /* l'illustration porte déjà DZÔ et ses rivaux : seules restent ses zones touchables (code secret) et la fête */
+    if(tDepart<0&&!reglagesTitre){SEC.zones=[];for(i=0;i<ZONES_TITRE_IMAGE.length;i++){o=ZONES_TITRE_IMAGE[i];zone('dzo:'+o[0],o[1],o[2],o[3],o[4],function(){});SEC.zones.push({nom:o[0],x:o[1],y:o[2],w:o[3],h:o[4]});}}
+    if(t-SEC.fete<3.2)feteTitre(t-SEC.fete);
+    logoTitre(true);
+  }else{
   /* yeux idiots qui s'allument dans le noir (pas derrière le logo) */
   for(i=0;i<yeuxTitre.length;i++){o=yeuxTitre[i];if(o.y<200)continue;k=((t+o.p)%o.d)/o.d;a=k<0.15?k/0.15:(k>0.8?(1-k)/0.2:1);if(k>0.45&&k<0.5)a=0;if(a<=0)continue;
     cx.globalAlpha=a*0.85;var col=TEINTES[o.c===5||o.c===6||o.c===9?0:o.c],r=9*o.e;
@@ -12006,6 +12031,7 @@ function rendreTitre(){
   /* vies illimitées accordées : halo doré et confettis pendant 3 s */
   if(t-SEC.fete<3.2)feteTitre(t-SEC.fete);
   logoTitre();
+  }
   /* état du jour : UNE ligne ; plus d'essai : le bouton principal devient le boost doré */
   var yS=450,yB=482,yP=562;
   surveillerConcours();
@@ -12053,16 +12079,16 @@ function rendreTitre(){
   if(tDepart>0.18){cx.fillStyle='rgba(255,255,255,'+Math.min(1,(tDepart-0.18)/0.12).toFixed(2)+')';cx.fillRect(0,0,360,640);}
 }
 /* logo : plaque dorée « 987NES présente » posée dessus, slogan dessous (en anglais : c'est le slogan) */
-function logoTitre(){
-  var y0=SAFE_H,k=1+Math.sin(tReel*2.1)*0.012,txt=T('titre.presente'),pw,gr;
+function logoTitre(illus){
+  var y0=SAFE_H,k=1+Math.sin(tReel*2.1)*0.012,txt=T('titre.presente'),pw,gr,ec=illus?0.62:0.8,yl=illus?108:120,yp=illus?-7:0;
   /* la plaque s'arrête au-dessus de l'accent du Ô */
-  if(SPR.logo){cx.save();cx.translate(180,y0+120);cx.scale(k*0.8,k*0.8);spr(SPR.logo,0,0);cx.restore();}
+  if(SPR.logo){cx.save();cx.translate(180,y0+yl);cx.scale(k*ec,k*ec);spr(SPR.logo,0,0);cx.restore();}
   cx.font=police(11,0);pw=Math.min(220,cx.measureText(txt).width+26);
-  cx.fillStyle=C.encre;cx.beginPath();rrect(cx,180-pw/2-2,y0+48,pw+4,24,8);cx.fill();
-  gr=cx.createLinearGradient(0,y0+50,0,y0+70);gr.addColorStop(0,'#FFE98A');gr.addColorStop(1,'#E0A91A');
-  cx.fillStyle=gr;cx.beginPath();rrect(cx,180-pw/2,y0+50,pw,20,7);cx.fill();
-  ttFit(txt,180,y0+60.5,11,pw-14,C.encre,'center',0,false);
-  tt('The Swiss Memecoin',180,y0+173,14,C.or,'center',0);
+  cx.fillStyle=C.encre;cx.beginPath();rrect(cx,180-pw/2-2,y0+48+yp,pw+4,24,8);cx.fill();
+  gr=cx.createLinearGradient(0,y0+50+yp,0,y0+70+yp);gr.addColorStop(0,'#FFE98A');gr.addColorStop(1,'#E0A91A');
+  cx.fillStyle=gr;cx.beginPath();rrect(cx,180-pw/2,y0+50+yp,pw,20,7);cx.fill();
+  ttFit(txt,180,y0+60.5+yp,11,pw-14,C.encre,'center',0,false);
+  tt('The Swiss Memecoin',180,y0+(illus?151:173),illus?12:14,C.or,'center',0);
 }
 /* la ligne d'état du titre, sur une plaque sombre : essais (pastilles) et série, ou le compte à rebours, ou la connexion */
 function ligneEtatTitre(yc,epuise,tpe,restants){
@@ -12153,12 +12179,15 @@ function titreEquilibre(s,larg,px){
 }
 function rendreFin(){
   nBT=0;
+  var illusF=!!(S&&imageEcran(S.victoire?'victoire':'defaite'));
   if(S){rendreMonde(0);}else rendreFond(9,6,0.6);
   colonne();
   var t=tEcran,k=Math.min(1,t/0.3),sc=scoreFin(),i,j,x,y,ys,yl,n,e,a,w,s,aff,hh,ww,px,txt,cl,pal=SIM.palier(sc,S),PL=SIM.PALIERS,vic=!!S.victoire,lsrv=ligneServeur();
   /* 0.12 : cette partie n'est pas la meilleure du jour : petite action « Partager mon meilleur : N » au-dessus de REJOUER */
   var meilJ=(classee&&!REVOIR&&!HORS_RANG&&!BOT)?meilleurDuJour():0,basF=meilJ>sc?476:496;
-  cx.fillStyle='rgba(13,9,20,'+(0.82*k).toFixed(3)+')';cx.fillRect(0,0,360,640);
+  /* l'illustration (défaite ou victoire) arrive en fondu par-dessus le jeu figé, sous un voile qui laisse lire les panneaux */
+  if(illusF){cx.globalAlpha=k;fondImage(S.victoire?'victoire':'defaite',0.66,0,0);cx.globalAlpha=1;}
+  else{cx.fillStyle='rgba(13,9,20,'+(0.82*k).toFixed(3)+')';cx.fillRect(0,0,360,640);}
   y=SAFE_H;
   var L=titreEquilibre(T(titreFin),336,21);for(i=0;i<L.length;i++)tt(L[i],180,y+46+i*25,21,vic?C.vert:C.creme,'center',0);
   y+=L.length>1?94:70;
@@ -12179,11 +12208,11 @@ function rendreFin(){
   e=Math.min(1,Math.max(0,(t-0.5)/0.3));
   if(e>0){
     if(vic){s=DZO.grandB||DZO.grand;hh=130;ww=hh*s.w/s.h;a=Math.abs(Math.sin(t*2*Math.PI))*6;
-      cx.globalCompositeOperation='lighter';cx.globalAlpha=e*(0.55+0.15*Math.sin(t*5));cx.drawImage(SPR.haloOr,72-84,ys+62-84,168,168);cx.globalCompositeOperation='source-over';cx.globalAlpha=e;
-      cx.drawImage(SPR.ombre,72-44,ys+121,88,14);cx.drawImage(s.c,72-ww*s.ax/s.w,ys+128-a-hh*s.ay/s.h,ww,hh);
+      if(!illusF){cx.globalCompositeOperation='lighter';cx.globalAlpha=e*(0.55+0.15*Math.sin(t*5));cx.drawImage(SPR.haloOr,72-84,ys+62-84,168,168);cx.globalCompositeOperation='source-over';cx.globalAlpha=e;
+      cx.drawImage(SPR.ombre,72-44,ys+121,88,14);cx.drawImage(s.c,72-ww*s.ax/s.w,ys+128-a-hh*s.ay/s.h,ww,hh);}
       /* confettis : 12 par seconde pendant 3 s */
       for(j=0;j<36;j++){a=t-0.6-j/12;if(a<=0||a>1.8)continue;x=16+(hash2(j,3)%1000)/1000*328+Math.sin(a*5+j)*8;w=ys-24+a*a*90+a*40;cx.globalAlpha=a>1.3?(1.8-a)/0.5:1;cx.fillStyle=[C.or,C.vert,C.cyan,C.creme,C.rouge][j%5];cx.save();cx.translate(x,w);cx.rotate(a*7+j);cx.fillRect(-3,-1.6,6,3.2);cx.restore();}
-    }else{s=DZO.sombre||DZO.grand;hh=96;ww=hh*s.w/s.h;cx.globalAlpha=e;
+    }else if(!illusF){s=DZO.sombre||DZO.grand;hh=96;ww=hh*s.w/s.h;cx.globalAlpha=e;
       cx.drawImage(SPR.ombre,24,ys+120,116,15);cx.save();cx.translate(30,ys+96);cx.rotate(1.4);cx.drawImage(s.c,-ww*s.ax/s.w,-hh*s.ay/s.h,ww,hh);cx.restore();
       if(t>1.1)bulle(T(S.tueur<0?'fin.reviens':'fin.consolide'),100,ys+30);
     }
@@ -12998,7 +13027,7 @@ function entete(titre){
   bouton('retour',6,SAFE_H+6,70,30,T('menu.retour'),1,function(){allerEcran('titre');},null,12);
   ttFit(titre,190,SAFE_H+22,22,220,C.creme,'center',0,true);
 }
-function fondMenu(){nBT=0;rendreFond(5,3,0.8);}
+function fondMenu(){nBT=0;if(!fondImage(ECRAN_IMAGE[ecran]||'menu',0.6,0,0))rendreFond(5,3,0.8);}
 function inviterConnexion(y){
   para(T('cnx.invite'),180,y,300,13,C.creme,'center',2,18,true);
   bouton('cnxInv',70,y+44,220,48,T('cnx.bouton'),2,function(){allerEcran('connexion');},null,18);
@@ -14808,15 +14837,15 @@ function entrer(){if(ecran!=='entree')return;ecran='titre';tEcran=0;tDepart=-1;p
   /* 0.7.1 : résultat de la connexion par le bouton du bot, arrivé pendant l'écran d'entrée */
   var m=NET.msgEntree;if(m){NET.msgEntree=null;msgApresEntree(m[0],m[1],m[2]);}}
 function rendreEntree(){
-  nBT=0;rendreFond(9,6,0.75);
-  var t=tReel,s=DZO.grand,k,a=Math.min(1,tEcran/0.6);
+  nBT=0;var illus=fondImage('entree',0.12,40,452);if(!illus)rendreFond(9,6,0.75);
+  var t=tReel,s=illus?null:DZO.grand,k,a=Math.min(1,tEcran/0.6);
   cx.globalAlpha=a;
   cx.globalCompositeOperation='lighter';cx.globalAlpha=0.85*a;cx.drawImage(SPR.lumiere,180-250,330-250,500,500);cx.globalCompositeOperation='source-over';cx.globalAlpha=a;
   if(s){var hh=380,ww=hh*s.w/s.h,resp=1+Math.sin(t*1.2*PI2*0.5)*0.014;
     cx.drawImage(SPR.ombre,180-110,500,220,36);
     cx.save();cx.translate(186,516);cx.scale(2-resp,resp);cx.drawImage(s.c,-ww*s.ax/s.w,-hh*s.ay/s.h,ww,hh);cx.restore();}
   if(SPR.logo){k=1+Math.sin(t*2.1)*0.012;cx.save();cx.translate(180,92+SAFE_H);cx.scale(k*1.08,k*1.08);spr(SPR.logo,0,0);cx.restore();}
-  k=0.55+0.45*Math.abs(Math.sin(t*2.4));
+  k=(illus?0.78:0.55)+(illus?0.22:0.45)*Math.abs(Math.sin(t*2.4));
   cx.globalAlpha=a*k;ttFit(T(tactile?'entree.touche':'entree.clic'),180,574,22,330,C.or,'center',0,true);
   cx.globalAlpha=a*0.7;ttFit(T('entree.son'),180,600,11,330,C.creme,'center',2,true);
   /* 0.9 : signature 987NES */
@@ -15790,6 +15819,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 11px/1 system-ui,sans-serif;padding:5px 12px 6px;border-radius:0 0 8px 8px;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.16.0-qa22 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.16.0-qa23 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
