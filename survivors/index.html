@@ -2922,6 +2922,7 @@ LANGUES.fr={
 "nes.tg":"987NES SUR TELEGRAM",
 "nes.ouvre":"S'ouvre dans un nouvel onglet.",
 "nes.fermer":"FERMER",
+"nes.conf":"Confidentialité",
 "beta.court":"BÊTA",
 "beta.chip":"BÊTA · on construit encore chaque jour",
 "beta.titre":"Version bêta",
@@ -4072,6 +4073,7 @@ LANGUES.de={
 "nes.tg":"987NES AUF TELEGRAM",
 "nes.ouvre":"Öffnet sich in einem neuen Tab.",
 "nes.fermer":"SCHLIESSEN",
+"nes.conf":"Datenschutz",
 "beta.court":"BETA",
 "beta.chip":"BETA · wir bauen jeden Tag weiter",
 "beta.titre":"Beta-Version",
@@ -5222,6 +5224,7 @@ LANGUES.it={
 "nes.tg":"987NES SU TELEGRAM",
 "nes.ouvre":"Si apre in una nuova scheda.",
 "nes.fermer":"CHIUDI",
+"nes.conf":"Privacy",
 "beta.court":"BETA",
 "beta.chip":"BETA · lo costruiamo ancora ogni giorno",
 "beta.titre":"Versione beta",
@@ -6372,6 +6375,7 @@ LANGUES.es={
 "nes.tg":"987NES EN TELEGRAM",
 "nes.ouvre":"Se abre en una pestaña nueva.",
 "nes.fermer":"CERRAR",
+"nes.conf":"Privacidad",
 "beta.court":"BETA",
 "beta.chip":"BETA · lo seguimos construyendo cada día",
 "beta.titre":"Versión beta",
@@ -7522,6 +7526,7 @@ LANGUES.en={
 "nes.tg":"987NES ON TELEGRAM",
 "nes.ouvre":"Opens in a new tab.",
 "nes.fermer":"CLOSE",
+"nes.conf":"Privacy",
 "beta.court":"BETA",
 "beta.chip":"BETA · still being built every day",
 "beta.titre":"Beta version",
@@ -7790,7 +7795,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.16.4-proto';
+var VERSION='0.16.5-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -14475,11 +14480,12 @@ function rendrePanneauBeta(){
 }
 function ouvrirNes(){NES_OUVERT=ecran;presse=null;pressePtr=-1;}
 function fermerNes(){NES_OUVERT='';presse=null;pressePtr=-1;}
+var URL_CONF='https://987nes.com/survivors/confidentialite/';
 function rendrePanneauNes(){
   colonne();nBT=0;
   cx.fillStyle='rgba(13,9,20,0.86)';cx.fillRect(0,0,360,640);
   /* hauteur du panneau ajustée au texte de présentation (3 à 5 lignes selon la langue) */
-  var y=SAFE_H+84,n=lignes(T('nes.texte'),290,13,2).length,s=DZO.grand,yb=Math.max(y+112+n*18,y+168),h=yb+228-y;
+  var y=SAFE_H+84,n=lignes(T('nes.texte'),290,13,2).length,s=DZO.grand,yb=Math.max(y+112+n*18,y+168),h=yb+246-y;
   panneau(16,y,328,h,16,'rgba(46,33,70,0.97)','rgba(20,13,32,0.97)','rgba(255,210,63,0.6)',2);
   if(s){var hh=70,ww=hh*s.w/s.h;cx.drawImage(SPR.ombre,180-30,y-9,60,11);cx.drawImage(s.c,180-ww*s.ax/s.w,y-4-hh*s.ay/s.h,ww,hh);}
   tt(T('nes.titre'),180,y+28,30,C.or,'center',0);
@@ -14489,7 +14495,10 @@ function rendrePanneauNes(){
   if(URL_SITE)bouton('nesSite',34,yb,292,54,T('nes.site'),2,function(){ouvrirLien(URL_SITE);},URL_SITE.replace(/^https:\/\/(www\.)?/,'').replace(/\/$/,''),17);
   if(URL_X)bouton('nesX',34,yb+68,292,54,T('nes.x'),3,function(){ouvrirLien(URL_X);},URL_X.replace(/^https:\/\/(www\.)?/,''),17);
   if(URL_TG)bouton('nesTg',34,yb+136,292,54,T('nes.tg'),3,function(){ouvrirLien(URL_TG);},URL_TG.replace(/^https:\/\/(www\.)?/,''),17);
-  ttFit(T('nes.ouvre'),180,yb+204,10.5,290,'rgba(246,241,231,0.6)','center',2,false);
+  ttFit(T('nes.ouvre'),180,yb+202,10.5,290,'rgba(246,241,231,0.6)','center',2,false);
+  /* la page de confidentialité (registre des visites, comptes, wallets) */
+  var enfC=zone('nesConf',90,yb+212,180,26,function(){ouvrirLien(URL_CONF);});
+  cx.font=police(12,2);var wC=cx.measureText(T('nes.conf')).width;ttFit(T('nes.conf'),180,yb+225,12,170,enfC?C.or:C.cyan,'center',2,false);cx.fillStyle=enfC?C.or:C.cyan;cx.fillRect(180-wC/2,yb+233,wC,1);
   bouton('nesFermer',110,y+h+14,140,38,T('nes.fermer'),1,fermerNes,null,15);
 }
 function dateHier(){var p=(NET.jour?NET.jour.jour:JOUR).split('-'),d=new Date(Date.UTC(+p[0],+p[1]-1,+p[2]-1));return d.getUTCFullYear()+'-'+('0'+(d.getUTCMonth()+1)).slice(-2)+'-'+('0'+d.getUTCDate()).slice(-2);}
