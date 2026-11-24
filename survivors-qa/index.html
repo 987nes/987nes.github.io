@@ -7771,7 +7771,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.16.0-qa18';
+var VERSION='0.16.0-qa19';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -15432,6 +15432,57 @@ function vlPans(o){
   o.tp=P;return P;
 }
 function vlMel(a,b,k){return'rgb('+Math.round(a[0]+(b[0]-a[0])*k)+','+Math.round(a[1]+(b[1]-a[1])*k)+','+Math.round(a[2]+(b[2]-a[2])*k)+')';}
+/* PORTAILS, ROSACES ET HORLOGES des édifices (demande de Dom, 24.11.2026). Dans cette vue, seules les façades tournées vers le
+   sud se voient : c'est là qu'on les pose. FA : façades sud relevées pendant le tracé des murs (pied de mur, hauteur, largeur).
+   - façade « de devant » : extérieure (rien du bâtiment juste devant elle) et la plus au sud parmi les larges ;
+   - portail : au pied de cette façade ; en arc brisé pour une église, cintré pour l'Hôtel de ville, grande arche pour une porte de ville ;
+   - rosace : au-dessus du portail d'une église, si le mur est assez haut ;
+   - horloge : sur la façade la plus haute (la tour), près du sommet, pour une église ou l'Hôtel de ville. */
+function vlDevant(P,x,y){var q,f,m,k,j,d;for(q=0;q<P.length;q++){f=P[q].f;m=P[q].m;d=false;
+    for(k=0,j=m-1;k<m;j=k++)if((f[3*k+1]>y)!==(f[3*j+1]>y)&&x<(f[3*j]-f[3*k])*(y-f[3*k+1])/(f[3*j+1]-f[3*k+1])+f[3*k])d=!d;
+    if(d)return true;}return false;}
+function vlOrnements(g,o,P,FA,ox,oy,culte,i){
+  var k,a,ext=[],lmax=0,hmax=0,dev=null,tour=null,w,hp,x,y,r,n,c;
+  for(k=0;k<FA.length;k++){a=FA[k];if(vlDevant(P,a.wx,a.wy+5))continue;ext.push(a);if(a.l>lmax)lmax=a.l;if(a.hm>hmax)hmax=a.hm;}
+  if(!ext.length)return;
+  /* façade de devant : large (au moins la moitié de la plus large), haute d'au moins 22 px, la plus au sud */
+  for(k=0;k<ext.length;k++){a=ext[k];if(a.l<Math.max(22,lmax*0.5)||a.h<22)continue;if(!dev||a.wy>dev.wy)dev=a;}
+  /* tour : la façade la plus haute, si elle dépasse nettement le reste */
+  for(k=0;k<ext.length;k++){a=ext[k];if(a.l<6)continue;if(!tour||a.hm>tour.hm+2||(a.hm>tour.hm-2&&a.l>tour.l))tour=a;}   /* la plus haute ; à hauteur égale, la plus large */
+  /* cathédrale : l'horloge va sur SA tour (pied donné par le paquet), dont la face sud est trop découpée par les contreforts pour être trouvée seule */
+  if(o.s===2){var Fq=vlD(),zt=0;if(Fq.tour){for(k=0;k<P.length;k++)if(P[k].zmax>zt)zt=P[k].zmax;tour={x1:Fq.tour[0]-ox-9,x2:Fq.tour[0]-ox+9,y1:Fq.tour[1]-oy,y2:Fq.tour[1]-oy,hm:zt*VL_KH*0.82,l:18,h:0};}}
+  if(dev){x=(dev.x1+dev.x2)/2;y=(dev.y1+dev.y2)/2;
+    if(o.s===3){/* porte de ville : une grande arche sombre où passe la rue */
+      w=Math.min(dev.l*0.5,30);hp=Math.min(dev.h*0.6,34);
+      g.fillStyle='#8C8370';g.beginPath();g.moveTo(x-w/2-3,y);g.lineTo(x-w/2-3,y-hp+w/2);g.arc(x,y-hp+w/2,w/2+3,Math.PI,0);g.lineTo(x+w/2+3,y);g.closePath();g.fill();
+      g.fillStyle='#17131C';g.beginPath();g.moveTo(x-w/2,y);g.lineTo(x-w/2,y-hp+w/2);g.arc(x,y-hp+w/2,w/2,Math.PI,0);g.lineTo(x+w/2,y);g.closePath();g.fill();
+    }else{
+      w=Math.min(dev.l*0.34,culte?18:22);hp=Math.min(dev.h*0.55,culte?30:24);
+      /* marches */
+      g.fillStyle='#B9B09C';g.fillRect(x-w/2-5,y-1,w+10,3);g.fillStyle='#CFC6B2';g.fillRect(x-w/2-3,y-3.5,w+6,3);
+      /* encadrement de pierre, puis les vantaux de bois */
+      var arc=function(m2,col){g.fillStyle=col;g.beginPath();g.moveTo(x-w/2-m2,y-3);
+        if(culte){g.lineTo(x-w/2-m2,y-hp*0.55);g.quadraticCurveTo(x-w/2-m2,y-hp-m2*0.6,x,y-hp-m2);g.quadraticCurveTo(x+w/2+m2,y-hp-m2*0.6,x+w/2+m2,y-hp*0.55);}
+        else{g.lineTo(x-w/2-m2,y-hp+w/2);g.arc(x,y-hp+w/2,w/2+m2,Math.PI,0);}
+        g.lineTo(x+w/2+m2,y-3);g.closePath();g.fill();};
+      arc(3,'#9C927E');arc(1.2,'#E6DCC4');arc(0,'#5A3418');
+      g.strokeStyle='rgba(20,12,8,0.75)';g.lineWidth=1;g.beginPath();g.moveTo(x,y-3);g.lineTo(x,y-hp+1);g.stroke();
+      g.fillStyle='#E8C24A';g.fillRect(x-2.6,y-hp*0.42,1.4,1.4);g.fillRect(x+1.2,y-hp*0.42,1.4,1.4);
+      /* rosace : pierre, vitrail en quartiers, moyeu */
+      if(culte&&dev.h>=hp+24){r=Math.min(9,dev.l*0.16,(dev.h-hp-8)/2);c=y-hp-8-r;
+        g.fillStyle='#8C8370';g.beginPath();g.arc(x,c,r+2.2,0,PI2);g.fill();g.fillStyle='#E6DCC4';g.beginPath();g.arc(x,c,r+1,0,PI2);g.fill();
+        for(n=0;n<8;n++){g.fillStyle=VL_VITRAIL[(n+i)%4];g.beginPath();g.moveTo(x,c);g.arc(x,c,r,n*PI2/8,(n+1)*PI2/8);g.closePath();g.fill();}
+        g.strokeStyle='rgba(30,22,30,0.7)';g.lineWidth=0.8;for(n=0;n<8;n++){g.beginPath();g.moveTo(x,c);g.lineTo(x+Math.cos(n*PI2/8)*r,c+Math.sin(n*PI2/8)*r);g.stroke();}
+        g.fillStyle='#F6F1E7';g.beginPath();g.arc(x,c,r*0.22,0,PI2);g.fill();}
+    }}
+  /* horloge : cadran clair cerclé, deux aiguilles, sur la tour */
+  if(tour&&o.s!==3&&(tour!==dev||tour.hm>=60)&&tour.hm>=46){x=(tour.x1+tour.x2)/2;y=(tour.y1+tour.y2)/2-tour.hm*0.78;r=Math.max(3.4,Math.min(7,tour.l*0.36));
+    g.fillStyle='#2A2230';g.beginPath();g.arc(x,y,r+1.6,0,PI2);g.fill();g.fillStyle='#E8C24A';g.beginPath();g.arc(x,y,r+0.7,0,PI2);g.fill();
+    g.fillStyle='#F6F1E7';g.beginPath();g.arc(x,y,r,0,PI2);g.fill();
+    g.strokeStyle='#2A2230';g.lineWidth=1.1;g.lineCap='round';g.beginPath();g.moveTo(x,y);g.lineTo(x,y-r*0.72);g.moveTo(x,y);g.lineTo(x+r*0.5,y+r*0.18);g.stroke();
+    /* abat-son sous le cadran */
+    g.fillStyle='rgba(20,14,24,0.75)';g.fillRect(x-r*0.7,y+r+3,r*0.5,6);g.fillRect(x+r*0.2,y+r+3,r*0.5,6);}
+}
 function vlSpriteToits(i,sz){
   var F=vlD(),o=F.bat[i],G=vlBat(i),P=vlPans(o),p=o.p,k,q,f,m,a,b,x0=1e9,x1=-1e9,y0=1e9,y1=-1e9,x,y,culte=o.s===1||o.s===2;
   for(k=0;k<p.length;k+=2){if(p[k]<x0)x0=p[k];if(p[k]>x1)x1=p[k];if(p[k+1]>y1)y1=p[k+1];if(p[k+1]<y0)y0=p[k+1];}
@@ -15440,18 +15491,20 @@ function vlSpriteToits(i,sz){
   var mur=culte?[214,205,180]:(i%3?[226,214,186]:[214,196,170]),murO=culte?[150,142,124]:[158,146,122],
       tu=culte?[86,96,108]:[[176,84,52],[166,74,46],[188,96,60]][i%3],tuS=culte?[44,50,60]:[104,44,28],tuL=culte?[150,162,176]:[232,138,92],neige=sz===3;
   return sprite(W,H,ax,ay,function(g){
-    var q,k,f,m,a,b,dx,dy,l,e,hA,hB,nf,r,rg,wx,wy,t,L,c;
+    var q,k,f,m,a,b,dx,dy,l,e,hA,hB,nf,r,rg,wx,wy,t,L,c,FA=[];
     g.lineJoin='round';
     /* murs : chaque arête de pan qui a de la hauteur, prolongée jusqu'au sol ; fenêtres sur les murs tournés vers le sud */
     for(q=0;q<P.length;q++){f=P[q].f;m=P[q].m;
       for(k=0;k<m;k++){a=3*k;b=3*((k+1)%m);hA=f[a+2]*VL_KH;hB=f[b+2]*VL_KH;if(hA<4&&hB<4)continue;dx=f[b]-f[a];dy=f[b+1]-f[a+1];l=Math.sqrt(dx*dx+dy*dy);if(l<1)continue;e=Math.abs(dx)/l;
         g.beginPath();g.moveTo(f[a]-ox,f[a+1]-oy);g.lineTo(f[b]-ox,f[b+1]-oy);g.lineTo(f[b]-ox,f[b+1]-oy-hB);g.lineTo(f[a]-ox,f[a+1]-oy-hA);g.closePath();
         g.fillStyle=vlMel(murO,mur,0.2+0.8*e);g.fill();
+        if(o.s&&e>=0.7&&l>=10&&dx!==0)FA.push({x1:f[a]-ox,y1:f[a+1]-oy,x2:f[b]-ox,y2:f[b+1]-oy,h:Math.min(hA,hB),hm:Math.max(hA,hB),l:l,wx:(f[a]+f[b])/2,wy:(f[a+1]+f[b+1])/2});
         if(e<0.55||l<14||Math.min(hA,hB)<16)continue;
         nf=Math.floor(l/13);r=Math.floor((Math.min(hA,hB)-6)/11);
         for(c=0;c<nf;c++){t=(c+0.5)/nf;wx=f[a]-ox+dx*t;wy=f[a+1]-oy+dy*t;
           if(culte){L=Math.min(Math.min(hA,hB)*0.6,34);g.fillStyle=VL_VITRAIL[(i+k+c)%4];g.beginPath();g.moveTo(wx-2.6,wy-5);g.lineTo(wx-2.6,wy-5-L+4);g.lineTo(wx,wy-5-L);g.lineTo(wx+2.6,wy-5-L+4);g.lineTo(wx+2.6,wy-5);g.closePath();g.fill();}
           else for(rg=0;rg<r;rg++){g.fillStyle=((i*31+k*7+c*13+rg*5)%5)<2?PAL.fenetre:PAL.vitre;g.fillRect(wx-2,wy-7-rg*11-6,4,6.2);}}}}
+    if(o.s)vlOrnements(g,o,P,FA,ox,oy,culte,i);
     /* pans : du fond vers l'avant, éclairés par le nord-ouest ; un pan presque plat est une terrasse ou une cour */
     for(q=0;q<P.length;q++){f=P[q].f;m=P[q].m;
       g.beginPath();for(k=0;k<m;k++){x=f[3*k]-ox;y=f[3*k+1]-oy-f[3*k+2]*VL_KH;if(k)g.lineTo(x,y);else g.moveTo(x,y);}g.closePath();
@@ -15741,6 +15794,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 11px/1 system-ui,sans-serif;padding:5px 12px 6px;border-radius:0 0 8px 8px;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.16.0-qa18 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.16.0-qa19 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
