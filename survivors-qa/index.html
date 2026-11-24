@@ -755,7 +755,10 @@ function genVille(P,graine,dep){
   /* quelle que soit l'échelle de la ville : l'étape est à 2 400 à 4 000 px, soit 20 à 35 s de marche, et l'élan tient 90 s */
   m.td=8;m.tk=2;
   /* tournée : les étapes se posent sur les places dégagées de la carte (jamais dans un mur, l'eau ou hors de la ville) */
-  m.etp=[];for(i=0;i<W.places.length;i++)m.etp.push(W.places[i][0],W.places[i][1]);
+  /* à 60 m au moins du bord de la ville (420 px) : une étape posée contre la ceinture de feu se voyait mal, et sa cible sortait
+     à moitié de la carte de poche (Dom, 24.11.2026 : « il y en a qu'un ? ») ; si la marge ne laisse rien, tous les lieux servent */
+  m.etp=[];for(i=0;i<W.places.length;i++){k=W.places[i];if(Math.min(k[0]-W.bornes.x0,W.bornes.x1-k[0],k[1]-W.bornes.y0,W.bornes.y1-k[1])>=420)m.etp.push(k[0],k[1]);}
+  if(!m.etp.length)for(i=0;i<W.places.length;i++)m.etp.push(W.places[i][0],W.places[i][1]);
   m.eauN=NEAU;m.eauG=new Uint8Array(NEAU*NEAU);for(i=0;i<W.eau.length;i+=3)for(k=W.eau[i+1];k<=W.eau[i+2];k++)m.eauG[W.eau[i]*NEAU+k]=1;
   /* ceinture : deux bandes qui se croisent au coin du tore (centre 0,0), de demi-épaisseurs B.x0 et B.y0 (la zone jouable est centrée) */
   ajoutObjet(m,0,K_MUR,0,HLM,B.x0,HLM-30,0,0);ajoutObjet(m,0,K_MUR,HLM,0,HLM-30,B.y0,0,0);
@@ -7787,7 +7790,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.16.2-qa1';
+var VERSION='0.16.3-qa2';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -10514,7 +10517,9 @@ function evTour(v,o){
   var a=v[o+1],x,y;
   if(a===0){if(!(SAUV.aide&64)&&!BOT)aideTour=true;
     x=S.px+SIM.wr(SIM.md(v[o+3]-S.px));y=S.py+SIM.wr(SIM.md(v[o+4]-S.py));if(v[o+2]>0)anneauFx(x,y,SIM.TOUR.rayon+30,0.5,2);
-    tourPris=tourNom;if(!BOT)bandeau(T('tour.va',nomLieuObjectif()));}
+    /* plus de bandeau « Objectif : … » (Dom, 24.11.2026) : sans nom de lieu il ne disait plus rien, et il recouvrait la flèche de
+       l'étape suivante pendant 2 s quand elle pointe vers le haut ; la flèche, la cible de la carte et la bulle suffisent */
+    tourPris=tourNom;nomLieuObjectif();}
   else if(a===1){x=S.px;y=S.py;son('combo',Math.min(7,v[o+2]));anneauFx(x,y,160,0.45,2);budgetPart+=20;gerbe(x,y-20,14,1,220,6,0.5);parole(x,y-62,T('tour.pris',tourNom||T('tour.etape'),v[o+2],fmtNb(v[o+3])));}
   else if(a===2){son('non');parole(S.px,S.py-58,T('tour.perdu'));}
 }
@@ -15841,6 +15846,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 9px/1 system-ui,sans-serif;padding:2px 10px 3px;border-radius:8px 8px 0 0;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.16.2-qa1 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.16.3-qa2 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
