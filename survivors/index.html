@@ -7790,7 +7790,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.16.3-proto';
+var VERSION='0.16.4-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -11534,12 +11534,16 @@ function rendreMarges(){
   cx.setTransform(1,0,0,1,0,0);
   var lc=360*K,bas=OY+640*K,ep=Math.max(1,K);
   if(OX>0){
+    if(OX>190*K){
     cx.fillStyle='rgba(13,9,20,0.55)';cx.fillRect(0,0,OX,BH);cx.fillRect(OX+lc,0,BW-OX-lc,BH);
     cx.drawImage(SPR.margeG,OX-40*K,0,40*K,BH);cx.drawImage(SPR.margeD,OX+lc,0,40*K,BH);
-    /* cadre cyan de la colonne de jeu, avec lueur extérieure */
+    /* cadre cyan de la colonne de jeu, avec lueur extérieure (grand écran seulement) */
     cx.drawImage(SPR.lueurG,OX-27*K,0,24*K,BH);cx.drawImage(SPR.lueurD,OX+lc+3*K,0,24*K,BH);
     cx.fillStyle=C.cyan;cx.fillRect(OX-3*K,0,3*K,BH);cx.fillRect(OX+lc,0,3*K,BH);
-    if(OX>190*K)margesOrdi(OX/K);
+    margesOrdi(OX/K);}
+    /* téléphone et tablette (marges étroites) : bandes NOIRES, sans cadre cyan ni lueur (Dom, 24.11.2026 : « je vois trop ces
+       bandes bleues à gauche et à droite ») */
+    else{cx.fillStyle='#0D0914';cx.fillRect(0,0,OX,BH);cx.fillRect(OX+lc,0,BW-OX-lc,BH);}
   }
   if(OY>0){
     cx.setTransform(1,0,0,1,0,0);cx.fillStyle='rgba(13,9,20,0.62)';cx.fillRect(OX,0,lc,OY);cx.fillRect(OX,bas,lc,BH-bas);
@@ -11561,7 +11565,14 @@ function margesOrdi(mw){
     ttFit(T('marge.but'),0,330,13,290,C.or,'center',0,false);
   }else{
     if(SPR.logo){cx.save();cx.translate(0,62);cx.scale(0.8,0.8);spr(SPR.logo,0,0);cx.restore();}
-    s=DZO.grandB||DZO.grand;
+    /* 24.11.2026 (Dom : « le DZÔ de gauche ne ressemble plus trop aux images du jeu ») : une vignette de l'illustration du jeu,
+       cadrée sur DZÔ, à la place de l'ancien DZÔ détouré (qui ne sert plus que si l'image n'est pas chargée) */
+    var imM=imageEcran('entree'),wM;
+    s=imM?null:(DZO.grandB||DZO.grand);
+    if(imM){wM=imM.naturalWidth;
+      cx.globalCompositeOperation='lighter';cx.globalAlpha=0.35;cx.drawImage(SPR.lumiere,-220,90,440,440);cx.globalAlpha=1;cx.globalCompositeOperation='source-over';
+      cx.save();cx.beginPath();rrect(cx,-132,134,264,306,18);cx.clip();cx.drawImage(imM,0.185*wM,0.70*wM,0.66*wM,0.765*wM,-132,134,264,306);cx.restore();
+      cx.strokeStyle=C.cyan;cx.lineWidth=2.5;cx.beginPath();rrect(cx,-132,134,264,306,18);cx.stroke();}
     if(s){hh=300;ww=hh*s.w/s.h;resp=1+Math.sin(tReel*1.9)*0.012;
       cx.globalCompositeOperation='lighter';cx.globalAlpha=0.5;cx.drawImage(SPR.lumiere,-200,130,400,400);cx.globalAlpha=1;cx.globalCompositeOperation='source-over';
       cx.drawImage(SPR.ombre,-95,424,190,30);cx.save();cx.translate(0,440);cx.scale(2-resp,resp);cx.drawImage(s.c,-ww*s.ax/s.w,-hh*s.ay/s.h,ww,hh);cx.restore();}
