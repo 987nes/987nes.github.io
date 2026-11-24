@@ -7787,7 +7787,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.16.0-qa30';
+var VERSION='0.16.2-qa1';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -15681,7 +15681,7 @@ function vlSolDecor(vw,vh){
     cx.lineWidth=3;cx.strokeStyle='rgba(13,9,20,0.35)';cx.beginPath();cx.ellipse(x,y+2,MOND.FONT_RAYON*0.8,MOND.FONT_RAYON*0.42,0,0,PI2);cx.stroke();
     cx.strokeStyle=k&&S.pv<S.pvMax?'rgba(61,255,143,'+(0.55+0.3*Math.sin(tReel*9)).toFixed(3)+')':'rgba(110,220,255,0.38)';
     cx.beginPath();cx.ellipse(x,y+2,MOND.FONT_RAYON*0.8,MOND.FONT_RAYON*0.42,0,-Math.PI/2,-Math.PI/2+PI2*c);cx.stroke();
-    if(F.font[i]&&F.font[i][2]){cx.font='italic 700 8px Georgia,serif';cx.textAlign='center';cx.fillStyle='rgba(190,235,255,0.6)';cx.fillText(F.font[i][2],x,y+38);}}
+    /* nom de la fontaine retiré (Dom, 24.11.2026 : « il y a encore des noms. Ici Fontaine de Samson ») : plus aucun nom de lieu à l'écran */}
   /* contrôle (?murs=1) : les obstacles réels en rouge, pour comparer ce qu'on voit et ce qui arrête DZÔ */
   if(VL_MURS){cx.fillStyle='rgba(255,40,40,0.38)';for(i=0;i<MW.n;i++){if(MW.oc[i]>=0)continue;x=wxU(MW.ox[i]);y=wyV(MW.oy[i]);k=MW.oa[i];q=MW.ob[i];if(x+k<camX-vw||x-k>camX+vw||y+q<camY-vh||y-q>camY+vh)continue;
     if(MW.ot[i]===0)cx.fillRect(x-k,y-q,2*k,2*q);else{cx.beginPath();cx.arc(x,y,k,0,PI2);cx.fill();}}}
@@ -15841,6 +15841,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 9px/1 system-ui,sans-serif;padding:2px 10px 3px;border-radius:8px 8px 0 0;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.16.0-qa30 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.16.2-qa1 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
