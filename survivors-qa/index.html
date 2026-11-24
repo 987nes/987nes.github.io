@@ -2736,6 +2736,7 @@ LANGUES.fr={
 "carte.etape":"prochaine étape",
 "carte.pont":"pont",
 "carte.fontaine":"fontaine",
+"carte.edifice":"édifice",
 "carte.clos":"jardin clos",
 "ville.pastille":"Ville : {0}",
 "ville.charge":"Chargement de {0}…",
@@ -3883,6 +3884,7 @@ LANGUES.de={
 "carte.etape":"nächste Etappe",
 "carte.pont":"Brücke",
 "carte.fontaine":"Brunnen",
+"carte.edifice":"Bauwerk",
 "carte.clos":"geschlossener Garten",
 "ville.pastille":"Stadt: {0}",
 "ville.charge":"{0} wird geladen…",
@@ -5030,6 +5032,7 @@ LANGUES.it={
 "carte.etape":"prossima tappa",
 "carte.pont":"ponte",
 "carte.fontaine":"fontana",
+"carte.edifice":"edificio",
 "carte.clos":"giardino chiuso",
 "ville.pastille":"Città: {0}",
 "ville.charge":"Caricamento di {0}…",
@@ -6177,6 +6180,7 @@ LANGUES.es={
 "carte.etape":"próxima etapa",
 "carte.pont":"puente",
 "carte.fontaine":"fuente",
+"carte.edifice":"edificio",
 "carte.clos":"jardín cerrado",
 "ville.pastille":"Ciudad: {0}",
 "ville.charge":"Cargando {0}…",
@@ -7324,6 +7328,7 @@ LANGUES.en={
 "carte.etape":"next stop",
 "carte.pont":"bridge",
 "carte.fontaine":"fountain",
+"carte.edifice":"landmark",
 "carte.clos":"walled garden",
 "ville.pastille":"Town: {0}",
 "ville.charge":"Loading {0}…",
@@ -7771,7 +7776,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.16.0-qa19';
+var VERSION='0.16.0-qa20';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -15679,7 +15684,7 @@ function vlCarteCuire(){
   for(i=0;i<F.rues.length;i++){o=F.rues[i];if(o.t>=2&&!o.pont)continue;vlTrace(g,o.p,0,0);g.strokeStyle=o.pont?'#E3CFA0':'#5A5C70';g.lineWidth=o.pont?90:64;g.stroke();}
   /* cours et jardins fermés : on n'y passe pas */
   g.fillStyle='#35523A';for(i=0;i<F.clos.length;i+=4)g.fillRect(F.clos[i]*8,F.clos[i+1]*8,F.clos[i+2]*8,F.clos[i+3]*8);
-  for(i=0;i<F.bat.length;i++){o=F.bat[i];vlTrace(g,o.p,0,0);g.closePath();g.fillStyle=o.s===2?'#E8ECF6':(o.s===1?'#A9B3C8':'#C4694A');g.fill();}
+  for(i=0;i<F.bat.length;i++){o=F.bat[i];vlTrace(g,o.p,0,0);g.closePath();g.fillStyle=o.s?'#F2E6BE':'#C4694A';g.fill();}
   for(i=0;i<F.font.length;i++){g.fillStyle='#7FE9FF';g.beginPath();g.arc(F.font[i][0],F.font[i][1],26,0,PI2);g.fill();}
   return c;
 }
@@ -15743,15 +15748,17 @@ function vlCarteDessus(){
   ttFit(T('pause.titre'),180,SAFE_H+48,36,330,C.creme,'center',0,true);
   var B=vlCarteDessin(true);
   /* légende (demande de Dom, 24.11.2026 : « des points jaunes et bleus, on comprend pas bien ») : ce que montre chaque marque */
-  var L=[['#2F9BFF',T('carte.toi'),0],['#E5302A',T('carte.etape'),3],['#E3CFA0',T('carte.pont'),1],['#7FE9FF',T('carte.fontaine'),2],['#35523A',T('carte.clos'),1]],i,w=0,x,yl=B.y+B.H+18;
+  var L=[['#2F9BFF',T('carte.toi'),0],['#E5302A',T('carte.etape'),3],['#F2E6BE',T('carte.edifice'),1],['#E3CFA0',T('carte.pont'),1],['#7FE9FF',T('carte.fontaine'),2],['#35523A',T('carte.clos'),1]],i,w,x,yl=B.y+B.H+14,r,a,b,R=[[0,3],[3,6]];
   cx.font='700 10px system-ui,sans-serif';cx.textAlign='left';
-  for(i=0;i<L.length;i++)w+=16+cx.measureText(L[i][1]).width+(i?12:0);
-  x=180-w/2;
-  for(i=0;i<L.length;i++){if(i)x+=12;cx.fillStyle=L[i][0];
-    if(L[i][2]===1)cx.fillRect(x,yl-2,11,4);else if(L[i][2]===3)vlMarqueCible(x+5,yl,4.6);else{cx.beginPath();cx.arc(x+5,yl,L[i][2]===2?2.2:4.6,0,PI2);cx.fill();}
-    cx.fillStyle='rgba(246,241,231,0.85)';cx.fillText(L[i][1],x+15,yl+3.5);x+=16+cx.measureText(L[i][1]).width;}
-  ttFit('▶ '+T('pause.reprendre'),180,B.y+B.H+58,20,300,C.or,'center',2,true);
-  cx.font='700 9px system-ui,sans-serif';cx.textAlign='center';cx.fillStyle='rgba(246,241,231,0.6)';cx.fillText(vlD().mention,180,B.y+B.H+88);
+  /* deux rangées de trois, chacune centrée */
+  for(r=0;r<R.length;r++){a=R[r][0];b=R[r][1];w=0;for(i=a;i<b;i++)w+=16+cx.measureText(L[i][1]).width+(i>a?14:0);
+    x=180-w/2;
+    for(i=a;i<b;i++){if(i>a)x+=14;cx.fillStyle=L[i][0];
+      if(L[i][2]===1)cx.fillRect(x,yl-2,11,4);else if(L[i][2]===3)vlMarqueCible(x+5,yl,4.6);else{cx.beginPath();cx.arc(x+5,yl,L[i][2]===2?2.2:4.6,0,PI2);cx.fill();}
+      cx.fillStyle='rgba(246,241,231,0.85)';cx.fillText(L[i][1],x+15,yl+3.5);x+=16+cx.measureText(L[i][1]).width;}
+    yl+=15;}
+  ttFit('▶ '+T('pause.reprendre'),180,B.y+B.H+68,20,300,C.or,'center',2,true);
+  cx.font='700 9px system-ui,sans-serif';cx.textAlign='center';cx.fillStyle='rgba(246,241,231,0.6)';cx.fillText(vlD().mention,180,B.y+B.H+98);
 }
 /* un appui sur la petite carte : pause et grande carte ; un appui n'importe où ensuite : on referme et on reprend */
 window.addEventListener('pointerdown',function(e){
@@ -15794,6 +15801,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 11px/1 system-ui,sans-serif;padding:5px 12px 6px;border-radius:0 0 8px 8px;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.16.0-qa19 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.16.0-qa20 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
