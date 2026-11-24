@@ -1640,7 +1640,8 @@ function etapeLieu(x,y){
 }
 function majTournee(n){
   var t=S.tour,dx,dy,pr;
-  if(!t.on&&n>=TOUR.debut)poserEtape(n);
+  /* dans une ville (m.td posé), la première étape est là dès la première seconde : Dom, 24.11.2026, « au démarrage pas de prochaine étape » (elle attendait 10 s) */
+  if(!t.on&&n>=(M.td?60:TOUR.debut))poserEtape(n);
   if(t.on){dx=wr(md(S.px-t.x));dy=wr(md(S.py-t.y));
     if(dx*dx+dy*dy<TOUR.rayon*TOUR.rayon){
       S.etapes++;if(S.elan<TOUR.max)S.elan++;if(S.elan>S.elanMax)S.elanMax=S.elan;S.elanT=0;
@@ -7786,7 +7787,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.16.0-qa28';
+var VERSION='0.16.0-qa29';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -15838,6 +15839,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 9px/1 system-ui,sans-serif;padding:2px 10px 3px;border-radius:8px 8px 0 0;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.16.0-qa28 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.16.0-qa29 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
