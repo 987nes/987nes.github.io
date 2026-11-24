@@ -752,7 +752,8 @@ function genVille(P,graine,dep){
   /* m.td : distance des étapes. Dom, 24.11.2026 : « les objectifs sont toujours près de moi » (ils naissaient à 5 à 9 s de marche).
      Dans une ville dessinée à plus de 9 px par mètre, l'étape est à 120 à 200 m (2 400 à 4 000 px à 20 px par mètre, 20 à 35 s de
      marche) ; l'élan tient alors deux fois le délai de base. À 9 px par mètre rien ne change (td = tk = 1). */
-  m.td=m.tk>1?0.4*P.fiche.echelle:1;if(m.tk>1)m.tk=2;
+  /* quelle que soit l'échelle de la ville : l'étape est à 2 400 à 4 000 px, soit 20 à 35 s de marche, et l'élan tient 90 s */
+  m.td=8;m.tk=2;
   /* tournée : les étapes se posent sur les places dégagées de la carte (jamais dans un mur, l'eau ou hors de la ville) */
   m.etp=[];for(i=0;i<W.places.length;i++)m.etp.push(W.places[i][0],W.places[i][1]);
   m.eauN=NEAU;m.eauG=new Uint8Array(NEAU*NEAU);for(i=0;i<W.eau.length;i+=3)for(k=W.eau[i+1];k<=W.eau[i+2];k++)m.eauG[W.eau[i]*NEAU+k]=1;
@@ -7765,7 +7766,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.16.0-qa12';
+var VERSION='0.16.0-qa13';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -15712,6 +15713,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 11px/1 system-ui,sans-serif;padding:5px 12px 6px;border-radius:0 0 8px 8px;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*150;p.textContent="QA 0.16.0-qa12 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*150;p.textContent="QA 0.16.0-qa13 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
