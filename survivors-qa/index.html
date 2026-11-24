@@ -7790,7 +7790,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.16.4-qa1';
+var VERSION='0.16.4-qa2';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -11565,7 +11565,14 @@ function margesOrdi(mw){
     ttFit(T('marge.but'),0,330,13,290,C.or,'center',0,false);
   }else{
     if(SPR.logo){cx.save();cx.translate(0,62);cx.scale(0.8,0.8);spr(SPR.logo,0,0);cx.restore();}
-    s=DZO.grandB||DZO.grand;
+    /* 24.11.2026 (Dom : « le DZÔ de gauche ne ressemble plus trop aux images du jeu ») : une vignette de l'illustration du jeu,
+       cadrée sur DZÔ, à la place de l'ancien DZÔ détouré (qui ne sert plus que si l'image n'est pas chargée) */
+    var imM=imageEcran('entree'),wM;
+    s=imM?null:(DZO.grandB||DZO.grand);
+    if(imM){wM=imM.naturalWidth;
+      cx.globalCompositeOperation='lighter';cx.globalAlpha=0.35;cx.drawImage(SPR.lumiere,-220,90,440,440);cx.globalAlpha=1;cx.globalCompositeOperation='source-over';
+      cx.save();cx.beginPath();rrect(cx,-132,134,264,306,18);cx.clip();cx.drawImage(imM,0.185*wM,0.70*wM,0.66*wM,0.765*wM,-132,134,264,306);cx.restore();
+      cx.strokeStyle=C.cyan;cx.lineWidth=2.5;cx.beginPath();rrect(cx,-132,134,264,306,18);cx.stroke();}
     if(s){hh=300;ww=hh*s.w/s.h;resp=1+Math.sin(tReel*1.9)*0.012;
       cx.globalCompositeOperation='lighter';cx.globalAlpha=0.5;cx.drawImage(SPR.lumiere,-200,130,400,400);cx.globalAlpha=1;cx.globalCompositeOperation='source-over';
       cx.drawImage(SPR.ombre,-95,424,190,30);cx.save();cx.translate(0,440);cx.scale(2-resp,resp);cx.drawImage(s.c,-ww*s.ax/s.w,-hh*s.ay/s.h,ww,hh);cx.restore();}
@@ -15857,6 +15864,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 9px/1 system-ui,sans-serif;padding:2px 10px 3px;border-radius:8px 8px 0 0;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.16.4-qa1 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.16.4-qa2 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
