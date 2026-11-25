@@ -7748,7 +7748,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.17.0-qa7';
+var VERSION='0.18.0-qa1';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -9178,6 +9178,38 @@ function chargerDzo(){
   }
 }
 
+/* ---------- DZÔ animé (46.126) : planche tirée du modèle 3D (outils/planche-dzo.js → assets/dzo-anim.webp) ----------
+   Grille 10 × 10, cases de 224 px, pieds en (112, 208), DZÔ haut de 160 px (= H_DZO × 2).
+   Cases : 0..7 repos par direction (k × 45° : 0 face à nous, 2 vers la droite, 4 de dos, 6 vers la gauche) ;
+   10 + k × 10 + f course (direction k, image f sur 10) ; 90..99 victoire. Chaque image est préparée à son premier
+   usage (contours comme les autres sprites), ses variantes blanche et rouge (coup reçu) aussi. Tant que la planche
+   n'est pas chargée, ou si elle manque, le jeu garde l'ancien dessin (image entière). Rendu seul : la simulation n'en sait rien. */
+var DZA={pret:false,im:null,f:[],k:0,arret:0,CASE:224,PIED:208,PAS:78};
+function chargerDzoAnime(){
+  var im=new Image();im.onload=function(){DZA.im=im;DZA.pret=im.naturalWidth>=DZA.CASE*10;};im.onerror=function(){};im.src='assets/dzo-anim.webp';
+}
+function imageDza(i){
+  var s=DZA.f[i];if(s)return s;
+  var C=DZA.CASE,c=toile(C,C),g=c.getContext('2d'),r,o1,o;
+  g.drawImage(DZA.im,(i%10)*C,Math.floor(i/10)*C,C,C,0,0,C,C);
+  r=RES===2?c:reduire(c,Math.round(C*RES/2));
+  o1=contourer(r,1.2*RES,'#0A1830');o=contourer(o1.c,1.8*RES,'rgb(111,230,255)');
+  s={c:o.c,w:o.c.width/RES,h:o.c.height/RES,blanc:null,rouge:null};s.ax=s.w/2;s.ay=(DZA.PIED*RES/2+o.m+o1.m)/RES;
+  DZA.f[i]=s;return s;
+}
+function teinteDza(s,cle,coul){if(!s[cle])s[cle]=teinter(s,coul).c;return s[cle];}
+/* image du DZÔ animé pour cet instant, ou null (ancien dessin) */
+function choisirImageDza(){
+  if(!DZA.pret)return null;
+  if(tVict>=0)return imageDza(90+((tReel*14)|0)%10);
+  if(tMort>=0||sous==='cartes'||sous==='coffre'||sous==='choix'||sous==='niveau'||ecran==='fin'){DZA.k=0;return imageDza(0);}
+  if(S.marche){var a=Math.atan2(S.dx,S.dy),k=Math.round(a/(Math.PI/4));DZA.k=((k%8)+8)%8;DZA.arret=tReel;
+    var ph=S.dist/DZA.PAS;return imageDza(10+DZA.k*10+((ph-Math.floor(ph))*10|0));}
+  /* à l'arrêt : il garde sa direction un instant, puis se retourne vers nous */
+  if(tReel-DZA.arret>0.5)DZA.k=0;
+  return imageDza(DZA.k);
+}
+
 /* ---------- état du client ---------- */
 var S=null,ecran='titre',sous='',tSous=0,tEcran=0,tReel=0,tJeu=0,accu=0,gel=0,ralentiT=0,ralentiV=1,trauma=0,zoom=1,camX=0,camY=0,camDY=0;
 var A=1,TX=0,TY=0;
@@ -10241,15 +10273,16 @@ function choisirSpriteDzo(){
   return DZO.front_a;
 }
 function dessinerDzo(){
-  var s=choisirSpriteDzo(),im=s.c,x=RPX,y=RPY+15,rot=0,sx=1,sy=1,bob=0,k,al=1;
-  if(s===DZO.back&&S.face<0)sx=-1;
-  if(tMort>=0){k=Math.min(1,tMort/0.45);rot=k*1.45*(S.face>=0?1:-1);im=k<0.5?s.rouge:s.c;al=1-Math.max(0,(tMort-0.9)/0.5);if(al<0)al=0;sy=1-k*0.1;}
+  var an=choisirImageDza(),s=an||choisirSpriteDzo(),im=s.c,x=RPX,y=RPY+15,rot=0,sx=1,sy=1,bob=0,k,al=1;
+  if(!an&&s===DZO.back&&S.face<0)sx=-1;
+  if(tMort>=0){k=Math.min(1,tMort/0.45);rot=k*1.45*(S.face>=0?1:-1);im=k<0.5?(an?teinteDza(s,'rouge','#FF3B5C'):s.rouge):s.c;al=1-Math.max(0,(tMort-0.9)/0.5);if(al<0)al=0;sy=1-k*0.1;}
   else if(tVict>=0){bob=Math.abs(Math.sin(tReel*9))*12;sx=sy=1.18;}
   else if(sous==='cartes'||sous==='coffre'||sous==='choix'||sous==='niveau'){sx=sy=dzoEch+Math.sin(tReel*5)*0.02;if(sous==='niveau')bob=Math.sin(Math.min(1,tSous/0.25)*Math.PI)*10;}
+  else if(S.marche&&an){sx*=dzoEch;sy=dzoEch;rot=S.dx*0.05;}   /* les images de course portent déjà le mouvement */
   else if(S.marche){k=tJeu*3.5*Math.PI;bob=Math.abs(Math.sin(k))*5;rot=Math.sin(k)*0.087+S.dx*0.14;x+=S.dx*3;var ct=1-bob/5;ct*=ct;sx*=(1+0.06*ct)*dzoEch;sy=(1-0.06*ct)*dzoEch;}
   else{k=Math.sin(tJeu*1.2*PI2);sy=(1+0.02*k)*dzoEch;sx*=(1-0.01*k)*dzoEch;}
   if(tMort<0){
-    if(tTouche<0.06)im=s.blanc;else if(tTouche<0.12)im=s.rouge;
+    if(tTouche<0.06)im=an?teinteDza(s,'blanc','#FFFFFF'):s.blanc;else if(tTouche<0.12)im=an?teinteDza(s,'rouge','#FF3B5C'):s.rouge;
     else if(S.inv>0&&((tJeu*24)|0)%2===0)al=0.35;
   }
   if(al<=0)return;
@@ -15024,7 +15057,7 @@ function init(){
   construireHalos();
   construireDecor();
   if(MODE_CARTES){RES=4;TRES=2;construireSprites();construireHalos();construireDecor();}
-  faireLogo();dzoSecours();chargerDzo();
+  faireLogo();dzoSecours();chargerDzo();chargerDzoAnime();
   installerEntrees();
   /* 0.7 : session du serveur de scores, sans rien attendre (le jeu est jouable tout de suite) */
   /* 0.12 : page de signature du wallet : rien d'autre (ni session, ni écran d'entrée, ni musique) */
@@ -15951,6 +15984,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 9px/1 system-ui,sans-serif;padding:2px 10px 3px;border-radius:8px 8px 0 0;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.17.0-qa7 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.18.0-qa1 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
