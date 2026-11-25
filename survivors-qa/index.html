@@ -7778,7 +7778,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.18.1-qa1';
+var VERSION='0.18.2-qa2';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -9179,8 +9179,12 @@ function dzoSecours(){
   var c=toile(96*4,96*4),g=c.getContext('2d');g.scale(4,4);dessinDzoSecours(g);
   var cles=['front_a','front_b','side','back'];
   for(var k=0;k<4;k++){var s=sprite(H_DZO,H_DZO,H_DZO/2,H_DZO*0.97,function(g){g.scale(H_DZO/96,H_DZO/96);dessinDzoSecours(g);});s.blanc=teinter(s,'#FFFFFF').c;s.rouge=teinter(s,'#FF3B5C').c;DZO[cles[k]]=s;}
-  DZO.grand={c:c,w:384,h:384,ax:192,ay:372};DZO.grandB=DZO.grand;DZO.sombre=assombrir(DZO.grand,0.3);
+  /* 46.137 : le grand DZÔ de secours (dessin simplifié) ne sert que si les images officielles n'arrivent pas. Pendant leur
+     chargement, les écrans montrent un DZÔ vide plutôt que ce dessin : il apparaissait un instant au démarrage. */
+  DZO.secours={c:c,w:384,h:384,ax:192,ay:372};
+  DZO.grand={c:toile(384,384),w:384,h:384,ax:192,ay:372};DZO.grandB=DZO.grand;DZO.sombre=DZO.grand;
 }
+function dzoSecoursGrand(){if(DZO.pret||!DZO.secours)return;DZO.grand=DZO.secours;DZO.grandB=DZO.grand;DZO.sombre=assombrir(DZO.grand,0.3);}
 function chargerDzo(){
   var noms=['front-a','front-b','side','back'],n=0,ok=0,tmp={};
   noms.forEach(function(nom){
@@ -9192,7 +9196,7 @@ function chargerDzo(){
   function fini(){
     if(++n<4)return;
     DZO_TENTE=true;
-    if(ok<4)return;
+    if(ok<4){dzoSecoursGrand();return;}
     try{
       var cles={'front-a':'front_a','front-b':'front_b','side':'side','back':'back'},nv={};
       noms.forEach(function(nom){
@@ -9204,7 +9208,7 @@ function chargerDzo(){
         if(nom==='front-b'){o=contourer(e,3,'#0E2238');nv.grandB={c:o.c,w:o.c.width,h:o.c.height,ax:o.c.width/2,ay:o.c.height-o.m};}
       });
       for(var k in nv)DZO[k]=nv[k];DZO.pret=true;
-    }catch(e){}
+    }catch(e){dzoSecoursGrand();}
   }
 }
 
@@ -11147,6 +11151,7 @@ function lancer(rang,graineForcee,o){
   else graineCourante=graineForcee!==undefined?(graineForcee>>>0):SIM.melange(Date.now()&0x7fffffff,(Math.random()*1e9)|0);
   /* partie classée ou revue : le tableau de sa graine (comme le serveur, qui rejoue avec quatre arguments) */
   S=SIM.creer(graineCourante,classee||(o&&o.revoir)?undefined:(TAB_FORCE>=0?TAB_FORCE:tableauDuJour()),o&&o.revoir?o.ville:undefined);   /* relecture : la ville de la partie revue (null : ancienne carte) */
+  histAvancer('jeu');
   viderEffets();ecran='jeu';sous='';tSous=0;tEcran=0;accu=0;gel=0;ralentiT=0;trauma=0;tMort=-1;tVict=-1;tTouche=9;bordRouge=0;eclairBlanc=0;eclairRouge=0;camDY=0;zoom=1.6;tJeu=0;chaineGemme=0;
   xpEclat=0;dzoEch=1;carteChoisie=-1;musBaisse=0;apercuCarte=null;tDepart=-1;regretFin='';tueurFin=-1;tueurVFin=0;dernierPas=0;aideGemme=false;aideTresor=false;aideT=-1;
   lacherDoigts();presse=null;pressePtr=-1;
@@ -13103,7 +13108,29 @@ function ligneFidelite(){
 }
 
 /* ---- navigation entre écrans ---- */
+/* 46.138 : le bouton « retour » du navigateur (ou du téléphone). Le jeu tient sur une seule page : sans cela, « retour »
+   quittait le jeu. Ouvrir un menu, le panneau 987NES ou une partie pose un cran dans l'historique ; « retour » le reprend
+   et fait ce que ferait le bouton RETOUR du jeu (pendant une partie : la pause, sans quitter). Revenir par le bouton du
+   jeu retire le cran. Rendu et navigation seulement : la simulation n'en sait rien. */
+var HIST_POP=false,MENUS_HIST=['connexion','profil','niveau','classement','lots','villes','parrainage','parties'];
+function histAvancer(nom){try{if(!HIST_POP&&window.history&&history.pushState)history.pushState({dzo:nom},'');}catch(e){}}
+function histReculer(){try{if(!HIST_POP&&window.history&&history.state&&history.state.dzo)history.back();}catch(e){}}
+function retourNavigateur(){
+  if(NES_OUVERT){fermerNes();return;}
+  if(BETA_OUVERT){fermerBeta();return;}
+  if(ecran==='jeu'){if(REVOIR){quitterRevoir();return;}mettreEnPause();return;}
+  if(ecran==='niveau'&&NIV.feuille){fermerFeuilleWallet();return;}
+  if(ecran==='parties'){allerEcran(PJ.de||'titre');return;}
+  if(MENUS_HIST.indexOf(ecran)>=0)allerEcran('titre');
+}
+try{window.addEventListener('popstate',function(){
+  var avant=ecran,feuille=!!(ecran==='niveau'&&NIV.feuille),parties=ecran==='parties';
+  HIST_POP=true;try{retourNavigateur();}catch(e){}HIST_POP=false;
+  /* on est resté dans la partie (pause), dans « Mon niveau » (feuille fermée) ou dans un menu : le cran est reposé */
+  if(ecran==='jeu'||feuille||(parties&&ecran!=='titre'))histAvancer(ecran);
+});}catch(e){}
 function allerEcran(e){
+  if(e!==ecran){if(ecran==='titre'&&MENUS_HIST.indexOf(e)>=0)histAvancer(e);else if(e==='titre'&&ecran!=='entree')histReculer();}
   if(e==='titre'&&ecran!=='titre'&&connecte()&&Date.now()-NET.majT>3000)rafraichir();
   if(e==='titre')setTimeout(verifierVersion,0);
   if(e==='profil'){var j=NET.joueur||{};NET.profilMsg='';profilVal={pseudo:j.pseudo||'',wallet:j.wallet||'',x:j.x?'@'+j.x:'',email:j.email||''};profilInit=true;}
@@ -14569,8 +14596,8 @@ function rendrePanneauBeta(){
   if(u)bouton('betaGroupe',48,yy,264,50,T('beta.groupe'),3,function(){ouvrirLien(u);},u.replace(/^https:\/\//,''),16);
   bouton('betaFermer',110,y+h+14,140,38,T('nes.fermer'),1,fermerBeta,null,15);
 }
-function ouvrirNes(){NES_OUVERT=ecran;presse=null;pressePtr=-1;}
-function fermerNes(){NES_OUVERT='';presse=null;pressePtr=-1;}
+function ouvrirNes(){NES_OUVERT=ecran;presse=null;pressePtr=-1;histAvancer('nes');}
+function fermerNes(){if(NES_OUVERT)histReculer();NES_OUVERT='';presse=null;pressePtr=-1;}
 var URL_CONF='https://987nes.com/survivors/confidentialite/';
 var URL_REGLES='https://987nes.com/survivors/regles/';
 function rendrePanneauNes(){
@@ -15103,7 +15130,11 @@ function init(){
   if(WSIGNE){ecran='signer';tEcran=0;chargerMessageSigne();verifierVersion();window.requestAnimationFrame(function(ts){tPrec=ts/1000;window.requestAnimationFrame(boucle);});return;}
   if(NET.actif&&!HORS_RANG&&!MODE_CARTES)ouvrirSession();
   /* 0.7 : écran d'entrée (sauf ?bot=1, ?vite=N, ?tableau=, ?cartes=1 ou ?entree=0), lecture automatique tentée, version vérifiée */
-  if(!HORS_RANG&&!MODE_CARTES&&params.get('entree')!=='0'){ecran='entree';tEcran=0;hymneEssaiAuto();}
+  /* 46.138 : retour depuis les pages Règles et Confidentialité (?p=nes) : droit sur le titre, panneau 987NES ouvert */
+  var RETOUR_NES=params.get('p')==='nes';
+  if(RETOUR_NES){try{var ur=new URL(location.href);ur.searchParams.delete('p');history.replaceState(history.state,'',ur.pathname+ur.search+ur.hash);}catch(e){}}
+  if(!HORS_RANG&&!MODE_CARTES&&params.get('entree')!=='0'&&!RETOUR_NES){ecran='entree';tEcran=0;hymneEssaiAuto();}
+  if(RETOUR_NES&&ecran==='titre')NES_OUVERT='titre';
   verifierVersion();
   window.requestAnimationFrame(function(ts){tPrec=ts/1000;window.requestAnimationFrame(boucle);});
 }
@@ -16023,6 +16054,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 9px/1 system-ui,sans-serif;padding:2px 10px 3px;border-radius:8px 8px 0 0;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.18.1-qa1 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.18.2-qa2 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
