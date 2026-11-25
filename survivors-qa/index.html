@@ -1892,121 +1892,9 @@ function rejouer(graine,journal,nPas,choix,tab,ville){
 /* ---------- robot ---------- */
 var DIRX=new Float64Array(17),DIRY=new Float64Array(17);(function(){for(var d=1;d<=16;d++){DIRX[d]=cs((d-1)*90);DIRY[d]=sn((d-1)*90);}})();
 function quantifier(fx,fy){var best=0,bd=-1e9,d,v;for(d=1;d<=16;d++){v=fx*DIRX[d]+fy*DIRY[d];if(v>bd){bd=v;best=d;}}return best;}
-function botDir(st,o){
-  lier(st);
-  var fx=0,fy=0,px=S.px,py=S.py,i,e,dx,dy,d,Rr,w,p,k,B,c,g,best,bd,kF=(o&8)?BOTR.rayon:1;   /* 0.16 : kF, le robot « rond » ne fuit que le danger proche */
-  for(i=0;i<S.nE;i++){e=E[i];if(e.deg===0&&e.t!==T_BULLE)continue;
-    dx=px-e.x;dy=py-e.y;d=Math.sqrt(dx*dx+dy*dy)+0.01;Rr=(80+e.r*2+(e.t===T_BOSS?80:0))*kF;
-    if(d<Rr){w=(Rr-d)/Rr;w=w*w*(e.t===T_BOSS?14:(e.t===T_CHAT?8:4));fx+=dx/d*w-dy/d*w*0.35;fy+=dy/d*w+dx/d*w*0.35;}
-    if(e.t===T_PING&&(e.et===1||e.et===2)&&d<330){c=dx*e.dy-dy*e.dx;if(c>-40&&c<40){w=c>=0?2.5:-2.5;fx+=e.dy*w;fy-=e.dx*w;}}
-  }
-  for(i=0;i<S.nPE;i++){p=PE[i];dx=px-p.x;dy=py-p.y;d=Math.sqrt(dx*dx+dy*dy)+0.01;if(d<70){c=dx*p.vy-dy*p.vx;w=(c>=0?1:-1)*(70-d)/70*3;fx+=p.vy*w;fy-=p.vx*w;}}
-  for(k=0;k<3;k++){B=S.bandes[k];if(!B.on)continue;c=B.h?py-B.c:px-B.c;if(c<64&&c>-64){w=(c>=0?1:-1)*14;if(B.h)fy+=w;else fx+=w;}}
-  best=-1;bd=1e18;
-  for(i=0;i<S.nR;i++){g=R[i];dx=g.x-px;dy=g.y-py;d=dx*dx+dy*dy;if(d<bd){bd=d;best=i;}}
-  if(S.tre.on){dx=S.tre.x-px;dy=S.tre.y-py;d=Math.sqrt(dx*dx+dy*dy)+0.01;fx+=dx/d*1.3;fy+=dy/d*1.3;}
-  else if(best>=0&&bd<90000){d=Math.sqrt(bd)+0.01;fx+=(R[best].x-px)/d*1.2;fy+=(R[best].y-py)/d*1.2;}
-  else{
-    best=-1;bd=1e18;
-    for(i=0;i<S.nG;i++){g=G[i];dx=g.x-px;dy=g.y-py;d=dx*dx+dy*dy;if(d<bd){bd=d;best=i;}}
-    if(best>=0&&bd<40000){d=Math.sqrt(bd)+0.01;fx+=(G[best].x-px)/d*0.8;fy+=(G[best].y-py)/d*0.8;}
-  }
-  BFUITE=Math.sqrt(fx*fx+fy*fy);
-  if(o){if(botAttirer(o,px,py)){S.botD=0;return 0;}fx+=BAX;fy+=BAY;}   /* 0.11 : robots qui parient ou tiennent le rond */
-  if(fx*fx+fy*fy<0.0025){if(S.n%40===0)S.botD=(S.botD%16)+1;S.botD=botEviter(st,S.botD,1);return S.botD;}
-  S.botD=botEviter(st,quantifier(fx,fy),1);return S.botD;
-}
-/* 0.5 : un robot voit les murs (et la voie du funi annoncée) : il tourne vers la direction libre la plus proche.
-   eau : il évite aussi la Sarine si une autre direction proche est libre. */
-function botLibre(x,y,eau){
-  if(heurter(x,y,12,1))return false;
-  if(eau&&dansEau(x,y))return false;
-  var du=wr(md(x+M.ofu)-M.fu),v=md(y+M.ofv);
-  if(du>-40&&du<40&&v>M.fv0-10&&v<M.fv1+10){funiEtat(S.n);if(FUM!==0||FUA)return false;}
-  return true;
-}
-function botEviter(st,q,eau){
-  lier(st);if(!M||q<=0)return q;
-  var k,s,d;
-  for(k=0;k<=7;k++)for(s=0;s<(k?2:1);s++){d=((q-1+(s?-k:k)+32)%16)+1;
-    if(botLibre(S.px+DIRX[d]*24,S.py+DIRY[d]*24,eau&&k<4)&&botLibre(S.px+DIRX[d]*12,S.py+DIRY[d]*12,0))return d;}
-  return q;
-}
-/* 0.11 (bornes, tests) : o & 1 : le robot va parier quand botParie() le juge raisonnable (il reste immobile sur l'oratoire
-   jusqu'à ce que l'anneau soit plein) ; o & 2 : il va au rond de sciure et y reste en esquivant (rappel vers le centre).
-   Renvoie 1 pour « ne bouge pas » ; sinon ajoute son attirance dans BAX, BAY. */
-var BAX=0,BAY=0;
-/* 0.16 (tournée, tests) : o & 4 : le robot « tournée » va vers l'étape (poids BOT_TOUR, il fuit toujours d'abord, comme pour le reste) ;
-   o & 8 : le robot « rond » tourne autour de l'obstacle (maison ou fontaine) le plus proche du départ, sans autre but, et ne fuit
-   que le danger proche (BOT_RAYON_ROND × la portée de fuite ordinaire). C'est la tactique que la tournée doit rendre moins payante. */
-var BFUITE=0;   /* intensité de la fuite au moment où les attirances s'ajoutent */
-var BOTR={attente:900,seuil:1.5,tour:2,rayon:0.7,tang:0.6,rappel:0.03,laisse:2};   /* tour : poids de l'étape ; rayon : portée de fuite du rond ; tang, rappel, laisse : orbite du rond */
-/* parieur avisé : 60 % de PV au moins, 85 % pour une malédiction, et pas d'élites en plus sans une évolution ou le niveau 15 */
-function botParie(P){return S.pv>=S.pvMax*(P.duree?0.85:0.6)&&(!P.elites||S.nEvo>0||S.niveau>=15);}
-function botAttirer(o,px,py){
-  var b=S.bo,c=S.ce,dx,dy,d,w,k,g;BAX=0;BAY=0;
-  if((o&1)&&b.on&&(b.ch>0||botParie(PARIS[b.type]))){dx=b.x-px;dy=b.y-py;d=Math.sqrt(dx*dx+dy*dy)+0.01;
-    if(d<BORNE_R*0.6)return 1;w=d<140?7:2.5;BAX+=dx/d*w;BAY+=dy/d*w;}
-  if((o&4)&&S.tour.on&&(S.elan===0||S.elanT>=BOTR.attente)){dx=wr(md(S.tour.x-px));dy=wr(md(S.tour.y-py));d=Math.sqrt(dx*dx+dy*dy)+0.01;
-    /* contournement : si la distance à l'étape ne baisse plus (rempart, maison, berge), il longe l'obstacle (attirance tournée
-       de 80°) d'un côté pendant un moment qui s'allonge, puis de l'autre */
-    var nv=S.nav;if(!nv||nv.k!==S.tour.k){nv=S.nav={k:S.tour.k,d:d,n:S.n,ec:0,fin:0,cote:1};}
-    if(nv.fin>S.n){k=nv.cote*320;g=dx*cs(k)-dy*sn(k);dy=dx*sn(k)+dy*cs(k);dx=g;}
-    else if(S.n-nv.n>=90){
-      if(nv.d-d>=30)nv.ec=0;
-      else if(BFUITE<BOTR.seuil*0.5){nv.ec++;nv.cote=-nv.cote;nv.fin=S.n+Math.min(900,240+180*nv.ec);}
-      nv.d=d;nv.n=S.n;}
-    w=BOTR.tour*Math.max(0,1-BFUITE/BOTR.seuil);BAX+=dx/d*w;BAY+=dy/d*w;}
-  if(o&8)botRond(px,py);
-  if((o&2)&&c.on){dx=c.x-px;dy=c.y-py;d=Math.sqrt(dx*dx+dy*dy)+0.01;
-    /* encore le temps d'arriver et de tenir ? */
-    if(CERCLE_VIE-(S.n-c.nais)>Math.max(0,d-CERCLE_R)/(S.vit/HZ)+(CERCLE_TENIR-c.ch)){
-      w=d>CERCLE_R*0.55?(d<CERCLE_R?9:3):0;BAX+=dx/d*w;BAY+=dy/d*w;}}
-  return 0;
-}
-/* obstacle de départ du robot « rond » : maison ou fontaine la plus proche du départ du monde (M.ofu, M.ofv), choisi une fois */
-function botRond(px,py){
-  var o,k,du,dv,d,bd=1e18,bo=-1,r,w;
-  if(S.rondObs===undefined){
-    for(o=0;o<M.ox.length;o++){k=M.ok[o];if(k!==K_MAISON&&k!==K_FONT)continue;du=wr(M.ox[o]-M.ofu);dv=wr(M.oy[o]-M.ofv);d=du*du+dv*dv;if(d<bd){bd=d;bo=o;}}
-    S.rondObs=bo<0?null:{o:bo,r:(M.ot[bo]===0?Math.max(M.oa[bo],M.ob[bo]):M.oa[bo])+46};}
-  if(!S.rondObs)return;
-  o=S.rondObs.o;du=wr(md(px+M.ofu)-M.ox[o]);dv=wr(md(py+M.ofv)-M.oy[o]);d=Math.sqrt(du*du+dv*dv)+0.01;r=S.rondObs.r;
-  /* tangente (sens horaire à l'écran) et rappel vers l'anneau de rayon r */
-  w=BOTR.rappel*(r-d);if(d>r*3)w-=BOTR.laisse;   /* tenu en laisse : trop loin de l'obstacle, il y revient */
-  BAX+=-dv/d*BOTR.tang+du/d*w;BAY+=du/d*BOTR.tang+dv/d*w;
-}
-function botChoix(st){
-  lier(st);
-  if(S.modal===M_CARTE)choisir(st,Math.floor(S.rBot()*3));
-  else if(S.modal===M_VOTE)voter(st,S.rBot()<0.5);
-}
-/* Robot « gourmand » (tests, 0.6) : comme le bon assemblage, mais il prend d'abord les plats du menu du tableau. */
-function botChoixGourmand(st){
-  lier(st);
-  if(S.modal===M_CARTE&&S.col>=0){var C=COLLECTIONS[S.col],i,k,c,p;
-    for(i=0;i<3;i++){c=S.cartes[i];if(c.genre>1)continue;
-      for(k=0;k<C.plats.length;k++){p=C.plats[k];if(S.menu&(1<<k))continue;if((c.genre===0&&p.ia===c.id)||(c.genre===1&&p.ip===c.id)){choisir(st,i);return;}}}}
-  botChoixBon(st);
-}
-/* Robot « bon assemblage » (tests) : monte ses armes, vise les évolutions, refuse les votes risqués. */
-function botChoixBon(st){
-  lier(st);
-  if(S.modal===M_VOTE){voter(st,false);return;}
-  if(S.modal!==M_CARTE)return;
-  var i,c,v,best=0,bv=-1,k;
-  for(i=0;i<3;i++){c=S.cartes[i];
-    if(c.genre===0){k=idxArme(c.id);v=k<0?(S.nA<3?9:5):7+c.niv;}
-    else if(c.genre===1)v=passifLie(c.id)?8:(PASSIFS[c.id].botPoids||3);
-    else if(c.genre===2)v=S.pv<S.pvMax*0.4?10:1;
-    else if(c.genre===4)v=RECOMPENSES[c.id].bot();
-    else v=SURCHARGES[c.id].botPoids||2;
-    if(v>bv){bv=v;best=i;}}
-  choisir(st,best);
-}
-
+/* robot de test retiré de la page publiée (outils/sans-robot.js) */
 return{HZ:HZ,NA:NA,creer:creer,pas:pas,choisir:choisir,relancer:relancer,voter:voter,score:score,palier:palier,rejouer:rejouer,compresser:compresser,
-  botDir:botDir,botChoix:botChoix,botChoixBon:botChoixBon,botChoixGourmand:botChoixGourmand,quantifier:quantifier,botEviter:botEviter,
+  quantifier:quantifier,
   mondeDe:mondeDe,genererMonde:genererMonde,genVille:genVille,villeDe:villeDe,departVille:departVille,LM0:LM0,   /* villes : points d'entrée */
   villeDefaut:function(){return VILLE_DEFAUT;},villeCourante:villeCourante,villeEmpreinte:function(){return VILLE_EMPREINTE;},VILLE_EMPREINTE:VILLE_EMPREINTE,VILLE_CHOIX_DEPART:VILLE_CHOIX_DEPART,
   chevauche:chevauche,dansEau:function(st,x,y){lier(st);return dansEau(x,y);},md:md,wr:wr,funiEtat:function(st,n){lier(st);funiEtat(n);return{v:FUV,m:FUM,a:FUA,p:FUP};},
@@ -2014,7 +1902,7 @@ return{HZ:HZ,NA:NA,creer:creer,pas:pas,choisir:choisir,relancer:relancer,voter:v
     K:{BLOC:K_BLOC,MAISON:K_MAISON,CATH:K_CATH,NEF:K_NEF,MORAT:K_MORAT,TOURR:K_TOURR,REMP:K_REMP,FONT:K_FONT,SAPIN:K_SAPIN,FEUIL:K_FEUIL,TILLEUL:K_TILLEUL,VACHE:K_VACHE,FOIN:K_FOIN,TONNEAU:K_TONNEAU,CAISSE:K_CAISSE,STH:K_STH,STB:K_STB,FROM:K_FROM,MOLESON:K_MOLESON,PANNEAU:K_PANNEAU,MUR:K_MUR},
     D:{LAMPE:D_LAMPE,BANC:D_BANC,FLEURS:D_FLEURS,TOITPONT:D_TOITPONT,BANNIERE:D_BANNIERE,BAT:D_BAT}},fnv1a:fnv1a,mulberry32:mulberry32,melange:melange,sn:sn,cs:cs,
   ENN:ENN,NVAR:NVAR,VAGUES:VAGUES,PVMIN:PVMIN,REGL:REGL,ARMES:ARMES,NARMES:NARMES,ARMES_MIN:ARMES_MIN,jeuDeVille:jeuDeVille,PASSIFS:PASSIFS,SURCHARGES:SURCHARGES,DECRETS:DECRETS,decretDe:decretDe,VOTES:VOTES,PALIERS:PALIERS,FAMILLES:FAMILLES,XPT:XPT,M_CARTE:M_CARTE,M_VOTE:M_VOTE,MAXPAS:MAXPAS,PLAF:PLAF,
-  PARIS:PARIS,RECOMPENSES:RECOMPENSES,T_BORNES:T_BORNES,T_CERCLES:T_CERCLES,BORNE_VIE:BORNE_VIE,BORNE_TENIR:BORNE_TENIR,BORNE_R:BORNE_R,PARI_MAX:PARI_MAX,CERCLE_VIE:CERCLE_VIE,CERCLE_TENIR:CERCLE_TENIR,CERCLE_R:CERCLE_R,EV_PARI:EV_PARI,EV_CERCLE:EV_CERCLE,EV_TOUR:EV_TOUR,TOUR:TOUR,BOTR:BOTR,   /* 0.16 : tournée */
+  PARIS:PARIS,RECOMPENSES:RECOMPENSES,T_BORNES:T_BORNES,T_CERCLES:T_CERCLES,BORNE_VIE:BORNE_VIE,BORNE_TENIR:BORNE_TENIR,BORNE_R:BORNE_R,PARI_MAX:PARI_MAX,CERCLE_VIE:CERCLE_VIE,CERCLE_TENIR:CERCLE_TENIR,CERCLE_R:CERCLE_R,EV_PARI:EV_PARI,EV_CERCLE:EV_CERCLE,EV_TOUR:EV_TOUR,TOUR:TOUR,   /* 0.16 : tournée */
   PROL:PROL,PROL_PAS:PROL_PAS,EV_PROL:EV_PROL,   /* 0.14 : Recrotzon (prolongations) */
   TRESORS:TRESORS,COLLECTIONS:COLLECTIONS,TABLEAUX:TABLEAUX,I_TABLEAU:I_TABLEAU,tableauDe:tableauDe,OBJETS:OBJETS,DECOS:DECOS,COMBO_PAL:COMBO_PAL,I_COL:I_COL,I_ENN:I_ENN,I_ARME:I_ARME,I_PASSIF:I_PASSIF,I_TRES:I_TRES,VAGUE_COL:VAGUE_COL,T_VOTES:T_VOTES,DUREE:DUREE,T_BOSSN:T_BOSSN,T_LIQ:T_LIQ,
   EV:{HIT:EV_HIT,MORT:EV_MORT,GEMME:EV_GEMME,JTOUCHE:EV_JTOUCHE,NIVEAU:EV_NIVEAU,COFFRE:EV_COFFRE,ONDE:EV_ONDE,TIR:EV_TIR,BANDEAU:EV_BANDEAU,PAROLE:EV_PAROLE,ELITE:EV_ELITE,BOSSMORT:EV_BOSSMORT,RAMASSE:EV_RAMASSE,PIEU:EV_PIEU,TAPIS:EV_TAPIS,FIN:EV_FIN,CHAPEAU:EV_CHAPEAU,ASPI:EV_ASPI,TIRENN:EV_TIRENN,BOSS:EV_BOSS,ECLAT:EV_ECLAT,
@@ -7820,7 +7708,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.17.0-qa5';
+var VERSION='0.17.0-qa6';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -7906,7 +7794,7 @@ var REF_CLE='dzoqa.ref';
 /* Page déjà ouverte : le lien du bot ne change alors que le fragment, sans recharger. On recharge pour le traiter. */
 try{window.addEventListener('hashchange',function(){if(/(?:^#|&)t=/.test(location.hash||''))location.reload();});}catch(e){}
 TAB_FORCE=(function(){var c=params.get('tableau');return c&&SIM.I_TABLEAU[c]!==undefined?SIM.I_TABLEAU[c]:-1;})();
-var BOT=params.get('bot')==='1';
+var BOT=false;   /* ?bot=1 n'existe pas dans la page publiée */
 var BOT_BORNES=+(params.get('bornes')||0)|0;   /* 0.11 (tests) : ?bot=1&bornes=3 : le robot parie et tient le rond */
 var C={sol1:'#231A33',sol2:'#33254A',joint:'#3A2A4F',vig:'#0A0612',cyan:'#6FE6FF',vert:'#3DFF8F',or:'#FFD23F',danger:'#FF3B5C',creme:'#F6F1E7',encre:'#0D0914',rouge:'#E3001B'};
 var TEINTES=['#5BD14F','#F2A33A','#9BBF6A','#8DAE74','#7F9A78','#F6F1E7','#2B3154','#8E6BFF','#7C86B8','#EDE7FF','#FF7AB8','#4A3A78','#2A2140','#FFC93C'];
@@ -16012,6 +15900,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 9px/1 system-ui,sans-serif;padding:2px 10px 3px;border-radius:8px 8px 0 0;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.17.0-qa5 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.17.0-qa6 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
