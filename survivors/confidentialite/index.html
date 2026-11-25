@@ -113,7 +113,7 @@ footer a { color: var(--gray-mid); text-decoration: none; } footer a:hover { col
       <button class="lang-btn" type="button" data-l="es">ES</button>
       <button class="lang-btn" type="button" data-l="en">EN</button>
     </div>
-    <a href="../" class="btn-nav-buy" id="retour">← Back to the game</a>
+    <a href="../?p=nes" class="btn-nav-buy retour" id="retour">← Back to the game</a>
   </div>
 </nav>
 <main>
@@ -123,7 +123,7 @@ footer a { color: var(--gray-mid); text-decoration: none; } footer a:hover { col
   <h1>Confidentialité</h1>
   <p class="slogan">Ce que le jeu enregistre, pourquoi, combien de temps, et comment le faire effacer.</p>
   <div class="meta">Version du 25 novembre 2026</div>
-  <a class="retour-m" href="../">← Retour au jeu</a>
+  <a class="retour-m retour" href="../?p=nes">← Retour au jeu</a>
 </div></header>
 <div class="wrap">
   <div class="bref"><p><strong>En bref.</strong> Le jeu n'a ni publicité ni traceur publicitaire, et ne revend rien. Il enregistre ce qu'il faut pour faire tourner les classements et les concours, pour repérer la triche et pour savoir combien de personnes jouent. Ton adresse IP est gardée 90 jours. Tu peux demander une copie ou l'effacement de tes données à <a href="mailto:info@987nes.com">info@987nes.com</a>.</p></div>
@@ -142,7 +142,7 @@ footer a { color: var(--gray-mid); text-decoration: none; } footer a:hover { col
   <h1>Datenschutz</h1>
   <p class="slogan">Was das Spiel speichert, warum, wie lange, und wie du es löschen lassen kannst.</p>
   <div class="meta">Fassung vom 25. November 2026</div>
-  <a class="retour-m" href="../">← Zurück zum Spiel</a>
+  <a class="retour-m retour" href="../?p=nes">← Zurück zum Spiel</a>
 </div></header>
 <div class="wrap">
   <div class="bref"><p><strong>Kurz gesagt.</strong> Das Spiel hat weder Werbung noch Werbe-Tracker und verkauft nichts. Es speichert, was nötig ist, um Ranglisten und Wettbewerbe zu betreiben, Betrug zu erkennen und zu wissen, wie viele Leute spielen. Deine IP-Adresse wird 90 Tage aufbewahrt. Eine Kopie oder die Löschung deiner Daten kannst du unter <a href="mailto:info@987nes.com">info@987nes.com</a> verlangen.</p></div>
@@ -161,7 +161,7 @@ footer a { color: var(--gray-mid); text-decoration: none; } footer a:hover { col
   <h1>Privacy</h1>
   <p class="slogan">Che cosa registra il gioco, perché, per quanto tempo, e come farlo cancellare.</p>
   <div class="meta">Versione del 25 novembre 2026</div>
-  <a class="retour-m" href="../">← Torna al gioco</a>
+  <a class="retour-m retour" href="../?p=nes">← Torna al gioco</a>
 </div></header>
 <div class="wrap">
   <div class="bref"><p><strong>In breve.</strong> Il gioco non ha pubblicità né tracciatori pubblicitari e non vende nulla. Registra ciò che serve per far funzionare classifiche e concorsi, per individuare i bari e per sapere quante persone giocano. Il tuo indirizzo IP è conservato per 90 giorni. Puoi chiedere una copia o la cancellazione dei tuoi dati a <a href="mailto:info@987nes.com">info@987nes.com</a>.</p></div>
@@ -180,7 +180,7 @@ footer a { color: var(--gray-mid); text-decoration: none; } footer a:hover { col
   <h1>Privacidad</h1>
   <p class="slogan">Qué registra el juego, por qué, durante cuánto tiempo y cómo pedir que se borre.</p>
   <div class="meta">Versión del 25 de noviembre de 2026</div>
-  <a class="retour-m" href="../">← Volver al juego</a>
+  <a class="retour-m retour" href="../?p=nes">← Volver al juego</a>
 </div></header>
 <div class="wrap">
   <div class="bref"><p><strong>En resumen.</strong> El juego no tiene publicidad ni rastreadores publicitarios y no vende nada. Registra lo necesario para hacer funcionar las clasificaciones y los concursos, detectar trampas y saber cuánta gente juega. Tu dirección IP se conserva 90 días. Puedes pedir una copia o el borrado de tus datos en <a href="mailto:info@987nes.com">info@987nes.com</a>.</p></div>
@@ -199,7 +199,7 @@ footer a { color: var(--gray-mid); text-decoration: none; } footer a:hover { col
   <h1>Privacy</h1>
   <p class="slogan">What the game records, why, for how long, and how to have it deleted.</p>
   <div class="meta">Version of 25 November 2026</div>
-  <a class="retour-m" href="../">← Back to the game</a>
+  <a class="retour-m retour" href="../?p=nes">← Back to the game</a>
 </div></header>
 <div class="wrap">
   <div class="bref"><p><strong>In short.</strong> The game has no ads and no ad trackers, and sells nothing. It records what it needs to run leaderboards and contests, to spot cheating and to know how many people play. Your IP address is kept for 90 days. You can ask for a copy or the deletion of your data at <a href="mailto:info@987nes.com">info@987nes.com</a>.</p></div>
@@ -249,6 +249,12 @@ footer a { color: var(--gray-mid); text-decoration: none; } footer a:hover { col
   // le jeu change de langue dans un autre onglet : la page suit
   window.addEventListener('storage', function (e) { if (e.key === 'dzo.v1') { var l = duJeu(); if (l) afficher(l); } });
   afficher(initiale());
+})();
+(function () {
+  // Le jeu ouvre cette page dans un nouvel onglet : « Retour au jeu » referme l'onglet (le jeu est resté ouvert derrière,
+  // panneau 987NES compris). Si l'onglet ne se ferme pas (page ouverte directement), on va au jeu, sur ce panneau.
+  function retour(e) { e.preventDefault(); try { window.close(); } catch (x) {} setTimeout(function () { location.href = '../?p=nes'; }, 250); }
+  Array.prototype.forEach.call(document.querySelectorAll('a.retour'), function (a) { a.addEventListener('click', retour); });
 })();
 </script>
 </body>
