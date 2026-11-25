@@ -1892,121 +1892,9 @@ function rejouer(graine,journal,nPas,choix,tab,ville){
 /* ---------- robot ---------- */
 var DIRX=new Float64Array(17),DIRY=new Float64Array(17);(function(){for(var d=1;d<=16;d++){DIRX[d]=cs((d-1)*90);DIRY[d]=sn((d-1)*90);}})();
 function quantifier(fx,fy){var best=0,bd=-1e9,d,v;for(d=1;d<=16;d++){v=fx*DIRX[d]+fy*DIRY[d];if(v>bd){bd=v;best=d;}}return best;}
-function botDir(st,o){
-  lier(st);
-  var fx=0,fy=0,px=S.px,py=S.py,i,e,dx,dy,d,Rr,w,p,k,B,c,g,best,bd,kF=(o&8)?BOTR.rayon:1;   /* 0.16 : kF, le robot « rond » ne fuit que le danger proche */
-  for(i=0;i<S.nE;i++){e=E[i];if(e.deg===0&&e.t!==T_BULLE)continue;
-    dx=px-e.x;dy=py-e.y;d=Math.sqrt(dx*dx+dy*dy)+0.01;Rr=(80+e.r*2+(e.t===T_BOSS?80:0))*kF;
-    if(d<Rr){w=(Rr-d)/Rr;w=w*w*(e.t===T_BOSS?14:(e.t===T_CHAT?8:4));fx+=dx/d*w-dy/d*w*0.35;fy+=dy/d*w+dx/d*w*0.35;}
-    if(e.t===T_PING&&(e.et===1||e.et===2)&&d<330){c=dx*e.dy-dy*e.dx;if(c>-40&&c<40){w=c>=0?2.5:-2.5;fx+=e.dy*w;fy-=e.dx*w;}}
-  }
-  for(i=0;i<S.nPE;i++){p=PE[i];dx=px-p.x;dy=py-p.y;d=Math.sqrt(dx*dx+dy*dy)+0.01;if(d<70){c=dx*p.vy-dy*p.vx;w=(c>=0?1:-1)*(70-d)/70*3;fx+=p.vy*w;fy-=p.vx*w;}}
-  for(k=0;k<3;k++){B=S.bandes[k];if(!B.on)continue;c=B.h?py-B.c:px-B.c;if(c<64&&c>-64){w=(c>=0?1:-1)*14;if(B.h)fy+=w;else fx+=w;}}
-  best=-1;bd=1e18;
-  for(i=0;i<S.nR;i++){g=R[i];dx=g.x-px;dy=g.y-py;d=dx*dx+dy*dy;if(d<bd){bd=d;best=i;}}
-  if(S.tre.on){dx=S.tre.x-px;dy=S.tre.y-py;d=Math.sqrt(dx*dx+dy*dy)+0.01;fx+=dx/d*1.3;fy+=dy/d*1.3;}
-  else if(best>=0&&bd<90000){d=Math.sqrt(bd)+0.01;fx+=(R[best].x-px)/d*1.2;fy+=(R[best].y-py)/d*1.2;}
-  else{
-    best=-1;bd=1e18;
-    for(i=0;i<S.nG;i++){g=G[i];dx=g.x-px;dy=g.y-py;d=dx*dx+dy*dy;if(d<bd){bd=d;best=i;}}
-    if(best>=0&&bd<40000){d=Math.sqrt(bd)+0.01;fx+=(G[best].x-px)/d*0.8;fy+=(G[best].y-py)/d*0.8;}
-  }
-  BFUITE=Math.sqrt(fx*fx+fy*fy);
-  if(o){if(botAttirer(o,px,py)){S.botD=0;return 0;}fx+=BAX;fy+=BAY;}   /* 0.11 : robots qui parient ou tiennent le rond */
-  if(fx*fx+fy*fy<0.0025){if(S.n%40===0)S.botD=(S.botD%16)+1;S.botD=botEviter(st,S.botD,1);return S.botD;}
-  S.botD=botEviter(st,quantifier(fx,fy),1);return S.botD;
-}
-/* 0.5 : un robot voit les murs (et la voie du funi annoncée) : il tourne vers la direction libre la plus proche.
-   eau : il évite aussi la Sarine si une autre direction proche est libre. */
-function botLibre(x,y,eau){
-  if(heurter(x,y,12,1))return false;
-  if(eau&&dansEau(x,y))return false;
-  var du=wr(md(x+M.ofu)-M.fu),v=md(y+M.ofv);
-  if(du>-40&&du<40&&v>M.fv0-10&&v<M.fv1+10){funiEtat(S.n);if(FUM!==0||FUA)return false;}
-  return true;
-}
-function botEviter(st,q,eau){
-  lier(st);if(!M||q<=0)return q;
-  var k,s,d;
-  for(k=0;k<=7;k++)for(s=0;s<(k?2:1);s++){d=((q-1+(s?-k:k)+32)%16)+1;
-    if(botLibre(S.px+DIRX[d]*24,S.py+DIRY[d]*24,eau&&k<4)&&botLibre(S.px+DIRX[d]*12,S.py+DIRY[d]*12,0))return d;}
-  return q;
-}
-/* 0.11 (bornes, tests) : o & 1 : le robot va parier quand botParie() le juge raisonnable (il reste immobile sur l'oratoire
-   jusqu'à ce que l'anneau soit plein) ; o & 2 : il va au rond de sciure et y reste en esquivant (rappel vers le centre).
-   Renvoie 1 pour « ne bouge pas » ; sinon ajoute son attirance dans BAX, BAY. */
-var BAX=0,BAY=0;
-/* 0.16 (tournée, tests) : o & 4 : le robot « tournée » va vers l'étape (poids BOT_TOUR, il fuit toujours d'abord, comme pour le reste) ;
-   o & 8 : le robot « rond » tourne autour de l'obstacle (maison ou fontaine) le plus proche du départ, sans autre but, et ne fuit
-   que le danger proche (BOT_RAYON_ROND × la portée de fuite ordinaire). C'est la tactique que la tournée doit rendre moins payante. */
-var BFUITE=0;   /* intensité de la fuite au moment où les attirances s'ajoutent */
-var BOTR={attente:900,seuil:1.5,tour:2,rayon:0.7,tang:0.6,rappel:0.03,laisse:2};   /* tour : poids de l'étape ; rayon : portée de fuite du rond ; tang, rappel, laisse : orbite du rond */
-/* parieur avisé : 60 % de PV au moins, 85 % pour une malédiction, et pas d'élites en plus sans une évolution ou le niveau 15 */
-function botParie(P){return S.pv>=S.pvMax*(P.duree?0.85:0.6)&&(!P.elites||S.nEvo>0||S.niveau>=15);}
-function botAttirer(o,px,py){
-  var b=S.bo,c=S.ce,dx,dy,d,w,k,g;BAX=0;BAY=0;
-  if((o&1)&&b.on&&(b.ch>0||botParie(PARIS[b.type]))){dx=b.x-px;dy=b.y-py;d=Math.sqrt(dx*dx+dy*dy)+0.01;
-    if(d<BORNE_R*0.6)return 1;w=d<140?7:2.5;BAX+=dx/d*w;BAY+=dy/d*w;}
-  if((o&4)&&S.tour.on&&(S.elan===0||S.elanT>=BOTR.attente)){dx=wr(md(S.tour.x-px));dy=wr(md(S.tour.y-py));d=Math.sqrt(dx*dx+dy*dy)+0.01;
-    /* contournement : si la distance à l'étape ne baisse plus (rempart, maison, berge), il longe l'obstacle (attirance tournée
-       de 80°) d'un côté pendant un moment qui s'allonge, puis de l'autre */
-    var nv=S.nav;if(!nv||nv.k!==S.tour.k){nv=S.nav={k:S.tour.k,d:d,n:S.n,ec:0,fin:0,cote:1};}
-    if(nv.fin>S.n){k=nv.cote*320;g=dx*cs(k)-dy*sn(k);dy=dx*sn(k)+dy*cs(k);dx=g;}
-    else if(S.n-nv.n>=90){
-      if(nv.d-d>=30)nv.ec=0;
-      else if(BFUITE<BOTR.seuil*0.5){nv.ec++;nv.cote=-nv.cote;nv.fin=S.n+Math.min(900,240+180*nv.ec);}
-      nv.d=d;nv.n=S.n;}
-    w=BOTR.tour*Math.max(0,1-BFUITE/BOTR.seuil);BAX+=dx/d*w;BAY+=dy/d*w;}
-  if(o&8)botRond(px,py);
-  if((o&2)&&c.on){dx=c.x-px;dy=c.y-py;d=Math.sqrt(dx*dx+dy*dy)+0.01;
-    /* encore le temps d'arriver et de tenir ? */
-    if(CERCLE_VIE-(S.n-c.nais)>Math.max(0,d-CERCLE_R)/(S.vit/HZ)+(CERCLE_TENIR-c.ch)){
-      w=d>CERCLE_R*0.55?(d<CERCLE_R?9:3):0;BAX+=dx/d*w;BAY+=dy/d*w;}}
-  return 0;
-}
-/* obstacle de départ du robot « rond » : maison ou fontaine la plus proche du départ du monde (M.ofu, M.ofv), choisi une fois */
-function botRond(px,py){
-  var o,k,du,dv,d,bd=1e18,bo=-1,r,w;
-  if(S.rondObs===undefined){
-    for(o=0;o<M.ox.length;o++){k=M.ok[o];if(k!==K_MAISON&&k!==K_FONT)continue;du=wr(M.ox[o]-M.ofu);dv=wr(M.oy[o]-M.ofv);d=du*du+dv*dv;if(d<bd){bd=d;bo=o;}}
-    S.rondObs=bo<0?null:{o:bo,r:(M.ot[bo]===0?Math.max(M.oa[bo],M.ob[bo]):M.oa[bo])+46};}
-  if(!S.rondObs)return;
-  o=S.rondObs.o;du=wr(md(px+M.ofu)-M.ox[o]);dv=wr(md(py+M.ofv)-M.oy[o]);d=Math.sqrt(du*du+dv*dv)+0.01;r=S.rondObs.r;
-  /* tangente (sens horaire à l'écran) et rappel vers l'anneau de rayon r */
-  w=BOTR.rappel*(r-d);if(d>r*3)w-=BOTR.laisse;   /* tenu en laisse : trop loin de l'obstacle, il y revient */
-  BAX+=-dv/d*BOTR.tang+du/d*w;BAY+=du/d*BOTR.tang+dv/d*w;
-}
-function botChoix(st){
-  lier(st);
-  if(S.modal===M_CARTE)choisir(st,Math.floor(S.rBot()*3));
-  else if(S.modal===M_VOTE)voter(st,S.rBot()<0.5);
-}
-/* Robot « gourmand » (tests, 0.6) : comme le bon assemblage, mais il prend d'abord les plats du menu du tableau. */
-function botChoixGourmand(st){
-  lier(st);
-  if(S.modal===M_CARTE&&S.col>=0){var C=COLLECTIONS[S.col],i,k,c,p;
-    for(i=0;i<3;i++){c=S.cartes[i];if(c.genre>1)continue;
-      for(k=0;k<C.plats.length;k++){p=C.plats[k];if(S.menu&(1<<k))continue;if((c.genre===0&&p.ia===c.id)||(c.genre===1&&p.ip===c.id)){choisir(st,i);return;}}}}
-  botChoixBon(st);
-}
-/* Robot « bon assemblage » (tests) : monte ses armes, vise les évolutions, refuse les votes risqués. */
-function botChoixBon(st){
-  lier(st);
-  if(S.modal===M_VOTE){voter(st,false);return;}
-  if(S.modal!==M_CARTE)return;
-  var i,c,v,best=0,bv=-1,k;
-  for(i=0;i<3;i++){c=S.cartes[i];
-    if(c.genre===0){k=idxArme(c.id);v=k<0?(S.nA<3?9:5):7+c.niv;}
-    else if(c.genre===1)v=passifLie(c.id)?8:(PASSIFS[c.id].botPoids||3);
-    else if(c.genre===2)v=S.pv<S.pvMax*0.4?10:1;
-    else if(c.genre===4)v=RECOMPENSES[c.id].bot();
-    else v=SURCHARGES[c.id].botPoids||2;
-    if(v>bv){bv=v;best=i;}}
-  choisir(st,best);
-}
-
+/* robot de test retiré de la page publiée (outils/sans-robot.js) */
 return{HZ:HZ,NA:NA,creer:creer,pas:pas,choisir:choisir,relancer:relancer,voter:voter,score:score,palier:palier,rejouer:rejouer,compresser:compresser,
-  botDir:botDir,botChoix:botChoix,botChoixBon:botChoixBon,botChoixGourmand:botChoixGourmand,quantifier:quantifier,botEviter:botEviter,
+  quantifier:quantifier,
   mondeDe:mondeDe,genererMonde:genererMonde,genVille:genVille,villeDe:villeDe,departVille:departVille,LM0:LM0,   /* villes : points d'entrée */
   villeDefaut:function(){return VILLE_DEFAUT;},villeCourante:villeCourante,villeEmpreinte:function(){return VILLE_EMPREINTE;},VILLE_EMPREINTE:VILLE_EMPREINTE,VILLE_CHOIX_DEPART:VILLE_CHOIX_DEPART,
   chevauche:chevauche,dansEau:function(st,x,y){lier(st);return dansEau(x,y);},md:md,wr:wr,funiEtat:function(st,n){lier(st);funiEtat(n);return{v:FUV,m:FUM,a:FUA,p:FUP};},
@@ -2014,7 +1902,7 @@ return{HZ:HZ,NA:NA,creer:creer,pas:pas,choisir:choisir,relancer:relancer,voter:v
     K:{BLOC:K_BLOC,MAISON:K_MAISON,CATH:K_CATH,NEF:K_NEF,MORAT:K_MORAT,TOURR:K_TOURR,REMP:K_REMP,FONT:K_FONT,SAPIN:K_SAPIN,FEUIL:K_FEUIL,TILLEUL:K_TILLEUL,VACHE:K_VACHE,FOIN:K_FOIN,TONNEAU:K_TONNEAU,CAISSE:K_CAISSE,STH:K_STH,STB:K_STB,FROM:K_FROM,MOLESON:K_MOLESON,PANNEAU:K_PANNEAU,MUR:K_MUR},
     D:{LAMPE:D_LAMPE,BANC:D_BANC,FLEURS:D_FLEURS,TOITPONT:D_TOITPONT,BANNIERE:D_BANNIERE,BAT:D_BAT}},fnv1a:fnv1a,mulberry32:mulberry32,melange:melange,sn:sn,cs:cs,
   ENN:ENN,NVAR:NVAR,VAGUES:VAGUES,PVMIN:PVMIN,REGL:REGL,ARMES:ARMES,NARMES:NARMES,ARMES_MIN:ARMES_MIN,jeuDeVille:jeuDeVille,PASSIFS:PASSIFS,SURCHARGES:SURCHARGES,DECRETS:DECRETS,decretDe:decretDe,VOTES:VOTES,PALIERS:PALIERS,FAMILLES:FAMILLES,XPT:XPT,M_CARTE:M_CARTE,M_VOTE:M_VOTE,MAXPAS:MAXPAS,PLAF:PLAF,
-  PARIS:PARIS,RECOMPENSES:RECOMPENSES,T_BORNES:T_BORNES,T_CERCLES:T_CERCLES,BORNE_VIE:BORNE_VIE,BORNE_TENIR:BORNE_TENIR,BORNE_R:BORNE_R,PARI_MAX:PARI_MAX,CERCLE_VIE:CERCLE_VIE,CERCLE_TENIR:CERCLE_TENIR,CERCLE_R:CERCLE_R,EV_PARI:EV_PARI,EV_CERCLE:EV_CERCLE,EV_TOUR:EV_TOUR,TOUR:TOUR,BOTR:BOTR,   /* 0.16 : tournée */
+  PARIS:PARIS,RECOMPENSES:RECOMPENSES,T_BORNES:T_BORNES,T_CERCLES:T_CERCLES,BORNE_VIE:BORNE_VIE,BORNE_TENIR:BORNE_TENIR,BORNE_R:BORNE_R,PARI_MAX:PARI_MAX,CERCLE_VIE:CERCLE_VIE,CERCLE_TENIR:CERCLE_TENIR,CERCLE_R:CERCLE_R,EV_PARI:EV_PARI,EV_CERCLE:EV_CERCLE,EV_TOUR:EV_TOUR,TOUR:TOUR,   /* 0.16 : tournée */
   PROL:PROL,PROL_PAS:PROL_PAS,EV_PROL:EV_PROL,   /* 0.14 : Recrotzon (prolongations) */
   TRESORS:TRESORS,COLLECTIONS:COLLECTIONS,TABLEAUX:TABLEAUX,I_TABLEAU:I_TABLEAU,tableauDe:tableauDe,OBJETS:OBJETS,DECOS:DECOS,COMBO_PAL:COMBO_PAL,I_COL:I_COL,I_ENN:I_ENN,I_ARME:I_ARME,I_PASSIF:I_PASSIF,I_TRES:I_TRES,VAGUE_COL:VAGUE_COL,T_VOTES:T_VOTES,DUREE:DUREE,T_BOSSN:T_BOSSN,T_LIQ:T_LIQ,
   EV:{HIT:EV_HIT,MORT:EV_MORT,GEMME:EV_GEMME,JTOUCHE:EV_JTOUCHE,NIVEAU:EV_NIVEAU,COFFRE:EV_COFFRE,ONDE:EV_ONDE,TIR:EV_TIR,BANDEAU:EV_BANDEAU,PAROLE:EV_PAROLE,ELITE:EV_ELITE,BOSSMORT:EV_BOSSMORT,RAMASSE:EV_RAMASSE,PIEU:EV_PIEU,TAPIS:EV_TAPIS,FIN:EV_FIN,CHAPEAU:EV_CHAPEAU,ASPI:EV_ASPI,TIRENN:EV_TIRENN,BOSS:EV_BOSS,ECLAT:EV_ECLAT,
@@ -2826,6 +2714,14 @@ LANGUES.fr={
 "lots.aucun":"Pas de concours en cours. Entraîne-toi : le prochain sera annoncé ici.",
 "lots.prochain":"PROCHAIN CONCOURS",
 "lots.wallet":"Pour recevoir un lot, renseigne ton wallet dans ton profil.",
+"lots.dote":"Concours doté : le même nombre de parties pour tous.",
+"lots.prixJoueur":"Meilleur joueur : {0}",
+"lots.prixRecruteur":"Meilleur recruteur : {0}",
+"lots.prixFidele":"Le plus fidèle (a joué chaque jour) : {0}",
+"lots.cond":"Pour gagner un prix :",
+"lots.condAge":"18 ans ou plus",
+"lots.condWallet":"portefeuille relié",
+"lots.majeur":"J'AI 18 ANS OU PLUS",
 "duree.jours":"{0} j {1} h",
 "duree.heures":"{0} h {1} min",
 "duree.minutes":"{0} min",
@@ -2923,6 +2819,11 @@ LANGUES.fr={
 "nes.ouvre":"S'ouvre dans un nouvel onglet.",
 "nes.fermer":"FERMER",
 "nes.conf":"Confidentialité",
+"cartes.titre":"CARTES",
+"cartes.ici":"Carte choisie",
+"cartes.jouer":"Jouer ici",
+"cartes.charge":"Chargement…",
+"cartes.une":"Une seule carte pour l'instant. D'autres arrivent.",
 "beta.court":"BÊTA",
 "beta.chip":"BÊTA · on construit encore chaque jour",
 "beta.titre":"Version bêta",
@@ -3977,6 +3878,14 @@ LANGUES.de={
 "lots.aucun":"Gerade kein Wettbewerb. Trainiere: der nächste wird hier angekündigt.",
 "lots.prochain":"NÄCHSTER WETTBEWERB",
 "lots.wallet":"Um einen Preis zu erhalten, trage deine Wallet in deinem Profil ein.",
+"lots.dote":"Wettbewerb mit Preisen: gleich viele Partien für alle.",
+"lots.prixJoueur":"Bester Spieler: {0}",
+"lots.prixRecruteur":"Bester Werber: {0}",
+"lots.prixFidele":"Der Treueste (jeden Tag gespielt): {0}",
+"lots.cond":"Um einen Preis zu gewinnen:",
+"lots.condAge":"18 Jahre oder älter",
+"lots.condWallet":"Wallet verbunden",
+"lots.majeur":"ICH BIN 18 ODER ÄLTER",
 "duree.jours":"{0} T. {1} Std.",
 "duree.heures":"{0} Std. {1} Min.",
 "duree.minutes":"{0} Min.",
@@ -4074,6 +3983,11 @@ LANGUES.de={
 "nes.ouvre":"Öffnet sich in einem neuen Tab.",
 "nes.fermer":"SCHLIESSEN",
 "nes.conf":"Datenschutz",
+"cartes.titre":"KARTEN",
+"cartes.ici":"Gewählte Karte",
+"cartes.jouer":"Hier spielen",
+"cartes.charge":"Lädt…",
+"cartes.une":"Vorerst nur eine Karte. Weitere folgen.",
 "beta.court":"BETA",
 "beta.chip":"BETA · wir bauen jeden Tag weiter",
 "beta.titre":"Beta-Version",
@@ -5128,6 +5042,14 @@ LANGUES.it={
 "lots.aucun":"Nessun concorso in corso. Allenati: il prossimo sarà annunciato qui.",
 "lots.prochain":"PROSSIMO CONCORSO",
 "lots.wallet":"Per ricevere un premio, inserisci il tuo wallet nel profilo.",
+"lots.dote":"Concorso a premi: lo stesso numero di partite per tutti.",
+"lots.prixJoueur":"Miglior giocatore: {0}",
+"lots.prixRecruteur":"Miglior reclutatore: {0}",
+"lots.prixFidele":"Il più fedele (ha giocato ogni giorno): {0}",
+"lots.cond":"Per vincere un premio:",
+"lots.condAge":"18 anni o più",
+"lots.condWallet":"portafoglio collegato",
+"lots.majeur":"HO 18 ANNI O PIÙ",
 "duree.jours":"{0} g {1} h",
 "duree.heures":"{0} h {1} min",
 "duree.minutes":"{0} min",
@@ -5225,6 +5147,11 @@ LANGUES.it={
 "nes.ouvre":"Si apre in una nuova scheda.",
 "nes.fermer":"CHIUDI",
 "nes.conf":"Privacy",
+"cartes.titre":"MAPPE",
+"cartes.ici":"Mappa scelta",
+"cartes.jouer":"Gioca qui",
+"cartes.charge":"Caricamento…",
+"cartes.une":"Per ora una sola mappa. Altre in arrivo.",
 "beta.court":"BETA",
 "beta.chip":"BETA · lo costruiamo ancora ogni giorno",
 "beta.titre":"Versione beta",
@@ -6279,6 +6206,14 @@ LANGUES.es={
 "lots.aucun":"No hay concurso en curso. Entrénate: el próximo se anunciará aquí.",
 "lots.prochain":"PRÓXIMO CONCURSO",
 "lots.wallet":"Para recibir un premio, añade tu wallet en tu perfil.",
+"lots.dote":"Concurso con premios: el mismo número de partidas para todos.",
+"lots.prixJoueur":"Mejor jugador: {0}",
+"lots.prixRecruteur":"Mejor reclutador: {0}",
+"lots.prixFidele":"El más fiel (jugó todos los días): {0}",
+"lots.cond":"Para ganar un premio:",
+"lots.condAge":"18 años o más",
+"lots.condWallet":"monedero vinculado",
+"lots.majeur":"TENGO 18 AÑOS O MÁS",
 "duree.jours":"{0} d {1} h",
 "duree.heures":"{0} h {1} min",
 "duree.minutes":"{0} min",
@@ -6376,6 +6311,11 @@ LANGUES.es={
 "nes.ouvre":"Se abre en una pestaña nueva.",
 "nes.fermer":"CERRAR",
 "nes.conf":"Privacidad",
+"cartes.titre":"MAPAS",
+"cartes.ici":"Mapa elegido",
+"cartes.jouer":"Jugar aquí",
+"cartes.charge":"Cargando…",
+"cartes.une":"Por ahora un solo mapa. Llegarán más.",
 "beta.court":"BETA",
 "beta.chip":"BETA · lo seguimos construyendo cada día",
 "beta.titre":"Versión beta",
@@ -7430,6 +7370,14 @@ LANGUES.en={
 "lots.aucun":"No contest running. Practice: the next one will be announced here.",
 "lots.prochain":"NEXT CONTEST",
 "lots.wallet":"To receive a prize, add your wallet in your profile.",
+"lots.dote":"Prize contest: the same number of games for everyone.",
+"lots.prixJoueur":"Best player: {0}",
+"lots.prixRecruteur":"Best recruiter: {0}",
+"lots.prixFidele":"Most faithful (played every day): {0}",
+"lots.cond":"To win a prize:",
+"lots.condAge":"18 or older",
+"lots.condWallet":"wallet linked",
+"lots.majeur":"I AM 18 OR OLDER",
 "duree.jours":"{0} d {1} h",
 "duree.heures":"{0} h {1} min",
 "duree.minutes":"{0} min",
@@ -7527,6 +7475,11 @@ LANGUES.en={
 "nes.ouvre":"Opens in a new tab.",
 "nes.fermer":"CLOSE",
 "nes.conf":"Privacy",
+"cartes.titre":"MAPS",
+"cartes.ici":"Selected map",
+"cartes.jouer":"Play here",
+"cartes.charge":"Loading…",
+"cartes.une":"Only one map for now. More are coming.",
 "beta.court":"BETA",
 "beta.chip":"BETA · still being built every day",
 "beta.titre":"Beta version",
@@ -7795,7 +7748,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.16.5-proto';
+var VERSION='0.17.1-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -7881,7 +7834,7 @@ var REF_CLE='dzo.ref';
 /* Page déjà ouverte : le lien du bot ne change alors que le fragment, sans recharger. On recharge pour le traiter. */
 try{window.addEventListener('hashchange',function(){if(/(?:^#|&)t=/.test(location.hash||''))location.reload();});}catch(e){}
 TAB_FORCE=(function(){var c=params.get('tableau');return c&&SIM.I_TABLEAU[c]!==undefined?SIM.I_TABLEAU[c]:-1;})();
-var BOT=params.get('bot')==='1';
+var BOT=false;   /* ?bot=1 n'existe pas dans la page publiée */
 var BOT_BORNES=+(params.get('bornes')||0)|0;   /* 0.11 (tests) : ?bot=1&bornes=3 : le robot parie et tient le rond */
 var C={sol1:'#231A33',sol2:'#33254A',joint:'#3A2A4F',vig:'#0A0612',cyan:'#6FE6FF',vert:'#3DFF8F',or:'#FFD23F',danger:'#FF3B5C',creme:'#F6F1E7',encre:'#0D0914',rouge:'#E3001B'};
 var TEINTES=['#5BD14F','#F2A33A','#9BBF6A','#8DAE74','#7F9A78','#F6F1E7','#2B3154','#8E6BFF','#7C86B8','#EDE7FF','#FF7AB8','#4A3A78','#2A2140','#FFC93C'];
@@ -9525,7 +9478,7 @@ function changerMonde(m){
   OWX=new Float32Array(NOBJ);OWY=new Float32Array(NOBJ);
   for(var o=0;o<NOBJ;o++)bornesObjet(o);
   if(!SPR.dec)construireDecor();
-  if(!TEX)TEX={herbe:texHerbe(PAL.herbe,PAL.herbe2,PAL.herbe3,11),sousbois:texSousBois(),paves:texPaves(),chemin:texChemin(),ballast:texBallast()};
+  if(!TEX)TEX={herbe:texHerbe(PAL.herbe,PAL.herbe2,PAL.herbe3,11),sousbois:texSousBois(),paves:texPaves(),asphalte:texAsphalte(),chemin:texChemin(),ballast:texBallast()};
 }
 /* bornes du sprite autour du centre de l'objet (x0..x1, y0..y1) et ligne de tri (pied du bâtiment) */
 function bornesObjet(o){
@@ -9599,6 +9552,16 @@ function texPaves(){
   }
   for(i=0;i<6;i++)tache9(g,r()*256,r()*256,30+r()*40,'#000000',0.10);
   for(i=0;i<4;i++)tache9(g,r()*256,r()*256,30+r()*40,'#8FA0C0',0.05);
+  return t.c;
+}
+/* bitume (villes sans pavés : Genève) : gris sombre à grain fin, reprises et fissures */
+function texAsphalte(){
+  var t=texToile(),g=t.g,r=SIM.mulberry32(53),i,x,y;
+  g.fillStyle='#3F4149';g.fillRect(0,0,256,256);
+  for(i=0;i<2600;i++){x=r()*256;y=r()*256;g.fillStyle=r()<0.5?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.11)';g.fillRect(x,y,1+r()*1.2,1+r()*1.2);}
+  for(i=0;i<7;i++)tache9(g,r()*256,r()*256,30+r()*50,'#000000',0.07);
+  for(i=0;i<4;i++)tache9(g,r()*256,r()*256,30+r()*40,'#9AA4B8',0.04);
+  g.strokeStyle='rgba(10,10,14,0.22)';g.lineWidth=0.8;for(i=0;i<5;i++){x=r()*256;y=r()*256;g.beginPath();g.moveTo(x,y);g.lineTo(x+10+r()*24,y+(r()-0.5)*14);g.lineTo(x+26+r()*30,y+(r()-0.5)*22);g.stroke();}
   return t.c;
 }
 function texChemin(){
@@ -10381,23 +10344,35 @@ function versEcranY(y){return 320+(y-camY)*zoom;}
 /* 0.16 : balise de l'étape de la tournée : anneau turquoise qui respire et colonne de lumière (position la plus proche sur le tore) */
 /* OBJECTIF DE LA TOURNÉE : un LIEU de la ville, marqué par la bannière fribourgeoise noire et blanche (Dom, 24.11.2026 : les objets
    caquelon, meule et biscôme répétaient les armes et les trésors). Le lieu est nommé par nomLieuObjectif. */
-function drapeauFribourg(g,x,y,e,t){
-  var hm=62*e,lw=40*e,lh=27*e,k,n=8,ax,ay0,ay1,v;
+function drapeauVille(g,x,y,e,t){
+  var B=vlHabit().banniere||{forme:'coupe',couleurs:['#17131C','#F6F1E7']},c1=B.couleurs[0],c2=B.couleurs[1]||B.couleurs[0],f=B.forme||'coupe';
+  var hm=62*e,lw=40*e,lh=27*e,k,n=8,ax,ay0,v,pas=lw/n;
   /* la hampe et sa pomme dorée */
   g.fillStyle='rgba(13,9,20,0.55)';g.fillRect(x-1.6*e-1,y-hm-1,3.2*e+2,hm+2);
   g.fillStyle='#8A6A3A';g.fillRect(x-1.6*e,y-hm,3.2*e,hm);g.fillStyle='#C9A45A';g.fillRect(x-1.6*e,y-hm,1.2*e,hm);
   g.fillStyle='#E8C24A';g.beginPath();g.arc(x,y-hm-2.5*e,3.2*e,0,PI2);g.fill();
-  /* l'étoffe : deux bandes, noire en haut, blanche en bas, qui ondulent */
-  for(k=0;k<n;k++){ax=x+1.6*e+lw*k/n;v=Math.sin(t*5-k*0.9)*2.4*e*(k/n);ay0=y-hm+2*e+v;ay1=ay0+lh;
-    g.fillStyle='#17131C';g.fillRect(ax,ay0,lw/n+0.6,lh/2);
-    g.fillStyle='#F6F1E7';g.fillRect(ax,ay0+lh/2,lw/n+0.6,lh/2);
-    g.fillStyle='rgba(13,9,20,'+(0.10+0.10*Math.cos(t*5-k*0.9)).toFixed(3)+')';g.fillRect(ax,ay0,lw/n+0.6,lh);}
+  /* l'étoffe qui ondule : coupée (haut et bas), partie (gauche et droite) ou unie */
+  for(k=0;k<n;k++){ax=x+1.6*e+lw*k/n;v=Math.sin(t*5-k*0.9)*2.4*e*(k/n);ay0=y-hm+2*e+v;
+    if(f==='coupe'){g.fillStyle=c1;g.fillRect(ax,ay0,pas+0.6,lh/2);g.fillStyle=c2;g.fillRect(ax,ay0+lh/2,pas+0.6,lh/2);}
+    else{g.fillStyle=f==='parti'&&k>=n/2?c2:c1;g.fillRect(ax,ay0,pas+0.6,lh);}
+    /* l'emblème, découpé par bande pour suivre l'ondulation */
+    if(B.embleme==='geneve'){
+      /* Genève : demi-aigle noire sur l'or (à la hampe), clef d'or sur le rouge */
+      if(k===2||k===3){g.fillStyle='#17131C';g.fillRect(ax,ay0+lh*0.22,pas+0.6,lh*0.5);if(k===2){g.fillRect(ax,ay0+lh*0.14,pas*0.6,lh*0.12);g.fillRect(ax,ay0+lh*0.72,pas+0.6,lh*0.1);}else g.fillRect(ax+pas*0.3,ay0+lh*0.1,pas*0.7,lh*0.14);}
+      if(k===5){g.fillStyle='#F2C230';g.fillRect(ax+pas*0.3,ay0+lh*0.3,pas*0.5,lh*0.5);g.fillRect(ax+pas*0.8,ay0+lh*0.62,pas*0.5,lh*0.08);g.fillRect(ax+pas*0.8,ay0+lh*0.72,pas*0.4,lh*0.08);g.beginPath();g.arc(ax+pas*0.55,ay0+lh*0.22,pas*0.55,0,PI2);g.fill();g.fillStyle=c2;g.beginPath();g.arc(ax+pas*0.55,ay0+lh*0.22,pas*0.22,0,PI2);g.fill();}}
+    else if(B.embleme==='grue'){
+      /* Gruyères : la grue blanche (corps, long cou, bec, pattes) */
+      g.fillStyle='#F6F1E7';
+      if(k===3){g.fillRect(ax,ay0+lh*0.42,pas+0.6,lh*0.24);g.fillRect(ax+pas*0.5,ay0+lh*0.66,pas*0.16,lh*0.24);}
+      if(k===4){g.fillRect(ax,ay0+lh*0.40,pas*0.8,lh*0.26);g.fillRect(ax+pas*0.5,ay0+lh*0.14,pas*0.28,lh*0.3);g.fillRect(ax+pas*0.1,ay0+lh*0.66,pas*0.16,lh*0.24);}
+      if(k===5){g.fillRect(ax-pas*0.25,ay0+lh*0.10,pas*0.45,lh*0.14);g.fillRect(ax+pas*0.2,ay0+lh*0.15,pas*0.55,lh*0.06);}}
+    g.fillStyle='rgba(13,9,20,'+(0.10+0.10*Math.cos(t*5-k*0.9)).toFixed(3)+')';g.fillRect(ax,ay0,pas+0.6,lh);}
   g.strokeStyle='rgba(13,9,20,0.8)';g.lineWidth=1;g.beginPath();
   for(k=0;k<=n;k++){ax=x+1.6*e+lw*k/n;v=Math.sin(t*5-Math.min(k,n-1)*0.9)*2.4*e*(Math.min(k,n-1)/n);if(k)g.lineTo(ax,y-hm+2*e+v);else g.moveTo(ax,y-hm+2*e+v);}
   for(k=n;k>=0;k--){ax=x+1.6*e+lw*k/n;v=Math.sin(t*5-Math.min(k,n-1)*0.9)*2.4*e*(Math.min(k,n-1)/n);g.lineTo(ax,y-hm+2*e+v+lh);}
   g.closePath();g.stroke();
 }
-function spriteObjectif(){if(!SPR.drapeau)SPR.drapeau=sprite(64,64,32,32,function(g){drapeauFribourg(g,16,60,0.85,0);},Math.max(RES,2));return SPR.drapeau;}
+function spriteObjectif(){var P=MW&&MW.ville;if(!SPR.drapeau||SPR.drapeauV!==P){SPR.drapeau=sprite(64,64,32,32,function(g){drapeauVille(g,16,60,0.85,0);},Math.max(RES,2));SPR.drapeauV=P;}return SPR.drapeau;}
 /* nom du lieu de l'objectif : l'édifice, le pont ou la fontaine le plus proche à 60 m au plus, sinon la rue la plus proche */
 var tourNomK=-1,tourNom='';
 function nomLieuObjectif(){
@@ -10427,7 +10402,7 @@ function tourBalise(){
   cx.globalAlpha=0.7+0.2*Math.sin(tReel*4);cx.fillStyle=g;cx.fillRect(x-7,y-200,14,130);
   /* la bannière, plantée au milieu */
   cx.globalAlpha=0.35;cx.fillStyle='#0D0914';cx.beginPath();cx.ellipse(x+4,y+3,16,5,0,0,PI2);cx.fill();
-  cx.globalAlpha=1;drapeauFribourg(cx,x,y,1.25,tReel);
+  cx.globalAlpha=1;drapeauVille(cx,x,y,1.25,tReel);
 }
 function bornesSol(){
   var b=S.bo,c=S.ce,R,k,al,dx,dy,dedans;
@@ -11036,7 +11011,7 @@ function installerEntrees(){
     if(NES_OUVERT===ecran&&(ecran==='titre'||ecran==='fin')){if(k==='Escape')fermerNes();return;}
     if(BETA_OUVERT===ecran&&ecran==='titre'){if(k==='Escape')fermerBeta();return;}
     if(ecran==='parties'){if(k==='Escape')allerEcran(PJ.de||'titre');return;}
-    if(ecran==='connexion'||ecran==='profil'||ecran==='niveau'||ecran==='classement'||ecran==='lots'||ecran==='parrainage'){if(k==='Escape'){if(ecran==='niveau'&&NIV.feuille){fermerFeuilleWallet();return;}allerEcran('titre');}return;}
+    if(ecran==='connexion'||ecran==='profil'||ecran==='niveau'||ecran==='classement'||ecran==='lots'||ecran==='villes'||ecran==='parrainage'){if(k==='Escape'){if(ecran==='niveau'&&NIV.feuille){fermerFeuilleWallet();return;}allerEcran('titre');}return;}
     if(REVOIR&&ecran==='jeu'){if(k==='Escape')quitterRevoir();return;}
     if(k==='ArrowUp'||k==='z'||k==='Z'||k==='w'||k==='W')touches.h=bas;
     else if(k==='ArrowDown'||k==='s'||k==='S')touches.b=bas;
@@ -11984,6 +11959,10 @@ var IMG_ECRANS={},ECRAN_IMAGE={classement:'podium',niveau:'niveau',boosts:'nivea
 function imageEcran(nom){var o=IMG_ECRANS[nom];
   if(!o){o=IMG_ECRANS[nom]={im:null,ok:false};try{o.im=new Image();o.im.onload=function(){o.ok=true;};o.im.src='assets/ecrans/'+nom+'.jpg';}catch(e){}}
   return o.ok?o.im:null;}
+var IMG_VILLES={};
+function imageVille(id){var o=IMG_VILLES[id];
+  if(!o){o=IMG_VILLES[id]={im:null,ok:false};try{o.im=new Image();o.im.onload=function(){o.ok=true;};o.im.src='assets/villes/'+id+'.jpg';}catch(e){}}
+  return o.ok?o.im:null;}
 function fondImage(nom,voile,dy,bas){
   var im=imageEcran(nom),h,g;if(!im)return false;
   var l=360,e;colonne();h=360*im.naturalHeight/im.naturalWidth;
@@ -12119,6 +12098,7 @@ function barreNavTitre(nivEnOr){
   var L=[],i,o,w,x,enf,y=594;
   if(!HORS_RANG){
     L.push(['tcl','trophee',T('cl.titre'),function(){allerEcran('classement');},0]);
+    L.push(['tcartes','carte',T('cartes.titre'),function(){allerEcran('villes');},0]);
     L.push([nivEnOr?'tnavniv':'niveau','niveau',T('niv.titre'),function(){allerEcran('niveau');},0]);
     if(!modeServeur()||connecte())L.push(['tprofil','profil',T('profil.titre'),function(){allerEcran('profil');},0]);
     else L.push(['tcnx','profil',T('cnx.bouton'),function(){allerEcran('connexion');},1]);
@@ -12178,6 +12158,11 @@ function icoTitre(q,x,y,r,coul){
     cx.lineWidth=r*0.32;cx.beginPath();cx.arc(0,0,r*0.56,0,PI2);cx.stroke();}
   else if(q==='niveau'){
     cx.beginPath();for(i=0;i<10;i++){var ra=i%2?r*0.44:r,an=-Math.PI/2+i*Math.PI/5;if(i)cx.lineTo(Math.cos(an)*ra,Math.sin(an)*ra);else cx.moveTo(Math.cos(an)*ra,Math.sin(an)*ra);}cx.closePath();cx.fill();}
+  else if(q==='carte'){
+    /* une carte pliée en trois volets, avec une épingle */
+    cx.lineWidth=r*0.2;cx.beginPath();cx.moveTo(-r,-r*0.55);cx.lineTo(-r*0.34,-r*0.85);cx.lineTo(r*0.34,-r*0.55);cx.lineTo(r,-r*0.85);cx.lineTo(r,r*0.6);cx.lineTo(r*0.34,r*0.9);cx.lineTo(-r*0.34,r*0.6);cx.lineTo(-r,r*0.9);cx.closePath();cx.stroke();
+    cx.beginPath();cx.moveTo(-r*0.34,-r*0.85);cx.lineTo(-r*0.34,r*0.6);cx.moveTo(r*0.34,-r*0.55);cx.lineTo(r*0.34,r*0.9);cx.stroke();
+    cx.beginPath();cx.arc(0,-r*0.05,r*0.24,0,PI2);cx.fill();}
   else if(q==='nes'){
     cx.lineWidth=r*0.22;cx.beginPath();cx.arc(0,0,r*0.86,0,PI2);cx.stroke();cx.fillRect(-r*0.5,-r*0.15,r,r*0.3);cx.fillRect(-r*0.15,-r*0.5,r*0.3,r);}
   else if(q==='horloge'){
@@ -12552,10 +12537,13 @@ function villeSuivante(){var l=villesJouables(),cur=villeAnnonce(),i,k=-1;if(l.l
 function majPastilleVille(){
   var p=VIL.pastille,l,cur;
   if(!p){try{p=VIL.pastille=document.createElement('div');p.id='villePastille';
-    p.setAttribute('style','position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);transform:translateX(-50%);z-index:2147483000;cursor:pointer;background:rgba(13,9,20,.88);color:#f6f1e7;border:1px solid rgba(246,241,231,.35);font:700 13px/1 system-ui,sans-serif;padding:9px 16px;border-radius:999px;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation;display:none');
+    p.setAttribute('style','position:fixed;left:0;top:0;transform:translateX(-100%);z-index:2147483000;cursor:pointer;background:rgba(13,9,20,.88);color:#f6f1e7;border:1px solid rgba(246,241,231,.35);font:700 13px/1 system-ui,sans-serif;padding:9px 16px;border-radius:999px;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation;display:none');
     p.addEventListener('pointerdown',function(e){e.preventDefault();e.stopPropagation();villeSuivante();});document.body.appendChild(p);}catch(e){VIL.pastille=null;return;}}
   l=villesJouables();cur=villeAnnonce();
-  if(ecran!=='titre'||l.length<2||sous){p.style.display='none';return;}
+  if(true){p.style.display='none';return;}   /* remplacée par le bouton CARTES de la barre du bas */
+  /* en haut à droite de la colonne, sous la roue des réglages (25.11.2026 : en bas au centre, elle était sous le bandeau de QA
+     et sur la barre de navigation) ; placée dans le repère de la page à partir du repère du jeu */
+  p.style.left=((352+OX/K)*ECH)+'px';p.style.top=((SAFE_H+48+OY/K)*ECH)+'px';
   p.textContent=VIL.enVol?T('ville.charge','…'):T('ville.pastille',cur?nomVilleJeu(cur.id):'—')+' ▸';
   p.style.display='block';
 }
@@ -14390,6 +14378,34 @@ function rendreSigner(){
 }
 
 /* ---- 0.8 : écran du concours (lots, dates, vies, mode de classement) ---- */
+/* ATTENTION au nom : « rendreCartes » et sous==='cartes' sont le CHOIX DES BONUS en partie (cartes à jouer). Cet écran-ci
+   s'appelle rendreEcranVilles et ecran==='villes' : le 25.11.2026 il avait pris le nom rendreCartes et remplacé le choix des bonus. */
+/* ÉCRAN « CARTES » (Dom, 25.11.2026) : une vignette par carte jouable ; toucher une carte la choisit et ramène au titre.
+   La carte en cours est encadrée d'or. Les vignettes sont des images (assets/villes/<id>.jpg) ; sans image : un cartouche. */
+function rendreEcranVilles(){
+  fondMenu();entete(T('cartes.titre'));
+  var l=villesJouables(),cur=villeAnnonce(),i,v,y=SAFE_H+50,h,im,ici,enf,ih,sy,nom;
+  if(l.length<2){l=cur?[{id:cur.id}]:[];}
+  h=Math.min(160,Math.floor((586-y)/Math.max(1,l.length))-10);
+  for(i=0;i<l.length;i++){(function(v,yc){
+    ici=!!(cur&&cur.id===v.id);im=imageVille(v.id);nom=nomVilleJeu(v.id);
+    enf=zone('carte:'+v.id,16,yc,328,h,function(){if(VIL.enVol)return;if(cur&&cur.id===v.id){allerEcran('titre');return;}if(choisirVille(v.id))allerEcran('titre');});
+    cx.save();cx.beginPath();rrect(cx,16,yc,328,h,14);cx.clip();
+    cx.fillStyle='#1A1228';cx.fillRect(16,yc,328,h);
+    if(im){ih=328*im.naturalHeight/im.naturalWidth;sy=ih>h?(ih-h)/2:0;cx.drawImage(im,16,yc-sy,328,Math.max(ih,h));}
+    var gr=cx.createLinearGradient(0,yc+h-58,0,yc+h);gr.addColorStop(0,'rgba(13,9,20,0)');gr.addColorStop(1,'rgba(13,9,20,0.92)');cx.fillStyle=gr;cx.fillRect(16,yc+h-58,328,58);
+    if(enf){cx.fillStyle='rgba(255,255,255,0.10)';cx.fillRect(16,yc,328,h);}
+    cx.restore();
+    cx.strokeStyle=ici?C.or:'rgba(111,230,255,0.55)';cx.lineWidth=ici?3:1.5;cx.beginPath();rrect(cx,16,yc,328,h,14);cx.stroke();
+    ttFit(nom.toUpperCase(),30,yc+h-20,20,200,C.creme,'left',0,true);
+    ttFit(ici?'✓ '+T('cartes.ici'):(VIL.enVol?T('cartes.charge'):T('cartes.jouer')+' ▸'),330,yc+h-19,12.5,130,ici?C.or:C.cyan,'right',2,true);
+  })(l[i],y+i*(h+10));}
+  if(l.length<2)ttFit(T('cartes.une'),180,y+h+26,12,320,'rgba(246,241,231,0.8)','center',2,true);
+}
+function declarerMajeur(){
+  if(NET.majEnVol||!connecte())return;NET.majEnVol=true;
+  apiAppel('POST','/api/majeur',{confirme:true}).then(function(r){NET.majEnVol=false;if(r.statut===200&&r.json&&r.json.joueur){NET.joueur=r.json.joueur;garderSession();}},function(){NET.majEnVol=false;});
+}
 function rendreLots(){
   fondMenu();entete(T('lots.titre'));
   var y=SAFE_H+50,t=maintenantSrv(),c=enConcours()?NET.concours:null,p=NET.prochainConcours,k=c||p,i,L,n,ys;
@@ -14397,7 +14413,8 @@ function rendreLots(){
   surveillerConcours();
   if(!c){n=para(T('lots.aucun'),180,y+12,310,13,C.creme,'center',2,17,true);y+=n*17+12;
     if(!p)return;tt(T('lots.prochain'),180,y+6,14,C.cyan,'center',0);y+=22;}
-  var bas=c?584:588;
+  /* concours doté (46.121) : bouton « J'ai 18 ans ou plus », montré seulement ici et tant que ce n'est pas déclaré */
+  var demAge=!!(k.dote&&connecte()&&!NET.joueur.majeur),bas=(c?584:588)-(demAge?44:0);
   panneau(12,y,336,bas-y,14,'rgba(38,27,54,0.95)','rgba(20,13,32,0.95)','rgba(255,210,63,0.55)',1.5);
   ttFit(k.nom,180,y+22,20,310,C.or,'center',0,true);
   ttFit(T('lots.periode',dateHeureLocale(k.debut),dateHeureLocale(k.fin)),180,y+46,11.5,310,C.creme,'center',2,false);
@@ -14407,15 +14424,21 @@ function rendreLots(){
   cx.save();cx.beginPath();cx.rect(14,y+80,332,bas-y-82);cx.clip();
   tt(T('lots.lots'),180,ys,14,C.or,'center',0);ys+=20;
   var txt=String(k.lots||'').split('\n'),liste=k.lotsListe||[];
-  if(!String(k.lots||'').trim()&&!liste.length){ttFit(T('lots.aucunLot'),180,ys,12,300,C.creme,'center',2,false);ys+=18;}
+  var px=k.dote&&k.prix&&typeof k.prix==='object'?k.prix:{},aPx=!!(px.joueur||px.recruteur||px.fidele);
+  if(!String(k.lots||'').trim()&&!liste.length&&!aPx){ttFit(T('lots.aucunLot'),180,ys,12,300,C.creme,'center',2,false);ys+=18;}
   for(i=0;i<txt.length;i++){if(!txt[i].trim()){ys+=8;continue;}n=para(txt[i],180,ys,300,12.5,C.creme,'center',2,16,false);ys+=n*16;}
   if(liste.length&&String(k.lots||'').trim())ys+=6;
   for(i=0;i<liste.length;i++){L=liste[i];ttFit(T('lots.rang',L.de===L.a?''+L.de:L.de+'–'+L.a,L.lot),180,ys,12.5,300,L.de===1?C.or:C.creme,'center',1,false);ys+=17;}
+  if(aPx){ys+=4;[['joueur','lots.prixJoueur'],['recruteur','lots.prixRecruteur'],['fidele','lots.prixFidele']].forEach(function(e){if(px[e[0]]){n=para(T(e[1],String(px[e[0]])),180,ys,300,12.5,C.or,'center',2,16,false);ys+=n*16;}});}
   ys+=6;cx.fillStyle='rgba(246,241,231,0.14)';cx.fillRect(32,ys,296,1);ys+=16;
   n=para(T('lots.vies',k.essaisBase,k.boostsMax?k.boostsMax.total:0),180,ys,300,11.5,C.cyan,'center',2,15,false);ys+=n*15+4;
   n=para(T(k.modeClassement==='meilleur'?'lots.modeMeilleur':'lots.modeCumul'),180,ys,300,11,'rgba(246,241,231,0.8)','center',2,14,false);ys+=n*14+4;
-  if(connecte()&&!NET.joueur.wallet)para(T('lots.wallet'),180,ys,300,11,C.or,'center',2,14,false);
+  if(k.dote){n=para(T('lots.dote'),180,ys,300,11.5,C.or,'center',2,15,false);ys+=n*15+4;
+    if(connecte()){var okA=!!NET.joueur.majeur,okW=!!NET.joueur.walletSigne;
+      ttFit(T('lots.cond')+'  '+(okA?'✓ ':'✗ ')+T('lots.condAge')+'   '+(okW?'✓ ':'✗ ')+T('lots.condWallet'),180,ys,11.5,310,okA&&okW?C.vert:C.creme,'center',2,false);}}
+  else if(connecte()&&!NET.joueur.wallet)para(T('lots.wallet'),180,ys,300,11,C.or,'center',2,14,false);
   cx.restore();
+  if(demAge)bouton('lotsAge',52,bas+6,256,34,T('lots.majeur'),3,declarerMajeur,null,14);
   if(c)bouton('lotsCl',96,594,256,36,T('lots.voirCl'),3,function(){NET.cl.periode='concours';allerEcran('classement');},null,15);
 }
 
@@ -14733,7 +14756,7 @@ function hymneDebloquer(){
 function hymneVoulu(){
   if(!HY.debloque||!SAUV.son)return'';
   try{if(document.hidden)return'';}catch(e){}
-  if(ecran==='entree'||ecran==='titre'||ecran==='connexion'||ecran==='profil'||ecran==='niveau'||ecran==='classement'||ecran==='lots'||ecran==='parrainage')return tDepart>=0?'':'titre';
+  if(ecran==='entree'||ecran==='titre'||ecran==='connexion'||ecran==='profil'||ecran==='niveau'||ecran==='classement'||ecran==='lots'||ecran==='villes'||ecran==='parrainage')return tDepart>=0?'':'titre';
   if(ecran==='fin'&&!REVOIR&&S)return S.victoire?'victoire':'fin';
   return'';
 }
@@ -14976,6 +14999,7 @@ function rendreEcran(dt){
   if(ecran==='parties'){rendreParties();rendreMarges();return;}
   if(ecran==='classement'){rendreClassement();rendreMarges();return;}
   if(ecran==='lots'){rendreLots();rendreMarges();return;}
+  if(ecran==='villes'){rendreEcranVilles();rendreMarges();return;}
   if(ecran==='parrainage'){rendreParrainage();rendreMarges();return;}
   nBT=0;
   rendreMonde(sous==='pause'?0:(sous==='niveau'?dt*0.35:dt));
@@ -15026,7 +15050,7 @@ window.__dzo={
   },
   demarrer:function(graine){lancer(false,graine===undefined?undefined:graine>>>0);return window.__dzo.etat();},
   /* villes : état du choix, et choix direct pour les essais */
-  villes:function(){var c=villeAnnonce();return{courante:c||null,chargee:VIL.id,enVol:VIL.enVol,jouables:villesJouables().map(function(v){return v.id;}),pastille:!!(VIL.pastille&&VIL.pastille.style.display!=='none'),texte:VIL.pastille?VIL.pastille.textContent:'',lm:S&&S.M?S.M.lm:(MW?MW.lm:0)};},
+  villes:function(){var c=villeAnnonce();return{courante:c||null,chargee:VIL.id,enVol:VIL.enVol,jouables:villesJouables().map(function(v){return v.id;}),pastille:false,texte:c?nomVilleJeu(c.id):'',lm:S&&S.M?S.M.lm:(MW?MW.lm:0)};},
   choisirVille:function(id){return choisirVille(id);},
   /* 0.7 : état du réseau, écrans, cartes de partage */
   reseau:function(){return{actif:NET.actif,etat:NET.etat,connecte:connecte(),mode:NET.mode,joueur:NET.joueur,jour:NET.jour,
@@ -15116,7 +15140,7 @@ function szPalRendre(o){for(var k in o)PAL[k]=o[k];}
 function szTex(sz){
   if(SZ_TEX[sz])return SZ_TEX[sz];
   var p=SZ_PAL[sz],o=szPalPoser(sz),T,g,r=SIM.mulberry32(700+sz),i,x,y;
-  T={herbe:texHerbe(p.herbe[0],p.herbe[1],p.herbe[2],11),sousbois:texSousBois(),paves:texPaves(),chemin:texChemin(),ballast:texBallast()};
+  T={herbe:texHerbe(p.herbe[0],p.herbe[1],p.herbe[2],11),sousbois:texSousBois(),paves:texPaves(),asphalte:texAsphalte(),chemin:texChemin(),ballast:texBallast()};
   szPalRendre(o);
   if(sz===0){ /* printemps : pâquerettes et pissenlits dans l'herbe */
     g=T.herbe.getContext('2d');
@@ -15398,12 +15422,18 @@ function vlD(){
 function vlTrace(g,p,u0,v0){g.beginPath();g.moveTo(p[0]-u0,p[1]-v0);for(var k=2;k<p.length;k+=2)g.lineTo(p[k]-u0,p[k+1]-v0);}
 function vlMotif(g,tex){var m=g.createPattern(tex,'repeat');try{if(TRES!==1&&m.setTransform)m.setTransform(new DOMMatrix().scale(1/TRES,1/TRES));}catch(e){}return m;}
 function vlDans(p,x,y){var c=false,i,j,n=p.length;for(i=0,j=n-2;i<n;j=i,i+=2){if(((p[i+1]>y)!==(p[j+1]>y))&&(x<(p[j]-p[i])*(y-p[i+1])/(p[j+1]-p[i+1])+p[i]))c=!c;}return c;}
+/* HABIT DE LA VILLE (paquet, decor.habit ; absent : celui de Fribourg). Affichage seul.
+     sol      : 'paves' (défaut), 'asphalte' (ville moderne : Genève), 'pre' (bourg dans les prés : les rues sont pavées, le reste est de l'herbe)
+     banniere : { forme : 'coupe' (deux bandes, haut et bas) | 'parti' (gauche et droite) | 'uni', couleurs : [c1, c2], embleme : 'geneve' | 'grue' } */
+function vlHabit(){var P=MW&&MW.ville;return(P&&P.decor&&P.decor.habit)||{};}
+function vlSolTex(){var q=vlHabit().sol;return q==='asphalte'?TEX.asphalte:(q==='pre'?TEX.herbe:TEX.paves);}
 function vlChunk(ci,cj){
 
   var F=vlD(),c=toile(CHK*TRES,CHK*TRES),g=c.getContext('2d'),u0=ci*CHK,v0=cj*CHK,u1=u0+CHK,v1=v0+CHK,i,o,k,hiver=SZ_PAL&&PAL.herbe===SZ_PAL[3].herbe[0];
   function touche(b,m){return b[2]>u0-m&&b[0]<u1+m&&b[3]>v0-m&&b[1]<v1+m;}
   g.scale(TRES,TRES);
-  g.fillStyle=vlMotif(g,TEX.paves);g.fillRect(0,0,CHK,CHK);
+  var solQ=vlHabit().sol;
+  g.fillStyle=vlMotif(g,vlSolTex());g.fillRect(0,0,CHK,CHK);
   for(i=0;i<F.vert.length;i++){o=F.vert[i];if(!touche(o.bb,2))continue;vlTrace(g,o.p,u0,v0);g.closePath();g.fillStyle=vlMotif(g,o.t?TEX.sousbois:TEX.herbe);g.fill();}
   /* ruelles, impasses et cours fermées (rien n'y passe) : un jardin clos, avec du VOLUME (Dom, 24.11.2026 : dessinées à plat,
      on les prenait pour du sol et on essayait d'y entrer). Une haie taillée épaisse derrière un muret de pierre : le mur du sud
@@ -15430,6 +15460,10 @@ function vlChunk(ci,cj){
     g.fillStyle='rgba(8,6,16,0.28)';g.fillRect(px-0.5,py+8,9,3);g.fillStyle='#7C7466';g.fillRect(px-0.5,py+1,9,7.5);
     g.fillStyle='rgba(20,14,24,0.30)';g.fillRect(px+((qi+hx0)%2?1:5),py+3,0.9,4);g.fillStyle='#CFC6B2';g.fillRect(px-0.5,py-1.5,9,3);}
   g.lineCap='round';g.lineJoin='round';
+  /* bourg dans les prés : les rues sont de vrais rubans de pavés posés sur l'herbe (liseré sombre, puis les pavés) */
+  if(solQ==='pre'){for(k=0;k<2;k++)for(i=0;i<F.rues.length;i++){o=F.rues[i];if(o.pont||o.t>=2||!touche(o.bb,F.demi[o.t]+12))continue;vlTrace(g,o.p,u0,v0);
+      if(k===0){g.strokeStyle='rgba(20,16,26,0.55)';g.lineWidth=2*F.demi[o.t]+2;}else{g.strokeStyle=vlMotif(g,TEX.paves);g.lineWidth=2*F.demi[o.t]-6;}
+      g.stroke();}}
   /* chaussées (à peine plus claires) et sentiers */
   for(i=0;i<F.rues.length;i++){o=F.rues[i];if(o.pont||!touche(o.bb,30))continue;vlTrace(g,o.p,u0,v0);
     if(o.t>=2){g.strokeStyle=PAL.chemin;g.globalAlpha=0.30;g.lineWidth=o.t===3?22:18;}else{g.strokeStyle='#9A9CB4';g.globalAlpha=0.06;g.lineWidth=84;}
@@ -15444,7 +15478,7 @@ function vlChunk(ci,cj){
   g.lineCap='butt';
   for(i=0;i<F.rues.length;i++){o=F.rues[i];if(!o.pont||!touche(o.bb,50))continue;var lw=2*F.demi[o.t]+16;
     vlTrace(g,o.p,u0,v0);g.strokeStyle='rgba(8,6,16,0.35)';g.lineWidth=lw+10;g.stroke();
-    g.strokeStyle='#3A3540';g.lineWidth=lw+2;g.stroke();g.strokeStyle=PAL.molasse[2];g.lineWidth=lw;g.stroke();g.strokeStyle='#3A3540';g.lineWidth=lw-9;g.stroke();g.strokeStyle=vlMotif(g,TEX.paves);g.lineWidth=lw-11;g.stroke();}
+    g.strokeStyle='#3A3540';g.lineWidth=lw+2;g.stroke();g.strokeStyle=PAL.molasse[2];g.lineWidth=lw;g.stroke();g.strokeStyle='#3A3540';g.lineWidth=lw-9;g.stroke();g.strokeStyle=vlMotif(g,solQ==='asphalte'?TEX.asphalte:TEX.paves);g.lineWidth=lw-11;g.stroke();}
   g.lineCap='round';
   /* remparts */
   for(i=0;i<F.rempart.length;i++){if(!touche(F.rempB[i],16))continue;vlTrace(g,F.rempart[i],u0,v0);g.strokeStyle='#2A2630';g.lineWidth=17;g.stroke();g.strokeStyle=PAL.molasse[0];g.lineWidth=12;g.stroke();
@@ -15706,8 +15740,52 @@ function vlEscarbille(px,py,g2){
   var h=hash2(g2,23),ph=(tReel*(0.5+(h&7)*0.06)+(h>>>3&127)/128)%1;
   cx.globalAlpha=(1-ph)*0.9;cx.fillStyle=ph<0.5?'#FFE9A8':'#FF9A3C';cx.fillRect(px+Math.sin(tReel*3+(h>>>10&31))*9+ph*10,py-10-ph*(70+(h>>>15&31)),1.6,1.6);
 }
+/* DÉTAILS DU LIEU (paquet, decor.details : [[sorte, u, v], …], coordonnées de carte ; affichage seul, rien ne bloque).
+     'jet'    : le jet d'eau de Genève (panache blanc, embruns poussés par la bise) ;
+     'bateau' : une mouette genevoise (petit bateau jaune) qui va et vient sur la rade ;
+     'vache'  : une vache fribourgeoise tachetée qui broute dans le pré. */
+function vlDetails(vw,vh){
+  var D=MW.ville&&MW.ville.decor&&MW.ville.decor.details,i,o,x,y,t=tReel,k,a,b,g,h;
+  if(!D)return;
+  for(i=0;i<D.length;i++){o=D[i];x=wxU(o[1]);y=wyV(o[2]);
+    if(x<camX-vw-260||x>camX+vw+260||y<camY-vh-120||y>camY+vh+520)continue;
+    if(o[0]==='jet'){
+      h=430;k=1+0.03*Math.sin(t*3.1);
+      /* la digue du pied, les embruns au sol, le panache qui s'évase et retombe sous le vent */
+      cx.fillStyle='rgba(13,9,20,0.35)';cx.beginPath();cx.ellipse(x,y+3,20,7,0,0,PI2);cx.fill();
+      cx.fillStyle='#8C8A84';cx.beginPath();cx.ellipse(x,y,14,5,0,0,PI2);cx.fill();
+      g=cx.createLinearGradient(0,y-h,0,y);g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(0.12,'rgba(255,255,255,0.78)');g.addColorStop(1,'rgba(255,255,255,0.96)');
+      cx.fillStyle=g;cx.beginPath();cx.moveTo(x-3,y);cx.quadraticCurveTo(x-5*k,y-h*0.5,x-13*k,y-h);cx.lineTo(x+20*k,y-h*0.97);cx.quadraticCurveTo(x+7*k,y-h*0.5,x+3,y);cx.closePath();cx.fill();
+      for(a=0;a<9;a++){b=((t*0.42+a/9)%1);cx.globalAlpha=0.34*(1-b);cx.fillStyle='#FFFFFF';cx.beginPath();cx.ellipse(x+16+b*120,y-h*(0.94-b*0.86),10+b*34,7+b*20,0,0,PI2);cx.fill();}
+      cx.globalAlpha=0.55;cx.fillStyle='#EAF6FF';cx.beginPath();cx.ellipse(x,y-2,26+3*Math.sin(t*5),8,0,0,PI2);cx.fill();cx.globalAlpha=1;
+    }else if(o[0]==='bateau'){
+      a=Math.sin(t*0.16+i*1.7);b=Math.cos(t*0.16+i*1.7)>=0?1:-1;x+=a*90;y+=Math.sin(t*1.3+i)*1.6;
+      cx.save();cx.translate(x,y);cx.scale(b,1);
+      cx.fillStyle='rgba(190,235,255,0.35)';cx.beginPath();cx.ellipse(-26,5,16,3,0,0,PI2);cx.fill();
+      cx.fillStyle='#1E2430';cx.beginPath();cx.moveTo(-22,2);cx.lineTo(24,2);cx.lineTo(17,9);cx.lineTo(-19,9);cx.closePath();cx.fill();
+      cx.fillStyle='#F2C230';cx.beginPath();cx.moveTo(-23,-3);cx.lineTo(27,-3);cx.lineTo(23,3);cx.lineTo(-22,3);cx.closePath();cx.fill();
+      cx.fillStyle='#F6F1E7';cx.fillRect(-13,-12,24,9);cx.fillStyle='#5AA7D6';for(k=0;k<4;k++)cx.fillRect(-11+k*6,-10,4,4);
+      cx.fillStyle='#D8232A';cx.fillRect(-12,-14,26,2.4);cx.fillRect(15,-17,1.4,14);cx.fillRect(16.4,-17,6,4);
+      cx.restore();
+    }else if(o[0]==='vache'){
+      b=(i%2)?-1:1;k=(Math.sin(t*0.55+i*2.3)>0.25)?1:0;   /* k : la tête baissée, elle broute */
+      cx.save();cx.translate(x,y);cx.scale(b,1);
+      cx.fillStyle='rgba(13,9,20,0.3)';cx.beginPath();cx.ellipse(0,9,17,4,0,0,PI2);cx.fill();
+      cx.fillStyle='#2A2226';cx.fillRect(-11,2,3,8);cx.fillRect(-5,2,3,8);cx.fillRect(5,2,3,8);cx.fillRect(10,2,3,8);
+      cx.fillStyle='#F6F1E7';cx.beginPath();cx.ellipse(0,-2,15,8.5,0,0,PI2);cx.fill();
+      cx.fillStyle='#2A2226';cx.beginPath();cx.ellipse(-6,-4,5,4,0.4,0,PI2);cx.fill();cx.beginPath();cx.ellipse(6,0,4.5,3.4,-0.3,0,PI2);cx.fill();
+      cx.fillStyle='#F6F1E7';cx.beginPath();cx.ellipse(16,k?5:-6,5.2,4.2,k?0.9:0.2,0,PI2);cx.fill();
+      cx.fillStyle='#E9A9A0';cx.beginPath();cx.ellipse(18.5,k?8:-4.4,2.6,2,0,0,PI2);cx.fill();
+      cx.fillStyle='#2A2226';cx.fillRect(13.5,k?1.5:-10.5,1.6,2.6);cx.fillRect(16.6,k?1.5:-10.5,1.6,2.6);cx.fillRect(15,k?4:-7,1.3,1.3);
+      cx.fillStyle='#E8C24A';cx.beginPath();cx.arc(12,k?4:1,2,0,PI2);cx.fill();
+      cx.strokeStyle='#2A2226';cx.lineWidth=1.3;cx.beginPath();cx.moveTo(-14,-4);cx.quadraticCurveTo(-20,-2+Math.sin(t*3+i)*2,-18,5);cx.stroke();
+      cx.restore();
+    }
+  }
+}
 function vlSolDecor(vw,vh){
   var F=vlD(),i,o,x,y,c,k,q,sens,PAS=15,gr,pul=0.82+0.18*Math.sin(tReel*7.3)*Math.sin(tReel*3.1);
+  vlDetails(vw,vh);
   for(i=0;i<MW.fobj.length;i++){o=MW.fobj[i];x=wxU(MW.ox[o]);y=wyV(MW.oy[o]);if(x<camX-vw-70||x>camX+vw+70||y<camY-vh-70||y>camY+vh+70)continue;
     c=S.fon[i]/MOND.FONT_MAX;k=(x-RPX)*(x-RPX)+(y-RPY)*(y-RPY)<MOND.FONT_RAYON*MOND.FONT_RAYON;
     cx.lineWidth=3;cx.strokeStyle='rgba(13,9,20,0.35)';cx.beginPath();cx.ellipse(x,y+2,MOND.FONT_RAYON*0.8,MOND.FONT_RAYON*0.42,0,0,PI2);cx.stroke();
@@ -15748,7 +15826,7 @@ function vlCarteBoite(g){var F=vlD(),T=g?344:VL_CT,H=T*(F.by1-F.by0)/(F.bx1-F.bx
 function vlCarteCuire(){
   var F=vlD(),T=2000,k=T/(F.bx1-F.bx0),c=toile(T,(F.by1-F.by0)*k),g=c.getContext('2d'),i,o;   /* 2 000 px : la grande carte se regarde jusqu'à ×4 */
   g.scale(k,k);g.translate(-F.bx0,-F.by0);
-  g.fillStyle='#2B2C38';g.fillRect(F.bx0,F.by0,F.bx1-F.bx0,F.by1-F.by0);
+  g.fillStyle=vlHabit().sol==='pre'?'#2F5237':'#2B2C38';g.fillRect(F.bx0,F.by0,F.bx1-F.bx0,F.by1-F.by0);
   for(i=0;i<F.vert.length;i++){o=F.vert[i];vlTrace(g,o.p,0,0);g.closePath();g.fillStyle=o.t?'#27462F':'#3B6A45';g.fill();}
   for(i=0;i<F.eauP.length;i++){vlTrace(g,F.eauP[i],0,0);g.closePath();g.fillStyle='#2F7FA6';g.fill();}
   for(i=0;i<F.ileP.length;i++){vlTrace(g,F.ileP[i],0,0);g.closePath();g.fillStyle='#3B6A45';g.fill();}
