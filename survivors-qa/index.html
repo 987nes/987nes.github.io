@@ -2714,6 +2714,14 @@ LANGUES.fr={
 "lots.aucun":"Pas de concours en cours. Entraîne-toi : le prochain sera annoncé ici.",
 "lots.prochain":"PROCHAIN CONCOURS",
 "lots.wallet":"Pour recevoir un lot, renseigne ton wallet dans ton profil.",
+"lots.dote":"Concours doté : le même nombre de parties pour tous.",
+"lots.prixJoueur":"Meilleur joueur : {0}",
+"lots.prixRecruteur":"Meilleur recruteur : {0}",
+"lots.prixFidele":"Le plus fidèle (a joué chaque jour) : {0}",
+"lots.cond":"Pour gagner un prix :",
+"lots.condAge":"18 ans ou plus",
+"lots.condWallet":"portefeuille relié",
+"lots.majeur":"J'AI 18 ANS OU PLUS",
 "duree.jours":"{0} j {1} h",
 "duree.heures":"{0} h {1} min",
 "duree.minutes":"{0} min",
@@ -3870,6 +3878,14 @@ LANGUES.de={
 "lots.aucun":"Gerade kein Wettbewerb. Trainiere: der nächste wird hier angekündigt.",
 "lots.prochain":"NÄCHSTER WETTBEWERB",
 "lots.wallet":"Um einen Preis zu erhalten, trage deine Wallet in deinem Profil ein.",
+"lots.dote":"Wettbewerb mit Preisen: gleich viele Partien für alle.",
+"lots.prixJoueur":"Bester Spieler: {0}",
+"lots.prixRecruteur":"Bester Werber: {0}",
+"lots.prixFidele":"Der Treueste (jeden Tag gespielt): {0}",
+"lots.cond":"Um einen Preis zu gewinnen:",
+"lots.condAge":"18 Jahre oder älter",
+"lots.condWallet":"Wallet verbunden",
+"lots.majeur":"ICH BIN 18 ODER ÄLTER",
 "duree.jours":"{0} T. {1} Std.",
 "duree.heures":"{0} Std. {1} Min.",
 "duree.minutes":"{0} Min.",
@@ -5026,6 +5042,14 @@ LANGUES.it={
 "lots.aucun":"Nessun concorso in corso. Allenati: il prossimo sarà annunciato qui.",
 "lots.prochain":"PROSSIMO CONCORSO",
 "lots.wallet":"Per ricevere un premio, inserisci il tuo wallet nel profilo.",
+"lots.dote":"Concorso a premi: lo stesso numero di partite per tutti.",
+"lots.prixJoueur":"Miglior giocatore: {0}",
+"lots.prixRecruteur":"Miglior reclutatore: {0}",
+"lots.prixFidele":"Il più fedele (ha giocato ogni giorno): {0}",
+"lots.cond":"Per vincere un premio:",
+"lots.condAge":"18 anni o più",
+"lots.condWallet":"portafoglio collegato",
+"lots.majeur":"HO 18 ANNI O PIÙ",
 "duree.jours":"{0} g {1} h",
 "duree.heures":"{0} h {1} min",
 "duree.minutes":"{0} min",
@@ -6182,6 +6206,14 @@ LANGUES.es={
 "lots.aucun":"No hay concurso en curso. Entrénate: el próximo se anunciará aquí.",
 "lots.prochain":"PRÓXIMO CONCURSO",
 "lots.wallet":"Para recibir un premio, añade tu wallet en tu perfil.",
+"lots.dote":"Concurso con premios: el mismo número de partidas para todos.",
+"lots.prixJoueur":"Mejor jugador: {0}",
+"lots.prixRecruteur":"Mejor reclutador: {0}",
+"lots.prixFidele":"El más fiel (jugó todos los días): {0}",
+"lots.cond":"Para ganar un premio:",
+"lots.condAge":"18 años o más",
+"lots.condWallet":"monedero vinculado",
+"lots.majeur":"TENGO 18 AÑOS O MÁS",
 "duree.jours":"{0} d {1} h",
 "duree.heures":"{0} h {1} min",
 "duree.minutes":"{0} min",
@@ -7338,6 +7370,14 @@ LANGUES.en={
 "lots.aucun":"No contest running. Practice: the next one will be announced here.",
 "lots.prochain":"NEXT CONTEST",
 "lots.wallet":"To receive a prize, add your wallet in your profile.",
+"lots.dote":"Prize contest: the same number of games for everyone.",
+"lots.prixJoueur":"Best player: {0}",
+"lots.prixRecruteur":"Best recruiter: {0}",
+"lots.prixFidele":"Most faithful (played every day): {0}",
+"lots.cond":"To win a prize:",
+"lots.condAge":"18 or older",
+"lots.condWallet":"wallet linked",
+"lots.majeur":"I AM 18 OR OLDER",
 "duree.jours":"{0} d {1} h",
 "duree.heures":"{0} h {1} min",
 "duree.minutes":"{0} min",
@@ -7708,7 +7748,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.17.0-qa6';
+var VERSION='0.17.0-qa7';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -14362,6 +14402,10 @@ function rendreEcranVilles(){
   })(l[i],y+i*(h+10));}
   if(l.length<2)ttFit(T('cartes.une'),180,y+h+26,12,320,'rgba(246,241,231,0.8)','center',2,true);
 }
+function declarerMajeur(){
+  if(NET.majEnVol||!connecte())return;NET.majEnVol=true;
+  apiAppel('POST','/api/majeur',{confirme:true}).then(function(r){NET.majEnVol=false;if(r.statut===200&&r.json&&r.json.joueur){NET.joueur=r.json.joueur;garderSession();}},function(){NET.majEnVol=false;});
+}
 function rendreLots(){
   fondMenu();entete(T('lots.titre'));
   var y=SAFE_H+50,t=maintenantSrv(),c=enConcours()?NET.concours:null,p=NET.prochainConcours,k=c||p,i,L,n,ys;
@@ -14369,7 +14413,8 @@ function rendreLots(){
   surveillerConcours();
   if(!c){n=para(T('lots.aucun'),180,y+12,310,13,C.creme,'center',2,17,true);y+=n*17+12;
     if(!p)return;tt(T('lots.prochain'),180,y+6,14,C.cyan,'center',0);y+=22;}
-  var bas=c?584:588;
+  /* concours doté (46.121) : bouton « J'ai 18 ans ou plus », montré seulement ici et tant que ce n'est pas déclaré */
+  var demAge=!!(k.dote&&connecte()&&!NET.joueur.majeur),bas=(c?584:588)-(demAge?44:0);
   panneau(12,y,336,bas-y,14,'rgba(38,27,54,0.95)','rgba(20,13,32,0.95)','rgba(255,210,63,0.55)',1.5);
   ttFit(k.nom,180,y+22,20,310,C.or,'center',0,true);
   ttFit(T('lots.periode',dateHeureLocale(k.debut),dateHeureLocale(k.fin)),180,y+46,11.5,310,C.creme,'center',2,false);
@@ -14379,15 +14424,21 @@ function rendreLots(){
   cx.save();cx.beginPath();cx.rect(14,y+80,332,bas-y-82);cx.clip();
   tt(T('lots.lots'),180,ys,14,C.or,'center',0);ys+=20;
   var txt=String(k.lots||'').split('\n'),liste=k.lotsListe||[];
-  if(!String(k.lots||'').trim()&&!liste.length){ttFit(T('lots.aucunLot'),180,ys,12,300,C.creme,'center',2,false);ys+=18;}
+  var px=k.dote&&k.prix&&typeof k.prix==='object'?k.prix:{},aPx=!!(px.joueur||px.recruteur||px.fidele);
+  if(!String(k.lots||'').trim()&&!liste.length&&!aPx){ttFit(T('lots.aucunLot'),180,ys,12,300,C.creme,'center',2,false);ys+=18;}
   for(i=0;i<txt.length;i++){if(!txt[i].trim()){ys+=8;continue;}n=para(txt[i],180,ys,300,12.5,C.creme,'center',2,16,false);ys+=n*16;}
   if(liste.length&&String(k.lots||'').trim())ys+=6;
   for(i=0;i<liste.length;i++){L=liste[i];ttFit(T('lots.rang',L.de===L.a?''+L.de:L.de+'–'+L.a,L.lot),180,ys,12.5,300,L.de===1?C.or:C.creme,'center',1,false);ys+=17;}
+  if(aPx){ys+=4;[['joueur','lots.prixJoueur'],['recruteur','lots.prixRecruteur'],['fidele','lots.prixFidele']].forEach(function(e){if(px[e[0]]){n=para(T(e[1],String(px[e[0]])),180,ys,300,12.5,C.or,'center',2,16,false);ys+=n*16;}});}
   ys+=6;cx.fillStyle='rgba(246,241,231,0.14)';cx.fillRect(32,ys,296,1);ys+=16;
   n=para(T('lots.vies',k.essaisBase,k.boostsMax?k.boostsMax.total:0),180,ys,300,11.5,C.cyan,'center',2,15,false);ys+=n*15+4;
   n=para(T(k.modeClassement==='meilleur'?'lots.modeMeilleur':'lots.modeCumul'),180,ys,300,11,'rgba(246,241,231,0.8)','center',2,14,false);ys+=n*14+4;
-  if(connecte()&&!NET.joueur.wallet)para(T('lots.wallet'),180,ys,300,11,C.or,'center',2,14,false);
+  if(k.dote){n=para(T('lots.dote'),180,ys,300,11.5,C.or,'center',2,15,false);ys+=n*15+4;
+    if(connecte()){var okA=!!NET.joueur.majeur,okW=!!NET.joueur.walletSigne;
+      ttFit(T('lots.cond')+'  '+(okA?'✓ ':'✗ ')+T('lots.condAge')+'   '+(okW?'✓ ':'✗ ')+T('lots.condWallet'),180,ys,11.5,310,okA&&okW?C.vert:C.creme,'center',2,false);}}
+  else if(connecte()&&!NET.joueur.wallet)para(T('lots.wallet'),180,ys,300,11,C.or,'center',2,14,false);
   cx.restore();
+  if(demAge)bouton('lotsAge',52,bas+6,256,34,T('lots.majeur'),3,declarerMajeur,null,14);
   if(c)bouton('lotsCl',96,594,256,36,T('lots.voirCl'),3,function(){NET.cl.periode='concours';allerEcran('classement');},null,15);
 }
 
@@ -15900,6 +15951,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 9px/1 system-ui,sans-serif;padding:2px 10px 3px;border-radius:8px 8px 0 0;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.17.0-qa6 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.17.0-qa7 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
