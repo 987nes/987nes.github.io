@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DZÔ — proto d'animation 3 : vrai modèle 3D</title>
+<style>
+:root{color-scheme:dark}
+body{margin:0;background:#0d1020;color:#e9eefc;font:14px/1.45 system-ui,Segoe UI,Roboto,sans-serif}
+main{max-width:900px;margin:0 auto;padding:14px 16px 40px}
+h1{font-size:19px;margin:4px 0 2px}
+p.sous{color:#9aa6c8;margin:2px 0 10px;font-size:13px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.cols{grid-template-columns:1fr}}
+.carte{background:#171c33;border:1px solid #2a3157;border-radius:12px;padding:10px}
+.carte h2{font-size:14px;margin:0 0 6px}
+canvas{display:block;width:100%;aspect-ratio:1/1.05;border-radius:8px;background:#27304f;touch-action:none}
+.barre{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+button{font:600 13px system-ui;color:#e9eefc;background:#222a4a;border:1px solid #3a4478;border-radius:9px;padding:8px 12px;cursor:pointer}
+button.on{background:#3d8ee0;border-color:#8cc4ff;color:#fff}
+small{color:#9aa6c8}
+</style>
+<script type="importmap">{"imports":{"three":"./lib/three.module.js","three/addons/":"./lib/addons/"}}</script>
+</head><body><main>
+<h1>DZÔ — proto d'animation 3 : vrai modèle 3D</h1>
+<p class="sous">À gauche, le jeu d'aujourd'hui. À droite, le DZÔ reconstruit en 3D à partir de l'image officielle, avec un vrai squelette. Mêmes commandes pour les deux : flèches / ZQSD / WASD ou glisser le doigt ; espace pour frapper.</p>
+<div class="barre">
+<button id="bDemo" class="on">Démo automatique</button><button id="bPoing">Coup de poing</button><button id="bTouche">Touché</button><button id="bVict">Victoire</button>
+<button id="bRal">Ralenti ×0,25</button><button id="bTour">Tourner autour</button>
+</div>
+<div class="cols">
+<div class="carte"><h2>Aujourd'hui</h2><canvas id="cRef"></canvas></div>
+<div class="carte"><h2>Proto : modèle 3D animé</h2><canvas id="cNew"></canvas></div>
+</div>
+<p class="sous" id="etat">Chargement du modèle (14 Mo)…</p>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const TAU = Math.PI * 2, clamp = (x, a, b) => Math.max(a, Math.min(b, x)), lisse = (t) => t * t * (3 - 2 * t);
+/* ---------- état et commandes (communs aux deux colonnes) ---------- */
+const E = { x: 0, z: 0, vx: 0, vz: 0, cap: 0, vit: 0, t: 0, poing: -1, bras: 0, touche: -1, vict: -1, arret: 0, tour: 0 };
+const CMD = { x: 0, z: 0, demo: true, ralenti: false, tour: false, touches: {}, doigt: null };
+let VMAX = 2;   /* m/s, réglé au chargement d'après la foulée du modèle */
+function frapper() { if (E.poing < 0 && E.vict < 0) { E.poing = 0; E.bras = 1 - E.bras; } }
+function commande(dt) {
+  let x = 0, z = 0; const k = CMD.touches;
+  if (k.ArrowLeft || k.a || k.q) x -= 1; if (k.ArrowRight || k.d) x += 1; if (k.ArrowUp || k.w || k.z) z -= 1; if (k.ArrowDown || k.s) z += 1;
+  if (CMD.doigt) { x = CMD.doigt.x; z = CMD.doigt.y; }
+  if (x || z) { if (CMD.demo) demo(false); }
+  else if (CMD.demo) {
+    const T = E.t % 22;
+    if (T < 7) { const a = T * 1.25; x = Math.cos(a); z = Math.sin(a * 2) * 0.9; }
+    else if (T < 8.6) { }
+    else if (T < 10) x = 1; else if (T < 11.2) x = -1; else if (T < 12.4) z = -1; else if (T < 13.6) z = 1;
+    else if (T < 15.4) { if ((T - 13.9) % 0.8 < dt) frapper(); }
+    else if (T < 19) { const a = -T * 1.6; x = Math.cos(a); z = Math.sin(a); }
+    else if (T < 20.3) { if (E.touche < 0 && T > 19.3 && T - 19.3 < dt) E.touche = 0; }
+    else if (E.vict < 0 && T - 20.3 < dt) E.vict = 0;
+  }
+  const n = Math.hypot(x, z); if (n > 1) { x /= n; z /= n; }
+  CMD.x = x; CMD.z = z;
+}
+function avancer(dt) {
+  E.t += dt; commande(dt);
+  const bloque = E.vict >= 0, cx = bloque ? 0 : CMD.x * VMAX, cz = bloque ? 0 : CMD.z * VMAX, k = Math.min(1, dt * 10);
+  E.vx += (cx - E.vx) * k; E.vz += (cz - E.vz) * k; E.x += E.vx * dt; E.z += E.vz * dt; E.vit = Math.hypot(E.vx, E.vz);
+  let cible = null;
+  if (E.vit > VMAX * 0.08) { cible = Math.atan2(E.vx, E.vz); E.arret = 0; } else { E.arret += dt; if (E.arret > 0.45 && E.poing < 0) cible = 0; }
+  if (cible !== null) { let d = cible - E.cap; d = Math.atan2(Math.sin(d), Math.cos(d)); E.cap += d * Math.min(1, dt * (E.vit > 0.1 ? 12 : 6)); }
+  if (E.poing >= 0) { E.poing += dt; if (E.poing > 0.45) E.poing = -1; }
+  if (E.touche >= 0) { E.touche += dt; if (E.touche > 0.6) E.touche = -1; }
+  if (E.vict >= 0) { E.vict += dt; if (E.vict > 3) E.vict = -1; }
+  if (CMD.tour) E.tour += dt * 0.9;
+}
+
+/* ---------- colonne de gauche : le jeu d'aujourd'hui (formules de dessinerDzo) ---------- */
+const cRef = document.getElementById('cRef'), gR = cRef.getContext('2d'), IMG = {};
+for (const n of ['front-a', 'back']) { IMG[n] = new Image(); IMG[n].src = '../../assets/dzo-' + n + '.png'; }
+function sol2d(g, W, H, k) {
+  g.fillStyle = '#27304f'; g.fillRect(0, 0, W, H); const pas = 60 * k, ox = ((-E.x * 110 * k) % pas + pas) % pas, oy = ((-E.z * 110 * k) % pas + pas) % pas;
+  g.strokeStyle = 'rgba(255,255,255,0.07)'; g.beginPath(); for (let x = ox - pas; x < W; x += pas) { g.moveTo(x, 0); g.lineTo(x, H); } for (let y = oy - pas; y < H; y += pas) { g.moveTo(0, y); g.lineTo(W, y); } g.stroke();
+}
+function dessinerRef() {
+  const d = Math.min(2, devicePixelRatio || 1), W = cRef.clientWidth, H = cRef.clientHeight; if (cRef.width !== Math.round(W * d)) { cRef.width = Math.round(W * d); cRef.height = Math.round(H * d); }
+  const g = gR; g.setTransform(d, 0, 0, d, 0, 0); const Hd = Math.min(210, W * 0.56), k = Hd / 405, u = 405 / 80; sol2d(g, W, H, k * 2);
+  const dx = clamp(E.vx / VMAX, -1, 1), dz = clamp(E.vz / VMAX, -1, 1), marche = E.vit > VMAX * 0.1, im = marche && dz < -0.8 ? IMG.back : IMG['front-a'];
+  let rot = 0, sx = 1, sy = 1, bob = 0, x = 0, a;
+  if (E.vict >= 0) { bob = Math.abs(Math.sin(E.t * 9)) * 12 * u; sx = sy = 1.18; }
+  else if (marche) { a = E.t * 3.5 * Math.PI; bob = Math.abs(Math.sin(a)) * 5 * u; rot = Math.sin(a) * 0.087 + dx * 0.14; x = dx * 3 * u; let ct = 1 - bob / (5 * u); ct *= ct; sx = 1 + 0.06 * ct; sy = 1 - 0.06 * ct; }
+  else { a = Math.sin(E.t * 1.2 * TAU); sy = 1 + 0.02 * a; sx = 1 - 0.01 * a; }
+  const X = W / 2, Y = H * 0.8; g.fillStyle = 'rgba(0,0,0,0.3)'; g.beginPath(); g.ellipse(X, Y + 4 * k, 118 * k, 34 * k, 0, 0, TAU); g.fill();
+  if (!im.complete) return; g.save(); g.translate(X + x * k, Y - bob * k); g.rotate(rot); g.scale(k * sx * (im === IMG.back && dx < 0 ? -1 : 1), k * sy);
+  if (E.touche >= 0 && E.touche < 0.12) g.globalAlpha = 0.5; g.drawImage(im, -im.naturalWidth / 2, -394); g.restore();
+}
+
+/* ---------- colonne de droite : le modèle 3D ---------- */
+const cNew = document.getElementById('cNew');
+const rendu = new THREE.WebGLRenderer({ canvas: cNew, antialias: true, preserveDrawingBuffer: true });
+rendu.outputColorSpace = THREE.SRGBColorSpace; rendu.toneMapping = THREE.ACESFilmicToneMapping; rendu.toneMappingExposure = 1.15; rendu.shadowMap.enabled = true; rendu.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x27304f);
+const cam = new THREE.PerspectiveCamera(24, 1, 0.1, 100);
+scene.add(new THREE.HemisphereLight(0xeef3ff, 0x39456a, 2.1));
+const cle = new THREE.DirectionalLight(0xffffff, 2.6); cle.castShadow = true; cle.shadow.mapSize.set(1024, 1024); cle.shadow.camera.left = -3; cle.shadow.camera.right = 3; cle.shadow.camera.top = 3; cle.shadow.camera.bottom = -3; cle.shadow.bias = -0.0005; scene.add(cle, cle.target);
+const contre = new THREE.DirectionalLight(0x8fb8ff, 1.1); scene.add(contre, contre.target);
+const solG = new THREE.GridHelper(60, 60, 0x4a5688, 0x39446d); scene.add(solG);
+const ombre = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.ShadowMaterial({ opacity: 0.35 })); ombre.rotation.x = -Math.PI / 2; ombre.receiveShadow = true; scene.add(ombre);
+const pivot = new THREE.Group(); scene.add(pivot);
+let mixer = null, ACT = {}, os = {}, repos = {}, pret = false, poidsCourse = 0;
+const v1 = new THREE.Vector3(), v2 = new THREE.Vector3(), q1 = new THREE.Quaternion(), q2 = new THREE.Quaternion(), q3 = new THREE.Quaternion();
+
+new GLTFLoader().load('modele/dzo-anime.glb', (g) => {
+  const m = g.scene; pivot.add(m);
+  m.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; if (o.material) { o.material.metalness = 0; o.material.roughness = Math.max(0.5, o.material.roughness || 0.6); } } if (o.isBone) os[o.name.replace(/^mixamorig:?/, '')] = o; });
+  /* mise à l'échelle : 1 unité = la hauteur du DZÔ */
+  let sm = null; m.traverse((o) => { if (o.isSkinnedMesh) sm = o; }); m.updateMatrixWorld(true); sm.computeBoundingBox();
+  const b = sm.boundingBox.clone().applyMatrix4(sm.matrixWorld), h = b.max.y - b.min.y; m.scale.multiplyScalar(1 / h); m.position.y = -b.min.y / h; m.position.x = -(b.min.x + b.max.x) / 2 / h; m.position.z = -(b.min.z + b.max.z) / 2 / h;
+  for (const n in os) repos[n] = os[n].quaternion.clone();
+  mixer = new THREE.AnimationMixer(m);
+  for (const c of g.animations) { /* la course et la marche restent sur place : on retire le déplacement horizontal du bassin */
+    for (const tr of c.tracks) if (/Hips\.position$/.test(tr.name)) for (let i = 0; i < tr.values.length; i += 3) { tr.values[i] = tr.values[0]; tr.values[i + 2] = tr.values[2]; }
+    ACT[c.name] = mixer.clipAction(c); }
+  ACT.Running.play(); ACT.Running.setEffectiveWeight(0);
+  ACT.Victory_Fist_Pump.setLoop(THREE.LoopRepeat); ACT.Victory_Fist_Pump.play(); ACT.Victory_Fist_Pump.setEffectiveWeight(0);
+  /* foulée mesurée sur le modèle : course du pied d'avant en arrière pendant un cycle → vitesse sans glissement */
+  let zmin = 1e9, zmax = -1e9; const d = ACT.Running.getClip().duration; ACT.Running.setEffectiveWeight(1);
+  for (let i = 0; i < 40; i++) { mixer.setTime(d * i / 40); pivot.updateMatrixWorld(true); os.LeftFoot.getWorldPosition(v1); zmin = Math.min(zmin, v1.z); zmax = Math.max(zmax, v1.z); }
+  ACT.Running.setEffectiveWeight(0); mixer.setTime(0);
+  VMAX = (zmax - zmin) / (0.42 * d); pret = true;
+  document.getElementById('etat').textContent = 'Modèle chargé · foulée ' + (zmax - zmin).toFixed(2) + ' · vitesse de course ' + VMAX.toFixed(2);
+}, undefined, (e) => { document.getElementById('etat').textContent = 'Modèle introuvable : ' + (e && e.message || e); });
+
+/* oriente un os pour que son axe (Y local, vers l'os suivant) pointe dans une direction du monde, avec un poids */
+function viser(nom, dir, poids) {
+  const o = os[nom]; if (!o || poids <= 0) return; o.updateWorldMatrix(true, false);
+  o.getWorldQuaternion(q1); v1.set(0, 1, 0).applyQuaternion(q1).normalize(); q2.setFromUnitVectors(v1, v2.copy(dir).normalize()); q2.multiply(q1);
+  o.parent.getWorldQuaternion(q3).invert(); q3.multiply(q2); o.quaternion.slerp(q3, poids);
+}
+const DIR = new THREE.Vector3(), TRONC = ['Hips', 'Spine', 'Spine1', 'Spine2', 'Neck', 'Head'];
+function poser(dt) {
+  if (!pret) return;
+  const w = clamp(E.vit / VMAX, 0, 1), cibleCourse = E.vict >= 0 ? 0 : lisse(w);
+  poidsCourse += (cibleCourse - poidsCourse) * Math.min(1, dt * 10);
+  const pv = E.vict >= 0 ? lisse(clamp(Math.min(E.vict / 0.25, (3 - E.vict) / 0.3), 0, 1)) : 0;
+  ACT.Running.setEffectiveWeight(poidsCourse * (1 - pv)); ACT.Running.timeScale = Math.max(0.35, E.vit / VMAX);
+  ACT.Victory_Fist_Pump.setEffectiveWeight(pv);
+  /* repos : la pose d'origine (bras baissés), que le mélangeur ne touche pas quand tous les poids sont à zéro */
+  if (poidsCourse < 0.001 && pv < 0.001) for (const n in os) os[n].quaternion.copy(repos[n]);
+  mixer.update(dt);
+  /* le corps est une boule : on garde le buste presque droit (les clips sont faits pour un humain qui se penche) */
+  for (const n of TRONC) if (os[n]) os[n].quaternion.slerp(repos[n], 0.62);
+  pivot.position.set(E.x, 0, E.z); pivot.rotation.set(0, E.cap, 0); pivot.scale.set(1, 1, 1);
+  const resp = Math.sin(E.t * 2.4), calme = (1 - poidsCourse) * (1 - pv);
+  /* respiration et balancement des bras au repos */
+  if (calme > 0.01) { pivot.scale.set(1 - 0.008 * resp * calme, 1 + 0.014 * resp * calme, 1 - 0.008 * resp * calme);
+    for (const [n, s] of [['LeftArm', 1], ['RightArm', -1]]) if (os[n]) os[n].rotateZ(s * 0.05 * resp * calme); }
+  /* penche dans la course et dans les virages */
+  pivot.rotateX(0.07 * poidsCourse);
+  /* coup de poing : élan, frappe, tenue, retour, sur le bras choisi, dans la direction où il regarde */
+  if (E.poing >= 0) { const u = E.poing; let fr = 0, el = 0;
+    if (u < 0.1) el = lisse(u / 0.1); else if (u < 0.17) { el = 1 - (u - 0.1) / 0.07; fr = Math.pow((u - 0.1) / 0.07, 0.6); } else if (u < 0.27) fr = 1; else fr = 1 - lisse((u - 0.27) / 0.18);
+    const cote = E.bras ? 'Left' : 'Right', s = E.bras ? 1 : -1; pivot.updateMatrixWorld(true);
+    const av = v1.set(Math.sin(E.cap), 0, Math.cos(E.cap)).clone(), lat = new THREE.Vector3(Math.cos(E.cap), 0, -Math.sin(E.cap)).multiplyScalar(s);
+    DIR.copy(av).multiplyScalar(fr - el * 0.9).addScaledVector(lat, 0.25 + el * 0.5).add(new THREE.Vector3(0, 0.05 - el * 0.3, 0));
+    const p = Math.max(fr, el); viser(cote + 'Arm', DIR, p); pivot.updateMatrixWorld(true); viser(cote + 'ForeArm', el > fr ? DIR.clone().add(new THREE.Vector3(0, 0.8, 0)).addScaledVector(av, 0.8) : DIR, p);
+    pivot.rotateY(-s * 0.35 * (fr - el * 0.6)); pivot.position.addScaledVector(av, 0.1 * fr - 0.05 * el); }
+  /* touché : recul, écrasement et tremblement amortis */
+  if (E.touche >= 0) { const u = E.touche / 0.6, k = Math.exp(-u * 5); pivot.rotateZ(0.28 * k * Math.cos(u * 18)); pivot.rotateX(-0.25 * k);
+    const e = Math.max(0, 1 - u * 5); pivot.scale.set(1 + 0.1 * e, 1 - 0.13 * e, 1 + 0.1 * e); }
+}
+function dessiner3d() {
+  const d = Math.min(2, devicePixelRatio || 1), W = cNew.clientWidth, H = cNew.clientHeight;
+  if (cNew.width !== Math.round(W * d) || cNew.height !== Math.round(H * d)) { rendu.setPixelRatio(d); rendu.setSize(W, H, false); cam.aspect = W / H; cam.updateProjectionMatrix(); }
+  /* caméra du jeu : de face, en plongée ; « Tourner autour » la fait orbiter pour juger le volume */
+  const a = E.tour, R = 4.9; cam.position.set(E.x + Math.sin(a) * R * 0.86, 2.3, E.z + Math.cos(a) * R * 0.86); cam.lookAt(E.x, 0.52, E.z);
+  cle.position.set(E.x - 2.2, 4.5, E.z + 2.6); cle.target.position.set(E.x, 0.4, E.z); contre.position.set(E.x + 3, 2, E.z - 3); contre.target.position.set(E.x, 0.5, E.z);
+  rendu.render(scene, cam);
+}
+
+let tPrec = 0, reste = 0;
+function image(t) {
+  let dt = Math.min(0.05, (t - tPrec) / 1000 || 0); tPrec = t; if (CMD.ralenti) dt *= 0.25;
+  reste += dt; let n = 0; while (reste > 1 / 120 && n++ < 12) { avancer(1 / 120); reste -= 1 / 120; }
+  poser(dt); dessinerRef(); dessiner3d(); requestAnimationFrame(image);
+}
+function demo(v) { CMD.demo = v; document.getElementById('bDemo').classList.toggle('on', v); }
+document.getElementById('bDemo').onclick = () => demo(!CMD.demo);
+document.getElementById('bPoing').onclick = frapper;
+document.getElementById('bTouche').onclick = () => { E.touche = 0; };
+document.getElementById('bVict').onclick = () => { E.vict = 0; };
+document.getElementById('bRal').onclick = (e) => { CMD.ralenti = !CMD.ralenti; e.target.classList.toggle('on', CMD.ralenti); };
+document.getElementById('bTour').onclick = (e) => { CMD.tour = !CMD.tour; if (!CMD.tour) E.tour = 0; e.target.classList.toggle('on', CMD.tour); };
+addEventListener('keydown', (e) => { CMD.touches[e.key.length === 1 ? e.key.toLowerCase() : e.key] = true; if (e.key === ' ') { frapper(); e.preventDefault(); } if (e.key.startsWith('Arrow')) e.preventDefault(); });
+addEventListener('keyup', (e) => { CMD.touches[e.key.length === 1 ? e.key.toLowerCase() : e.key] = false; });
+for (const c of [cRef, cNew]) { let o = null;
+  c.addEventListener('pointerdown', (e) => { o = [e.clientX, e.clientY]; c.setPointerCapture(e.pointerId); });
+  c.addEventListener('pointermove', (e) => { if (!o) return; const dx = e.clientX - o[0], dy = e.clientY - o[1], n = Math.hypot(dx, dy); CMD.doigt = n < 8 ? null : { x: dx / Math.max(n, 50), y: dy / Math.max(n, 50) }; });
+  const fin = () => { if (o && !CMD.doigt) frapper(); o = null; CMD.doigt = null; }; c.addEventListener('pointerup', fin); c.addEventListener('pointercancel', fin); }
+/* pour les captures automatiques */
+window.__proto = { etat: E, cmd: CMD, pret: () => pret, aller: (t) => { Object.assign(E, { x: 0, z: 0, vx: 0, vz: 0, cap: 0, t: 0, poing: -1, touche: -1, vict: -1, arret: 0 }); poidsCourse = 0; for (let i = 0; i < t * 120; i++) { avancer(1 / 120); if (i % 2 === 0) poser(1 / 60); } dessinerRef(); dessiner3d(); } };
+requestAnimationFrame(image);
+</script></main></body></html>
