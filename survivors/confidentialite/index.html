@@ -106,13 +106,6 @@ footer a { color: var(--gray-mid); text-decoration: none; } footer a:hover { col
     <span class="nav-brand-text">987<span class="y">NES</span></span>
   </a>
   <div class="nav-right">
-    <div>
-      <button class="lang-btn" type="button" data-l="fr">FR</button>
-      <button class="lang-btn" type="button" data-l="de">DE</button>
-      <button class="lang-btn" type="button" data-l="it">IT</button>
-      <button class="lang-btn" type="button" data-l="es">ES</button>
-      <button class="lang-btn" type="button" data-l="en">EN</button>
-    </div>
     <a href="../?p=nes" class="btn-nav-buy retour" id="retour">← Back to the game</a>
   </div>
 </nav>
@@ -224,10 +217,6 @@ footer a { color: var(--gray-mid); text-decoration: none; } footer a:hover { col
   function connue(c) { c = String(c || '').toLowerCase().slice(0, 2); return LANGUES.indexOf(c) >= 0 ? c : ''; }
   // langue du jeu : sauvegarde du jeu (même origine), champ « langue »
   function duJeu() { try { var o = JSON.parse(localStorage.getItem('dzo.v1') || 'null'); return connue(o && o.langue); } catch (e) { return ''; } }
-  function versJeu(l) {
-    try { var o = JSON.parse(localStorage.getItem('dzo.v1') || 'null'); if (!o || typeof o !== 'object') o = {}; o.langue = l; localStorage.setItem('dzo.v1', JSON.stringify(o)); } catch (e) {}
-    try { if (l === 'en' || l === 'fr' || l === 'es') localStorage.setItem('nes_lang', l); } catch (e) {}
-  }
   function initiale() {
     var l = '';
     try { l = connue(new URLSearchParams(location.search).get('l')); } catch (e) {}
@@ -240,12 +229,8 @@ footer a { color: var(--gray-mid); text-decoration: none; } footer a:hover { col
     document.documentElement.lang = l;
     document.title = 'DZÔ Survivors · ' + TITRES[l];
     Array.prototype.forEach.call(document.querySelectorAll('.bl'), function (b) { b.classList.toggle('actif', b.getAttribute('data-langue') === l); });
-    Array.prototype.forEach.call(document.querySelectorAll('.lang-btn'), function (b) { var a = b.getAttribute('data-l') === l; b.classList.toggle('active', a); b.setAttribute('aria-pressed', a ? 'true' : 'false'); });
     document.getElementById('retour').textContent = RETOUR[l];
   }
-  Array.prototype.forEach.call(document.querySelectorAll('.lang-btn'), function (b) {
-    b.addEventListener('click', function () { var l = b.getAttribute('data-l'); versJeu(l); afficher(l); window.scrollTo(0, 0); });
-  });
   // le jeu change de langue dans un autre onglet : la page suit
   window.addEventListener('storage', function (e) { if (e.key === 'dzo.v1') { var l = duJeu(); if (l) afficher(l); } });
   afficher(initiale());
