@@ -7820,7 +7820,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.17.0-qa4';
+var VERSION='0.17.0-qa5';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -11083,7 +11083,7 @@ function installerEntrees(){
     if(NES_OUVERT===ecran&&(ecran==='titre'||ecran==='fin')){if(k==='Escape')fermerNes();return;}
     if(BETA_OUVERT===ecran&&ecran==='titre'){if(k==='Escape')fermerBeta();return;}
     if(ecran==='parties'){if(k==='Escape')allerEcran(PJ.de||'titre');return;}
-    if(ecran==='connexion'||ecran==='profil'||ecran==='niveau'||ecran==='classement'||ecran==='lots'||ecran==='cartes'||ecran==='parrainage'){if(k==='Escape'){if(ecran==='niveau'&&NIV.feuille){fermerFeuilleWallet();return;}allerEcran('titre');}return;}
+    if(ecran==='connexion'||ecran==='profil'||ecran==='niveau'||ecran==='classement'||ecran==='lots'||ecran==='villes'||ecran==='parrainage'){if(k==='Escape'){if(ecran==='niveau'&&NIV.feuille){fermerFeuilleWallet();return;}allerEcran('titre');}return;}
     if(REVOIR&&ecran==='jeu'){if(k==='Escape')quitterRevoir();return;}
     if(k==='ArrowUp'||k==='z'||k==='Z'||k==='w'||k==='W')touches.h=bas;
     else if(k==='ArrowDown'||k==='s'||k==='S')touches.b=bas;
@@ -12170,7 +12170,7 @@ function barreNavTitre(nivEnOr){
   var L=[],i,o,w,x,enf,y=594;
   if(!HORS_RANG){
     L.push(['tcl','trophee',T('cl.titre'),function(){allerEcran('classement');},0]);
-    L.push(['tcartes','carte',T('cartes.titre'),function(){allerEcran('cartes');},0]);
+    L.push(['tcartes','carte',T('cartes.titre'),function(){allerEcran('villes');},0]);
     L.push([nivEnOr?'tnavniv':'niveau','niveau',T('niv.titre'),function(){allerEcran('niveau');},0]);
     if(!modeServeur()||connecte())L.push(['tprofil','profil',T('profil.titre'),function(){allerEcran('profil');},0]);
     else L.push(['tcnx','profil',T('cnx.bouton'),function(){allerEcran('connexion');},1]);
@@ -14450,9 +14450,11 @@ function rendreSigner(){
 }
 
 /* ---- 0.8 : écran du concours (lots, dates, vies, mode de classement) ---- */
+/* ATTENTION au nom : « rendreCartes » et sous==='cartes' sont le CHOIX DES BONUS en partie (cartes à jouer). Cet écran-ci
+   s'appelle rendreEcranVilles et ecran==='villes' : le 25.11.2026 il avait pris le nom rendreCartes et remplacé le choix des bonus. */
 /* ÉCRAN « CARTES » (Dom, 25.11.2026) : une vignette par carte jouable ; toucher une carte la choisit et ramène au titre.
    La carte en cours est encadrée d'or. Les vignettes sont des images (assets/villes/<id>.jpg) ; sans image : un cartouche. */
-function rendreCartes(){
+function rendreEcranVilles(){
   fondMenu();entete(T('cartes.titre'));
   var l=villesJouables(),cur=villeAnnonce(),i,v,y=SAFE_H+50,h,im,ici,enf,ih,sy,nom;
   if(l.length<2){l=cur?[{id:cur.id}]:[];}
@@ -14815,7 +14817,7 @@ function hymneDebloquer(){
 function hymneVoulu(){
   if(!HY.debloque||!SAUV.son)return'';
   try{if(document.hidden)return'';}catch(e){}
-  if(ecran==='entree'||ecran==='titre'||ecran==='connexion'||ecran==='profil'||ecran==='niveau'||ecran==='classement'||ecran==='lots'||ecran==='cartes'||ecran==='parrainage')return tDepart>=0?'':'titre';
+  if(ecran==='entree'||ecran==='titre'||ecran==='connexion'||ecran==='profil'||ecran==='niveau'||ecran==='classement'||ecran==='lots'||ecran==='villes'||ecran==='parrainage')return tDepart>=0?'':'titre';
   if(ecran==='fin'&&!REVOIR&&S)return S.victoire?'victoire':'fin';
   return'';
 }
@@ -15058,7 +15060,7 @@ function rendreEcran(dt){
   if(ecran==='parties'){rendreParties();rendreMarges();return;}
   if(ecran==='classement'){rendreClassement();rendreMarges();return;}
   if(ecran==='lots'){rendreLots();rendreMarges();return;}
-  if(ecran==='cartes'){rendreCartes();rendreMarges();return;}
+  if(ecran==='villes'){rendreEcranVilles();rendreMarges();return;}
   if(ecran==='parrainage'){rendreParrainage();rendreMarges();return;}
   nBT=0;
   rendreMonde(sous==='pause'?0:(sous==='niveau'?dt*0.35:dt));
@@ -16010,6 +16012,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 9px/1 system-ui,sans-serif;padding:2px 10px 3px;border-radius:8px 8px 0 0;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.17.0-qa4 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.17.0-qa5 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
