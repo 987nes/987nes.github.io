@@ -2923,6 +2923,11 @@ LANGUES.fr={
 "nes.ouvre":"S'ouvre dans un nouvel onglet.",
 "nes.fermer":"FERMER",
 "nes.conf":"Confidentialité",
+"cartes.titre":"CARTES",
+"cartes.ici":"Carte choisie",
+"cartes.jouer":"Jouer ici",
+"cartes.charge":"Chargement…",
+"cartes.une":"Une seule carte pour l'instant. D'autres arrivent.",
 "beta.court":"BÊTA",
 "beta.chip":"BÊTA · on construit encore chaque jour",
 "beta.titre":"Version bêta",
@@ -4074,6 +4079,11 @@ LANGUES.de={
 "nes.ouvre":"Öffnet sich in einem neuen Tab.",
 "nes.fermer":"SCHLIESSEN",
 "nes.conf":"Datenschutz",
+"cartes.titre":"KARTEN",
+"cartes.ici":"Gewählte Karte",
+"cartes.jouer":"Hier spielen",
+"cartes.charge":"Lädt…",
+"cartes.une":"Vorerst nur eine Karte. Weitere folgen.",
 "beta.court":"BETA",
 "beta.chip":"BETA · wir bauen jeden Tag weiter",
 "beta.titre":"Beta-Version",
@@ -5225,6 +5235,11 @@ LANGUES.it={
 "nes.ouvre":"Si apre in una nuova scheda.",
 "nes.fermer":"CHIUDI",
 "nes.conf":"Privacy",
+"cartes.titre":"MAPPE",
+"cartes.ici":"Mappa scelta",
+"cartes.jouer":"Gioca qui",
+"cartes.charge":"Caricamento…",
+"cartes.une":"Per ora una sola mappa. Altre in arrivo.",
 "beta.court":"BETA",
 "beta.chip":"BETA · lo costruiamo ancora ogni giorno",
 "beta.titre":"Versione beta",
@@ -6376,6 +6391,11 @@ LANGUES.es={
 "nes.ouvre":"Se abre en una pestaña nueva.",
 "nes.fermer":"CERRAR",
 "nes.conf":"Privacidad",
+"cartes.titre":"MAPAS",
+"cartes.ici":"Mapa elegido",
+"cartes.jouer":"Jugar aquí",
+"cartes.charge":"Cargando…",
+"cartes.une":"Por ahora un solo mapa. Llegarán más.",
 "beta.court":"BETA",
 "beta.chip":"BETA · lo seguimos construyendo cada día",
 "beta.titre":"Versión beta",
@@ -7527,6 +7547,11 @@ LANGUES.en={
 "nes.ouvre":"Opens in a new tab.",
 "nes.fermer":"CLOSE",
 "nes.conf":"Privacy",
+"cartes.titre":"MAPS",
+"cartes.ici":"Selected map",
+"cartes.jouer":"Play here",
+"cartes.charge":"Loading…",
+"cartes.une":"Only one map for now. More are coming.",
 "beta.court":"BETA",
 "beta.chip":"BETA · still being built every day",
 "beta.titre":"Beta version",
@@ -7795,7 +7820,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.17.0-qa3';
+var VERSION='0.17.0-qa4';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -11058,7 +11083,7 @@ function installerEntrees(){
     if(NES_OUVERT===ecran&&(ecran==='titre'||ecran==='fin')){if(k==='Escape')fermerNes();return;}
     if(BETA_OUVERT===ecran&&ecran==='titre'){if(k==='Escape')fermerBeta();return;}
     if(ecran==='parties'){if(k==='Escape')allerEcran(PJ.de||'titre');return;}
-    if(ecran==='connexion'||ecran==='profil'||ecran==='niveau'||ecran==='classement'||ecran==='lots'||ecran==='parrainage'){if(k==='Escape'){if(ecran==='niveau'&&NIV.feuille){fermerFeuilleWallet();return;}allerEcran('titre');}return;}
+    if(ecran==='connexion'||ecran==='profil'||ecran==='niveau'||ecran==='classement'||ecran==='lots'||ecran==='cartes'||ecran==='parrainage'){if(k==='Escape'){if(ecran==='niveau'&&NIV.feuille){fermerFeuilleWallet();return;}allerEcran('titre');}return;}
     if(REVOIR&&ecran==='jeu'){if(k==='Escape')quitterRevoir();return;}
     if(k==='ArrowUp'||k==='z'||k==='Z'||k==='w'||k==='W')touches.h=bas;
     else if(k==='ArrowDown'||k==='s'||k==='S')touches.b=bas;
@@ -12006,6 +12031,10 @@ var IMG_ECRANS={},ECRAN_IMAGE={classement:'podium',niveau:'niveau',boosts:'nivea
 function imageEcran(nom){var o=IMG_ECRANS[nom];
   if(!o){o=IMG_ECRANS[nom]={im:null,ok:false};try{o.im=new Image();o.im.onload=function(){o.ok=true;};o.im.src='assets/ecrans/'+nom+'.jpg';}catch(e){}}
   return o.ok?o.im:null;}
+var IMG_VILLES={};
+function imageVille(id){var o=IMG_VILLES[id];
+  if(!o){o=IMG_VILLES[id]={im:null,ok:false};try{o.im=new Image();o.im.onload=function(){o.ok=true;};o.im.src='assets/villes/'+id+'.jpg';}catch(e){}}
+  return o.ok?o.im:null;}
 function fondImage(nom,voile,dy,bas){
   var im=imageEcran(nom),h,g;if(!im)return false;
   var l=360,e;colonne();h=360*im.naturalHeight/im.naturalWidth;
@@ -12141,6 +12170,7 @@ function barreNavTitre(nivEnOr){
   var L=[],i,o,w,x,enf,y=594;
   if(!HORS_RANG){
     L.push(['tcl','trophee',T('cl.titre'),function(){allerEcran('classement');},0]);
+    L.push(['tcartes','carte',T('cartes.titre'),function(){allerEcran('cartes');},0]);
     L.push([nivEnOr?'tnavniv':'niveau','niveau',T('niv.titre'),function(){allerEcran('niveau');},0]);
     if(!modeServeur()||connecte())L.push(['tprofil','profil',T('profil.titre'),function(){allerEcran('profil');},0]);
     else L.push(['tcnx','profil',T('cnx.bouton'),function(){allerEcran('connexion');},1]);
@@ -12200,6 +12230,11 @@ function icoTitre(q,x,y,r,coul){
     cx.lineWidth=r*0.32;cx.beginPath();cx.arc(0,0,r*0.56,0,PI2);cx.stroke();}
   else if(q==='niveau'){
     cx.beginPath();for(i=0;i<10;i++){var ra=i%2?r*0.44:r,an=-Math.PI/2+i*Math.PI/5;if(i)cx.lineTo(Math.cos(an)*ra,Math.sin(an)*ra);else cx.moveTo(Math.cos(an)*ra,Math.sin(an)*ra);}cx.closePath();cx.fill();}
+  else if(q==='carte'){
+    /* une carte pliée en trois volets, avec une épingle */
+    cx.lineWidth=r*0.2;cx.beginPath();cx.moveTo(-r,-r*0.55);cx.lineTo(-r*0.34,-r*0.85);cx.lineTo(r*0.34,-r*0.55);cx.lineTo(r,-r*0.85);cx.lineTo(r,r*0.6);cx.lineTo(r*0.34,r*0.9);cx.lineTo(-r*0.34,r*0.6);cx.lineTo(-r,r*0.9);cx.closePath();cx.stroke();
+    cx.beginPath();cx.moveTo(-r*0.34,-r*0.85);cx.lineTo(-r*0.34,r*0.6);cx.moveTo(r*0.34,-r*0.55);cx.lineTo(r*0.34,r*0.9);cx.stroke();
+    cx.beginPath();cx.arc(0,-r*0.05,r*0.24,0,PI2);cx.fill();}
   else if(q==='nes'){
     cx.lineWidth=r*0.22;cx.beginPath();cx.arc(0,0,r*0.86,0,PI2);cx.stroke();cx.fillRect(-r*0.5,-r*0.15,r,r*0.3);cx.fillRect(-r*0.15,-r*0.5,r*0.3,r);}
   else if(q==='horloge'){
@@ -12577,7 +12612,7 @@ function majPastilleVille(){
     p.setAttribute('style','position:fixed;left:0;top:0;transform:translateX(-100%);z-index:2147483000;cursor:pointer;background:rgba(13,9,20,.88);color:#f6f1e7;border:1px solid rgba(246,241,231,.35);font:700 13px/1 system-ui,sans-serif;padding:9px 16px;border-radius:999px;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation;display:none');
     p.addEventListener('pointerdown',function(e){e.preventDefault();e.stopPropagation();villeSuivante();});document.body.appendChild(p);}catch(e){VIL.pastille=null;return;}}
   l=villesJouables();cur=villeAnnonce();
-  if(ecran!=='titre'||l.length<2||sous){p.style.display='none';return;}
+  if(true){p.style.display='none';return;}   /* remplacée par le bouton CARTES de la barre du bas */
   /* en haut à droite de la colonne, sous la roue des réglages (25.11.2026 : en bas au centre, elle était sous le bandeau de QA
      et sur la barre de navigation) ; placée dans le repère de la page à partir du repère du jeu */
   p.style.left=((352+OX/K)*ECH)+'px';p.style.top=((SAFE_H+48+OY/K)*ECH)+'px';
@@ -14415,6 +14450,28 @@ function rendreSigner(){
 }
 
 /* ---- 0.8 : écran du concours (lots, dates, vies, mode de classement) ---- */
+/* ÉCRAN « CARTES » (Dom, 25.11.2026) : une vignette par carte jouable ; toucher une carte la choisit et ramène au titre.
+   La carte en cours est encadrée d'or. Les vignettes sont des images (assets/villes/<id>.jpg) ; sans image : un cartouche. */
+function rendreCartes(){
+  fondMenu();entete(T('cartes.titre'));
+  var l=villesJouables(),cur=villeAnnonce(),i,v,y=SAFE_H+50,h,im,ici,enf,ih,sy,nom;
+  if(l.length<2){l=cur?[{id:cur.id}]:[];}
+  h=Math.min(160,Math.floor((586-y)/Math.max(1,l.length))-10);
+  for(i=0;i<l.length;i++){(function(v,yc){
+    ici=!!(cur&&cur.id===v.id);im=imageVille(v.id);nom=nomVilleJeu(v.id);
+    enf=zone('carte:'+v.id,16,yc,328,h,function(){if(VIL.enVol)return;if(cur&&cur.id===v.id){allerEcran('titre');return;}if(choisirVille(v.id))allerEcran('titre');});
+    cx.save();cx.beginPath();rrect(cx,16,yc,328,h,14);cx.clip();
+    cx.fillStyle='#1A1228';cx.fillRect(16,yc,328,h);
+    if(im){ih=328*im.naturalHeight/im.naturalWidth;sy=ih>h?(ih-h)/2:0;cx.drawImage(im,16,yc-sy,328,Math.max(ih,h));}
+    var gr=cx.createLinearGradient(0,yc+h-58,0,yc+h);gr.addColorStop(0,'rgba(13,9,20,0)');gr.addColorStop(1,'rgba(13,9,20,0.92)');cx.fillStyle=gr;cx.fillRect(16,yc+h-58,328,58);
+    if(enf){cx.fillStyle='rgba(255,255,255,0.10)';cx.fillRect(16,yc,328,h);}
+    cx.restore();
+    cx.strokeStyle=ici?C.or:'rgba(111,230,255,0.55)';cx.lineWidth=ici?3:1.5;cx.beginPath();rrect(cx,16,yc,328,h,14);cx.stroke();
+    ttFit(nom.toUpperCase(),30,yc+h-20,20,200,C.creme,'left',0,true);
+    ttFit(ici?'✓ '+T('cartes.ici'):(VIL.enVol?T('cartes.charge'):T('cartes.jouer')+' ▸'),330,yc+h-19,12.5,130,ici?C.or:C.cyan,'right',2,true);
+  })(l[i],y+i*(h+10));}
+  if(l.length<2)ttFit(T('cartes.une'),180,y+h+26,12,320,'rgba(246,241,231,0.8)','center',2,true);
+}
 function rendreLots(){
   fondMenu();entete(T('lots.titre'));
   var y=SAFE_H+50,t=maintenantSrv(),c=enConcours()?NET.concours:null,p=NET.prochainConcours,k=c||p,i,L,n,ys;
@@ -14758,7 +14815,7 @@ function hymneDebloquer(){
 function hymneVoulu(){
   if(!HY.debloque||!SAUV.son)return'';
   try{if(document.hidden)return'';}catch(e){}
-  if(ecran==='entree'||ecran==='titre'||ecran==='connexion'||ecran==='profil'||ecran==='niveau'||ecran==='classement'||ecran==='lots'||ecran==='parrainage')return tDepart>=0?'':'titre';
+  if(ecran==='entree'||ecran==='titre'||ecran==='connexion'||ecran==='profil'||ecran==='niveau'||ecran==='classement'||ecran==='lots'||ecran==='cartes'||ecran==='parrainage')return tDepart>=0?'':'titre';
   if(ecran==='fin'&&!REVOIR&&S)return S.victoire?'victoire':'fin';
   return'';
 }
@@ -15001,6 +15058,7 @@ function rendreEcran(dt){
   if(ecran==='parties'){rendreParties();rendreMarges();return;}
   if(ecran==='classement'){rendreClassement();rendreMarges();return;}
   if(ecran==='lots'){rendreLots();rendreMarges();return;}
+  if(ecran==='cartes'){rendreCartes();rendreMarges();return;}
   if(ecran==='parrainage'){rendreParrainage();rendreMarges();return;}
   nBT=0;
   rendreMonde(sous==='pause'?0:(sous==='niveau'?dt*0.35:dt));
@@ -15051,7 +15109,7 @@ window.__dzo={
   },
   demarrer:function(graine){lancer(false,graine===undefined?undefined:graine>>>0);return window.__dzo.etat();},
   /* villes : état du choix, et choix direct pour les essais */
-  villes:function(){var c=villeAnnonce();return{courante:c||null,chargee:VIL.id,enVol:VIL.enVol,jouables:villesJouables().map(function(v){return v.id;}),pastille:!!(VIL.pastille&&VIL.pastille.style.display!=='none'),texte:VIL.pastille?VIL.pastille.textContent:'',lm:S&&S.M?S.M.lm:(MW?MW.lm:0)};},
+  villes:function(){var c=villeAnnonce();return{courante:c||null,chargee:VIL.id,enVol:VIL.enVol,jouables:villesJouables().map(function(v){return v.id;}),pastille:false,texte:c?nomVilleJeu(c.id):'',lm:S&&S.M?S.M.lm:(MW?MW.lm:0)};},
   choisirVille:function(id){return choisirVille(id);},
   /* 0.7 : état du réseau, écrans, cartes de partage */
   reseau:function(){return{actif:NET.actif,etat:NET.etat,connecte:connecte(),mode:NET.mode,joueur:NET.joueur,jour:NET.jour,
@@ -15952,6 +16010,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 9px/1 system-ui,sans-serif;padding:2px 10px 3px;border-radius:8px 8px 0 0;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.17.0-qa3 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.17.0-qa4 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
