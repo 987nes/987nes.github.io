@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DZÔ — proto d'animation 2</title>
+<style>
+:root{color-scheme:dark}
+body{margin:0;background:#0d1020;color:#e9eefc;font:14px/1.45 system-ui,Segoe UI,Roboto,sans-serif}
+main{max-width:860px;margin:0 auto;padding:14px 16px 40px}
+h1{font-size:19px;margin:4px 0 2px}
+p.sous{color:#9aa6c8;margin:2px 0 10px;font-size:13px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.cols{grid-template-columns:1fr}}
+.carte{background:#171c33;border:1px solid #2a3157;border-radius:12px;padding:10px}
+.carte h2{font-size:14px;margin:0 0 6px}
+canvas{display:block;width:100%;border-radius:8px;background:#27304f;touch-action:none}
+.barre{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+button{font:600 13px system-ui;color:#e9eefc;background:#222a4a;border:1px solid #3a4478;border-radius:9px;padding:8px 12px;cursor:pointer}
+button.on{background:#3d8ee0;border-color:#8cc4ff;color:#fff}
+small{color:#9aa6c8}
+</style></head><body><main>
+<h1>DZÔ — proto d'animation 2 : squelette continu</h1>
+<p class="sous">À gauche, le jeu d'aujourd'hui (une image entière qui penche et rebondit). À droite, le proto : corps officiel, membres articulés calculés à chaque image d'après la vitesse réelle. Les deux reçoivent exactement les mêmes commandes. Flèches / ZQSD / WASD ou glisser le doigt pour diriger ; espace pour frapper.</p>
+<div class="barre">
+<button id="bDemo" class="on">Démo automatique</button><button id="bPoing">Coup de poing</button><button id="bTouche">Touché</button><button id="bVict">Victoire</button>
+<button id="bRal">Ralenti ×0,25</button><button id="bSq">Squelette</button>
+</div>
+<div class="cols">
+<div class="carte"><h2>Aujourd'hui</h2><canvas id="cRef"></canvas><small id="iRef"></small></div>
+<div class="carte"><h2>Proto : squelette continu</h2><canvas id="cNew"></canvas><small id="iNew"></small></div>
+</div>
+<p class="sous" id="etat"></p>
+<script>
+'use strict';
+const IMG = { front: '../../assets/dzo-front-a.png', back: '../../assets/dzo-back.png', side: '../../assets/dzo-side.png' };
+/* E = ellipse de la sphère [cx, cy, rx, ry]. Chaque membre : polygone de découpe, pivot (épaule / hanche),
+   over = épaisseur (px) de recouvrement gardée sous le corps, pour que la jonction ne s'ouvre jamais. */
+const DEF = {
+  front: { ax: 180, ay: 394, E: [179.5, 177.5, 115.5, 123.5],
+    arms: [ { poly: [[0,0],[98,0],[98,112],[92,150],[80,190],[56,204],[0,204]], pivot: [86,150], over: 8 },
+            { poly: [[262,188],[331,188],[331,332],[262,332]], pivot: [284,224], over: 8 } ],
+    legs: [ { poly: [[98,258],[156,258],[162,300],[162,405],[54,405],[54,300],[90,300]], pivot: [127,286], over: 40, foot: [106,394] },
+            { poly: [[198,258],[262,258],[262,322],[300,322],[300,405],[170,405],[170,300],[198,300]], pivot: [228,286], over: 40, foot: [253,394] } ],
+    /* B : points de repos des articulations (épaule, coude, poignet) + poing ; hanche, genou, cheville + pied */
+    bArms: [ { j: [[86,150],[52,104],[44,64]], fist: [45,36,27] }, { j: [[284,224],[314,248],[300,274]], fist: [289,288,24] } ],
+    bLegs: [ { j: [[127,286],[116,330],[106,362]], foot: [106,378,40,18] }, { j: [[228,286],[238,328],[248,362]], foot: [254,378,38,18] } ] },
+  back: { ax: 160, ay: 394, E: [160, 177.5, 115, 123.5],
+    arms: [ { poly: [[0,190],[76,190],[76,332],[0,332]], pivot: [56,214], over: 8 },
+            { poly: [[246,0],[340,0],[340,208],[262,208],[250,150]], pivot: [271,150], over: 8 } ],
+    legs: [ { poly: [[92,258],[142,258],[146,300],[146,405],[40,405],[40,324],[76,324],[86,300]], pivot: [112,286], over: 40, foot: [90,394] },
+            { poly: [[190,258],[262,258],[272,300],[276,405],[175,405],[175,300]], pivot: [232,286], over: 40, foot: [233,394] } ],
+    bArms: [ { j: [[56,214],[20,248],[44,276]], fist: [52,286,24] }, { j: [[271,150],[285,108],[292,70]], fist: [295,40,30] } ],
+    bLegs: [ { j: [[112,286],[104,330],[100,362]], foot: [88,378,40,18] }, { j: [[232,286],[233,328],[233,362]], foot: [233,378,40,18] } ] },
+  side: { ax: 122, ay: 394, E: [105, 178, 95, 121],
+    arms: [ { poly: [[86,0],[152,0],[152,56],[132,64],[132,150],[128,168],[118,175],[100,175],[90,168],[86,150]], pivot: [109,150], over: 0,
+              trou: [86,132,56,176] },
+            { copie: 0, sombre: true } ],
+    legs: [ { poly: [[92,262],[146,262],[146,346],[188,346],[188,405],[84,405],[84,340]], pivot: [118,286], over: 40, foot: [133,394] },
+            { copie: 0, sombre: true } ],
+    bArms: [ { j: [[109,152],[109,100],[109,56]], fist: [124,30,21] }, { j: [[109,152],[109,100],[109,56]], fist: [124,30,21], sombre: true } ],
+    bLegs: [ { j: [[118,286],[119,330],[119,362]], foot: [134,378,46,18] }, { j: [[118,286],[119,330],[119,362]], foot: [134,378,46,18], sombre: true } ] }
+};
+const VUES = ['front', 'back', 'side'];
+/* out : signe de l'angle « vers l'extérieur » d'un bras ; lean : côté où il se penche quand il frappe ; punch : bras qui frappe */
+const META = [ { arms: ['up','dn'], out: -1, lean: 1, punch: 1, side: false },
+               { arms: ['dn','up'], out: 1, lean: -1, punch: 0, side: false },
+               { arms: ['up','up'], out: 1, lean: 1, punch: 0, side: true } ];
+/* bouche (vue de face) : contour de l'ouverture et ligne de coupe entre dents du haut et du bas */
+const BOUCHE = [[99,162],[100,166],[110,173],[122,181],[136,186],[156,190],[180,191],[204,190],[226,185],[242,180],[254,169],[261,162],[262,181],[258,199],[250,215],[238,229],[218,238],[198,242],[180,243],[160,241],[142,237],[122,231],[109,223],[101,209],[99,191]];
+const COUPE = [[90,198],[116,201],[133,209],[154,214],[180,219],[206,214],[227,209],[247,201],[272,198]];
+const YEUX = { front: [[145,150,25,20,0.32],[215,150,25,20,-0.32]], side: [[199,147,11,20,0.2]] };
+function cv(w, h) { const c = document.createElement('canvas'); c.width = Math.max(1, Math.ceil(w)); c.height = Math.max(1, Math.ceil(h)); return c; }
+function chemin(g, pts) { g.beginPath(); for (let i = 0; i < pts.length; i++) i ? g.lineTo(pts[i][0], pts[i][1]) : g.moveTo(pts[i][0], pts[i][1]); g.closePath(); }
+function ell(g, E, grow) { g.beginPath(); g.ellipse(E[0], E[1], E[2] + grow, E[3] + grow, 0, 0, Math.PI * 2); }
+function boite(poly, w, h) { let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (const p of poly) { x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]); x1 = Math.max(x1, p[0]); y1 = Math.max(y1, p[1]); }
+  x0 = Math.max(0, Math.floor(x0) - 2); y0 = Math.max(0, Math.floor(y0) - 2); x1 = Math.min(w, Math.ceil(x1) + 2); y1 = Math.min(h, Math.ceil(y1) + 2); return [x0, y0, x1 - x0, y1 - y0]; }
+function teinte(c, coul, mode) { const t = cv(c.width, c.height), g = t.getContext('2d'); g.drawImage(c, 0, 0); g.globalCompositeOperation = mode || 'source-in'; g.fillStyle = coul; g.fillRect(0, 0, t.width, t.height); return t; }
+/* réduction par moitiés successives (comme le jeu) : pas de crénelage */
+function reduire(c, ps) {
+  if (ps >= 1) return c;
+  const tw = Math.max(1, Math.round(c.width * ps)), th = Math.max(1, Math.round(c.height * ps));
+  let s = c;
+  while (s.width / 2 >= tw && s.height / 2 >= th) { const n = cv(Math.ceil(s.width / 2), Math.ceil(s.height / 2)), g = n.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(s, 0, 0, n.width, n.height); s = n; }
+  const n = cv(tw, th), g = n.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(s, 0, 0, tw, th); return n;
+}
+function pixel(c, x, y) { const d = c.getContext('2d').getImageData(Math.round(x), Math.round(y), 1, 1).data; return [d[0], d[1], d[2], d[3]]; }
+function pixelImg(im, x, y) { const c = cv(im.width, im.height); c.getContext('2d').drawImage(im, 0, 0); return pixel(c, x, y); }
+function rgb(a, k) { k = k || 1; return 'rgb(' + Math.min(255, Math.round(a[0] * k)) + ',' + Math.min(255, Math.round(a[1] * k)) + ',' + Math.min(255, Math.round(a[2] * k)) + ')'; }
+/* sombre / moyen / clair d'une pièce, par luminance : sert à B pour teindre ses membres comme l'image */
+function palette(c) {
+  const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data, L = [];
+  for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 250) L.push([0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2], d[i], d[i + 1], d[i + 2]]);
+  L.sort((a, b) => a[0] - b[0]);
+  const m = (a, b) => { let r = 0, g = 0, bl = 0, n = 0; for (let i = Math.floor(L.length * a); i < Math.floor(L.length * b); i++) { r += L[i][1]; g += L[i][2]; bl += L[i][3]; n++; } return [r / n, g / n, bl / n]; };
+  return { sombre: m(0.05, 0.15), moyen: m(0.45, 0.6), clair: m(0.88, 0.97) };
+}
+function chargerImage(src) { return new Promise((ok, ko) => { const im = new Image(); im.onload = () => ok(im); im.onerror = () => ko(new Error('image introuvable : ' + src)); im.src = src; }); }
+
+function masque(poly, w, h) { const c = cv(w, h), g = c.getContext('2d'); g.fillStyle = '#000'; chemin(g, poly); g.fill(); return g.getImageData(0, 0, w, h).data; }
+
+/* reconstitue le rebord de la sphère là où un bras le recouvrait : pour chaque pixel de la couronne dans le polygone,
+   on interpole à même rayon entre les deux angles voisins hors polygone (l'ombrage d'une sphère dépend surtout du rayon) */
+function recoudreRebord(body, img, poly, E, w, h) {
+  const gb = body.getContext('2d'), orig = cv(w, h), go = orig.getContext('2d'); go.drawImage(img, 0, 0);
+  const src = go.getImageData(0, 0, w, h).data, out = gb.getImageData(0, 0, w, h), od = out.data, m = masque(poly, w, h);
+  const dans = (x, y) => x >= 0 && y >= 0 && x < w && y < h && m[(Math.round(y) * w + Math.round(x)) * 4 + 3] > 20;
+  const pt = (r, t) => [E[0] + Math.cos(t) * E[2] * r, E[1] + Math.sin(t) * E[3] * r];
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    if (!dans(x, y)) continue;
+    const nx = (x - E[0]) / E[2], ny = (y - E[1]) / E[3], r = Math.hypot(nx, ny);
+    if (r < 0.9 || r > 1.02) continue;
+    const t = Math.atan2(ny, nx); let ta = null, tb = null;
+    for (let k = 1; k < 90 && ta === null; k++) { const p = pt(r, t - k * 0.02); if (!dans(p[0], p[1])) ta = k * 0.02; }
+    for (let k = 1; k < 90 && tb === null; k++) { const p = pt(r, t + k * 0.02); if (!dans(p[0], p[1])) tb = k * 0.02; }
+    if (ta === null || tb === null) continue;
+    const pa = pt(r, t - ta), pb = pt(r, t + tb), ia = (Math.round(pa[1]) * w + Math.round(pa[0])) * 4, ib = (Math.round(pb[1]) * w + Math.round(pb[0])) * 4;
+    if (src[ia + 3] < 200 || src[ib + 3] < 200) continue;
+    const wgt = ta / (ta + tb), i = (y * w + x) * 4;
+    for (let c = 0; c < 3; c++) od[i + c] = src[ia + c] * (1 - wgt) + src[ib + c] * wgt;
+    od[i + 3] = 255;
+  }
+  gb.putImageData(out, 0, 0);
+}
+
+/* découpe une vue : renvoie les canevas pleine résolution */
+function decouper(nom, img) {
+  const D = DEF[nom], W = img.width, H = img.height, E = D.E;
+  const corps = cv(W, H), gc = corps.getContext('2d'); gc.drawImage(img, 0, 0);
+  const pieces = { arms: [], legs: [] };
+  function membre(L, legs) {
+    if (L.copie !== undefined) return { copie: L.copie, sombre: L.sombre };
+    const pc = cv(W, H), pg = pc.getContext('2d');
+    pg.save(); chemin(pg, L.poly); pg.clip(); pg.drawImage(img, 0, 0); pg.restore();
+    if (L.over > 0) { /* retire le cœur de la sphère, garde une bande de recouvrement */
+      pg.globalCompositeOperation = 'destination-out'; ell(pg, E, -L.over); pg.fill(); pg.globalCompositeOperation = 'source-over'; }
+    /* corps : on efface le polygone, puis on n'y remet que ce qui est dans l'ellipse (la sphère reste entière) */
+    gc.save(); chemin(gc, L.poly); gc.clip(); gc.clearRect(0, 0, W, H);
+    if (!L.trou) { ell(gc, E, 2); gc.clip(); gc.drawImage(img, 0, 0); }
+    gc.restore();
+    return { c: pc, box: boite(L.poly, W, H), pivot: L.pivot, foot: L.foot };
+  }
+  D.arms.forEach(L => pieces.arms.push(membre(L, false)));
+  D.legs.forEach(L => pieces.legs.push(membre(L, true)));
+  /* bras de profil : le trou laissé dans la sphère est comblé ligne à ligne (interpolation horizontale) */
+  D.arms.forEach(L => { if (!L.trou) return;
+    const [x0, x1, y0, y1] = L.trou, tmp = cv(W, H), tg = tmp.getContext('2d'); tg.drawImage(img, 0, 0);
+    const s = tg.getImageData(0, 0, W, H).data, o = gc.getImageData(0, 0, W, H), od = o.data;
+    for (let y = y0; y < y1; y++) for (let x = x0; x <= x1; x++) {
+      const nx = (x - E[0]) / E[2], ny = (y - E[1]) / E[3]; if (nx * nx + ny * ny > 0.99) continue;
+      const a = (y * W + x0 - 3) * 4, b = (y * W + x1 + 3) * 4, t = (x - x0 + 3) / (x1 - x0 + 6), i = (y * W + x) * 4;
+      for (let c = 0; c < 3; c++) od[i + c] = s[a + c] * (1 - t) + s[b + c] * t; od[i + 3] = 255; }
+    gc.putImageData(o, 0, 0); });
+  /* rebord de sphère sous les épaules de face et de dos */
+  if (nom !== 'side') D.arms.forEach(L => recoudreRebord(corps, img, L.poly, E, W, H));
+  return { corps, pieces, W, H };
+}
+/* ====================================================================
+   PROTO 2 : squelette continu
+   Unités : pixels de l'image officielle (DZÔ = 405 de haut). Repère du personnage : r (sa droite), f (devant), haut.
+   Chaque membre est un point 3D recalculé à chaque image, puis projeté (profondeur écrasée par PROF).
+   ==================================================================== */
+const TAU = Math.PI * 2, PROF = 0.5, VMAX = 430, PAS = 96, APPUI = 0.44;
+const lerp = (a, b, t) => a + (b - a) * t, clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const lisse = (t) => t * t * (3 - 2 * t);
+const V = {}, COUL = {}, PIECES = {};
+function eroder(c) { const g = c.getContext('2d'), t = cv(c.width, c.height); t.getContext('2d').drawImage(c, 0, 0); g.globalCompositeOperation = 'destination-in';
+  for (const [x, y] of [[1,0],[-1,0],[0,1],[0,-1]]) g.drawImage(t, x, y); g.globalCompositeOperation = 'source-over'; }
+/* pièce ronde ou ovale prise dans une image officielle (poing, pied), bord adouci */
+function pastille(img, cx, cy, rx, ry) {
+  const c = cv(rx * 2 + 4, ry * 2 + 4), g = c.getContext('2d');
+  g.save(); g.beginPath(); g.ellipse(rx + 2, ry + 2, rx, ry, 0, 0, TAU); g.clip(); g.drawImage(img, -(cx - rx - 2), -(cy - ry - 2)); g.restore();
+  eroder(c);
+  /* variante assombrie (membre du côté éloigné), préparée une fois */
+  const o = cv(c.width, c.height), go = o.getContext('2d'); go.drawImage(c, 0, 0); go.globalCompositeOperation = 'source-atop'; go.fillStyle = 'rgba(6,22,46,0.3)'; go.fillRect(0, 0, o.width, o.height);
+  return { c, o, rx: rx + 2, ry: ry + 2 };
+}
+async function construire() {
+  for (const nom of VUES) {
+    const img = await chargerImage(IMG[nom]), d = decouper(nom, img);
+    eroder(d.corps);
+    V[nom] = { img, corps: d.corps, ax: DEF[nom].ax, ay: DEF[nom].ay, E: DEF[nom].E };
+  }
+  const F = V.front.img, S = V.side.img, B = V.back.img;
+  /* poing baissé de face (bras droit de l'image), poing de dos, poing de profil ; pieds de face, de dos, de profil */
+  PIECES.poing = { front: pastille(F, 289, 290, 27, 30), back: pastille(B, 50, 288, 27, 30), side: pastille(S, 122, 26, 22, 24) };
+  PIECES.pied = { front: pastille(F, 106, 380, 44, 22), back: pastille(B, 90, 380, 44, 22), side: pastille(S, 136, 381, 52, 22) };
+  const arm = V.front.img, bc = cv(60, 100); bc.getContext('2d').drawImage(arm, 268, 196, 60, 100, 0, 0, 60, 100);
+  COUL.chair = palette(bc);
+  COUL.peau = pixelImg(F, 180, 132).slice(0, 3);
+}
+
+/* ---------------- état commun (mêmes commandes pour les deux colonnes) ---------------- */
+const E = { x: 0, y: 0, vx: 0, vy: 0, cap: Math.PI / 2, vit: 0, phase: 0, t: 0, penche: [0, 0], vue: 'front', poids: { front: 1, back: 0, side: 0 }, miroir: 1,
+  mains: [null, null], poing: { t: -1, bras: 0, dx: 0, dy: 1 }, touche: -1, vict: -1, cligne: 0, prochainCligne: 2, ecrase: 0, pasPrec: [0, 0], regard: 0 };
+const CMD = { x: 0, y: 0, demo: true, ralenti: false, squelette: false, touches: {}, doigt: null };
+
+function commande(dt) {
+  let x = 0, y = 0; const k = CMD.touches;
+  if (k.ArrowLeft || k.a || k.q) x -= 1; if (k.ArrowRight || k.d) x += 1; if (k.ArrowUp || k.w || k.z) y -= 1; if (k.ArrowDown || k.s) y += 1;
+  if (CMD.doigt) { x = CMD.doigt.x; y = CMD.doigt.y; }
+  if (x || y) { if (CMD.demo) basculerDemo(false); }
+  else if (CMD.demo) { /* parcours : huit, arrêts, demi-tours secs, coups de poing */
+    const T = E.t % 22;
+    if (T < 7) { const a = T * 1.25; x = Math.cos(a); y = Math.sin(a * 2) * 0.9; }
+    else if (T < 8.6) { x = 0; y = 0; }
+    else if (T < 10) { x = 1; y = 0; } else if (T < 11.2) { x = -1; y = 0; } else if (T < 12.4) { x = 0; y = -1; } else if (T < 13.6) { x = 0; y = 1; }
+    else if (T < 15.2) { x = 0; y = 0; if (E.poing.t < 0 && (T - 13.8) % 0.7 < dt) frapper(Math.cos(T * 3), Math.sin(T * 3)); }
+    else if (T < 19) { const a = -T * 1.6; x = Math.cos(a); y = Math.sin(a); if (E.poing.t < 0 && (T - 15.2) % 1.3 < dt) frapper(x, y); }
+    else if (T < 20.4) { x = 0; y = 0; if (E.touche < 0 && T - 19.3 > 0 && T - 19.3 < dt) E.touche = 0; }
+    else { x = 0; y = 0; if (E.vict < 0 && T - 20.4 < dt) E.vict = 0; }
+  }
+  const n = Math.hypot(x, y); if (n > 1) { x /= n; y /= n; }
+  CMD.x = x; CMD.y = y;
+}
+function frapper(dx, dy) { if (E.poing.t >= 0) return; const n = Math.hypot(dx, dy) || 1; E.poing = { t: 0, bras: 1 - E.poing.bras, dx: dx / n, dy: dy / n }; }
+
+function avancer(dt) {
+  E.t += dt;
+  commande(dt);
+  const bloque = E.vict >= 0;
+  const cx = bloque ? 0 : CMD.x * VMAX, cy = bloque ? 0 : CMD.y * VMAX;
+  const ax = (cx - E.vx) * Math.min(1, dt * 11), ay = (cy - E.vy) * Math.min(1, dt * 11);
+  E.vx += ax; E.vy += ay; E.x += E.vx * dt; E.y += E.vy * dt;
+  E.vit = Math.hypot(E.vx, E.vy);
+  /* cap : tourne vers la vitesse, par le plus court chemin */
+  if (E.vit > 25) { let d = Math.atan2(E.vy, E.vx) - E.cap; d = Math.atan2(Math.sin(d), Math.cos(d)); E.cap += d * Math.min(1, dt * 13); E.arret = 0; }
+  /* à l'arrêt depuis un instant : il se retourne vers nous, comme dans le jeu */
+  else { E.arret = (E.arret || 0) + dt; if (E.arret > 0.45 && E.poing.t < 0) { let d = Math.PI / 2 - E.cap; d = Math.atan2(Math.sin(d), Math.cos(d)); E.cap += d * Math.min(1, dt * 7); } }
+  /* inclinaison : penche vers l'accélération et un peu vers la vitesse (ressort) */
+  const px = ax / dt * 0.00022 + E.vx * 0.00028, py = ay / dt * 0.00022 + E.vy * 0.00028;
+  E.penche[0] += (px - E.penche[0]) * Math.min(1, dt * 9); E.penche[1] += (py - E.penche[1]) * Math.min(1, dt * 9);
+  /* foulée : la phase avance avec la distance parcourue, le pied d'appui ne glisse donc pas */
+  const w = clamp(E.vit / VMAX, 0, 1), f = [Math.cos(E.cap), Math.sin(E.cap)], pf = Math.max(0.72, Math.hypot(f[0], f[1] * PROF));
+  const L = PAS * (0.4 + 0.6 * w);
+  E.phase += TAU * E.vit * APPUI / (L * pf) * dt;
+  /* écrasement à la pose du pied */
+  for (let i = 0; i < 2; i++) { const c = ((E.phase / TAU + i * 0.5) % 1 + 1) % 1; if (c < E.pasPrec[i] && w > 0.3) E.ecrase = 1; E.pasPrec[i] = c; }
+  E.ecrase = Math.max(0, E.ecrase - dt * 7);
+  if (E.poing.t >= 0) { E.poing.t += dt; if (E.poing.t > 0.42) E.poing.t = -1; }
+  if (E.touche >= 0) { E.touche += dt; if (E.touche > 0.7) E.touche = -1; }
+  if (E.vict >= 0) { E.vict += dt; if (E.vict > 1.5) E.vict = -1; }
+  E.prochainCligne -= dt; if (E.prochainCligne < 0) { E.cligne = 0.16; E.prochainCligne = 1.6 + Math.random() * 3; } E.cligne = Math.max(0, E.cligne - dt);
+  /* vue du corps (face, dos, profil) avec hystérésis, puis fondu */
+  const fy = f[1]; let v = E.vue;
+  if (v === 'front' && fy < 0.3) v = 'side'; else if (v === 'back' && fy > -0.3) v = 'side'; else if (v === 'side') { if (fy > 0.46) v = 'front'; else if (fy < -0.46) v = 'back'; }
+  E.vue = v; if (Math.abs(f[0]) > 0.15) E.miroir = f[0] < 0 ? -1 : 1;
+  for (const n of VUES) E.poids[n] += ((n === v ? 1 : 0) - E.poids[n]) * Math.min(1, dt * 16);
+  poserSquelette(dt);
+}
+
+/* ---------------- squelette : cibles 3D puis ressorts ---------------- */
+const SQ = { centre: [0, 0, 0], rot: 0, sx: 1, sy: 1, jambes: [{}, {}], bras: [{}, {}] };
+function poserSquelette(dt) {
+  const f = [Math.cos(E.cap), Math.sin(E.cap)], r = [-f[1], f[0]], w = clamp(E.vit / VMAX, 0, 1), marche = clamp(E.vit / 60, 0, 1);
+  const L = PAS * (0.4 + 0.6 * w), ph = E.phase;
+  const monde = (l, a, h) => [r[0] * l + f[0] * a, r[1] * l + f[1] * a, h];   /* (latéral, avant, haut) → (sol x, sol y, haut) */
+  /* corps : rebond deux fois par foulée, respiration au repos, saut de victoire, recul quand touché */
+  const resp = Math.sin(E.t * 2.3);
+  let haut = 216 - 9 * w * (0.5 + 0.5 * Math.cos(ph * 2 + 0.6)) + 2.2 * resp * (1 - marche), sx = 1, sy = 1, dx = 0, dy = 0, rot = 0;
+  sy = 1 - 0.035 * E.ecrase * w + 0.012 * resp * (1 - marche); sx = 1 + 0.03 * E.ecrase * w - 0.008 * resp * (1 - marche);
+  rot = E.penche[0] * 1.5 + Math.sin(ph) * 0.035 * w;
+  dx = E.penche[0] * 60; dy = E.penche[1] * 30;
+  let saut = 0;
+  if (E.vict >= 0) { const u = E.vict / 1.5, s = Math.abs(Math.sin(u * Math.PI * 3)); saut = s * 90 * (1 - u * 0.3); const at = Math.pow(1 - s, 5); sy *= 1 + 0.07 * s - 0.1 * at; sx *= 1 - 0.04 * s + 0.07 * at; }
+  if (E.touche >= 0) { const u = E.touche / 0.7, k = Math.exp(-u * 5); rot += 0.3 * k * Math.cos(u * 16); dx -= 26 * k * Math.cos(u * 10); sy *= 1 - 0.12 * Math.max(0, 1 - u * 6); sx *= 1 + 0.09 * Math.max(0, 1 - u * 6); }
+  /* coup de poing : élan (recul), frappe, tenue, retour */
+  let fr = 0, elan = 0; const P = E.poing;
+  if (P.t >= 0) { const u = P.t; if (u < 0.1) elan = lisse(u / 0.1); else if (u < 0.17) { elan = 1 - (u - 0.1) / 0.07; fr = Math.pow((u - 0.1) / 0.07, 0.6); } else if (u < 0.25) fr = 1; else fr = 1 - lisse((u - 0.25) / 0.17);
+    dx += P.dx * (fr * 26 - elan * 12); dy += P.dy * (fr * 13 - elan * 6); rot += P.dx * (fr * 0.1 - elan * 0.06); sx *= 1 + 0.04 * fr; }
+  SQ.centre = [dx, dy, haut + saut]; SQ.rot = rot; SQ.sx = sx; SQ.sy = sy; SQ.saut = saut;
+  /* jambes : appui (le pied recule exactement à la vitesse du sol) puis envol */
+  for (let i = 0; i < 2; i++) {
+    const cote = i ? -1 : 1, c = ((ph / TAU + i * 0.5) % 1 + 1) % 1; let av, leve;
+    if (c < APPUI) { av = L * (0.5 - c / APPUI); leve = 0; } else { const s = (c - APPUI) / (1 - APPUI); av = L * (-0.5 + lisse(s)); leve = Math.sin(Math.PI * s) * (26 + 22 * w); }
+    av *= marche; leve *= marche;
+    let lat = cote * lerp(50, 36, w), hp = 16 + leve;
+    if (saut > 0) { hp += saut * 0.82 + 10; lat = cote * 58; }
+    const pied = monde(lat, av + (saut > 0 ? 0 : 0), hp), hanche = monde(cote * 46, -4, haut + saut - 104);
+    hanche[0] += dx; hanche[1] += dy;
+    const genou = [(hanche[0] + pied[0]) / 2 + f[0] * (14 + leve * 0.9) + r[0] * cote * 6, (hanche[1] + pied[1]) / 2 + f[1] * (14 + leve * 0.9) + r[1] * cote * 6, (hanche[2] + pied[2]) / 2 + leve * 0.15];
+    SQ.jambes[i] = { a: hanche, m: genou, b: pied, pointe: clamp(-av / L, -0.5, 0.5) * marche, cote };
+  }
+  /* bras : cible selon l'état, puis ressort (le poing arrive en retard et dépasse un peu : c'est ce qui donne le souple) */
+  for (let i = 0; i < 2; i++) {
+    const cote = i ? -1 : 1, c = ((ph / TAU + i * 0.5) % 1 + 1) % 1;
+    const balance = -Math.cos(c * TAU + 0.5) * 62 * w;                 /* opposé à la jambe du même côté */
+    let cible = monde(cote * lerp(122, 112, w), 8 - balance, 128 + Math.abs(balance) * 0.42 + 3 * resp * (1 - marche) + saut);
+    let raide = 190, frein = 19;
+    if (E.vict >= 0) { const u = E.vict / 1.5; cible = monde(cote * (118 + 16 * Math.sin(E.t * 15 + i * 2)), 6, 352 + saut + 10 * Math.sin(E.t * 15 + i)); raide = 260; }
+    if (E.touche >= 0) { const k = Math.exp(-E.touche / 0.7 * 4); cible[2] += 80 * k; cible[0] += r[0] * cote * 30 * k; cible[1] += r[1] * cote * 30 * k; }
+    if (P.t >= 0 && P.bras === i) { cible = [P.dx * (fr * 196 - elan * 46) + r[0] * cote * 70 * (1 - fr), P.dy * (fr * 196 - elan * 46) + r[1] * cote * 70 * (1 - fr), 212 - 40 * elan + saut]; raide = 900; frein = 46; }
+    else if (P.t >= 0) { cible[0] -= P.dx * 36 * fr; cible[1] -= P.dy * 36 * fr; }
+    cible[0] += dx; cible[1] += dy;
+    let m = E.mains[i]; if (!m) m = E.mains[i] = { p: cible.slice(), v: [0, 0, 0] };
+    for (let k = 0; k < 3; k++) { m.v[k] += ((cible[k] - m.p[k]) * raide - m.v[k] * frein) * dt; m.p[k] += m.v[k] * dt; }
+    const epaule = monde(cote * 102, 0, haut + saut + 22); epaule[0] += dx; epaule[1] += dy;
+    const coude = [(epaule[0] + m.p[0]) / 2 + r[0] * cote * 20 - f[0] * 16, (epaule[1] + m.p[1]) / 2 + r[1] * cote * 20 - f[1] * 16, (epaule[2] + m.p[2]) / 2 - 12];
+    SQ.bras[i] = { a: epaule, m: coude, b: m.p, cote, frappe: P.t >= 0 && P.bras === i ? fr : 0 };
+  }
+}
+
+/* ---------------- dessin du proto ---------------- */
+function tube(g, A, M, B, larg, sombre) {
+  const C = COUL.chair, k = sombre ? 0.74 : 1;
+  const trace = () => { g.beginPath(); g.moveTo(A[0], A[1]); g.quadraticCurveTo(M[0] * 2 - (A[0] + B[0]) / 2, M[1] * 2 - (A[1] + B[1]) / 2, B[0], B[1]); };
+  g.lineCap = 'round';
+  g.strokeStyle = rgb(C.sombre, 0.62 * k); g.lineWidth = larg; trace(); g.stroke();
+  g.strokeStyle = rgb(C.moyen, k); g.lineWidth = larg * 0.8; trace(); g.stroke();
+  g.save(); g.translate(-larg * 0.13, -larg * 0.1); g.strokeStyle = rgb(C.clair, 0.98 * k); g.globalAlpha = 0.75; g.lineWidth = larg * 0.3; trace(); g.stroke(); g.restore();
+}
+function poserPiece(g, p, x, y, ech, miroir, rot, sombre) {
+  g.save(); g.translate(x, y); if (rot) g.rotate(rot); g.scale(ech * miroir, ech);
+  g.drawImage(sombre ? p.o : p.c, -p.rx, -p.ry);
+  g.restore();
+}
+function dessinerProto(g, X, Y, H, squelette) {
+  const k = H / 405, pr = (p) => [X + p[0] * k, Y + (p[1] * PROF - p[2]) * k], vue = E.vue, f1 = Math.sin(E.cap);
+  /* ombre : rétrécit quand il saute */
+  const os = 1 - Math.min(0.45, (SQ.saut || 0) / 260);
+  g.fillStyle = 'rgba(0,0,0,0.3)'; g.beginPath(); g.ellipse(X + SQ.centre[0] * k, Y + SQ.centre[1] * PROF * k + 4 * k, 118 * k * os, 34 * k * os, 0, 0, TAU); g.fill();
+  const jambe = (J) => { const a = pr(J.a), m = pr(J.m), b = pr(J.b), loin = J.b[1] < -4 || (vue === 'side' && J.cote * E.miroir * -1 > 0 && false);
+    tube(g, a, m, [b[0], b[1] - 6 * k], 42 * k, J.b[1] < -8);
+    const pp = PIECES.pied[vue], mir = vue === 'side' ? E.miroir : (vue === 'back' ? -J.cote : J.cote) * (vue === 'front' ? -1 : 1);
+    poserPiece(g, pp, b[0] + (vue === 'side' ? 16 * k * E.miroir : 0), b[1], k, vue === 'side' ? E.miroir : (J.cote > 0 ? 1 : -1) * (vue === 'back' ? -1 : 1), vue === 'side' ? J.pointe * 0.5 * E.miroir : 0, J.b[1] < -8); };
+  const bras = (Br) => { const a = pr(Br.a), m = pr(Br.m), b = pr(Br.b), loin = Br.b[1] < -10;
+    tube(g, a, m, b, 36 * k, loin);
+    const gros = 1 + 0.32 * Br.frappe, pp = PIECES.poing[vue === 'side' ? 'side' : vue];
+    poserPiece(g, pp, b[0], b[1] + 4 * k, k * gros, vue === 'side' ? E.miroir : (Br.cote > 0 ? 1 : -1) * (vue === 'back' ? -1 : 1) * -1, 0, loin); };
+  /* ordre : jambes (la plus lointaine d'abord), bras derrière le corps, corps, bras devant */
+  const J = SQ.jambes.slice().sort((a, b) => a.b[1] - b.b[1]); J.forEach(jambe);
+  const B = SQ.bras.slice().sort((a, b) => a.b[1] - b.b[1]);
+  const derriere = (Br) => (Br.b[1] + Br.a[1]) / 2 - SQ.centre[1] < (vue === 'side' ? 0 : -14);
+  B.filter(derriere).forEach(bras);
+  /* corps : la sphère officielle sans ses membres ; fondu entre face, profil et dos */
+  const c = pr(SQ.centre);
+  const ordre = VUES.slice().sort((a, b) => E.poids[a] - E.poids[b]);
+  for (const n of ordre) { const p = E.poids[n]; if (p < 0.02) continue; const v = V[n], mir = n === 'side' ? E.miroir : 1;
+    g.save(); g.translate(c[0], c[1]); g.rotate(SQ.rot); g.scale(k * SQ.sx * mir, k * SQ.sy); g.globalAlpha = n === ordre[2] ? 1 : p;
+    g.drawImage(v.corps, -v.E[0], -v.E[1]);
+    if (n === 'front' && E.cligne > 0) { const o = Math.sin((1 - E.cligne / 0.16) * Math.PI); g.fillStyle = rgb(COUL.peau);
+      for (const y of YEUX.front) { g.save(); g.translate(y[0] - v.E[0], y[1] - v.E[1] - 2); g.rotate(y[4]); g.beginPath(); g.ellipse(0, 0, y[2] + 2, (y[3] + 2) * o, 0, 0, TAU); g.fill(); g.restore(); } }
+    g.restore(); }
+  g.globalAlpha = 1;
+  B.filter((b) => !derriere(b)).forEach(bras);
+  if (squelette) { g.lineWidth = 2; for (const m of SQ.jambes.concat(SQ.bras)) { const a = pr(m.a), mm = pr(m.m), b = pr(m.b); g.strokeStyle = '#ffd23f'; g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(mm[0], mm[1]); g.lineTo(b[0], b[1]); g.stroke();
+      g.fillStyle = '#ff3b5c'; for (const q of [a, mm, b]) { g.beginPath(); g.arc(q[0], q[1], 3.5, 0, TAU); g.fill(); } } }
+}
+
+/* ---------------- référence : formules actuelles de dessinerDzo (index.html du jeu) ---------------- */
+function dessinerRef(g, X, Y, H) {
+  const k = H / 405, u = 405 / 80, dx = clamp(E.vx / VMAX, -1, 1), dyv = clamp(E.vy / VMAX, -1, 1), marche = E.vit > 40;
+  const v = marche && dyv < -0.8 ? V.back : V.front; let rot = 0, sx = 1, sy = 1, bob = 0, x = 0, a;
+  if (E.vict >= 0) { bob = Math.abs(Math.sin(E.t * 9)) * 12 * u; sx = sy = 1.18; }
+  else if (marche) { a = E.t * 3.5 * Math.PI; bob = Math.abs(Math.sin(a)) * 5 * u; rot = Math.sin(a) * 0.087 + dx * 0.14; x = dx * 3 * u; let ct = 1 - bob / (5 * u); ct *= ct; sx = 1 + 0.06 * ct; sy = 1 - 0.06 * ct; }
+  else { a = Math.sin(E.t * 1.2 * TAU); sy = 1 + 0.02 * a; sx = 1 - 0.01 * a; }
+  if (v === V.back && dx < 0) sx = -sx;
+  g.fillStyle = 'rgba(0,0,0,0.3)'; g.beginPath(); g.ellipse(X, Y + 4 * k, 118 * k, 34 * k, 0, 0, TAU); g.fill();
+  g.save(); g.translate(X + x * k, Y - bob * k); g.rotate(rot); g.scale(k * sx, k * sy);
+  if (E.touche >= 0 && E.touche < 0.12) g.globalAlpha = 0.5;
+  g.drawImage(v.img, -v.ax, -v.ay); g.restore();
+}
+
+/* ---------------- scène : sol qui défile (on voit si les pieds glissent) ---------------- */
+function sol(g, W, Hc, k, X, Y) {
+  g.fillStyle = '#27304f'; g.fillRect(0, 0, W, Hc);
+  const pas = 120 * k, ox = ((-E.x * k) % pas + pas) % pas, oy = ((-E.y * k) % pas + pas) % pas;
+  g.strokeStyle = 'rgba(255,255,255,0.07)'; g.lineWidth = 1; g.beginPath();
+  for (let x = ox + (X % pas) - pas; x < W; x += pas) { g.moveTo(x, 0); g.lineTo(x, Hc); }
+  for (let y = oy + (Y % pas) - pas; y < Hc; y += pas) { g.moveTo(0, y); g.lineTo(W, y); }
+  g.stroke();
+  g.fillStyle = 'rgba(255,255,255,0.16)';
+  for (let i = -3; i < 8; i++) for (let j = -3; j < 10; j++) { const gx = Math.floor(E.x / 120) + i, gy = Math.floor(E.y / 120) + j, h = Math.sin(gx * 12.9898 + gy * 78.233) * 43758.5453, fr = h - Math.floor(h);
+    if (fr > 0.45) continue; const px = X + (gx * 120 + fr * 200 - E.x) * k, py = Y + (gy * 120 + (fr * 7 % 1) * 100 - E.y) * k; g.fillRect(px, py, 3, 2); }
+}
+const CAN = [document.getElementById('cRef'), document.getElementById('cNew')], DPR = Math.min(2, window.devicePixelRatio || 1);
+function taille() { for (const c of CAN) { const w = c.clientWidth; c.width = Math.round(w * DPR); c.height = Math.round(w * 1.12 * DPR); } }
+let tPrec = 0, cout = [0, 0], reste = 0;
+function image(t) {
+  let dt = Math.min(0.05, (t - tPrec) / 1000 || 0); tPrec = t; if (CMD.ralenti) dt *= 0.25;
+  reste += dt; while (reste > 1 / 240) { avancer(1 / 240); reste -= 1 / 240; }
+  CAN.forEach((c, i) => {
+    const g = c.getContext('2d'), W = c.width / DPR, Hc = c.height / DPR, H = Math.min(210, W * 0.56), X = W / 2, Y = Hc * 0.78, k = H / 405;
+    g.setTransform(DPR, 0, 0, DPR, 0, 0); sol(g, W, Hc, k, X, Y);
+    const t0 = performance.now();
+    if (i) dessinerProto(g, X, Y, H, CMD.squelette); else dessinerRef(g, X, Y, H);
+    cout[i] = cout[i] * 0.95 + (performance.now() - t0) * 0.05;
+    /* vignette à la taille du jeu (56 px de haut) */
+    g.fillStyle = 'rgba(13,16,32,0.72)'; g.fillRect(8, 8, 84, 84); g.strokeStyle = 'rgba(255,255,255,0.18)'; g.strokeRect(8.5, 8.5, 84, 84);
+    g.save(); g.beginPath(); g.rect(8, 8, 84, 84); g.clip(); if (i) dessinerProto(g, 50, 78, 56, false); else dessinerRef(g, 50, 78, 56); g.restore();
+    g.fillStyle = '#9aa6c8'; g.font = '10px system-ui'; g.fillText('taille du jeu', 12, 104);
+  });
+  document.getElementById('iRef').textContent = 'dessin : ' + (cout[0] * 1000).toFixed(0) + ' µs par image';
+  document.getElementById('iNew').textContent = 'dessin : ' + (cout[1] * 1000).toFixed(0) + ' µs par image';
+  document.getElementById('etat').textContent = 'vitesse ' + Math.round(E.vit) + ' · vue ' + E.vue + (CMD.demo ? ' · démo' : ' · à la main');
+  requestAnimationFrame(image);
+}
+function basculerDemo(v) { CMD.demo = v; document.getElementById('bDemo').classList.toggle('on', v); }
+document.getElementById('bDemo').onclick = () => basculerDemo(!CMD.demo);
+document.getElementById('bPoing').onclick = () => frapper(Math.cos(E.cap), Math.sin(E.cap));
+document.getElementById('bTouche').onclick = () => { E.touche = 0; };
+document.getElementById('bVict').onclick = () => { E.vict = 0; };
+document.getElementById('bRal').onclick = (e) => { CMD.ralenti = !CMD.ralenti; e.target.classList.toggle('on', CMD.ralenti); };
+document.getElementById('bSq').onclick = (e) => { CMD.squelette = !CMD.squelette; e.target.classList.toggle('on', CMD.squelette); };
+addEventListener('keydown', (e) => { CMD.touches[e.key.length === 1 ? e.key.toLowerCase() : e.key] = true; if (e.key === ' ') { frapper(Math.cos(E.cap), Math.sin(E.cap)); e.preventDefault(); } if (e.key.startsWith('Arrow')) e.preventDefault(); });
+addEventListener('keyup', (e) => { CMD.touches[e.key.length === 1 ? e.key.toLowerCase() : e.key] = false; });
+for (const c of CAN) { let o = null;
+  c.addEventListener('pointerdown', (e) => { o = [e.clientX, e.clientY]; c.setPointerCapture(e.pointerId); });
+  c.addEventListener('pointermove', (e) => { if (!o) return; const dx = e.clientX - o[0], dy = e.clientY - o[1], n = Math.hypot(dx, dy); CMD.doigt = n < 8 ? null : { x: dx / Math.max(n, 50), y: dy / Math.max(n, 50) }; });
+  const fin = () => { if (o && !CMD.doigt) frapper(Math.cos(E.cap), Math.sin(E.cap)); o = null; CMD.doigt = null; };
+  c.addEventListener('pointerup', fin); c.addEventListener('pointercancel', fin); }
+addEventListener('resize', taille);
+/* pour les captures automatiques : fige l'instant t de la démo */
+window.__proto = { etat: E, cmd: CMD, aller: (t) => { E.t = 0; E.phase = 0; E.x = E.y = E.vx = E.vy = 0; E.mains = [null, null]; E.touche = E.vict = -1; E.poing.t = -1; for (let i = 0; i < t * 240; i++) avancer(1 / 240); } };
+construire().then(() => { taille(); requestAnimationFrame(image); }).catch((e) => { document.getElementById('etat').textContent = String(e); });
+</script></main></body></html>
