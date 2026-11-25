@@ -7778,7 +7778,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.18.2-qa2';
+var VERSION='0.18.3-qa1';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -9218,7 +9218,7 @@ function chargerDzo(){
    10 + k × 10 + f course (direction k, image f sur 10) ; 90..99 victoire. Chaque image est préparée à son premier
    usage (contours comme les autres sprites), ses variantes blanche et rouge (coup reçu) aussi. Tant que la planche
    n'est pas chargée, ou si elle manque, le jeu garde l'ancien dessin (image entière). Rendu seul : la simulation n'en sait rien. */
-var DZA={pret:false,im:null,f:[],k:0,arret:0,CASE:224,PIED:208,PAS:78};
+var DZA={pret:false,im:null,f:[],k:0,arret:0,bras:-9,CASE:224,PIED:208,PAS:78};
 function chargerDzoAnime(){
   var im=new Image();im.onload=function(){DZA.im=im;DZA.pret=im.naturalWidth>=DZA.CASE*10;};im.onerror=function(){};im.src='assets/dzo-anim.webp?v=4';   /* numéro à augmenter à chaque nouvelle planche : force le rechargement de l'image */
 }
@@ -9236,6 +9236,8 @@ function teinteDza(s,cle,coul){if(!s[cle])s[cle]=teinter(s,coul).c;return s[cle]
 function choisirImageDza(){
   if(!DZA.pret)return null;
   if(tVict>=0)return imageDza(90+((tReel*14)|0)%10);
+  /* 46.142 : étape de la tournée prise : les deux poings levés pendant une seconde, en signe de victoire */
+  if(tMort<0&&tReel-DZA.bras<1&&ecran==='jeu')return imageDza(90+((tReel*14)|0)%10);
   if(tMort>=0||sous==='cartes'||sous==='coffre'||sous==='choix'||sous==='niveau'||ecran==='fin'){DZA.k=0;return imageDza(0);}
   if(S.marche){var a=Math.atan2(S.dx,S.dy),k=Math.round(a/(Math.PI/4));DZA.k=((k%8)+8)%8;DZA.arret=tReel;
     var ph=S.dist/DZA.PAS;return imageDza(10+DZA.k*10+((ph-Math.floor(ph))*10|0));}
@@ -10567,7 +10569,7 @@ function evTour(v,o){
     /* plus de bandeau « Objectif : … » (Dom, 24.11.2026) : sans nom de lieu il ne disait plus rien, et il recouvrait la flèche de
        l'étape suivante pendant 2 s quand elle pointe vers le haut ; la flèche, la cible de la carte et la bulle suffisent */
     tourPris=tourNom;nomLieuObjectif();}
-  else if(a===1){x=S.px;y=S.py;son('combo',Math.min(7,v[o+2]));anneauFx(x,y,160,0.45,2);budgetPart+=20;gerbe(x,y-20,14,1,220,6,0.5);parole(x,y-62,T('tour.pris',tourNom||T('tour.etape'),v[o+2],fmtNb(v[o+3])));}
+  else if(a===1){x=S.px;y=S.py;DZA.bras=tReel;son('combo',Math.min(7,v[o+2]));anneauFx(x,y,160,0.45,2);budgetPart+=20;gerbe(x,y-20,14,1,220,6,0.5);parole(x,y-62,T('tour.pris',tourNom||T('tour.etape'),v[o+2],fmtNb(v[o+3])));}
   else if(a===2){son('non');parole(S.px,S.py-58,T('tour.perdu'));}
 }
 /* conditions d'un pari, chiffres tirés du registre PARIS : {0} et {1} selon le pari, le dernier trou est le gain en % */
@@ -16054,6 +16056,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 9px/1 system-ui,sans-serif;padding:2px 10px 3px;border-radius:8px 8px 0 0;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.18.2-qa2 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.18.3-qa1 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
