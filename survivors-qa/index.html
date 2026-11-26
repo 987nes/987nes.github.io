@@ -2839,6 +2839,15 @@ LANGUES.fr={
 "cartes.titre":"CARTES",
 "cartes.ici":"Carte choisie",
 "cartes.jouer":"Jouer ici",
+"titre.essaiConcours":"Essai {0}/{1} · concours",
+"titre.essaiHors":"Essai {0}/{1} · hors concours",
+"concours.resteCarte":"Carte {0} · fin dans {1} ▸",
+"cartes.concours":"Concours",
+"lots.carte":"Se joue sur la carte de {0}.",
+"cc.titre":"Concours sur {0}",
+"cc.texte":"Ici, tes essais ne comptent pas pour le concours.",
+"cc.aller":"JOUER À {0}",
+"cc.rester":"RESTER ICI",
 "cartes.charge":"Chargement…",
 "cartes.une":"Une seule carte pour l'instant. D'autres arrivent.",
 "beta.court":"BÊTA",
@@ -4020,6 +4029,15 @@ LANGUES.de={
 "cartes.titre":"KARTEN",
 "cartes.ici":"Gewählte Karte",
 "cartes.jouer":"Hier spielen",
+"titre.essaiConcours":"Versuch {0}/{1} · Wettbewerb",
+"titre.essaiHors":"Versuch {0}/{1} · ohne Wertung",
+"concours.resteCarte":"Karte {0} · endet in {1} ▸",
+"cartes.concours":"Wettbewerb",
+"lots.carte":"Gespielt wird auf der Karte {0}.",
+"cc.titre":"Wettbewerb in {0}",
+"cc.texte":"Hier zählen deine Versuche nicht für den Wettbewerb.",
+"cc.aller":"IN {0} SPIELEN",
+"cc.rester":"HIER BLEIBEN",
 "cartes.charge":"Lädt…",
 "cartes.une":"Vorerst nur eine Karte. Weitere folgen.",
 "beta.court":"BETA",
@@ -5202,6 +5220,15 @@ LANGUES.it={
 "cartes.titre":"MAPPE",
 "cartes.ici":"Mappa scelta",
 "cartes.jouer":"Gioca qui",
+"titre.essaiConcours":"Tentativo {0}/{1} · concorso",
+"titre.essaiHors":"Tentativo {0}/{1} · fuori concorso",
+"concours.resteCarte":"Mappa {0} · fine tra {1} ▸",
+"cartes.concours":"Concorso",
+"lots.carte":"Si gioca sulla mappa di {0}.",
+"cc.titre":"Concorso a {0}",
+"cc.texte":"Qui i tuoi tentativi non contano per il concorso.",
+"cc.aller":"GIOCA A {0}",
+"cc.rester":"RESTA QUI",
 "cartes.charge":"Caricamento…",
 "cartes.une":"Per ora una sola mappa. Altre in arrivo.",
 "beta.court":"BETA",
@@ -6383,6 +6410,15 @@ LANGUES.es={
 "cartes.titre":"MAPAS",
 "cartes.ici":"Mapa elegido",
 "cartes.jouer":"Jugar aquí",
+"titre.essaiConcours":"Intento {0}/{1} · concurso",
+"titre.essaiHors":"Intento {0}/{1} · fuera de concurso",
+"concours.resteCarte":"Mapa {0} · termina en {1} ▸",
+"cartes.concours":"Concurso",
+"lots.carte":"Se juega en el mapa de {0}.",
+"cc.titre":"Concurso en {0}",
+"cc.texte":"Aquí tus intentos no cuentan para el concurso.",
+"cc.aller":"JUGAR EN {0}",
+"cc.rester":"QUEDARME AQUÍ",
 "cartes.charge":"Cargando…",
 "cartes.une":"Por ahora un solo mapa. Llegarán más.",
 "beta.court":"BETA",
@@ -7563,6 +7599,15 @@ LANGUES.en={
 "cartes.titre":"MAPS",
 "cartes.ici":"Selected map",
 "cartes.jouer":"Play here",
+"titre.essaiConcours":"Try {0}/{1} · contest",
+"titre.essaiHors":"Try {0}/{1} · not in contest",
+"concours.resteCarte":"{0} map · ends in {1} ▸",
+"cartes.concours":"Contest",
+"lots.carte":"Played on the {0} map.",
+"cc.titre":"Contest in {0}",
+"cc.texte":"Here your tries do not count for the contest.",
+"cc.aller":"PLAY IN {0}",
+"cc.rester":"STAY HERE",
 "cartes.charge":"Loading…",
 "cartes.une":"Only one map for now. More are coming.",
 "beta.court":"BETA",
@@ -7833,7 +7878,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.19.3-qa2';
+var VERSION='0.20.0-qa1';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -10367,7 +10412,11 @@ function choisirSpriteDzo(){
   return DZO.front_a;
 }
 function dessinerDzo(){
-  var an=choisirImageDza(),s=an||choisirSpriteDzo(),im=s.c,x=RPX,y=RPY+15,rot=0,sx=1,sy=1,bob=0,k,al=1;
+  var an=choisirImageDza(),s=an||choisirSpriteDzo(),im;
+  /* 0.19.4 (Dom, 26.11.2026 : « à nouveau un DZÔ fantôme au démarrage ») : partie lancée avant l'arrivée des images du DZÔ :
+     on ne dessine pas le DZÔ de secours le temps qu'elles chargent (son ombre marque sa place) ; il ne sert que si elles manquent */
+  if(!an&&!DZO.pret&&!DZO_TENTE)return;
+  im=s.c;var x=RPX,y=RPY+15,rot=0,sx=1,sy=1,bob=0,k,al=1;
   if(!an&&s===DZO.back&&S.face<0)sx=-1;
   if(tMort>=0){k=Math.min(1,tMort/0.45);rot=k*1.45*(S.face>=0?1:-1);im=k<0.5?(an?teinteDza(s,'rouge','#FF3B5C'):s.rouge):s.c;al=1-Math.max(0,(tMort-0.9)/0.5);if(al<0)al=0;sy=1-k*0.1;}
   else if(tVict>=0){bob=Math.abs(Math.sin(tReel*9))*12;sx=sy=1.18;}
@@ -11233,6 +11282,7 @@ function demarrer(rang){
       if(!versionOk()||!villeOk()){pagePerimee();return;}
       /* 0.12 : Touriste : essai local (compté ici, jamais envoyé), tant qu'il en reste */
       if(touriste()){if(entrainementSeul()||essaisRestants()<=0)rang=false;}
+      else if(connecte()&&essaisRestants()>0&&horsCarteConcours()&&SAUV.ccVu!==NET.concours.id){ccDemande=true;presse=null;pressePtr=-1;return;}
       else if(connecte()&&essaisRestants()>0){debutServeur(function(){if(ecran==='titre'&&tDepart<0){tDepart=0;departRang=true;}},function(){if(ecran==='titre'&&tDepart<0){tDepart=0;departRang=essaisRestants()>0;}});return;}
       else rang=false;
     }
@@ -12271,6 +12321,7 @@ function rendreTitre(){
   /* étiquette « Avant-première » retirée (0.12.1) : le bandeau bêta suffit */
   if(!DZO.pret&&DZO_TENTE)tn(T('titre.secours'),180,400,10,'rgba(246,241,231,0.5)','center',2);
   if(reglagesTitre)panneauReglagesTitre();
+  if(ccDemande&&tDepart<0)panneauCarteConcours();
   /* fondu au blanc avant la partie */
   if(tDepart>0.18){cx.fillStyle='rgba(255,255,255,'+Math.min(1,(tDepart-0.18)/0.12).toFixed(2)+')';cx.fillRect(0,0,360,640);}
 }
@@ -12567,6 +12618,7 @@ function sousMordre(horsRang,prem,restants){
     if(NET.debutEnCours)return T('titre.debut');
     /* 0.10 : vies du jour épuisées, le prochain essai prendra la vie bonus du parrainage */
     if(prochainEssaiBonus())return T('titre.essaiBonus',essaisUtil()+1,maxAffiche());
+    if(villeConcours()&&restants>0)return T(surCarteConcours()?'titre.essaiConcours':'titre.essaiHors',essaisUtil()+1,maxAffiche());
   }
   return restants>0?T(grainePropre()?'titre.essaiNouvelle':'titre.essai',essaisUtil()+1,maxAffiche()):T('titre.epuise');
 }
@@ -12705,6 +12757,7 @@ function appliquerVille(v,P){
   if(SAUV.ville!==v.id){SAUV.ville=v.id;sauver();}
   if(NET.cl)NET.cl.donnees=null;NET.pub={};
   majPastilleVille();
+  if(ccLancerT){var frais=Date.now()-ccLancerT<20000;ccLancerT=0;if(frais&&ecran==='titre'&&v.id===villeConcours())demarrer(true);}
 }
 /* met la ville courante d'accord avec le choix du joueur et les villes en service ; jamais pendant une partie */
 function majVilles(force){
@@ -12855,10 +12908,32 @@ function dateHeureLocale(ms){var d=new Date(ms-NET.decalage);return('0'+d.getDat
 function dureeTexte(ms){var m=Math.max(0,Math.floor(ms/60000)),h=Math.floor(m/60),j=Math.floor(h/24);
   return j>0?T('duree.jours',j,h%24):(h>0?T('duree.heures',h,m%60):T('duree.minutes',Math.max(1,m)));}
 /* bandeau du concours (titre, fin de partie) : deux lignes, touché → écran des lots */
+/* 0.20 (46.163, relecture UI/UX du 26.11.2026) : un concours peut se jouer sur UNE carte. Seules les parties sur elle
+   comptent pour lui ; ailleurs on joue hors concours. Le jeu le dit là où l'erreur se commet (sous MORDRE), nomme la carte
+   dans le bandeau et sur l'écran du concours, la marque sur l'écran des cartes, et demande une fois par concours avant de
+   lancer un essai classé sur une autre carte. Concours sans carte : rien ne change. */
+function villeConcours(){var c=enConcours()?NET.concours:null;return c&&typeof c.ville==='string'&&c.ville?c.ville:'';}
+function surCarteConcours(){var v=villeConcours(),cur=villeAnnonce();return!!(v&&cur&&cur.id===v);}
+function horsCarteConcours(){var v=villeConcours(),cur=villeAnnonce();return!!(v&&cur&&cur.id!==v);}
+var ccDemande=false,ccLancerT=0;
+function panneauCarteConcours(){
+  nBT=0;
+  var v=villeConcours(),y=SAFE_H+196,nom=nomVilleJeu(v),id=NET.concours?NET.concours.id:0;
+  if(!v||!horsCarteConcours()){ccDemande=false;return;}
+  zone('ccFond',0,0,360,640,function(){ccDemande=false;});
+  cx.fillStyle='rgba(13,9,20,0.8)';cx.fillRect(0,0,360,640);
+  panneau(34,y,292,214,16,'rgba(46,33,70,0.97)','rgba(20,13,32,0.97)','rgba(255,210,63,0.6)',2);
+  zone('ccPanneau',34,y,292,214,function(){});
+  ttFit(T('cc.titre',nom),180,y+30,20,260,C.or,'center',0,true);
+  para(T('cc.texte'),180,y+58,256,13,C.creme,'center',2,17,true);
+  bouton('ccAller',54,y+96,252,50,T('cc.aller',nom.toUpperCase()),0,function(){ccDemande=false;SAUV.ccVu=id;sauver();ccLancerT=Date.now();if(!choisirVille(v))ccLancerT=0;},null,19);
+  bouton('ccRester',84,y+158,192,38,T('cc.rester'),1,function(){ccDemande=false;SAUV.ccVu=id;sauver();demarrer(true);},null,14);
+}
 function bandeauConcours(id,x,y,w,h){
   if(!modeServeur()||NET.horsConcours==='')return false;
   var c=enConcours()?NET.concours:null,p=NET.prochainConcours,l1,l2,coul;
-  if(c){l1=T('concours.bandeau',c.nom,dateHeureLocale(c.fin));l2=T('concours.reste',dureeTexte(c.fin-maintenantSrv()));coul=C.or;}
+  if(c){l1=T('concours.bandeau',c.nom,dateHeureLocale(c.fin));l2=T('concours.reste',dureeTexte(c.fin-maintenantSrv()));coul=C.or;
+    if(villeConcours())l2=(surCarteConcours()?'✓ ':'')+T('concours.resteCarte',nomVilleJeu(c.ville),dureeTexte(c.fin-maintenantSrv()));}
   else if(NET.horsConcours==='entrainement'){l1=p?T('concours.entrainement',T('concours.prochainLe',p.nom,dateHeureLocale(p.debut))):T('concours.entrainementAucun');l2=p?T('concours.voirLots'):'';coul=C.cyan;}
   else if(p){l1=T('lots.prochain')+' : '+T('concours.prochainLe',p.nom,dateHeureLocale(p.debut));l2=T('concours.voirLots');coul=C.cyan;}
   else return false;
@@ -14621,7 +14696,8 @@ function rendreEcranVilles(){
     cx.restore();
     cx.strokeStyle=ici?C.or:'rgba(111,230,255,0.55)';cx.lineWidth=ici?3:1.5;cx.beginPath();rrect(cx,16,yc,328,h,14);cx.stroke();
     ttFit(nom.toUpperCase(),30,yc+h-20,20,200,C.creme,'left',0,true);
-    ttFit(ici?'✓ '+T('cartes.ici'):(VIL.enVol?T('cartes.charge'):T('cartes.jouer')+' ▸'),330,yc+h-19,12.5,130,ici?C.or:C.cyan,'right',2,true);
+    var cc=v.id===villeConcours();
+    ttFit(ici?'✓ '+T(cc?'cartes.concours':'cartes.ici'):(VIL.enVol?T('cartes.charge'):T(cc?'cartes.concours':'cartes.jouer')+' ▸'),330,yc+h-19,12.5,130,ici||cc?C.or:C.cyan,'right',2,true);
   })(l[i],y+i*(h+10));}
   if(l.length<2)ttFit(T('cartes.une'),180,y+h+26,12,320,'rgba(246,241,231,0.8)','center',2,true);
 }
@@ -14677,6 +14753,7 @@ function rendreLots(){
   var nv=k.essaisMembre!=null?k.essaisMembre:(reglesNiv()&&reglesNiv().essais&&reglesNiv().essais.dzodzet?reglesNiv().essais.dzodzet:k.essaisBase),bm=k.boostsMax?k.boostsMax.total:0;
   n=para(k.dote?T('lots.viesDote',nv):(bm>0?T('lots.vies',k.essaisBase,bm):T('lots.viesSans',k.essaisBase)),180,ys,300,11.5,C.cyan,'center',2,15,false);ys+=n*15+4;
   n=para(T(k.modeClassement==='meilleur'?'lots.modeMeilleur':'lots.modeCumul'),180,ys,300,11,'rgba(246,241,231,0.8)','center',2,14,false);ys+=n*14+4;
+  if(typeof k.ville==='string'&&k.ville){n=para(T('lots.carte',nomVilleJeu(k.ville)),180,ys,300,12.5,C.or,'center',2,16,false);ys+=n*16+4;}
   if(k.dote)para(T('lots.verses'),180,ys,300,11,'rgba(246,241,231,0.8)','center',2,14,false);
   else if(connecte()&&!NET.joueur.wallet)para(T('lots.wallet'),180,ys,300,11,C.or,'center',2,14,false);
   cx.restore();
@@ -14877,7 +14954,8 @@ function carteMesPartiesNiv(y,mesure){
   return 4+ligneNiv(y+4,{texte:T('pj.court'),sous:L.length>1?T('pj.nivSous',L.length,fmtNb(m)):(L.length?T('pj.nivSous1',fmtNb(m)):T('pj.nivVide')),droite:'›',droiteCoul:'#9FDCF0'})+4;
 }
 function rendreClassement(){
-  fondMenu();entete(T('cl.titre')+(villeClassement()?' · '+nomVilleJeu(villeClassement()):''));
+  var vcl=NET.cl&&NET.cl.periode==='concours'&&villeConcours()?villeConcours():villeClassement();
+  fondMenu();entete(T('cl.titre')+(vcl?' · '+nomVilleJeu(vcl):''));
   var cl=NET.cl,y=SAFE_H+44,i,d=cl.donnees,x,e,ys,y0=SAFE_H+CL_Y0,y1=connecte()?586:560,per=periodesCl(),lw=Math.floor(344/per.length);
   if(!modeServeur()){classementLocal(bientot(y+60)+14);return;}
   for(i=0;i<per.length;i++)(function(p,i){bouton('cl_'+p[0],8+i*lw,y,lw-4,30,T(p[1]),cl.periode===p[0]?3:1,function(){chargerClassement(p[0]);},null,12);})(per[i],i);
@@ -16200,6 +16278,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 9px/1 system-ui,sans-serif;padding:2px 10px 3px;border-radius:8px 8px 0 0;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.19.3-qa2 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.20.0-qa1 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
