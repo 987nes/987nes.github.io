@@ -2848,6 +2848,13 @@ LANGUES.fr={
 "cc.texte":"Ici, tes essais ne comptent pas pour le concours.",
 "cc.aller":"JOUER À {0}",
 "cc.rester":"RESTER ICI",
+"part.x":"SUR X",
+"part.tg":"SUR TELEGRAM",
+"part.connecte":"Connecte-toi d'abord",
+"part.relie":"Relie ton compte X",
+"pa.titre":"POST SUPPRIMÉ ?",
+"pa.texte":"Ton dernier partage sur X n'est plus en ligne. Un partage ne compte que si le post reste publié.",
+"pa.ok":"COMPRIS",
 "cartes.charge":"Chargement…",
 "cartes.une":"Une seule carte pour l'instant. D'autres arrivent.",
 "beta.court":"BÊTA",
@@ -4038,6 +4045,13 @@ LANGUES.de={
 "cc.texte":"Hier zählen deine Versuche nicht für den Wettbewerb.",
 "cc.aller":"IN {0} SPIELEN",
 "cc.rester":"HIER BLEIBEN",
+"part.x":"AUF X",
+"part.tg":"AUF TELEGRAM",
+"part.connecte":"Erst anmelden",
+"part.relie":"X-Konto verbinden",
+"pa.titre":"POST GELÖSCHT?",
+"pa.texte":"Dein letzter geteilter X-Post ist nicht mehr online. Ein Post zählt nur, solange er veröffentlicht bleibt.",
+"pa.ok":"VERSTANDEN",
 "cartes.charge":"Lädt…",
 "cartes.une":"Vorerst nur eine Karte. Weitere folgen.",
 "beta.court":"BETA",
@@ -5229,6 +5243,13 @@ LANGUES.it={
 "cc.texte":"Qui i tuoi tentativi non contano per il concorso.",
 "cc.aller":"GIOCA A {0}",
 "cc.rester":"RESTA QUI",
+"part.x":"SU X",
+"part.tg":"SU TELEGRAM",
+"part.connecte":"Prima accedi",
+"part.relie":"Collega il tuo account X",
+"pa.titre":"POST ELIMINATO?",
+"pa.texte":"Il tuo ultimo post condiviso su X non è più online. Una condivisione conta solo se il post resta pubblicato.",
+"pa.ok":"HO CAPITO",
 "cartes.charge":"Caricamento…",
 "cartes.une":"Per ora una sola mappa. Altre in arrivo.",
 "beta.court":"BETA",
@@ -6419,6 +6440,13 @@ LANGUES.es={
 "cc.texte":"Aquí tus intentos no cuentan para el concurso.",
 "cc.aller":"JUGAR EN {0}",
 "cc.rester":"QUEDARME AQUÍ",
+"part.x":"EN X",
+"part.tg":"EN TELEGRAM",
+"part.connecte":"Conéctate primero",
+"part.relie":"Vincula tu cuenta de X",
+"pa.titre":"¿POST BORRADO?",
+"pa.texte":"Tu último post compartido en X ya no está en línea. Solo cuenta si el post sigue publicado.",
+"pa.ok":"ENTENDIDO",
 "cartes.charge":"Cargando…",
 "cartes.une":"Por ahora un solo mapa. Llegarán más.",
 "beta.court":"BETA",
@@ -7608,6 +7636,13 @@ LANGUES.en={
 "cc.texte":"Here your tries do not count for the contest.",
 "cc.aller":"PLAY IN {0}",
 "cc.rester":"STAY HERE",
+"part.x":"ON X",
+"part.tg":"ON TELEGRAM",
+"part.connecte":"Sign in first",
+"part.relie":"Link your X account",
+"pa.titre":"POST DELETED?",
+"pa.texte":"Your last shared X post is no longer online. A share only counts while the post stays up.",
+"pa.ok":"GOT IT",
 "cartes.charge":"Loading…",
 "cartes.une":"Only one map for now. More are coming.",
 "beta.court":"BETA",
@@ -7878,7 +7913,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.20.0-qa1';
+var VERSION='0.20.2-qa1';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -11188,7 +11223,7 @@ function installerEntrees(){
     if(e.pointerType==='mouse'){ptr.x=LX;ptr.y=LY;}
     if(ecran==='classement'){clGlisse={id:e.pointerId,y:LY,d:NET.cl.defil};return;}
     if(ecran==='niveau'&&!NIV.feuille){nivGlisse={id:e.pointerId,y:LY,d:NIV.defil};return;}
-    if(ecran==='parties'){pjGlisse={id:e.pointerId,y:LY,d:PJ.defil};return;}
+    if(ecran==='parties'){fermerChoixPartage();pjGlisse={id:e.pointerId,y:LY,d:PJ.defil};return;}
     if(ecran==='jeu'&&!BOT&&!REVOIR){
       /* premier contact (aucun autre doigt sur l'écran) : on oublie les doigts dont la levée se serait perdue */
       if(e.isPrimary&&e.pointerType==='touch')lacherDoigts();
@@ -12322,6 +12357,7 @@ function rendreTitre(){
   if(!DZO.pret&&DZO_TENTE)tn(T('titre.secours'),180,400,10,'rgba(246,241,231,0.5)','center',2);
   if(reglagesTitre)panneauReglagesTitre();
   if(ccDemande&&tDepart<0)panneauCarteConcours();
+  else if(SAUV.pAvert&&tDepart<0&&connecte())panneauPostSupprime();
   /* fondu au blanc avant la partie */
   if(tDepart>0.18){cx.fillStyle='rgba(255,255,255,'+Math.min(1,(tDepart-0.18)/0.12).toFixed(2)+')';cx.fillRect(0,0,360,640);}
 }
@@ -12453,6 +12489,7 @@ function titreEquilibre(s,larg,px){
 }
 function rendreFin(){
   nBT=0;
+  if(PCH.ou==='fin')zone('pchFond',0,0,360,640,fermerChoixPartage);
   var illusF=!!(S&&imageEcran(S.victoire?'victoire':'defaite'));
   if(S){rendreMonde(0);}else rendreFond(9,6,0.6);
   colonne();
@@ -12551,7 +12588,8 @@ function rendreFin(){
     if(touriste()&&restants<=0)act2=['fniveau',T('niv.devenir'),2,function(){allerEcran('niveau');},null];
     else if(modeServeur()&&!connecte()&&!HORS_RANG&&!touriste())act2=['fcnx',T('cnx.bouton'),3,function(){allerEcran('connexion');},null];
     else if(!(classee||echauffement||restants<=0||BOT||VITESSE>1||TAB_FORCE>=0))act2=['fdefi',T('fin.defi'),1,function(){lancerClasse('fin');},T('fin.essai',essaisUtil()+1,maxAffiche())];
-    if(act2){bouton('partager',14,580,162,42,T('fin.partager'),2,partager,null,14);bouton(act2[0],184,580,162,42,act2[1],act2[2],act2[3],act2[4],13);}
+    if(PCH.ou==='fin')boutonsPartage(14,184,580,162,42,14);
+    else if(act2){bouton('partager',14,580,162,42,T('fin.partager'),2,partager,null,14);bouton(act2[0],184,580,162,42,act2[1],act2[2],act2[3],act2[4],13);}
     else bouton('partager',70,580,220,42,T('fin.partager'),2,partager,null,14);
     if(meilJ>sc){var enfM=zone('fmeilleur',40,476,280,22,function(){partagerScore(meilJ);});
       cx.fillStyle=enfM?'rgba(255,210,63,0.3)':'rgba(255,210,63,0.15)';cx.beginPath();rrect(cx,50,477,260,20,10);cx.fill();
@@ -12657,23 +12695,58 @@ function carteScore(){
   TC(S.repasFait?T('fin.repas'):T('slogan'),540,1290,30,S.repasFait?C.or:'rgba(246,241,231,0.85)');
   return c;
 }
-function partager(){
-  var txt=textePost('fin').texte,fait=false;
-  function repli(blob){
-    if(fait)return;fait=true;
-    if(blob){try{var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='dzo-survivors.jpg';document.body.appendChild(a);a.click();document.body.removeChild(a);}catch(e){}}
-    ouvrirX(txt);
-  }
-  try{
-    var c=carteScore();
-    c.toBlob(function(blob){
-      try{
-        if(blob&&navigator.canShare&&window.File){var f=new File([blob],'dzo-survivors.jpg',{type:'image/jpeg'});
-          if(navigator.canShare({files:[f]})){navigator.share({files:[f],text:txt}).then(function(){fait=true;},function(){repli(null);});return;}}
-      }catch(e){}
-      repli(blob);
-    },'image/jpeg',0.9);
-  }catch(e){repli(null);}
+/* 0.20.1 (46.164) : le jeu signale au serveur qu'un joueur connecté a ouvert un partage (« x » : rédaction d'un post ;
+   « feuille » : feuille de partage du téléphone, application inconnue). Au retour dans le jeu, il demande une vérification :
+   le serveur relit les posts du compte X relié (deux lectures par jour au plus). Telegram est vu par le bot, sans rien
+   demander ici. Rien n'est affiché et rien n'est gagné : c'est un relevé pour l'organisateur. */
+var PARTAGE={t:0,essais:0,min:0};
+function signalerPartage(canal,carte){
+  if(!modeServeur()||!connecte())return;
+  apiAppel('POST','/api/partage',{canal:canal,carte:carte||''}).then(function(r){if(r.statut===200){PARTAGE.t=Date.now();PARTAGE.essais=0;if(!document.hidden)verifierPartage();}},function(){});
+}
+function verifierPartage(){
+  if(!PARTAGE.t||PARTAGE.min||PARTAGE.essais>=2||Date.now()-PARTAGE.t>900000||!modeServeur()||!connecte())return;
+  PARTAGE.min=setTimeout(function(){PARTAGE.min=0;if(document.hidden||!connecte())return;PARTAGE.essais++;
+    apiAppel('POST','/api/partage/verifier',{}).then(function(r){if(r.json&&r.json.etat==='pas_encore')verifierPartage();else PARTAGE.t=0;},function(){});},PARTAGE.essais?30000:8000);
+}
+if(typeof document!=='undefined')document.addEventListener('visibilitychange',function(){if(!document.hidden)verifierPartage();});
+/* 0.20.2 (46.165, relecture UI/UX) : PARTAGER se change sur place en deux boutons, « SUR X » et « SUR TELEGRAM ». X n'est
+   possible qu'avec un compte X relié, Telegram qu'une fois connecté : un canal indisponible reste touchable et mène à la
+   connexion ou à la liaison du compte X (sous-libellé). La feuille de partage du téléphone n'est plus utilisée : on ne peut
+   pas y réserver une application. Rien n'est affiché quand un partage est vérifié ; seul un post supprimé est signalé. */
+var PCH={ou:'',sc:null,i:-1};
+function fermerChoixPartage(){PCH.ou='';PCH.sc=null;PCH.i=-1;}
+function ouvrirChoixPartage(ou,sc,i){PCH.ou=ou;PCH.sc=sc>0?sc:null;PCH.i=i>=0?i:-1;if(connecte()&&boostsV2()&&!BX.charge&&!BX.enVol)chargerEtatBoost();}
+function partageVers(canal){
+  var sc=PCH.sc,p=sc?textePost('fin',sc):textePost('fin'),carteP=sc?carteDuScore(sc,false,false):carteDeLaPartie();
+  if(canal==='x'&&connecte()&&!xLie()&&boostsV2()&&!BX.charge)return;      /* état du compte X en cours de lecture */
+  fermerChoixPartage();
+  if(!connecte()){allerEcran('connexion');return;}
+  if(canal==='x'){if(!xLie()){lierXNiv();return;}ouvrirX(p.texte);signalerPartage('x',carteP);}
+  else{ouvrirLien(lienTgPost(p));signalerPartage('tg',carteP);}
+}
+function boutonsPartage(x1,x2,y,w,h,px){
+  var c=connecte(),attente=c&&boostsV2()&&!BX.charge,sx=!c?T('part.connecte'):(xLie()?null:(attente?'…':T('part.relie'))),st=c?null:T('part.connecte');
+  bouton('partX',x1,y,w,h,T('part.x'),sx?1:2,function(){partageVers('x');},sx,px);
+  bouton('partTg',x2,y,w,h,T('part.tg'),st?1:3,function(){partageVers('tg');},st,px);
+}
+function partager(){ouvrirChoixPartage('fin',0,-1);}
+/* avertissement, une fois : le post X vérifié d'un jour passé n'est plus en ligne (contrôle du serveur au retour du joueur) */
+var PCTRL={enVol:false};
+function controlerPartage(){
+  if(!modeServeur()||!connecte()||PCTRL.enVol||!NET.jour||SAUV.pcJour===NET.jour.jour)return;
+  PCTRL.enVol=true;var jr=NET.jour.jour;
+  apiAppel('POST','/api/partage/controle',{}).then(function(r){PCTRL.enVol=false;if(r.statut===429)return;SAUV.pcJour=jr;if(r.statut===200&&r.json&&r.json.avertir)SAUV.pAvert=1;sauver();},function(){PCTRL.enVol=false;});
+}
+function panneauPostSupprime(){
+  nBT=0;
+  var y=SAFE_H+206,ferme=function(){SAUV.pAvert=0;sauver();};
+  zone('paFond',0,0,360,640,function(){});
+  cx.fillStyle='rgba(13,9,20,0.8)';cx.fillRect(0,0,360,640);
+  panneau(34,y,292,176,16,'rgba(46,33,70,0.97)','rgba(20,13,32,0.97)','rgba(255,210,63,0.6)',2);
+  ttFit(T('pa.titre'),180,y+30,20,260,C.or,'center',0,true);
+  para(T('pa.texte'),180,y+58,256,13,C.creme,'center',2,17,true);
+  bouton('paOk',84,y+122,192,38,T('pa.ok'),1,ferme,null,14);
 }
 
 /* =====================================================================
@@ -12840,6 +12913,7 @@ function appliquerSession(j){
   /* la langue de Telegram sert de langue par défaut tant que le joueur n'en a pas choisi */
   if(!SAUV.langue&&!LANG_URL&&NET.joueur.langue){var l=langueDe(NET.joueur.langue);if(l&&l!==LANGUE)appliquerLangue(l,true);}
   envoyerAttentes();
+  controlerPartage();
   /* 0.11 : retour de « Connecter X » (confirmation), attentes d'un boost gardées dans l'onglet */
   xApresSession();
   /* 0.10 : résultat du parrainage envoyé avec la connexion ; sinon (déjà connecté, ou serveur d'avant la 0.10) : /lier */
@@ -13330,6 +13404,7 @@ try{window.addEventListener('popstate',function(){
   if(ecran==='jeu'||feuille||(parties&&ecran!=='titre'))histAvancer(ecran);
 });}catch(e){}
 function allerEcran(e){
+  fermerChoixPartage();
   if(e!==ecran){if(ecran==='titre'&&MENUS_HIST.indexOf(e)>=0)histAvancer(e);else if(e==='titre'&&ecran!=='entree')histReculer();}
   if(e==='titre'&&ecran!=='titre'&&connecte()&&Date.now()-NET.majT>3000)rafraichir();
   if(e==='titre')setTimeout(verifierVersion,0);
@@ -14906,11 +14981,9 @@ function meilleurDuJour(){
   if(pjServeur()&&NET.jour&&typeof NET.jour.meilleurJour==='number')m=Math.max(m,NET.jour.meilleurJour);
   return m;
 }
-/* partage d'un score choisi : feuille de partage du téléphone (texte et lien), sinon la rédaction d'un post X */
+/* partage d'un score choisi : ouvre le choix « SUR X » / « SUR TELEGRAM » (0.20.2) */
 function partagerScore(sc){
-  var p=textePost('fin',sc);
-  try{if(navigator.share&&navigator.canShare&&navigator.canShare({text:p.texte})){navigator.share({text:p.texte}).then(null,function(){});return;}}catch(e){}
-  ouvrirX(p.texte);
+  ouvrirChoixPartage(ecran==='parties'?'pj':'fin',sc,arguments.length>1?arguments[1]:-1);
 }
 function allerParties(){var de=ecran;allerEcran('parties');if(de!=='parties')PJ.de=de;}
 function rendreParties(){
@@ -14932,11 +15005,12 @@ function rendreParties(){
   for(i=0;i<L.length;i++){p=L[i];ys=y+i*hR;hc=hR-6;if(ys+hR<yl-4||ys>BAS_DEFIL)continue;
     cx.fillStyle=p.m?'rgba(70,52,14,0.92)':'rgba(13,9,20,0.78)';cx.beginPath();rrect(cx,12,ys,336,hc,10);cx.fill();
     if(p.m){cx.strokeStyle='rgba(255,210,63,0.75)';cx.lineWidth=1.5;cx.stroke();}
+    if(PCH.ou==='pj'&&PCH.i===i){boutonsPartage(20,182,ys+(hc-30)/2,158,30,12);continue;}
     ttFit(T('pj.essai',p.e),26,ys+hc/2-(p.t?6:0),13,104,C.creme,'left',2,false);
     if(p.t)tn(heureLocale(p.t),26,ys+hc/2+9,10.5,'rgba(246,241,231,0.6)','left',2);
     tn(fmtNb(p.s),232,ys+hc/2-(p.m?6:0),16,p.m?C.or:C.creme,'right',1);
     if(p.m)ttFit(T('pj.meilleure'),232,ys+hc/2+10,10,100,C.or,'right',2,false);
-    (function(sc,i,m){bouton('pj'+i,244,ys+(hc-30)/2,90,30,T('fin.partager'),m?2:3,function(){partagerScore(sc);},null,12);})(p.s,i,p.m);
+    (function(sc,i,m){bouton('pj'+i,244,ys+(hc-30)/2,90,30,T('fin.partager'),m?2:3,function(){partagerScore(sc,i);},null,12);})(p.s,i,p.m);
   }
   y+=L.length*hR;
   if(srv&&PJ.d&&PJ.d.enAttente>0)ttFit(T('pj.attente',PJ.d.enAttente),180,y+10,11.5,336,C.cyan,'center',2,false);
@@ -16278,6 +16352,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 9px/1 system-ui,sans-serif;padding:2px 10px 3px;border-radius:8px 8px 0 0;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.20.0-qa1 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.20.2-qa1 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
