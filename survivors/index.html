@@ -7833,7 +7833,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.19.2-proto';
+var VERSION='0.19.3-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -12180,7 +12180,9 @@ function rendreFond(vx,vy,sombreur){
    DZÔ et la horde (rien par-dessus), UNE ligne d'état, UN bouton principal, deux petits boutons, un pied de page */
 var reglagesTitre=false,reglagesT=0;
 /* zones touchables de DZÔ sur l'illustration du titre (poing levé, dents, ventre « 987 NES »), en px de la colonne, image de l'écran d'entrée, décalée de 40 comme sur lui */
-var ZT_NOMS=['poing','dents','ventre'],ZT_BOITES=[[262,292,52,46],[120,340,130,44],[150,386,72,40]];
+/* 0.19.3 (Dom, 26.11.2026 : « marche plus depuis le changement d'image ») : sur l'illustration, le code secret se tape sur
+   le chien, puis la grenouille, puis Trump. Les noms envoyés au serveur restent ceux des trois gestes d'origine. */
+var ZT_NOMS=['poing','dents','ventre'],ZT_BOITES=[[14,168,84,150],[164,162,100,70],[270,216,84,84]];
 function rendreTitre(){
   nBT=0;
   var illus=fondImage('entree',0.12,40,402);
