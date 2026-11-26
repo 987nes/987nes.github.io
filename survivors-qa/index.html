@@ -2581,6 +2581,9 @@ LANGUES.fr={
 "cl.mois":"Mois",
 "cl.du":"du {0} au {1}",
 "cl.modeMeilleur":"meilleur essai",
+"lots.viesToi":"Tu as {0} essais classés par jour à ton niveau.",
+"lots.viesNiveau":"De {0} à {1} essais classés par jour, selon ton niveau.",
+"cl.modeTotal":"total de tous les essais",
 "cl.modeCumul":"cumul des meilleurs du jour",
 "cl.charge":"Chargement…",
 "cl.vide":"Personne encore. Le premier score sera le tien.",
@@ -3778,6 +3781,9 @@ LANGUES.de={
 "cl.mois":"Monat",
 "cl.du":"vom {0} bis {1}",
 "cl.modeMeilleur":"bester Versuch",
+"lots.viesToi":"Auf deinem Level hast du {0} gewertete Versuche pro Tag.",
+"lots.viesNiveau":"{0} bis {1} gewertete Versuche pro Tag, je nach Level.",
+"cl.modeTotal":"Summe aller Versuche",
 "cl.modeCumul":"Summe der Tagesbesten",
 "cl.charge":"Laden…",
 "cl.vide":"Noch niemand. Die erste Punktzahl wird deine sein.",
@@ -4975,6 +4981,9 @@ LANGUES.it={
 "cl.mois":"Mese",
 "cl.du":"dal {0} al {1}",
 "cl.modeMeilleur":"miglior tentativo",
+"lots.viesToi":"Al tuo livello hai {0} tentativi classificati al giorno.",
+"lots.viesNiveau":"Da {0} a {1} tentativi classificati al giorno, secondo il tuo livello.",
+"cl.modeTotal":"somma di tutti i tentativi",
 "cl.modeCumul":"somma dei migliori del giorno",
 "cl.charge":"Caricamento…",
 "cl.vide":"Ancora nessuno. Il primo punteggio sarà il tuo.",
@@ -6173,6 +6182,9 @@ LANGUES.es={
 "cl.mois":"Mes",
 "cl.du":"del {0} al {1}",
 "cl.modeMeilleur":"mejor intento",
+"lots.viesToi":"En tu nivel tienes {0} intentos clasificados al día.",
+"lots.viesNiveau":"De {0} a {1} intentos clasificados al día, según tu nivel.",
+"cl.modeTotal":"suma de todos los intentos",
 "cl.modeCumul":"suma de los mejores del día",
 "cl.charge":"Cargando…",
 "cl.vide":"Aún nadie. La primera puntuación será la tuya.",
@@ -7370,6 +7382,9 @@ LANGUES.en={
 "cl.mois":"Month",
 "cl.du":"{0} to {1}",
 "cl.modeMeilleur":"best try",
+"lots.viesToi":"At your level you get {0} ranked tries a day.",
+"lots.viesNiveau":"{0} to {1} ranked tries a day, depending on your level.",
+"cl.modeTotal":"sum of all tries",
 "cl.modeCumul":"sum of daily bests",
 "cl.charge":"Loading…",
 "cl.vide":"Nobody yet. The first score will be yours.",
@@ -7913,7 +7928,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.20.2-qa1';
+var VERSION='0.20.3-qa1';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -14826,7 +14841,10 @@ function rendreLots(){
     ys+=hb+4;}
   ys+=6;cx.fillStyle='rgba(246,241,231,0.14)';cx.fillRect(32,ys,296,1);ys+=16;
   var nv=k.essaisMembre!=null?k.essaisMembre:(reglesNiv()&&reglesNiv().essais&&reglesNiv().essais.dzodzet?reglesNiv().essais.dzodzet:k.essaisBase),bm=k.boostsMax?k.boostsMax.total:0;
-  n=para(k.dote?T('lots.viesDote',nv):(bm>0?T('lots.vies',k.essaisBase,bm):T('lots.viesSans',k.essaisBase)),180,ys,300,11.5,C.cyan,'center',2,15,false);ys+=n*15+4;
+  /* 0.20.3 (46.166) : avec les niveaux, le nombre d'essais est celui du niveau du joueur (le titre dit « Essai 1/5 ») : l'écran
+     du concours annonçait le nombre de base (« 3 vies ») */
+  var tv=k.dote?T('lots.viesDote',nv):(niveauxActifs()?(connecte()&&!touriste()&&NET.jour&&!essaisInfinis()?T('lots.viesToi',NET.jour.essaisMax):T('lots.viesNiveau',essaisNiveau('dzodzet'),essaisNiveau('banneret'))):(bm>0?T('lots.vies',k.essaisBase,bm):T('lots.viesSans',k.essaisBase)));
+  n=para(tv,180,ys,300,11.5,C.cyan,'center',2,15,false);ys+=n*15+4;
   n=para(T(k.modeClassement==='meilleur'?'lots.modeMeilleur':'lots.modeCumul'),180,ys,300,11,'rgba(246,241,231,0.8)','center',2,14,false);ys+=n*14+4;
   if(typeof k.ville==='string'&&k.ville){n=para(T('lots.carte',nomVilleJeu(k.ville)),180,ys,300,12.5,C.or,'center',2,16,false);ys+=n*16+4;}
   if(k.dote)para(T('lots.verses'),180,ys,300,11,'rgba(246,241,231,0.8)','center',2,14,false);
@@ -15033,7 +15051,8 @@ function rendreClassement(){
   var cl=NET.cl,y=SAFE_H+44,i,d=cl.donnees,x,e,ys,y0=SAFE_H+CL_Y0,y1=connecte()?586:560,per=periodesCl(),lw=Math.floor(344/per.length);
   if(!modeServeur()){classementLocal(bientot(y+60)+14);return;}
   for(i=0;i<per.length;i++)(function(p,i){bouton('cl_'+p[0],8+i*lw,y,lw-4,30,T(p[1]),cl.periode===p[0]?3:1,function(){chargerClassement(p[0]);},null,12);})(per[i],i);
-  if(d){var m=T(d.mode==='meilleur'?'cl.modeMeilleur':'cl.modeCumul');
+  if(d){var plusJ=d.periode==='concours'&&d.concours?new Date(d.concours.debut).toDateString()!==new Date(d.concours.fin).toDateString():d.debut!==d.fin,
+      m=T(d.mode==='meilleur'?(plusJ?'cl.modeCumul':'cl.modeMeilleur'):'cl.modeTotal');
     /* 0.8 : classement d'un concours : son nom et sa fin (heure de l'appareil) */
     if(d.periode==='concours'&&d.concours)ttFit(T('cl.concoursLigne',d.concours.nom,dateHeureLocale(d.concours.fin))+' · '+m,180,y+50,11,340,C.or,'center',2,true);
     else ttFit((d.debut===d.fin?fmtDate(d.debut):T('cl.du',fmtDate(d.debut),fmtDate(d.fin)))+' · '+m,180,y+50,11,340,'rgba(246,241,231,0.75)','center',2,true);}
@@ -15377,7 +15396,7 @@ var tPrec=0,DZO_TENTE=false,msImage=0,fige=false,regardX=null,regardY=0;
 function rendre(dt){
   if(MODE_CARTES){rendreCartesPartage();return;}
   rendreEcran(dt);
-  if(NET.msg&&NET.msgT<4.5){colonne();cx.globalAlpha=Math.min(1,(4.5-NET.msgT)/0.4);var tm=NET.msg+(NET.msgCompte&&texteProchainsEssais()?' '+texteProchainsEssais():''),lm=lignes(tm,300,12,2),hm=lm.length*16+14,ym=ecran==='titre'?Math.max(SAFE_H+196,428-hm):ecran==='niveau'?628-hm:SAFE_H+40;
+  if(NET.msg&&NET.msgT<4.5){colonne();cx.globalAlpha=Math.min(1,(4.5-NET.msgT)/0.4);var tm=NET.msg+(NET.msgCompte&&texteProchainsEssais()?' '+texteProchainsEssais():''),lm=lignes(tm,300,12,2),hm=lm.length*16+14,ym=ecran==='titre'?Math.max(SAFE_H+196,414-hm):ecran==='niveau'?628-hm:SAFE_H+40;
     cx.fillStyle='rgba(13,9,20,0.92)';cx.beginPath();rrect(cx,20,ym,320,hm,10);cx.fill();cx.strokeStyle=NET.msgCoul||C.creme;cx.lineWidth=1.5;cx.stroke();
     para(tm,180,ym+14,300,12,NET.msgCoul||C.creme,'center',2,16,false);cx.globalAlpha=1;}
   finChamps();
@@ -16352,6 +16371,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 9px/1 system-ui,sans-serif;padding:2px 10px 3px;border-radius:8px 8px 0 0;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.20.2-qa1 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.20.3-qa1 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
