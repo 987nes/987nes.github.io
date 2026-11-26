@@ -555,7 +555,8 @@ var MONDES=[],MONDES_G=[];
    null ou false = l'ancienne carte tirée de la graine ; sinon le paquet (objet). */
 function villeDe(ville){if(ville===undefined)ville=VILLE_DEFAUT;if(!ville)return null;
   if(typeof ville!=='object'||!ville.monde||!(ville.monde.lm>0&&ville.monde.lm%256===0))throw new Error('ville : paquet sans monde valable');
-  if(ville.reglages&&Object.keys(ville.reglages).length)throw new Error('ville : réglages propres à la ville pas encore pris en charge');
+  /* 0.22.0 (46.173) : un seul réglage propre à la ville, « etapes » : l'espacement des drapeaux en % (25 à 400) */
+  if(ville.reglages){var kr=Object.keys(ville.reglages),er=ville.reglages.etapes;if(kr.length>1||(kr.length===1&&(kr[0]!=='etapes'||typeof er!=='number'||er!==Math.floor(er)||er<25||er>400)))throw new Error('ville : réglage de ville inconnu');}
   var j=jeuDeVille(ville);if(j.err.length)throw new Error('ville : '+j.err[0]);
   return ville;}
 /* Ville courante de la page (côté jeu seulement : le joueur choisit sa ville, le paquet est chargé à la demande). Elle
@@ -754,6 +755,8 @@ function genVille(P,graine,dep){
      marche) ; l'élan tient alors deux fois le délai de base. À 9 px par mètre rien ne change (td = tk = 1). */
   /* quelle que soit l'échelle de la ville : l'étape est à 2 400 à 4 000 px, soit 20 à 35 s de marche, et l'élan tient 90 s */
   m.td=8;m.tk=2;
+  /* 0.22.0 (46.173) : espacement réglé par l'organisateur (% de la distance d'origine) ; l'élan tient d'autant plus ou moins longtemps */
+  if(P.reglages&&P.reglages.etapes>0){m.td=8*P.reglages.etapes/100;m.tk=2*P.reglages.etapes/100;}
   /* tournée : les étapes se posent sur les places dégagées de la carte (jamais dans un mur, l'eau ou hors de la ville) */
   /* à 60 m au moins du bord de la ville (420 px) : une étape posée contre la ceinture de feu se voyait mal, et sa cible sortait
      à moitié de la carte de poche (Dom, 24.11.2026 : « il y en a qu'un ? ») ; si la marge ne laisse rien, tous les lieux servent */
@@ -1896,6 +1899,7 @@ function quantifier(fx,fy){var best=0,bd=-1e9,d,v;for(d=1;d<=16;d++){v=fx*DIRX[d
 return{HZ:HZ,NA:NA,creer:creer,pas:pas,choisir:choisir,relancer:relancer,voter:voter,score:score,palier:palier,rejouer:rejouer,compresser:compresser,
   quantifier:quantifier,
   mondeDe:mondeDe,genererMonde:genererMonde,genVille:genVille,villeDe:villeDe,departVille:departVille,LM0:LM0,   /* villes : points d'entrée */
+  REGLAGES_VILLE:['etapes'],
   villeDefaut:function(){return VILLE_DEFAUT;},villeCourante:villeCourante,villeEmpreinte:function(){return VILLE_EMPREINTE;},VILLE_EMPREINTE:VILLE_EMPREINTE,VILLE_CHOIX_DEPART:VILLE_CHOIX_DEPART,
   chevauche:chevauche,dansEau:function(st,x,y){lier(st);return dansEau(x,y);},md:md,wr:wr,funiEtat:function(st,n){lier(st);funiEtat(n);return{v:FUV,m:FUM,a:FUA,p:FUP};},
   MONDE:{LM:LM,CL:CL,NCL:NCL,RIV_HW:RIV_HW,FONT_MAX:FONT_MAX,FONT_RAYON:FONT_RAYON,FUNI_PER:FUNI_PER,FUNI_ATT:FUNI_ATT,FUNI_ANN:FUNI_ANN,FUNI_TRAJ:FUNI_TRAJ,
@@ -2842,6 +2846,11 @@ LANGUES.fr={
 "cartes.titre":"CARTES",
 "cartes.ici":"Carte choisie",
 "cartes.jouer":"Jouer ici",
+"cartes.seuil":"Prends {0} drapeaux à {1}",
+"cartes.reste":"Plus que {0}",
+"cartes.cnx":"Connecte-toi pour débloquer",
+"fin.carte":"Carte débloquée : {0}",
+"err.carte_verrouillee":"Carte verrouillée : prends {0} drapeaux à {1}.",
 "titre.essaiConcours":"Essai {0}/{1} · concours",
 "titre.essaiHors":"Essai {0}/{1} · hors concours",
 "concours.resteCarte":"Carte {0} · fin dans {1} ▸",
@@ -4042,6 +4051,11 @@ LANGUES.de={
 "cartes.titre":"KARTEN",
 "cartes.ici":"Gewählte Karte",
 "cartes.jouer":"Hier spielen",
+"cartes.seuil":"Hol {0} Fahnen in {1}",
+"cartes.reste":"Noch {0}",
+"cartes.cnx":"Melde dich an zum Freischalten",
+"fin.carte":"Karte freigeschaltet: {0}",
+"err.carte_verrouillee":"Karte gesperrt: hol {0} Fahnen in {1}.",
 "titre.essaiConcours":"Versuch {0}/{1} · Wettbewerb",
 "titre.essaiHors":"Versuch {0}/{1} · ohne Wertung",
 "concours.resteCarte":"Karte {0} · endet in {1} ▸",
@@ -5243,6 +5257,11 @@ LANGUES.it={
 "cartes.titre":"MAPPE",
 "cartes.ici":"Mappa scelta",
 "cartes.jouer":"Gioca qui",
+"cartes.seuil":"Prendi {0} bandiere a {1}",
+"cartes.reste":"Ancora {0}",
+"cartes.cnx":"Accedi per sbloccare",
+"fin.carte":"Mappa sbloccata: {0}",
+"err.carte_verrouillee":"Mappa bloccata: prendi {0} bandiere a {1}.",
 "titre.essaiConcours":"Tentativo {0}/{1} · concorso",
 "titre.essaiHors":"Tentativo {0}/{1} · fuori concorso",
 "concours.resteCarte":"Mappa {0} · fine tra {1} ▸",
@@ -6443,6 +6462,11 @@ LANGUES.es={
 "cartes.titre":"MAPAS",
 "cartes.ici":"Mapa elegido",
 "cartes.jouer":"Jugar aquí",
+"cartes.seuil":"Consigue {0} banderas en {1}",
+"cartes.reste":"Faltan {0}",
+"cartes.cnx":"Conéctate para desbloquear",
+"fin.carte":"Mapa desbloqueado: {0}",
+"err.carte_verrouillee":"Mapa bloqueado: consigue {0} banderas en {1}.",
 "titre.essaiConcours":"Intento {0}/{1} · concurso",
 "titre.essaiHors":"Intento {0}/{1} · fuera de concurso",
 "concours.resteCarte":"Mapa {0} · termina en {1} ▸",
@@ -7642,6 +7666,11 @@ LANGUES.en={
 "cartes.titre":"MAPS",
 "cartes.ici":"Selected map",
 "cartes.jouer":"Play here",
+"cartes.seuil":"Take {0} flags in {1}",
+"cartes.reste":"{0} to go",
+"cartes.cnx":"Sign in to unlock",
+"fin.carte":"Map unlocked: {0}",
+"err.carte_verrouillee":"Map locked: take {0} flags in {1}.",
 "titre.essaiConcours":"Try {0}/{1} · contest",
 "titre.essaiHors":"Try {0}/{1} · not in contest",
 "concours.resteCarte":"{0} map · ends in {1} ▸",
@@ -7928,7 +7957,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.20.4-proto';
+var VERSION='0.22.0-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -11354,6 +11383,15 @@ function demarrer(rang){
   tDepart=0;departRang=!!rang;
 }
 var partieSrv=null,essaiTouriste=false;
+/* paquet de ville avec son réglage d'espacement (copie gardée : le même objet d'une partie à l'autre) ; sans réglage : undefined
+   (la simulation joue alors la ville courante telle quelle) */
+var VREG={P:null,e:0,o:null};
+function villeReglee(P,e){
+  if(!P||!(e>0)||e===100||e!==Math.floor(e)||e<25||e>400)return undefined;
+  if(VREG.P===P&&VREG.e===e)return VREG.o;
+  var o={},k;for(k in P)if(Object.prototype.hasOwnProperty.call(P,k))o[k]=P[k];o.reglages={etapes:e};VREG.P=P;VREG.e=e;VREG.o=o;return o;
+}
+function etapesAnnoncees(){var c=villeAnnonce(),l=NET.villes||[],i;if(!c)return 0;for(i=0;i<l.length;i++)if(l[i]&&l[i].id===c.id)return l[i].etapes||0;return 0;}
 function lancer(rang,graineForcee,o){
   audioInit();majJour();motifDuJour();
   /* première partie de l'appareil : échauffement hors classement, les essais restent intacts */
@@ -11371,7 +11409,9 @@ function lancer(rang,graineForcee,o){
   else if(classee){SAUV.essais++;essaiNo=SAUV.essais;sauver();graineCourante=SIM.fnv1a('DZO-'+JOUR);}
   else graineCourante=graineForcee!==undefined?(graineForcee>>>0):SIM.melange(Date.now()&0x7fffffff,(Math.random()*1e9)|0);
   /* partie classée ou revue : le tableau de sa graine (comme le serveur, qui rejoue avec quatre arguments) */
-  S=SIM.creer(graineCourante,classee||(o&&o.revoir)?undefined:(TAB_FORCE>=0?TAB_FORCE:tableauDuJour()),o&&o.revoir?o.ville:undefined);   /* relecture : la ville de la partie revue (null : ancienne carte) */
+  /* 0.22.0 (46.173) : espacement des drapeaux : celui que le serveur a fixé pour cette partie classée, sinon celui annoncé pour la carte */
+  var etp=o&&o.revoir?0:(partieSrv?(partieSrv.villeEtapes||0):etapesAnnoncees());
+  S=SIM.creer(graineCourante,classee||(o&&o.revoir)?undefined:(TAB_FORCE>=0?TAB_FORCE:tableauDuJour()),o&&o.revoir?o.ville:villeReglee(SIM.villeDefaut(),etp));   /* relecture : la ville de la partie revue (null : ancienne carte) */
   histAvancer('jeu');
   viderEffets();ecran='jeu';sous='';tSous=0;tEcran=0;accu=0;gel=0;ralentiT=0;trauma=0;tMort=-1;tVict=-1;tTouche=9;bordRouge=0;eclairBlanc=0;eclairRouge=0;camDY=0;zoom=1.6;tJeu=0;chaineGemme=0;
   xpEclat=0;dzoEch=1;carteChoisie=-1;musBaisse=0;apercuCarte=null;tDepart=-1;regretFin='';tueurFin=-1;tueurVFin=0;dernierPas=0;aideGemme=false;aideTresor=false;aideT=-1;
@@ -12583,6 +12623,7 @@ function rendreFin(){
       var LF=[],lfid=ligneFidelite(),pasL,dispoL=basF-30-14-yl;
       if(lsrv)LF.push({k:'srv',t:lsrv[0],c:lsrv[1],p:12,g:2});
       if(lfid)LF.push({k:'fid',t:lfid[0],c:lfid[1],p:12,g:2});
+      if(CP.nouvelle&&deblocageActif()&&Date.now()-CP.nouvelleT<180000)LF.push({k:'carte',t:T('fin.carte',nomVilleJeu(CP.nouvelle)),c:C.or,p:12,g:0});
       if(tueurFin>=0)LF.push({k:'tueur',t:T('fin.liquidePar',nomEnn(tueurFin,tueurVFin)),c:C.creme,p:12,g:2});
       if(regretFin)LF.push({k:'regret',t:regretFin,c:C.cyan,p:12,g:2});
       if(S.repasFait)LF.push({k:'repas',t:T('fin.repas'),c:C.or,p:11.5,g:0});
@@ -12840,6 +12881,33 @@ function pagePerimee(){
    villes de QA. Le choix est gardé d'une visite à l'autre (SAUV.ville). VIL.id : ville chargée par ce mécanisme ('' = celle de la page). */
 var VIL={id:'',paquets:{},enVol:'',pastille:null,echecT:0},VERSION_QA=/-qa\d+$/.test(VERSION);
 (function(){var d=SIM.villeDefaut?SIM.villeDefaut():null;if(d&&SIM.VILLE_EMPREINTE)VIL.paquets[SIM.VILLE_EMPREINTE]=d;})();
+/* 0.21.0 (46.172) : DÉBLOCAGE DES CARTES PAR LES DRAPEAUX. Le serveur l'annonce (/api/sante : deblocage, et pour chaque carte
+   son numéro et son seuil) ; éteint, rien ne change à l'écran. Les drapeaux pris dans les parties classées d'une carte, cumulés,
+   ouvrent la carte SUIVANTE quand ils atteignent le seuil de la carte. Pour un joueur connecté, le serveur donne ses drapeaux et
+   ses cartes ouvertes (GET /api/cartes) ; sans connexion : 0 drapeau, seule la première carte (et celle d'un concours) est ouverte. */
+var CP={d:null,joueur:0,enVol:false,nouvelle:'',nouvelleT:0};
+function deblocageActif(){return modeServeur()&&NET.deblocage===true;}
+function chargerCartes(){
+  if(!deblocageActif()||!connecte()||CP.enVol)return;CP.enVol=true;var jid=NET.joueur.id;
+  apiAppel('GET','/api/cartes?version='+encodeURIComponent(VERSION)).then(function(r){CP.enVol=false;
+    if(r.statut!==200||!r.json||!Array.isArray(r.json.cartes)||!connecte()||NET.joueur.id!==jid)return;
+    var av=CP.joueur===jid&&CP.d?CP.d.cartes:null,nv=r.json.cartes,i,j;
+    /* une carte fermée à la lecture précédente, ouverte maintenant : annoncée une fois à l'écran de fin */
+    if(av&&r.json.actif)for(i=0;i<nv.length;i++)for(j=0;j<av.length;j++)if(av[j].id===nv[i].id&&!av[j].ouverte&&nv[i].ouverte){CP.nouvelle=nv[i].id;CP.nouvelleT=Date.now();}
+    CP.d=r.json;CP.joueur=jid;majVilles();},function(){CP.enVol=false;});
+}
+/* → [{id, seuil, drapeaux, ouverte, cle:{id, drapeaux, seuil}|null, suite}] dans l'ordre des numéros, ou null (déblocage éteint) */
+function chaineCartes(){
+  if(!deblocageActif())return null;
+  var l=villesJouables().slice(),d=connecte()&&CP.d&&CP.joueur===NET.joueur.id?CP.d.cartes:null,o=[],i,j,v,p,sv,besoin;
+  l.sort(function(a,b){var x=typeof a.ordre==='number'?a.ordre:1e9,y=typeof b.ordre==='number'?b.ordre:1e9;return x-y||(a.id<b.id?-1:1);});
+  for(i=0;i<l.length;i++){v=l[i];sv=null;if(d)for(j=0;j<d.length;j++)if(d[j].id===v.id)sv=d[j];
+    if(sv)o.push({id:v.id,seuil:sv.seuil||0,drapeaux:sv.drapeaux||0,ouverte:sv.ouverte!==false,cle:sv.cle||null,suite:i<l.length-1});
+    else{p=i>0?l[i-1]:null;besoin=p&&p.seuil>0?p.seuil:0;o.push({id:v.id,seuil:v.seuil||0,drapeaux:0,ouverte:!besoin||v.concours===true,cle:besoin?{id:p.id,drapeaux:0,seuil:besoin}:null,suite:i<l.length-1});}}
+  return o;
+}
+function infoCarte(id){var c=chaineCartes(),i;if(!c)return null;for(i=0;i<c.length;i++)if(c[i].id===id)return c[i];return null;}
+function carteVerrouillee(id){var c=infoCarte(id);return!!c&&!c.ouverte;}
 function villesJouables(){var l=NET.villes,o=[],i;if(!l)return o;for(i=0;i<l.length;i++)if(l[i]&&typeof l[i].id==='string'&&typeof l[i].empreinte==='string'&&(l[i].etat==='active'||(VERSION_QA&&l[i].etat==='qa')))o.push(l[i]);return o;}
 function nomVilleJeu(id){var l=NET.villes||[],i,n;for(i=0;i<l.length;i++)if(l[i]&&l[i].id===id){n=l[i].noms;return n&&typeof n==='object'&&(n[LANGUE]||n.fr)||id;}
   var d=SIM.villeDefaut?SIM.villeDefaut():null;n=d&&d.fiche&&d.fiche.id===id&&d.fiche.noms;return n&&(n[LANGUE]||n.fr)||id;}
@@ -12870,6 +12938,7 @@ function majVilles(force){
   var l=villesJouables(),cur=villeAnnonce(),veut=SAUV.ville||(cur?cur.id:''),v=null,i;
   for(i=0;i<l.length;i++)if(l[i].id===veut)v=l[i];
   if(!v&&cur)for(i=0;i<l.length;i++)if(l[i].id===cur.id)v=l[i];
+  if(v&&carteVerrouillee(v.id)){var chn=chaineCartes(),co=null,jc;for(i=0;i<chn.length&&!co;i++)if(chn[i].ouverte)for(jc=0;jc<l.length;jc++)if(l[jc].id===chn[i].id)co=l[jc];if(co){v=co;SAUV.ville=co.id;sauver();}}
   if(!v&&!cur&&l.length&&SIM.villeDefaut)v=l[0];
   majPastilleVille();
   if(!v||(cur&&cur.id===v.id&&cur.empreinte===v.empreinte))return;
@@ -12878,7 +12947,7 @@ function majVilles(force){
   paquetVille(v.id,v.empreinte).then(function(P){VIL.enVol='';if(ecran==='jeu'||ecran==='fin')return;appliquerVille(v,P);},
     function(){VIL.enVol='';VIL.echecT=Date.now();majPastilleVille();if(force)afficherMsg(T('ville.echec'),C.danger);});
 }
-function choisirVille(id){var l=villesJouables(),i;for(i=0;i<l.length;i++)if(l[i].id===id){SAUV.ville=id;sauver();VIL.echecT=0;majVilles(true);return true;}return false;}
+function choisirVille(id){var l=villesJouables(),i;if(carteVerrouillee(id))return false;for(i=0;i<l.length;i++)if(l[i].id===id){SAUV.ville=id;sauver();VIL.echecT=0;majVilles(true);return true;}return false;}
 function villeSuivante(){var l=villesJouables(),cur=villeAnnonce(),i,k=-1;if(l.length<2||VIL.enVol)return;for(i=0;i<l.length;i++)if(cur&&l[i].id===cur.id)k=i;choisirVille(l[(k+1)%l.length].id);}
 /* pastille de l'écran titre : « Ville : Fribourg ▸ », un appui passe à la suivante ; cachée s'il n'y a pas le choix */
 function majPastilleVille(){
@@ -12945,6 +13014,7 @@ function appliquerSession(j){
   /* la langue de Telegram sert de langue par défaut tant que le joueur n'en a pas choisi */
   if(!SAUV.langue&&!LANG_URL&&NET.joueur.langue){var l=langueDe(NET.joueur.langue);if(l&&l!==LANGUE)appliquerLangue(l,true);}
   envoyerAttentes();
+  chargerCartes();
   controlerPartage();
   /* 0.11 : retour de « Connecter X » (confirmation), attentes d'un boost gardées dans l'onglet */
   xApresSession();
@@ -12978,10 +13048,10 @@ function visiteOuverture(){var r='',tg=0;try{r=document.referrer?new URL(documen
   try{tg=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData?1:0;}catch(e){}
   visite('o',{ref:String(r).slice(0,80),l:String(navigator.language||'').slice(0,12),w:screen.width|0,h:screen.height|0,tg:tg});}
 function chargerVilles(){if(NET.villesVol)return;NET.villesVol=true;
-  apiAppel('GET','/api/sante').then(function(r){NET.villesVol=false;if(r.statut===200&&Array.isArray(r.json.villes)){NET.villes=r.json.villes;majVilles();}},function(){NET.villesVol=false;});}
+  apiAppel('GET','/api/sante').then(function(r){NET.villesVol=false;if(r.statut===200&&Array.isArray(r.json.villes)){NET.villes=r.json.villes;NET.deblocage=r.json.deblocage===true;chargerCartes();majVilles();}},function(){NET.villesVol=false;});}
 function sante(){
   return apiAppel('GET','/api/sante').then(function(r){NET.majT=Date.now();NET.etat=r.statut===200?'ok':'hors';
-    if(r.statut===200){if(r.json.versions)NET.versions=r.json.versions;if(Array.isArray(r.json.villes)){NET.villes=r.json.villes;majVilles();}if(r.json.regles&&!connecte())NET.regles=r.json.regles;if(r.json.modeGraine&&!connecte())NET.modeGraine=r.json.modeGraine;
+    if(r.statut===200){if(r.json.versions)NET.versions=r.json.versions;if(Array.isArray(r.json.villes)){NET.villes=r.json.villes;NET.deblocage=r.json.deblocage===true;chargerCartes();majVilles();}if(r.json.regles&&!connecte())NET.regles=r.json.regles;if(r.json.modeGraine&&!connecte())NET.modeGraine=r.json.modeGraine;
       if(typeof r.json.maintenant==='number'&&!connecte())NET.decalage=r.json.maintenant-Date.now();appliquerConcours(r.json);}return r;});
 }
 /* ---- 0.8 : concours ----
@@ -13291,7 +13361,7 @@ function debutServeur(suite,repli){
     if(e.erreur==='niveau_touriste'){if(NIV.d)NIV.d.niveau='touriste';else NIV.d={niveau:'touriste',conditions:{},essais:{}};chargerNiveau();
       if(repli)repli();return;}
     if(r.statut===200&&typeof e.graine==='number'&&typeof e.jeton==='string'){
-      NET.partie={jeton:e.jeton,graine:e.graine>>>0,essai:e.essai,essaisMax:e.essaisMax,jour:e.jour,debut:e.debut,joueur:NET.joueur.id,pauseMaxS:typeof e.pauseMaxS==='number'?e.pauseMaxS:undefined,t0:Date.now()};
+      NET.partie={jeton:e.jeton,graine:e.graine>>>0,essai:e.essai,essaisMax:e.essaisMax,jour:e.jour,debut:e.debut,joueur:NET.joueur.id,pauseMaxS:typeof e.pauseMaxS==='number'?e.pauseMaxS:undefined,villeEtapes:typeof e.villeEtapes==='number'?e.villeEtapes:0,t0:Date.now()};
       NET.partie.vieBonus=e.vieBonus===true;
       if(NET.jour){
         /* 0.10 : essai pris sur la vie bonus : elle n'est plus utilisable aujourd'hui (le serveur le redira au rafraîchissement) */
@@ -13306,6 +13376,7 @@ function debutServeur(suite,repli){
       if(typeof NET.jour.essaisRestants==='number')NET.jour.essaisRestants=0;}
     if(e.erreur==='version_perimee'&&e.versions)NET.versions=e.versions;
     if(e.erreur==='ville_perimee'){if(Array.isArray(e.villes))NET.villes=e.villes;majPastilleVille();pagePerimee();return;}
+    if(e.erreur==='carte_verrouillee'){NET.deblocage=true;CP.d=null;chargerCartes();majVilles(true);afficherMsg(e.cle?T('err.carte_verrouillee',e.cle.seuil,nomVilleJeu(e.cle.id)):texteDebutRefuse(e),C.danger);return;}
     if(r.statut===0||r.statut>=500&&e.erreur!=='serveur_occupe'){NET.etat='hors';afficherMsg(T('net.horsLigne'),C.danger);return;}
     afficherMsg(texteDebutRefuse(e),C.danger);
     /* 0.10 : essais épuisés : le message porte le compte à rebours, qui tourne tant qu'il est affiché */
@@ -13349,6 +13420,7 @@ function envoyerFin(it){
 function resultatFin(it,r){
   var e=r.json||{},c=e.erreur,courant=NET.fin&&NET.fin.k===it.k;
   if(r.statut===200&&e.statut==='validee'){
+    chargerCartes();
     retirerAttente(it.k);majFin(it,{statut:'validee',score:e.score,rangJour:e.rangJour,scoreJour:e.scoreJour,rangConcours:e.rangConcours||null,scoreConcours:e.scoreConcours||null,
       /* 0.10 : score = score final ; scoreBrut, état du bonus de fidélité, vie bonus (absents d'un serveur plus ancien) */
       partie:e.partie||null,scoreBrut:typeof e.scoreBrut==='number'?e.scoreBrut:null,fidelite:typeof e.fidelite==='string'?e.fidelite:null,
@@ -14789,19 +14861,37 @@ function rendreSigner(){
    La carte en cours est encadrée d'or. Les vignettes sont des images (assets/villes/<id>.jpg) ; sans image : un cartouche. */
 function rendreEcranVilles(){
   fondMenu();entete(T('cartes.titre'));
-  var l=villesJouables(),cur=villeAnnonce(),i,v,y=SAFE_H+50,h,im,ici,enf,ih,sy,nom;
+  var l=villesJouables(),cur=villeAnnonce(),i,v,y=SAFE_H+50,h,im,ici,enf,ih,sy,nom,chn=chaineCartes(),ic,lo;
+  if(chn&&l.length>1){lo=[];for(ic=0;ic<chn.length;ic++)for(i=0;i<l.length;i++)if(l[i].id===chn[ic].id)lo.push(l[i]);if(lo.length===l.length)l=lo;}   /* dans l'ordre des numéros */
   if(l.length<2){l=cur?[{id:cur.id}]:[];}
   h=Math.min(160,Math.floor((586-y)/Math.max(1,l.length))-10);
   for(i=0;i<l.length;i++){(function(v,yc){
     ici=!!(cur&&cur.id===v.id);im=imageVille(v.id);nom=nomVilleJeu(v.id);
-    enf=zone('carte:'+v.id,16,yc,328,h,function(){if(VIL.enVol)return;if(cur&&cur.id===v.id){allerEcran('titre');return;}if(choisirVille(v.id))allerEcran('titre');});
+    var ci=l.length>1?infoCarte(v.id):null,ferme=!!ci&&!ci.ouverte;
+    /* carte verrouillée : elle ne se choisit pas ; sans connexion, la toucher mène à la connexion (seule issue) */
+    enf=zone('carte:'+v.id,16,yc,328,h,function(){if(ferme){if(!connecte())allerEcran('connexion');return;}if(VIL.enVol)return;if(cur&&cur.id===v.id){allerEcran('titre');return;}if(choisirVille(v.id))allerEcran('titre');});
+    if(ferme)enf=false;
     cx.save();cx.beginPath();rrect(cx,16,yc,328,h,14);cx.clip();
     cx.fillStyle='#1A1228';cx.fillRect(16,yc,328,h);
     if(im){ih=328*im.naturalHeight/im.naturalWidth;sy=ih>h?(ih-h)/2:0;cx.drawImage(im,16,yc-sy,328,Math.max(ih,h));}
     var gr=cx.createLinearGradient(0,yc+h-58,0,yc+h);gr.addColorStop(0,'rgba(13,9,20,0)');gr.addColorStop(1,'rgba(13,9,20,0.92)');cx.fillStyle=gr;cx.fillRect(16,yc+h-58,328,58);
     if(enf){cx.fillStyle='rgba(255,255,255,0.10)';cx.fillRect(16,yc,328,h);}
+    if(ferme){cx.fillStyle='rgba(13,9,20,0.68)';cx.fillRect(16,yc,328,h);}
     cx.restore();
-    cx.strokeStyle=ici?C.or:'rgba(111,230,255,0.55)';cx.lineWidth=ici?3:1.5;cx.beginPath();rrect(cx,16,yc,328,h,14);cx.stroke();
+    cx.strokeStyle=ferme?'rgba(111,230,255,0.25)':(ici?C.or:'rgba(111,230,255,0.55)');cx.lineWidth=ici&&!ferme?3:1.5;cx.beginPath();rrect(cx,16,yc,328,h,14);cx.stroke();
+    if(ferme){
+      /* cadenas, consigne, reste à faire ; pas de mention « Jouer » */
+      cx.strokeStyle=C.creme;cx.lineWidth=2.2;cx.lineCap='round';cx.beginPath();cx.arc(320,yc+17,4.6,Math.PI,0);cx.lineTo(324.6,yc+21);cx.moveTo(315.4,yc+17);cx.lineTo(315.4,yc+21);cx.stroke();
+      cx.fillStyle=C.creme;cx.beginPath();rrect(cx,313,yc+20,14,11,2.5);cx.fill();cx.fillStyle=C.encre;cx.beginPath();cx.arc(320,yc+25.5,1.7,0,PI2);cx.fill();
+      var consigne=ci.cle?T('cartes.seuil',ci.cle.seuil,nomVilleJeu(ci.cle.id)):'';
+      if(!connecte()){ttFit(T('cartes.cnx'),180,yc+h*0.38,14,300,C.creme,'center',0,true);ttFit(consigne,180,yc+h*0.38+19,11.5,300,'rgba(246,241,231,0.85)','center',2,true);}
+      else{ttFit(consigne,180,yc+h*0.38,14,300,C.creme,'center',0,true);if(ci.cle&&ci.cle.drapeaux>0)ttFit(T('cartes.reste',Math.max(0,ci.cle.seuil-ci.cle.drapeaux)),180,yc+h*0.38+19,11.5,300,C.or,'center',2,true);}
+      cx.globalAlpha=0.7;ttFit(nom.toUpperCase(),30,yc+h-20,20,200,C.creme,'left',0,true);cx.globalAlpha=1;return;}
+    /* carte ouverte qui en ouvre une autre : drapeau et compteur, tant que le seuil n'est pas atteint */
+    if(ci&&ci.suite&&ci.seuil>0&&ci.drapeaux<ci.seuil){var tc=fmtNb(ci.drapeaux)+'/'+fmtNb(ci.seuil),wc;cx.font=police(12,1);wc=cx.measureText(tc).width+30;
+      cx.fillStyle='rgba(13,9,20,0.72)';cx.beginPath();rrect(cx,336-wc,yc+8,wc,20,10);cx.fill();
+      cx.strokeStyle=C.or;cx.lineWidth=1.6;cx.lineCap='round';cx.beginPath();cx.moveTo(345-wc,yc+12.5);cx.lineTo(345-wc,yc+24);cx.stroke();cx.fillStyle=C.or;cx.beginPath();cx.moveTo(345.8-wc,yc+12.5);cx.lineTo(353.5-wc,yc+15.2);cx.lineTo(345.8-wc,yc+18.4);cx.closePath();cx.fill();
+      tn(tc,330,yc+18.6,12,C.creme,'right',1);}
     ttFit(nom.toUpperCase(),30,yc+h-20,20,200,C.creme,'left',0,true);
     var cc=v.id===villeConcours();
     ttFit(ici?'✓ '+T(cc?'cartes.concours':'cartes.ici'):(VIL.enVol?T('cartes.charge'):T(cc?'cartes.concours':'cartes.jouer')+' ▸'),330,yc+h-19,12.5,130,ici||cc?C.or:C.cyan,'right',2,true);
@@ -15136,12 +15226,12 @@ function chargerRevoir(id,pseudo){
     /* la partie se revoit dans SA ville : paquet chargé par son empreinte ; partie sans ville : ancienne carte */
     if(d.ville&&typeof d.ville==='object'&&typeof d.ville.id==='string'&&typeof d.ville.empreinte==='string'){
       NET.revoirCharge=true;
-      paquetVille(d.ville.id,d.ville.empreinte).then(function(P){NET.revoirCharge=false;R.ville=P;lancerRevoir(R);},function(){NET.revoirCharge=false;afficherMsg(T('ville.echec'),C.danger);});
+      paquetVille(d.ville.id,d.ville.empreinte).then(function(P){NET.revoirCharge=false;R.ville=P;R.etapes=d.ville.etapes||0;lancerRevoir(R);},function(){NET.revoirCharge=false;afficherMsg(T('ville.echec'),C.danger);});
       return;}
     lancerRevoir(R);});
 }
 function lancerRevoir(R){
-  lancer(false,R.graine,{revoir:true,ville:R.ville===undefined?null:R.ville});
+  lancer(false,R.graine,{revoir:true,ville:R.ville===undefined?null:(villeReglee(R.ville,R.etapes)||R.ville)});
   REVOIR={graine:R.graine,j:R.j,choix:R.choix,ic:0,nPas:R.nPas,pseudo:R.pseudo,version:R.version,score:R.score,vit:1,partie:R.partie};
   bandeau(T('revoir.bandeau',R.pseudo),4);
   if(R.version&&R.version!==VERSION&&!SIM_IDENTIQUE[R.version])afficherMsg(T('revoir.version',R.version),C.or);

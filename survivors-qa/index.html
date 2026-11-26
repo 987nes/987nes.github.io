@@ -555,7 +555,8 @@ var MONDES=[],MONDES_G=[];
    null ou false = l'ancienne carte tirée de la graine ; sinon le paquet (objet). */
 function villeDe(ville){if(ville===undefined)ville=VILLE_DEFAUT;if(!ville)return null;
   if(typeof ville!=='object'||!ville.monde||!(ville.monde.lm>0&&ville.monde.lm%256===0))throw new Error('ville : paquet sans monde valable');
-  if(ville.reglages&&Object.keys(ville.reglages).length)throw new Error('ville : réglages propres à la ville pas encore pris en charge');
+  /* 0.22.0 (46.173) : un seul réglage propre à la ville, « etapes » : l'espacement des drapeaux en % (25 à 400) */
+  if(ville.reglages){var kr=Object.keys(ville.reglages),er=ville.reglages.etapes;if(kr.length>1||(kr.length===1&&(kr[0]!=='etapes'||typeof er!=='number'||er!==Math.floor(er)||er<25||er>400)))throw new Error('ville : réglage de ville inconnu');}
   var j=jeuDeVille(ville);if(j.err.length)throw new Error('ville : '+j.err[0]);
   return ville;}
 /* Ville courante de la page (côté jeu seulement : le joueur choisit sa ville, le paquet est chargé à la demande). Elle
@@ -754,6 +755,8 @@ function genVille(P,graine,dep){
      marche) ; l'élan tient alors deux fois le délai de base. À 9 px par mètre rien ne change (td = tk = 1). */
   /* quelle que soit l'échelle de la ville : l'étape est à 2 400 à 4 000 px, soit 20 à 35 s de marche, et l'élan tient 90 s */
   m.td=8;m.tk=2;
+  /* 0.22.0 (46.173) : espacement réglé par l'organisateur (% de la distance d'origine) ; l'élan tient d'autant plus ou moins longtemps */
+  if(P.reglages&&P.reglages.etapes>0){m.td=8*P.reglages.etapes/100;m.tk=2*P.reglages.etapes/100;}
   /* tournée : les étapes se posent sur les places dégagées de la carte (jamais dans un mur, l'eau ou hors de la ville) */
   /* à 60 m au moins du bord de la ville (420 px) : une étape posée contre la ceinture de feu se voyait mal, et sa cible sortait
      à moitié de la carte de poche (Dom, 24.11.2026 : « il y en a qu'un ? ») ; si la marge ne laisse rien, tous les lieux servent */
@@ -1896,6 +1899,7 @@ function quantifier(fx,fy){var best=0,bd=-1e9,d,v;for(d=1;d<=16;d++){v=fx*DIRX[d
 return{HZ:HZ,NA:NA,creer:creer,pas:pas,choisir:choisir,relancer:relancer,voter:voter,score:score,palier:palier,rejouer:rejouer,compresser:compresser,
   quantifier:quantifier,
   mondeDe:mondeDe,genererMonde:genererMonde,genVille:genVille,villeDe:villeDe,departVille:departVille,LM0:LM0,   /* villes : points d'entrée */
+  REGLAGES_VILLE:['etapes'],
   villeDefaut:function(){return VILLE_DEFAUT;},villeCourante:villeCourante,villeEmpreinte:function(){return VILLE_EMPREINTE;},VILLE_EMPREINTE:VILLE_EMPREINTE,VILLE_CHOIX_DEPART:VILLE_CHOIX_DEPART,
   chevauche:chevauche,dansEau:function(st,x,y){lier(st);return dansEau(x,y);},md:md,wr:wr,funiEtat:function(st,n){lier(st);funiEtat(n);return{v:FUV,m:FUM,a:FUA,p:FUP};},
   MONDE:{LM:LM,CL:CL,NCL:NCL,RIV_HW:RIV_HW,FONT_MAX:FONT_MAX,FONT_RAYON:FONT_RAYON,FUNI_PER:FUNI_PER,FUNI_ATT:FUNI_ATT,FUNI_ANN:FUNI_ANN,FUNI_TRAJ:FUNI_TRAJ,
@@ -7953,7 +7957,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.21.0-qa1';
+var VERSION='0.22.0-qa1';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -11379,6 +11383,15 @@ function demarrer(rang){
   tDepart=0;departRang=!!rang;
 }
 var partieSrv=null,essaiTouriste=false;
+/* paquet de ville avec son réglage d'espacement (copie gardée : le même objet d'une partie à l'autre) ; sans réglage : undefined
+   (la simulation joue alors la ville courante telle quelle) */
+var VREG={P:null,e:0,o:null};
+function villeReglee(P,e){
+  if(!P||!(e>0)||e===100||e!==Math.floor(e)||e<25||e>400)return undefined;
+  if(VREG.P===P&&VREG.e===e)return VREG.o;
+  var o={},k;for(k in P)if(Object.prototype.hasOwnProperty.call(P,k))o[k]=P[k];o.reglages={etapes:e};VREG.P=P;VREG.e=e;VREG.o=o;return o;
+}
+function etapesAnnoncees(){var c=villeAnnonce(),l=NET.villes||[],i;if(!c)return 0;for(i=0;i<l.length;i++)if(l[i]&&l[i].id===c.id)return l[i].etapes||0;return 0;}
 function lancer(rang,graineForcee,o){
   audioInit();majJour();motifDuJour();
   /* première partie de l'appareil : échauffement hors classement, les essais restent intacts */
@@ -11396,7 +11409,9 @@ function lancer(rang,graineForcee,o){
   else if(classee){SAUV.essais++;essaiNo=SAUV.essais;sauver();graineCourante=SIM.fnv1a('DZO-'+JOUR);}
   else graineCourante=graineForcee!==undefined?(graineForcee>>>0):SIM.melange(Date.now()&0x7fffffff,(Math.random()*1e9)|0);
   /* partie classée ou revue : le tableau de sa graine (comme le serveur, qui rejoue avec quatre arguments) */
-  S=SIM.creer(graineCourante,classee||(o&&o.revoir)?undefined:(TAB_FORCE>=0?TAB_FORCE:tableauDuJour()),o&&o.revoir?o.ville:undefined);   /* relecture : la ville de la partie revue (null : ancienne carte) */
+  /* 0.22.0 (46.173) : espacement des drapeaux : celui que le serveur a fixé pour cette partie classée, sinon celui annoncé pour la carte */
+  var etp=o&&o.revoir?0:(partieSrv?(partieSrv.villeEtapes||0):etapesAnnoncees());
+  S=SIM.creer(graineCourante,classee||(o&&o.revoir)?undefined:(TAB_FORCE>=0?TAB_FORCE:tableauDuJour()),o&&o.revoir?o.ville:villeReglee(SIM.villeDefaut(),etp));   /* relecture : la ville de la partie revue (null : ancienne carte) */
   histAvancer('jeu');
   viderEffets();ecran='jeu';sous='';tSous=0;tEcran=0;accu=0;gel=0;ralentiT=0;trauma=0;tMort=-1;tVict=-1;tTouche=9;bordRouge=0;eclairBlanc=0;eclairRouge=0;camDY=0;zoom=1.6;tJeu=0;chaineGemme=0;
   xpEclat=0;dzoEch=1;carteChoisie=-1;musBaisse=0;apercuCarte=null;tDepart=-1;regretFin='';tueurFin=-1;tueurVFin=0;dernierPas=0;aideGemme=false;aideTresor=false;aideT=-1;
@@ -13346,7 +13361,7 @@ function debutServeur(suite,repli){
     if(e.erreur==='niveau_touriste'){if(NIV.d)NIV.d.niveau='touriste';else NIV.d={niveau:'touriste',conditions:{},essais:{}};chargerNiveau();
       if(repli)repli();return;}
     if(r.statut===200&&typeof e.graine==='number'&&typeof e.jeton==='string'){
-      NET.partie={jeton:e.jeton,graine:e.graine>>>0,essai:e.essai,essaisMax:e.essaisMax,jour:e.jour,debut:e.debut,joueur:NET.joueur.id,pauseMaxS:typeof e.pauseMaxS==='number'?e.pauseMaxS:undefined,t0:Date.now()};
+      NET.partie={jeton:e.jeton,graine:e.graine>>>0,essai:e.essai,essaisMax:e.essaisMax,jour:e.jour,debut:e.debut,joueur:NET.joueur.id,pauseMaxS:typeof e.pauseMaxS==='number'?e.pauseMaxS:undefined,villeEtapes:typeof e.villeEtapes==='number'?e.villeEtapes:0,t0:Date.now()};
       NET.partie.vieBonus=e.vieBonus===true;
       if(NET.jour){
         /* 0.10 : essai pris sur la vie bonus : elle n'est plus utilisable aujourd'hui (le serveur le redira au rafraîchissement) */
@@ -15211,12 +15226,12 @@ function chargerRevoir(id,pseudo){
     /* la partie se revoit dans SA ville : paquet chargé par son empreinte ; partie sans ville : ancienne carte */
     if(d.ville&&typeof d.ville==='object'&&typeof d.ville.id==='string'&&typeof d.ville.empreinte==='string'){
       NET.revoirCharge=true;
-      paquetVille(d.ville.id,d.ville.empreinte).then(function(P){NET.revoirCharge=false;R.ville=P;lancerRevoir(R);},function(){NET.revoirCharge=false;afficherMsg(T('ville.echec'),C.danger);});
+      paquetVille(d.ville.id,d.ville.empreinte).then(function(P){NET.revoirCharge=false;R.ville=P;R.etapes=d.ville.etapes||0;lancerRevoir(R);},function(){NET.revoirCharge=false;afficherMsg(T('ville.echec'),C.danger);});
       return;}
     lancerRevoir(R);});
 }
 function lancerRevoir(R){
-  lancer(false,R.graine,{revoir:true,ville:R.ville===undefined?null:R.ville});
+  lancer(false,R.graine,{revoir:true,ville:R.ville===undefined?null:(villeReglee(R.ville,R.etapes)||R.ville)});
   REVOIR={graine:R.graine,j:R.j,choix:R.choix,ic:0,nPas:R.nPas,pseudo:R.pseudo,version:R.version,score:R.score,vit:1,partie:R.partie};
   bandeau(T('revoir.bandeau',R.pseudo),4);
   if(R.version&&R.version!==VERSION&&!SIM_IDENTIQUE[R.version])afficherMsg(T('revoir.version',R.version),C.or);
@@ -16463,6 +16478,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 9px/1 system-ui,sans-serif;padding:2px 10px 3px;border-radius:8px 8px 0 0;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.21.0-qa1 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.22.0-qa1 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
