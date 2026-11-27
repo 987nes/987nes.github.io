@@ -7962,7 +7962,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.23.0-proto';
+var VERSION='0.23.1-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -12676,9 +12676,20 @@ function rendreFin(){
   }
   bouton('fmenu',6,SAFE_H+5,52,24,T('fin.menu'),1,function(){allerEcran('titre');majJour();},null,10);
   /* 0.8 : bandeau du concours, à droite du bouton menu */
-  if(!REVOIR&&!HORS_RANG){surveillerConcours();bandeauConcours('fconcours',64,SAFE_H+3,290,30);}
+  var bandF=false;if(!REVOIR&&!HORS_RANG){surveillerConcours();bandF=bandeauConcours('fconcours',64,SAFE_H+3,290,30);}
+  /* 46.175 (relecture UI/UX du 27.11.2026) : la carte jouée, en pastille au centre de la rangée du bouton menu ;
+     le bandeau du concours, quand il existe, garde cette place (il nomme déjà la carte du concours) */
+  if(!bandF)pastilleCarteFin(SAFE_H+5);
   cx.globalAlpha=1;
 }
+function nomCarteJouee(){var P=S&&S.M&&S.M.ville,n=P&&P.fiche&&P.fiche.noms;return n&&typeof n==='object'?(n[LANGUE]||n.fr||''):'';}
+function pastilleCarteFin(y){var nom=nomCarteJouee(),tw,w,x,px,py;if(!nom)return;nom=nom.toUpperCase();
+  cx.font=police(13,0);tw=Math.min(190,cx.measureText(nom).width);w=Math.min(230,tw+40);x=180-w/2;
+  cx.fillStyle='rgba(13,9,20,0.85)';cx.beginPath();rrect(cx,x,y,w,24,12);cx.fill();cx.strokeStyle=C.or;cx.lineWidth=1.5;cx.stroke();
+  /* épingle dessinée (rendu identique sur tous les appareils, pas d'émoji) */
+  px=x+16;py=y+10;cx.fillStyle=C.or;cx.beginPath();cx.arc(px,py,4.6,Math.PI*0.85,Math.PI*2.15);cx.lineTo(px,py+8.5);cx.closePath();cx.fill();
+  cx.fillStyle='rgba(13,9,20,0.95)';cx.beginPath();cx.arc(px,py,1.8,0,Math.PI*2);cx.fill();
+  ttFit(nom,x+27,y+12.5,13,190,C.creme,'left',0,false);}
 var finTampon=0;
 
 /* ---------- partage ---------- */
@@ -15583,6 +15594,7 @@ window.__dzo={
   },
   demarrer:function(graine){lancer(false,graine===undefined?undefined:graine>>>0);return window.__dzo.etat();},
   /* villes : état du choix, et choix direct pour les essais */
+  carteFin:function(){return nomCarteJouee();},
   villes:function(){var c=villeAnnonce();return{courante:c||null,chargee:VIL.id,enVol:VIL.enVol,jouables:villesJouables().map(function(v){return v.id;}),pastille:false,texte:c?nomVilleJeu(c.id):'',lm:S&&S.M?S.M.lm:(MW?MW.lm:0)};},
   choisirVille:function(id){return choisirVille(id);},
   /* 0.7 : état du réseau, écrans, cartes de partage */
