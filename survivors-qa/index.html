@@ -387,7 +387,7 @@ function creer(graine,tab,ville){
   var s={};ville=villeDe(ville);dimMonde(ville?ville.monde.lm:LM0);
   graine=graine>>>0;s.graine=graine;
   s.rApp=mulberry32(melange(graine,11));s.rCar=mulberry32(melange(graine,22));s.rBut=mulberry32(melange(graine,33));s.rCbt=mulberry32(melange(graine,44));
-  s.n=0;s.fini=0;s.victoire=0;s.modal=0;s.tueur=-1;s.tueurV=0;
+  s.n=0;s.fini=0;s.victoire=0;s.modal=0;s.tueur=-1;s.tueurV=0;s.xpTot=0;   /* 46.177 : XP ramassée au total (poletzes) */
   s.decret=decretDe(graine);s.dec=DECRETS[s.decret];s.sur=new Int32Array(SURCHARGES.length);s.nEvo=0;s.ouv=0;s.sansCoup=0;s.bonusSC=0;s.degMult=1;s.vitDec=s.dec.vitEnn||1;s.dist=0;s.bFuiteT=0;
   s.px=0;s.py=0;s.opx=0;s.opy=0;s.dx=1;s.dy=0;s.face=1;s.marche=0;s.jkx=0;s.jky=0;s.dir=0;
   s.pv=100;s.pvMax=100;s.inv=0;s.vit=120;s.regen=0;s.rayonRam=32;
@@ -1481,7 +1481,7 @@ function majProjEnnemis(){
 /* 0.4 : au-delà du niveau 12, chaque niveau coûte davantage (la puissance ne s'emballe plus au milieu de partie) */
 function xpPour(n){n=n<119?n:119;return n>=REGL.xpNiv?Math.round(XPT[n]*REGL.xpHaut):XPT[n];}
 function gagnerXP(v){
-  S.xp+=v;
+  S.xp+=v;S.xpTot+=v;
   while(S.xp>=S.xpSuiv){S.xp-=S.xpSuiv;S.niveau++;S.xpSuiv=xpPour(S.niveau);S.attente++;S.ondeNiv=1;}
 }
 /* Onde de choc de montée de niveau : jouée au pas qui suit le choix de carte (respiration pour le débutant). */
@@ -2115,6 +2115,14 @@ LANGUES.fr={
 "fin.rejouer":"REJOUER",
 "fin.essaiClasse":"Essai {0}/{1} · classé",
 "fin.essai":"Essai {0}/{1}",
+"pz.nom":"poletzes",
+"pz.garder":"connecte-toi pour les garder",
+"pz.temps":"Temps",
+"pz.drapeaux":"Drapeaux",
+"pz.pieces":"Pièces",
+"pz.points":"Points",
+"pz.boutique":"Boutique bientôt",
+"pz.fermer":"Touche pour fermer",
 "fin.epuise":"Essais épuisés : entraînement",
 "fin.partager":"PARTAGER",
 "fin.menu":"MENU",
@@ -3322,6 +3330,14 @@ LANGUES.de={
 "fin.rejouer":"NOCHMAL",
 "fin.essaiClasse":"Versuch {0}/{1} · gewertet",
 "fin.essai":"Versuch {0}/{1}",
+"pz.nom":"Poletzes",
+"pz.garder":"melde dich an, um sie zu behalten",
+"pz.temps":"Zeit",
+"pz.drapeaux":"Flaggen",
+"pz.pieces":"Münzen",
+"pz.points":"Punkte",
+"pz.boutique":"Shop bald",
+"pz.fermer":"Tippen zum Schliessen",
 "fin.epuise":"Versuche aufgebraucht: Training",
 "fin.partager":"TEILEN",
 "fin.menu":"MENÜ",
@@ -4527,6 +4543,14 @@ LANGUES.it={
 "fin.rejouer":"RIGIOCA",
 "fin.essaiClasse":"Tentativo {0}/{1} · in classifica",
 "fin.essai":"Tentativo {0}/{1}",
+"pz.nom":"poletzes",
+"pz.garder":"accedi per tenerli",
+"pz.temps":"Tempo",
+"pz.drapeaux":"Bandiere",
+"pz.pieces":"Monete",
+"pz.points":"Punti",
+"pz.boutique":"Negozio in arrivo",
+"pz.fermer":"Tocca per chiudere",
 "fin.epuise":"Tentativi esauriti: allenamento",
 "fin.partager":"CONDIVIDI",
 "fin.menu":"MENU",
@@ -5733,6 +5757,14 @@ LANGUES.es={
 "fin.rejouer":"REPETIR",
 "fin.essaiClasse":"Intento {0}/{1} · con ranking",
 "fin.essai":"Intento {0}/{1}",
+"pz.nom":"poletzes",
+"pz.garder":"inicia sesión para guardarlos",
+"pz.temps":"Tiempo",
+"pz.drapeaux":"Banderas",
+"pz.pieces":"Monedas",
+"pz.points":"Puntos",
+"pz.boutique":"Tienda pronto",
+"pz.fermer":"Toca para cerrar",
 "fin.epuise":"Intentos agotados: entrenamiento",
 "fin.partager":"COMPARTIR",
 "fin.menu":"MENÚ",
@@ -6938,6 +6970,14 @@ LANGUES.en={
 "fin.rejouer":"RETRY",
 "fin.essaiClasse":"Try {0}/{1} · ranked",
 "fin.essai":"Try {0}/{1}",
+"pz.nom":"poletzes",
+"pz.garder":"log in to keep them",
+"pz.temps":"Time",
+"pz.drapeaux":"Flags",
+"pz.pieces":"Coins",
+"pz.points":"Points",
+"pz.boutique":"Shop coming soon",
+"pz.fermer":"Tap to close",
 "fin.epuise":"Tries used up: training",
 "fin.partager":"SHARE",
 "fin.menu":"MENU",
@@ -7962,7 +8002,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.23.1-qa1';
+var VERSION='0.24.0-qa1';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -12566,7 +12606,7 @@ function titreEquilibre(s,larg,px){
   return lignes(s,larg,px,0);
 }
 function rendreFin(){
-  nBT=0;
+  nBT=0;if(tEcran<0.2)PZ.detail=false;
   if(PCH.ou==='fin')zone('pchFond',0,0,360,640,fermerChoixPartage);
   var illusF=!!(S&&imageEcran(S.victoire?'victoire':'defaite'));
   if(S){rendreMonde(0);}else rendreFond(9,6,0.6);
@@ -12628,6 +12668,7 @@ function rendreFin(){
          s'il y en a trop, le regret puis le repas cèdent la place (serveur, fidélité, tueur et record restent) */
       var LF=[],lfid=ligneFidelite(),pasL,dispoL=basF-30-14-yl;
       if(lsrv)LF.push({k:'srv',t:lsrv[0],c:lsrv[1],p:12,g:2});
+      if(modePz())LF.push({k:'pz',t:'',c:C.cyan,p:12,g:0});   /* 46.177 : poletzes (relecture UI/UX du 27.11.2026) */
       if(lfid)LF.push({k:'fid',t:lfid[0],c:lfid[1],p:12,g:2});
       if(CP.nouvelle&&deblocageActif()&&Date.now()-CP.nouvelleT<180000)LF.push({k:'carte',t:T('fin.carte',nomVilleJeu(CP.nouvelle)),c:C.or,p:12,g:0});
       if(tueurFin>=0)LF.push({k:'tueur',t:T('fin.liquidePar',nomEnn(tueurFin,tueurVFin)),c:C.creme,p:12,g:2});
@@ -12642,6 +12683,7 @@ function rendreFin(){
       pasL=LF.length>1?Math.max(12,Math.min(17,dispoL/(LF.length-1))):17;
       for(i=0;i<LF.length;i++){var lf=LF[i];
         if(lf.k==='tueur'){cx.font=police(12,2);w=Math.min(300,cx.measureText(lf.t).width);s=SPR.ennV[tueurFin][tueurVFin]||SPR.enn[tueurFin];cx.drawImage(s.c,180-w/2-26,yl-11,22,22);ttFit(lf.t,180+11,yl,12,300,lf.c,'center',2,true);}
+        else if(lf.k==='pz')puceFinPz(yl);
         else ttFit(lf.t,180,yl,lf.p,336,lf.c,'center',lf.g,true);
         if(i<LF.length-1)yl+=pasL;}
       yl+=12;
@@ -12677,6 +12719,7 @@ function rendreFin(){
   bouton('fmenu',6,SAFE_H+5,52,24,T('fin.menu'),1,function(){allerEcran('titre');majJour();},null,10);
   /* 0.8 : bandeau du concours, à droite du bouton menu */
   var bandF=false;if(!REVOIR&&!HORS_RANG){surveillerConcours();bandF=bandeauConcours('fconcours',64,SAFE_H+3,290,30);}
+  if(PZ.detail&&tEcran>1.55)carteDetailPz();
   /* 46.175 (relecture UI/UX du 27.11.2026) : la carte jouée, en pastille au centre de la rangée du bouton menu ;
      le bandeau du concours, quand il existe, garde cette place (il nomme déjà la carte du concours) */
   if(!bandF)pastilleCarteFin(SAFE_H+5);
@@ -12691,6 +12734,39 @@ function pastilleCarteFin(y){var nom=nomCarteJouee(),tw,w,x,px,py;if(!nom)return
   cx.fillStyle='rgba(13,9,20,0.95)';cx.beginPath();cx.arc(px,py,1.8,0,Math.PI*2);cx.fill();
   ttFit(nom,x+27,y+12.5,13,190,C.creme,'left',0,false);}
 var finTampon=0;
+/* ---------- 46.177 : poletzes ----------
+   Gagnés en fin de partie classée validée par un joueur connecté ; le serveur les calcule après le rejeu (poids réglables
+   dans la console). L'entraînement ne rapporte rien. Le touriste voit ce qu'il aurait gagné (calcul local, poids publics).
+   Écran de fin : une pastille sous la ligne du serveur (place réservée dès l'ouverture, chiffre seulement une fois confirmé,
+   compteur de 0,5 s) ; un toucher ouvre le détail (temps, drapeaux, pièces, points). Profil : le solde. */
+var PZ={detail:false};
+function modePz(){if(REVOIR||BOT||VITESSE>1||TAB_FORCE>=0)return'';if(partieSrv)return'srv';if(essaiTouriste&&NET.pzPoids)return'tour';return'';}
+function pzCalcul(p,nPas,etapes,xp,score){var d={temps:Math.round(p.temps*nPas/60/10),drapeaux:Math.round(p.drapeau*Math.max(0,etapes||0)),pieces:Math.round(p.pieces*Math.sqrt(Math.max(0,xp||0))),points:Math.round(p.points*Math.sqrt(Math.max(0,score||0)))};d.total=d.temps+d.drapeaux+d.pieces+d.points;return d;}
+function pzEstime(){var p=NET.pzPoids;return p&&S?pzCalcul(p,S.n,S.etapes,S.xpTot,SIM.score(S)):null;}
+function icoPz(x,y,r){var a=r*0.72;cx.beginPath();cx.moveTo(x,y-r);cx.lineTo(x+a,y);cx.lineTo(x,y+r);cx.lineTo(x-a,y);cx.closePath();cx.fillStyle='#6FE6FF';cx.fill();
+  cx.beginPath();cx.moveTo(x,y-r);cx.lineTo(x-a,y);cx.lineTo(x,y);cx.closePath();cx.fillStyle='rgba(255,255,255,0.5)';cx.fill();
+  cx.beginPath();cx.moveTo(x,y+r);cx.lineTo(x+a,y);cx.lineTo(x,y);cx.closePath();cx.fillStyle='rgba(13,9,20,0.3)';cx.fill();
+  cx.beginPath();cx.moveTo(x,y-r);cx.lineTo(x+a,y);cx.lineTo(x,y+r);cx.lineTo(x-a,y);cx.closePath();cx.strokeStyle=C.creme;cx.lineWidth=1;cx.stroke();}
+/* pastille : icône, nombre (cyan), libellé ; tirets crème pour le touriste (estimation, touche : connexion) */
+function pucePz(x0,y,txt,lab,tirets,centre){cx.font=police(14,1);var w1=cx.measureText(txt).width;cx.font=police(11,2);var w2=Math.min(cx.measureText(lab).width,centre?230:120),w=w1+w2+40,x=centre?180-w/2:x0-w;
+  cx.save();cx.fillStyle='rgba(13,9,20,0.85)';cx.beginPath();rrect(cx,x,y-9,w,18,9);cx.fill();if(tirets)cx.setLineDash([4,3]);cx.strokeStyle=tirets?C.creme:C.cyan;cx.lineWidth=1.5;cx.stroke();cx.restore();
+  icoPz(x+14,y,6);tn(txt,x+26,y+0.5,14,C.cyan,'left',1);ttFit(lab,x+30+w1,y+0.5,11,w2,C.creme,'left',2,false);return{x:x,w:w};}
+function puceFinPz(y){var m=modePz(),f=NET.fin,e=1,b;
+  if(m==='srv'){if(!f||f.statut!=='validee'||!f.pz)return;e=Math.max(0,Math.min(1,(Date.now()-(f.pzT||0))/500));
+    b=pucePz(0,y,'+'+fmtNb(Math.round(f.pz.total*e)),T('pz.nom'),false,true);if(e<1)son('compte');
+    zone('fpz',b.x,y-12,b.w,24,function(){PZ.detail=!PZ.detail;});}
+  else if(m==='tour'){var p=pzEstime();if(!p)return;b=pucePz(0,y,'≈ +'+fmtNb(p.total),T('pz.garder'),true,true);
+    zone('fpz',b.x,y-12,b.w,24,function(){allerEcran('connexion');});}}
+/* détail du gain : par-dessus la rangée du build, au-dessus de REJOUER ; un toucher le ferme */
+function carteDetailPz(){var f=NET.fin;if(modePz()!=='srv'||!f||!f.pz){PZ.detail=false;return;}var d=f.pz,L=[['pz.temps',d.temps],['pz.drapeaux',d.drapeaux],['pz.pieces',d.pieces],['pz.points',d.points]],i,y0=372,h=118;
+  panneau(70,y0,220,h,12,'rgba(38,27,54,0.97)','rgba(20,13,32,0.97)',C.cyan,1.5);
+  icoPz(96,y0+18,7);tn('+'+fmtNb(d.total)+' '+T('pz.nom'),108,y0+18.5,14,C.cyan,'left',1);
+  for(i=0;i<4;i++){tn(T(L[i][0]),88,y0+42+i*16,11.5,C.creme,'left',2);tn('+'+fmtNb(L[i][1]),272,y0+42+i*16,11.5,C.cyan,'right',1);}
+  ttFit(T('pz.fermer'),180,y0+h-9,9,200,'rgba(246,241,231,0.55)','center',2,false);
+  zone('fpzx',70,y0,220,h,function(){PZ.detail=false;});}
+/* profil : le solde, en haut à droite du panneau ; un toucher : « Boutique bientôt » (rien de plus à l'écran) */
+function pucePzProfil(y){if(!NET.poletzes||typeof NET.poletzes.solde!=='number')return;var b=pucePz(340,y+16,fmtNb(NET.poletzes.solde),T('pz.nom'),false,false);
+  zone('ppz',b.x,y+4,b.w,24,function(){afficherMsg(T('pz.boutique'),C.cyan);});}
 
 /* ---------- partage ---------- */
 /* 0.7 : le lien partagé est celui d'une carte de partage (son image s'affiche sous le post), choisie selon le résultat */
@@ -13020,6 +13096,7 @@ function appliquerSession(j){
   if(NET.jour&&NET.jour.jour!==j.jour.jour)NET.code=null;
   NET.joueur=j.joueur;NET.jour=j.jour;NET.regles=j.regles||null;NET.versions=j.versions||NET.versions;
   NET.modeGraine=j.modeGraine||(j.regles&&j.regles.modeGraine)||'jour';NET.horde=j.horde||null;
+  NET.poletzes=j.poletzes&&typeof j.poletzes.solde==='number'?j.poletzes:null;if(NET.poletzes&&NET.poletzes.poids)NET.pzPoids=NET.poletzes.poids;   /* 46.177 */
   appliquerConcours(j);
   if(j.serveur&&typeof j.serveur.maintenant==='number'){NET.decalage=j.serveur.maintenant-Date.now();NET.prochainJour=j.serveur.prochainJour||0;}
   NET.etat='ok';NET.majT=Date.now();garderSession();
@@ -13068,7 +13145,7 @@ function chargerVilles(){if(NET.villesVol)return;NET.villesVol=true;
   apiAppel('GET','/api/sante').then(function(r){NET.villesVol=false;if(r.statut===200&&Array.isArray(r.json.villes)){NET.villes=r.json.villes;NET.deblocage=r.json.deblocage===true;chargerCartes();majVilles();}},function(){NET.villesVol=false;});}
 function sante(){
   return apiAppel('GET','/api/sante').then(function(r){NET.majT=Date.now();NET.etat=r.statut===200?'ok':'hors';
-    if(r.statut===200){if(r.json.versions)NET.versions=r.json.versions;if(Array.isArray(r.json.villes)){NET.villes=r.json.villes;NET.deblocage=r.json.deblocage===true;chargerCartes();majVilles();}if(r.json.regles&&!connecte())NET.regles=r.json.regles;if(r.json.modeGraine&&!connecte())NET.modeGraine=r.json.modeGraine;
+    if(r.statut===200){if(r.json.versions)NET.versions=r.json.versions;if(Array.isArray(r.json.villes)){NET.villes=r.json.villes;NET.deblocage=r.json.deblocage===true;chargerCartes();majVilles();}if(r.json.regles&&!connecte())NET.regles=r.json.regles;if(r.json.poletzes&&typeof r.json.poletzes.temps==='number')NET.pzPoids=r.json.poletzes;if(r.json.modeGraine&&!connecte())NET.modeGraine=r.json.modeGraine;
       if(typeof r.json.maintenant==='number'&&!connecte())NET.decalage=r.json.maintenant-Date.now();appliquerConcours(r.json);}return r;});
 }
 /* ---- 0.8 : concours ----
@@ -13441,7 +13518,10 @@ function resultatFin(it,r){
     retirerAttente(it.k);majFin(it,{statut:'validee',score:e.score,rangJour:e.rangJour,scoreJour:e.scoreJour,rangConcours:e.rangConcours||null,scoreConcours:e.scoreConcours||null,
       /* 0.10 : score = score final ; scoreBrut, état du bonus de fidélité, vie bonus (absents d'un serveur plus ancien) */
       partie:e.partie||null,scoreBrut:typeof e.scoreBrut==='number'?e.scoreBrut:null,fidelite:typeof e.fidelite==='string'?e.fidelite:null,
-      fidelitePourcent:typeof e.fidelitePourcent==='number'?e.fidelitePourcent:0,vieBonus:e.vieBonus===true});
+      fidelitePourcent:typeof e.fidelitePourcent==='number'?e.fidelitePourcent:0,vieBonus:e.vieBonus===true,
+      /* 46.177 : poletzes gagnés (absents d'un serveur plus ancien) ; pzT : arrivée, pour le compteur qui monte */
+      pz:e.poletzes&&typeof e.poletzes.total==='number'?e.poletzes:null,pzT:Date.now()});
+    if(typeof e.poletzesSolde==='number'){if(!NET.poletzes)NET.poletzes={solde:0};NET.poletzes.solde=e.poletzesSolde;}
     if(!courant)afficherMsg(T('net.envoyee',fmtNb(e.score)),C.vert);
     else if(e.fidelite==='en_attente'&&e.partie)setTimeout(function(){suivreFidelite(it.k,e.partie,0);},20000);
     rafraichir();return;}
@@ -13688,6 +13768,7 @@ function rendreProfil(){
   if(!connecte()){inviterConnexion(y+120);return;}
   if(profilInit){profilInit=false;['pseudo','wallet','x','email'].forEach(function(k){if(CHAMPS[k])poserChamp(k,profilVal[k]);});}
   panneau(12,y,336,388+(j&&('email' in j)?30:0),14,'rgba(38,27,54,0.95)','rgba(20,13,32,0.95)','rgba(246,241,231,0.18)',1);
+  pucePzProfil(y);   /* 46.177 : solde de poletzes */
   /* 46.143 (relecture UI/UX) : l'adresse e-mail facultative a sa ligne entière sous le pseudo (côte à côte, le pseudo et
      l'adresse étaient rognés), avec son aide à elle : à quoi elle sert, la promesse, comment se désinscrire. La règle du
      pseudo n'est plus affichée en permanence : le message d'erreur la donne. Tout ce qui suit descend de DM px. */
@@ -15595,6 +15676,7 @@ window.__dzo={
   demarrer:function(graine){lancer(false,graine===undefined?undefined:graine>>>0);return window.__dzo.etat();},
   /* villes : état du choix, et choix direct pour les essais */
   carteFin:function(){return nomCarteJouee();},
+  poletzes:function(){var f=NET.fin;return{mode:modePz(),gain:f&&f.pz?f.pz:null,solde:NET.poletzes?NET.poletzes.solde:null,poids:NET.pzPoids||null,estime:modePz()==='tour'?pzEstime():null,xpTot:S?S.xpTot:null,detail:PZ.detail};},
   villes:function(){var c=villeAnnonce();return{courante:c||null,chargee:VIL.id,enVol:VIL.enVol,jouables:villesJouables().map(function(v){return v.id;}),pastille:false,texte:c?nomVilleJeu(c.id):'',lm:S&&S.M?S.M.lm:(MW?MW.lm:0)};},
   choisirVille:function(id){return choisirVille(id);},
   /* 0.7 : état du réseau, écrans, cartes de partage */
@@ -16496,6 +16578,6 @@ visiteOuverture();
 })();
 </script>
 <div id="qaPastille" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:2147483647;cursor:pointer;background:#b3261e;color:#fff;font:700 9px/1 system-ui,sans-serif;padding:2px 10px 3px;border-radius:8px 8px 0 0;opacity:.92;letter-spacing:.03em;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:manipulation"></div>
-<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.23.1-qa1 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
+<script>(function(){var p=document.getElementById("qaPastille"),N=["printemps","été","automne","hiver"],i=0;try{i=Math.max(0,Math.min(3,parseInt(localStorage.getItem("dzoqa.qaSaison"),10)||0));}catch(e){}function poser(){if(window.__sz)window.__sz.decal=i*60;p.textContent="QA 0.24.0-qa1 · départ : "+N[i]+" ▸ · © OpenStreetMap";}function appui(e){e.preventDefault();e.stopPropagation();i=(i+1)%4;try{localStorage.setItem("dzoqa.qaSaison",String(i));}catch(x){}poser();}p.addEventListener("pointerdown",appui);poser();setInterval(function(){try{var j=window.__dzo&&window.__dzo.etat().ecran==="jeu";p.style.display=j?"none":"block";}catch(e){}},300);})();</script>
 </body>
 </html>
