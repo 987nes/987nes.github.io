@@ -385,9 +385,10 @@ function tableau(n,f){var a=[];for(var i=0;i<n;i++)a.push(f());return a;}
    l'ancienne carte) ; null = l'ancienne carte ; un paquet = cette ville. Rien d'autre ne change d'une ville à l'autre. */
 function creer(graine,tab,ville){
   var s={};ville=villeDe(ville);dimMonde(ville?ville.monde.lm:LM0);
+  s.perm=ville&&ville.reglages&&ville.reglages.bonus?ville.reglages.bonus:{};   /* 46.179 : bonus permanents (parties classées) */
   graine=graine>>>0;s.graine=graine;
   s.rApp=mulberry32(melange(graine,11));s.rCar=mulberry32(melange(graine,22));s.rBut=mulberry32(melange(graine,33));s.rCbt=mulberry32(melange(graine,44));
-  s.n=0;s.fini=0;s.victoire=0;s.modal=0;s.tueur=-1;s.tueurV=0;
+  s.n=0;s.fini=0;s.victoire=0;s.modal=0;s.tueur=-1;s.tueurV=0;s.xpTot=0;   /* 46.177 : XP ramassée au total (poletzes) */
   s.decret=decretDe(graine);s.dec=DECRETS[s.decret];s.sur=new Int32Array(SURCHARGES.length);s.nEvo=0;s.ouv=0;s.sansCoup=0;s.bonusSC=0;s.degMult=1;s.vitDec=s.dec.vitEnn||1;s.dist=0;s.bFuiteT=0;
   s.px=0;s.py=0;s.opx=0;s.opy=0;s.dx=1;s.dy=0;s.face=1;s.marche=0;s.jkx=0;s.jky=0;s.dir=0;
   s.pv=100;s.pvMax=100;s.inv=0;s.vit=120;s.regen=0;s.rayonRam=32;
@@ -445,6 +446,8 @@ var EF={deg:0,cd:0,rayon:0,vit:0,pvMax:0,regen:0,ramassage:0};
 function recalc(){
   var k,j,a,d,L,P,cle,D=S.dec,ef=EF;
   for(cle in ef)ef[cle]=0;
+  /* 46.179 : bonus permanents d'abord (rien sans boutique : tout reste à 0) */
+  var pm=S.perm||{};if(pm.deg)ef.deg+=pm.deg;if(pm.cd)ef.cd+=pm.cd;if(pm.pvMax)ef.pvMax+=pm.pvMax;if(pm.ramassage)ef.ramassage+=pm.ramassage;
   for(k=0;k<S.nPa;k++){P=PASSIFS[S.passifs[k].id].effets;for(cle in P)ef[cle]+=P[cle]*S.passifs[k].niv;}
   /* trésors actifs : la vitesse garde le plus fort (deux meringues ne s'additionnent pas), le reste se multiplie */
   S.vitT=1;S.degT=1;S.cadT=1;S.grosT=1;
@@ -553,12 +556,20 @@ function snf(t){var i=Math.floor(t),f=t-i,a=sn(i);return a+(sn(i+1)-a)*f;}
 var MONDES=[],MONDES_G=[];
 /* ville d'une partie : undefined = la ville par défaut de la construction (VILLE_DEFAUT, null dans le jeu de développement) ;
    null ou false = l'ancienne carte tirée de la graine ; sinon le paquet (objet). */
+/* 46.179 : bonus permanents du joueur (boutique de poletzes), en VALEURS d'effet (le serveur les tire des rangs achetés et
+   des valeurs par rang réglées dans la console) : deg (+% dégâts), cd (−% recharges), pvMax (+PV), peau (−% dégâts subis),
+   xp (+% expérience pour monter de niveau, sans effet sur le score), ramassage (+% rayon de ramassage). Bornes fixes. */
+var BONUS_BORNES={deg:[0,0.5],cd:[0,0.4],pvMax:[0,200],peau:[0,0.5],xp:[0,0.5],ramassage:[0,1]};
+function bonusValide(b){if(!b||typeof b!=='object'||Object.prototype.toString.call(b)!=='[object Object]')return false;var k,n=0;
+  for(k in b){if(!Object.prototype.hasOwnProperty.call(b,k))continue;n++;if(!BONUS_BORNES[k]||typeof b[k]!=='number'||!(b[k]>=BONUS_BORNES[k][0]&&b[k]<=BONUS_BORNES[k][1]))return false;if(k==='pvMax'&&b[k]!==Math.floor(b[k]))return false;}
+  return n>0;}
 function ecartValide(e){return Object.prototype.toString.call(e)==='[object Array]'&&e.length===2&&e[0]===Math.floor(e[0])&&e[1]===Math.floor(e[1])&&e[0]>=10&&e[1]<=5000&&e[0]<=e[1];}
 function villeDe(ville){if(ville===undefined)ville=VILLE_DEFAUT;if(!ville)return null;
   if(typeof ville!=='object'||!ville.monde||!(ville.monde.lm>0&&ville.monde.lm%256===0))throw new Error('ville : paquet sans monde valable');
   /* 0.23.0 (46.174) : un seul réglage propre à la ville, « ecart » : la distance entre deux drapeaux, [min, max] en mètres
      (entiers, 10 ≤ min ≤ max ≤ 5000). Remplace « etapes » (0.22.0, un % d'espacement), plus accepté. */
-  if(ville.reglages){var kr=Object.keys(ville.reglages);if(kr.length>1||(kr.length===1&&(kr[0]!=='ecart'||!ecartValide(ville.reglages.ecart))))throw new Error('ville : réglage de ville inconnu');}
+  if(ville.reglages){var kr=Object.keys(ville.reglages),ir;for(ir=0;ir<kr.length;ir++){
+    if(kr[ir]==='ecart'?!ecartValide(ville.reglages.ecart):(kr[ir]==='bonus'?!bonusValide(ville.reglages.bonus):true))throw new Error('ville : réglage de ville inconnu');}}
   var j=jeuDeVille(ville);if(j.err.length)throw new Error('ville : '+j.err[0]);
   return ville;}
 /* Ville courante de la page (côté jeu seulement : le joueur choisit sa ville, le paquet est chargé à la demande). Elle
@@ -997,7 +1008,7 @@ function blesserJoueur(d,src,vv){
   if(S.bouclier>0){S.bouclier--;S.inv=REGL.inv;ev(EV_BOUCLIER,S.px,S.py,S.bouclier);return;}
   /* 0.4 : les coups font de plus en plus mal après 2:20 (une horde serrée ne pardonne plus) */
   var rp=(S.n>8400&&src!==T_BOSS)?Math.min(REGL.degRampeMax,1+REGL.degRampe*(S.n-8400)/3600):1;
-  d=Math.max(1,Math.round(d*S.degMult*REGL.deg*rp*(S.n<REGL.grace?REGL.graceDeg:(S.n<REGL.grace+3600?REGL.graceDeg+(1-REGL.graceDeg)*(S.n-REGL.grace)/3600:1))));
+  d=Math.max(1,Math.round(d*S.degMult*REGL.deg*rp*(S.perm&&S.perm.peau?1-S.perm.peau:1)*(S.n<REGL.grace?REGL.graceDeg:(S.n<REGL.grace+3600?REGL.graceDeg+(1-REGL.graceDeg)*(S.n-REGL.grace)/3600:1))));
   S.pv-=d;S.inv=REGL.inv;S.touches++;
   if(S.combo>1){S.combo>>=1;S.comboChutes++;S.comboPal=0;while(S.comboPal<COMBO_PAL.length&&S.combo>=COMBO_PAL[S.comboPal])S.comboPal++;}S.sansCoup=0;S.bonusSC=0;ev(EV_JTOUCHE,d,src);
   if(S.pv<=0){S.pv=0;S.fini=1;S.tueur=src;S.tueurV=vv||0;ev(EV_FIN,0,src);}
@@ -1481,7 +1492,7 @@ function majProjEnnemis(){
 /* 0.4 : au-delà du niveau 12, chaque niveau coûte davantage (la puissance ne s'emballe plus au milieu de partie) */
 function xpPour(n){n=n<119?n:119;return n>=REGL.xpNiv?Math.round(XPT[n]*REGL.xpHaut):XPT[n];}
 function gagnerXP(v){
-  S.xp+=v;
+  S.xp+=S.perm&&S.perm.xp?v*(1+S.perm.xp):v;S.xpTot+=v;
   while(S.xp>=S.xpSuiv){S.xp-=S.xpSuiv;S.niveau++;S.xpSuiv=xpPour(S.niveau);S.attente++;S.ondeNiv=1;}
 }
 /* Onde de choc de montée de niveau : jouée au pas qui suit le choix de carte (respiration pour le débutant). */
@@ -1904,7 +1915,7 @@ function quantifier(fx,fy){var best=0,bd=-1e9,d,v;for(d=1;d<=16;d++){v=fx*DIRX[d
 return{HZ:HZ,NA:NA,creer:creer,pas:pas,choisir:choisir,relancer:relancer,voter:voter,score:score,palier:palier,rejouer:rejouer,compresser:compresser,
   quantifier:quantifier,
   mondeDe:mondeDe,genererMonde:genererMonde,genVille:genVille,villeDe:villeDe,departVille:departVille,LM0:LM0,   /* villes : points d'entrée */
-  REGLAGES_VILLE:['ecart'],
+  REGLAGES_VILLE:['ecart','bonus'],bonusValide:bonusValide,
   villeDefaut:function(){return VILLE_DEFAUT;},villeCourante:villeCourante,villeEmpreinte:function(){return VILLE_EMPREINTE;},VILLE_EMPREINTE:VILLE_EMPREINTE,VILLE_CHOIX_DEPART:VILLE_CHOIX_DEPART,
   chevauche:chevauche,dansEau:function(st,x,y){lier(st);return dansEau(x,y);},md:md,wr:wr,funiEtat:function(st,n){lier(st);funiEtat(n);return{v:FUV,m:FUM,a:FUA,p:FUP};},
   MONDE:{LM:LM,CL:CL,NCL:NCL,RIV_HW:RIV_HW,FONT_MAX:FONT_MAX,FONT_RAYON:FONT_RAYON,FUNI_PER:FUNI_PER,FUNI_ATT:FUNI_ATT,FUNI_ANN:FUNI_ANN,FUNI_TRAJ:FUNI_TRAJ,
@@ -2115,6 +2126,35 @@ LANGUES.fr={
 "fin.rejouer":"REJOUER",
 "fin.essaiClasse":"Essai {0}/{1} · classé",
 "fin.essai":"Essai {0}/{1}",
+"pz.nom":"poletzes",
+"pz.garder":"connecte-toi pour les garder",
+"pz.temps":"Temps",
+"pz.drapeaux":"Drapeaux",
+"pz.pieces":"Pièces",
+"pz.points":"Points",
+"pz.boutique":"Boutique bientôt",
+"pz.fermer":"Touche pour fermer",
+"bq.titre":"BOUTIQUE",
+"bq.max":"MAX",
+"bq.pied":"Bonus valables en partie classée seulement.",
+"bq.manque":"Il te manque {0} poletzes",
+"bq.reseau":"Connexion perdue, vérifie ton solde.",
+"bq.dejaMax":"Déjà au max.",
+"bq.ferme":"Boutique fermée pour le moment.",
+"bq.n.deg":"Morgenstern",
+"bq.e.deg":"+{0} % de dégâts",
+"bq.n.cd":"Carquois",
+"bq.e.cd":"Recharge −{0} %",
+"bq.n.pvMax":"Hydromel",
+"bq.e.pvMax":"+{0} PV",
+"bq.n.peau":"Bouclier",
+"bq.e.peau":"−{0} % de dégâts reçus",
+"bq.n.xp":"Grimoire",
+"bq.e.xp":"+{0} % d'XP",
+"bq.n.ramassage":"Écuyer",
+"bq.e.ramassage":"+{0} % de portée",
+"bq.n.gain":"Dîme",
+"bq.e.gain":"+{0} % de poletzes",
 "fin.epuise":"Essais épuisés : entraînement",
 "fin.partager":"PARTAGER",
 "fin.menu":"MENU",
@@ -2810,13 +2850,22 @@ LANGUES.fr={
 "boost2.x.credit":"X indisponible, réessaie plus tard.",
 "boost2.x.erreur":"Erreur, réessaie.",
 "boost2.ouverture":"Ouverture de X…",
-"post.score.1":"Score du jour sur DZÔ Survivors : {0}",
-"post.score.2":"{0} points sur DZÔ Survivors aujourd'hui",
-"post.score.3":"J'ai tenu la horde : {0} sur DZÔ Survivors",
-"post.score.4":"DZÔ Survivors, mon score du jour : {0}",
-"post.score.5":"{0} points. La horde de Fribourg peut trembler.",
-"post.score.6":"Nouveau score sur DZÔ Survivors : {0}. À toi !",
-"post.sansScore":"La horde m'attend sur DZÔ Survivors. Et toi ?",
+"post.tete":"🏰 DZÔ Survivors · {0}",
+"post.scoreT":"{0} points · tenu {1} sur 10:00",
+"post.scoreS":"{0} points",
+"post.scoreV":"{0} points · 🏆 10:00 tenues",
+"post.defi.1":"Bats-moi si tu peux 😏",
+"post.defi.2":"Viens me déloger.",
+"post.defi.3":"Qui fait mieux ?",
+"post.defi.4":"La horde de {0} n'a qu'à bien se tenir.",
+"post.defi.5":"Et toi, tu tiens combien ?",
+"post.defi.6":"À toi de jouer !",
+"post.defiT":"La horde de {0} m'a eu à {1}. Et toi ?",
+"post.sans1":"🏰 La horde de {0} m'attend sur DZÔ Survivors.",
+"post.sans2":"Dix minutes pour gagner. Tu tiens combien ?",
+"post.sig.1":"DZÔ, la mascotte de 987NES",
+"post.sig.2":"Un jeu 987NES, 100 % suisse",
+"post.sig.3":"DZÔ, le héros de 987NES",
 "err.x_connexion_requise":"Connecte d'abord ton compte X.",
 "err.x_a_reconnecter":"X ne reconnaît plus le jeu : reconnecte ton compte X.",
 "err.x_credit_epuise":"Vérification X indisponible pour le moment : réessaie plus tard.",
@@ -3322,6 +3371,35 @@ LANGUES.de={
 "fin.rejouer":"NOCHMAL",
 "fin.essaiClasse":"Versuch {0}/{1} · gewertet",
 "fin.essai":"Versuch {0}/{1}",
+"pz.nom":"Poletzes",
+"pz.garder":"melde dich an, um sie zu behalten",
+"pz.temps":"Zeit",
+"pz.drapeaux":"Flaggen",
+"pz.pieces":"Münzen",
+"pz.points":"Punkte",
+"pz.boutique":"Shop bald",
+"pz.fermer":"Tippen zum Schliessen",
+"bq.titre":"SHOP",
+"bq.max":"MAX",
+"bq.pied":"Boni nur in gewerteten Partien.",
+"bq.manque":"Dir fehlen {0} Poletzes",
+"bq.reseau":"Verbindung weg, prüfe dein Guthaben.",
+"bq.dejaMax":"Schon am Maximum.",
+"bq.ferme":"Shop im Moment geschlossen.",
+"bq.n.deg":"Morgenstern",
+"bq.e.deg":"+{0} % Schaden",
+"bq.n.cd":"Köcher",
+"bq.e.cd":"Abklingzeit −{0} %",
+"bq.n.pvMax":"Met",
+"bq.e.pvMax":"+{0} LP",
+"bq.n.peau":"Schild",
+"bq.e.peau":"−{0} % erlittener Schaden",
+"bq.n.xp":"Zauberbuch",
+"bq.e.xp":"+{0} % EP",
+"bq.n.ramassage":"Knappe",
+"bq.e.ramassage":"+{0} % Reichweite",
+"bq.n.gain":"Zehnt",
+"bq.e.gain":"+{0} % Poletzes",
 "fin.epuise":"Versuche aufgebraucht: Training",
 "fin.partager":"TEILEN",
 "fin.menu":"MENÜ",
@@ -4015,13 +4093,22 @@ LANGUES.de={
 "boost2.x.credit":"X nicht verfügbar, versuch es später.",
 "boost2.x.erreur":"Fehler, versuch es nochmal.",
 "boost2.ouverture":"X wird geöffnet…",
-"post.score.1":"Tagesscore bei DZÔ Survivors: {0}",
-"post.score.2":"{0} Punkte bei DZÔ Survivors heute",
-"post.score.3":"Ich habe der Horde standgehalten: {0} bei DZÔ Survivors",
-"post.score.4":"DZÔ Survivors, mein Tagesscore: {0}",
-"post.score.5":"{0} Punkte. Die Horde von Freiburg zittert.",
-"post.score.6":"Neuer Score bei DZÔ Survivors: {0}. Du bist dran!",
-"post.sansScore":"Die Horde wartet bei DZÔ Survivors auf mich. Und du?",
+"post.tete":"🏰 DZÔ Survivors · {0}",
+"post.scoreT":"{0} Punkte · {1} von 10:00 durchgehalten",
+"post.scoreS":"{0} Punkte",
+"post.scoreV":"{0} Punkte · 🏆 10:00 durchgehalten",
+"post.defi.1":"Schlag mich, wenn du kannst 😏",
+"post.defi.2":"Versuch, mich zu überholen.",
+"post.defi.3":"Wer schafft mehr?",
+"post.defi.4":"Die Horde von {0} soll sich warm anziehen.",
+"post.defi.5":"Und du, wie lange hältst du durch?",
+"post.defi.6":"Du bist dran!",
+"post.defiT":"Die Horde von {0} hat mich bei {1} erwischt. Und du?",
+"post.sans1":"🏰 Die Horde von {0} wartet bei DZÔ Survivors auf mich.",
+"post.sans2":"Zehn Minuten bis zum Sieg. Wie lange hältst du durch?",
+"post.sig.1":"DZÔ, das Maskottchen von 987NES",
+"post.sig.2":"Ein 987NES-Spiel, 100 % Schweiz",
+"post.sig.3":"DZÔ, der Held von 987NES",
 "err.x_connexion_requise":"Verbinde zuerst dein X-Konto.",
 "err.x_a_reconnecter":"X erkennt das Spiel nicht mehr: verbinde dein X-Konto neu.",
 "err.x_credit_epuise":"X-Prüfung gerade nicht verfügbar: versuch es später.",
@@ -4527,6 +4614,35 @@ LANGUES.it={
 "fin.rejouer":"RIGIOCA",
 "fin.essaiClasse":"Tentativo {0}/{1} · in classifica",
 "fin.essai":"Tentativo {0}/{1}",
+"pz.nom":"poletzes",
+"pz.garder":"accedi per tenerli",
+"pz.temps":"Tempo",
+"pz.drapeaux":"Bandiere",
+"pz.pieces":"Monete",
+"pz.points":"Punti",
+"pz.boutique":"Negozio in arrivo",
+"pz.fermer":"Tocca per chiudere",
+"bq.titre":"NEGOZIO",
+"bq.max":"MAX",
+"bq.pied":"Bonus solo nelle partite classificate.",
+"bq.manque":"Ti mancano {0} poletzes",
+"bq.reseau":"Connessione persa, controlla il saldo.",
+"bq.dejaMax":"Già al massimo.",
+"bq.ferme":"Negozio chiuso per ora.",
+"bq.n.deg":"Morgenstern",
+"bq.e.deg":"+{0} % di danni",
+"bq.n.cd":"Faretra",
+"bq.e.cd":"Ricarica −{0} %",
+"bq.n.pvMax":"Idromele",
+"bq.e.pvMax":"+{0} PV",
+"bq.n.peau":"Scudo",
+"bq.e.peau":"−{0} % di danni subiti",
+"bq.n.xp":"Grimorio",
+"bq.e.xp":"+{0} % di XP",
+"bq.n.ramassage":"Scudiero",
+"bq.e.ramassage":"+{0} % di raggio",
+"bq.n.gain":"Decima",
+"bq.e.gain":"+{0} % di poletzes",
 "fin.epuise":"Tentativi esauriti: allenamento",
 "fin.partager":"CONDIVIDI",
 "fin.menu":"MENU",
@@ -5220,13 +5336,22 @@ LANGUES.it={
 "boost2.x.credit":"X non disponibile, riprova più tardi.",
 "boost2.x.erreur":"Errore, riprova.",
 "boost2.ouverture":"Apertura di X…",
-"post.score.1":"Punteggio del giorno su DZÔ Survivors: {0}",
-"post.score.2":"{0} punti su DZÔ Survivors oggi",
-"post.score.3":"Ho tenuto testa all'orda: {0} su DZÔ Survivors",
-"post.score.4":"DZÔ Survivors, il mio punteggio di oggi: {0}",
-"post.score.5":"{0} punti. L'orda di Friburgo può tremare.",
-"post.score.6":"Nuovo punteggio su DZÔ Survivors: {0}. Tocca a te!",
-"post.sansScore":"L'orda mi aspetta su DZÔ Survivors. E tu?",
+"post.tete":"🏰 DZÔ Survivors · {0}",
+"post.scoreT":"{0} punti · resistito {1} su 10:00",
+"post.scoreS":"{0} punti",
+"post.scoreV":"{0} punti · 🏆 10:00 resistiti",
+"post.defi.1":"Battimi se ci riesci 😏",
+"post.defi.2":"Vieni a superarmi.",
+"post.defi.3":"Chi fa di meglio?",
+"post.defi.4":"L'orda di {0} stia in guardia.",
+"post.defi.5":"E tu, quanto resisti?",
+"post.defi.6":"Tocca a te!",
+"post.defiT":"L'orda di {0} mi ha preso a {1}. E tu?",
+"post.sans1":"🏰 L'orda di {0} mi aspetta su DZÔ Survivors.",
+"post.sans2":"Dieci minuti per vincere. Quanto resisti?",
+"post.sig.1":"DZÔ, la mascotte di 987NES",
+"post.sig.2":"Un gioco 987NES, 100 % svizzero",
+"post.sig.3":"DZÔ, l'eroe di 987NES",
 "err.x_connexion_requise":"Collega prima il tuo account X.",
 "err.x_a_reconnecter":"X non riconosce più il gioco: ricollega il tuo account X.",
 "err.x_credit_epuise":"Verifica X non disponibile al momento: riprova più tardi.",
@@ -5733,6 +5858,35 @@ LANGUES.es={
 "fin.rejouer":"REPETIR",
 "fin.essaiClasse":"Intento {0}/{1} · con ranking",
 "fin.essai":"Intento {0}/{1}",
+"pz.nom":"poletzes",
+"pz.garder":"inicia sesión para guardarlos",
+"pz.temps":"Tiempo",
+"pz.drapeaux":"Banderas",
+"pz.pieces":"Monedas",
+"pz.points":"Puntos",
+"pz.boutique":"Tienda pronto",
+"pz.fermer":"Toca para cerrar",
+"bq.titre":"TIENDA",
+"bq.max":"MÁX",
+"bq.pied":"Bonus solo en partidas clasificadas.",
+"bq.manque":"Te faltan {0} poletzes",
+"bq.reseau":"Sin conexión, revisa tu saldo.",
+"bq.dejaMax":"Ya al máximo.",
+"bq.ferme":"Tienda cerrada por ahora.",
+"bq.n.deg":"Lucero del alba",
+"bq.e.deg":"+{0} % de daño",
+"bq.n.cd":"Carcaj",
+"bq.e.cd":"Recarga −{0} %",
+"bq.n.pvMax":"Hidromiel",
+"bq.e.pvMax":"+{0} PV",
+"bq.n.peau":"Escudo",
+"bq.e.peau":"−{0} % de daño recibido",
+"bq.n.xp":"Grimorio",
+"bq.e.xp":"+{0} % de XP",
+"bq.n.ramassage":"Escudero",
+"bq.e.ramassage":"+{0} % de alcance",
+"bq.n.gain":"Diezmo",
+"bq.e.gain":"+{0} % de poletzes",
 "fin.epuise":"Intentos agotados: entrenamiento",
 "fin.partager":"COMPARTIR",
 "fin.menu":"MENÚ",
@@ -6426,13 +6580,22 @@ LANGUES.es={
 "boost2.x.credit":"X no disponible, inténtalo más tarde.",
 "boost2.x.erreur":"Error, inténtalo de nuevo.",
 "boost2.ouverture":"Abriendo X…",
-"post.score.1":"Puntuación del día en DZÔ Survivors: {0}",
-"post.score.2":"{0} puntos en DZÔ Survivors hoy",
-"post.score.3":"Aguanté a la horda: {0} en DZÔ Survivors",
-"post.score.4":"DZÔ Survivors, mi puntuación de hoy: {0}",
-"post.score.5":"{0} puntos. La horda de Friburgo puede temblar.",
-"post.score.6":"Nueva puntuación en DZÔ Survivors: {0}. ¡Te toca!",
-"post.sansScore":"La horda me espera en DZÔ Survivors. ¿Y tú?",
+"post.tete":"🏰 DZÔ Survivors · {0}",
+"post.scoreT":"{0} puntos · aguanté {1} de 10:00",
+"post.scoreS":"{0} puntos",
+"post.scoreV":"{0} puntos · 🏆 10:00 aguantados",
+"post.defi.1":"Supérame si puedes 😏",
+"post.defi.2":"Ven a quitarme el puesto.",
+"post.defi.3":"¿Quién da más?",
+"post.defi.4":"Que tiemble la horda de {0}.",
+"post.defi.5":"¿Y tú, cuánto aguantas?",
+"post.defi.6":"¡Te toca!",
+"post.defiT":"La horda de {0} me pilló a los {1}. ¿Y tú?",
+"post.sans1":"🏰 La horda de {0} me espera en DZÔ Survivors.",
+"post.sans2":"Diez minutos para ganar. ¿Cuánto aguantas?",
+"post.sig.1":"DZÔ, la mascota de 987NES",
+"post.sig.2":"Un juego 987NES, 100 % suizo",
+"post.sig.3":"DZÔ, el héroe de 987NES",
 "err.x_connexion_requise":"Primero conecta tu cuenta de X.",
 "err.x_a_reconnecter":"X ya no reconoce el juego: vuelve a conectar tu cuenta de X.",
 "err.x_credit_epuise":"Comprobación de X no disponible por ahora: inténtalo más tarde.",
@@ -6938,6 +7101,35 @@ LANGUES.en={
 "fin.rejouer":"RETRY",
 "fin.essaiClasse":"Try {0}/{1} · ranked",
 "fin.essai":"Try {0}/{1}",
+"pz.nom":"poletzes",
+"pz.garder":"log in to keep them",
+"pz.temps":"Time",
+"pz.drapeaux":"Flags",
+"pz.pieces":"Coins",
+"pz.points":"Points",
+"pz.boutique":"Shop coming soon",
+"pz.fermer":"Tap to close",
+"bq.titre":"SHOP",
+"bq.max":"MAX",
+"bq.pied":"Bonuses apply to ranked games only.",
+"bq.manque":"You need {0} more poletzes",
+"bq.reseau":"Connection lost, check your balance.",
+"bq.dejaMax":"Already maxed.",
+"bq.ferme":"Shop closed for now.",
+"bq.n.deg":"Morning Star",
+"bq.e.deg":"+{0} % damage",
+"bq.n.cd":"Quiver",
+"bq.e.cd":"Cooldowns −{0} %",
+"bq.n.pvMax":"Mead",
+"bq.e.pvMax":"+{0} HP",
+"bq.n.peau":"Shield",
+"bq.e.peau":"−{0} % damage taken",
+"bq.n.xp":"Grimoire",
+"bq.e.xp":"+{0} % XP",
+"bq.n.ramassage":"Squire",
+"bq.e.ramassage":"+{0} % pickup range",
+"bq.n.gain":"Tithe",
+"bq.e.gain":"+{0} % poletzes",
 "fin.epuise":"Tries used up: training",
 "fin.partager":"SHARE",
 "fin.menu":"MENU",
@@ -7631,13 +7823,22 @@ LANGUES.en={
 "boost2.x.credit":"X unavailable, try again later.",
 "boost2.x.erreur":"Error, try again.",
 "boost2.ouverture":"Opening X…",
-"post.score.1":"Today's score on DZÔ Survivors: {0}",
-"post.score.2":"{0} points on DZÔ Survivors today",
-"post.score.3":"I held off the horde: {0} on DZÔ Survivors",
-"post.score.4":"DZÔ Survivors, my score of the day: {0}",
-"post.score.5":"{0} points. The Fribourg horde should be worried.",
-"post.score.6":"New score on DZÔ Survivors: {0}. Your turn!",
-"post.sansScore":"The horde is waiting for me on DZÔ Survivors. Coming?",
+"post.tete":"🏰 DZÔ Survivors · {0}",
+"post.scoreT":"{0} points · survived {1} of 10:00",
+"post.scoreS":"{0} points",
+"post.scoreV":"{0} points · 🏆 survived 10:00",
+"post.defi.1":"Beat me if you can 😏",
+"post.defi.2":"Come and knock me off.",
+"post.defi.3":"Who can beat that?",
+"post.defi.4":"The {0} horde had better watch out.",
+"post.defi.5":"How long can you last?",
+"post.defi.6":"Your turn!",
+"post.defiT":"The {0} horde got me at {1}. You?",
+"post.sans1":"🏰 The {0} horde is waiting for me on DZÔ Survivors.",
+"post.sans2":"Ten minutes to win. How long can you last?",
+"post.sig.1":"DZÔ, the 987NES mascot",
+"post.sig.2":"A 987NES game, 100% Swiss",
+"post.sig.3":"DZÔ, the 987NES hero",
 "err.x_connexion_requise":"Connect your X account first.",
 "err.x_a_reconnecter":"X no longer recognises the game: reconnect your X account.",
 "err.x_credit_epuise":"X check unavailable right now: try again later.",
@@ -7962,7 +8163,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.23.1-proto';
+var VERSION='0.25.1-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
@@ -11332,6 +11533,7 @@ function installerEntrees(){
     if(NES_OUVERT===ecran&&(ecran==='titre'||ecran==='fin')){if(k==='Escape')fermerNes();return;}
     if(BETA_OUVERT===ecran&&ecran==='titre'){if(k==='Escape')fermerBeta();return;}
     if(ecran==='parties'){if(k==='Escape')allerEcran(PJ.de||'titre');return;}
+    if(ecran==='boutique'){if(k==='Escape')allerEcran('profil');return;}
     if(ecran==='connexion'||ecran==='profil'||ecran==='niveau'||ecran==='classement'||ecran==='lots'||ecran==='villes'||ecran==='parrainage'){if(k==='Escape'){if(ecran==='niveau'&&NIV.feuille){fermerFeuilleWallet();return;}allerEcran('titre');}return;}
     if(REVOIR&&ecran==='jeu'){if(k==='Escape')quitterRevoir();return;}
     if(k==='ArrowUp'||k==='z'||k==='Z'||k==='w'||k==='W')touches.h=bas;
@@ -11388,14 +11590,17 @@ function demarrer(rang){
   tDepart=0;departRang=!!rang;
 }
 var partieSrv=null,essaiTouriste=false;
-/* paquet de ville avec son écart entre deux drapeaux, [min, max] en mètres (copie gardée : le même objet d'une partie à
-   l'autre) ; sans réglage : undefined (la simulation joue alors la ville courante telle quelle) */
+/* paquet de ville avec son écart entre deux drapeaux, [min, max] en mètres, et (46.179) les bonus permanents que le serveur
+   a fixés pour la partie classée (copie gardée : le même objet d'une partie à l'autre) ; sans réglage : undefined (la
+   simulation joue alors la ville courante telle quelle) */
 var VREG={P:null,e:'',o:null};
 function ecartOk(e){return Object.prototype.toString.call(e)==='[object Array]'&&e.length===2&&e[0]===Math.floor(e[0])&&e[1]===Math.floor(e[1])&&e[0]>=10&&e[1]<=5000&&e[0]<=e[1];}
-function villeReglee(P,e){
-  if(!P||!ecartOk(e))return undefined;
-  var c=e[0]+'-'+e[1];if(VREG.P===P&&VREG.e===c)return VREG.o;
-  var o={},k;for(k in P)if(Object.prototype.hasOwnProperty.call(P,k))o[k]=P[k];o.reglages={ecart:[e[0],e[1]]};VREG.P=P;VREG.e=c;VREG.o=o;return o;
+function villeReglee(P,e,b){
+  var eo=ecartOk(e),bo=!!b&&SIM.bonusValide(b);if(!P||(!eo&&!bo))return undefined;
+  var c=(eo?e[0]+'-'+e[1]:'')+'|'+(bo?JSON.stringify(b):'');if(VREG.P===P&&VREG.e===c)return VREG.o;
+  var o={},k,g={};for(k in P)if(Object.prototype.hasOwnProperty.call(P,k))o[k]=P[k];
+  if(eo)g.ecart=[e[0],e[1]];if(bo){g.bonus={};for(k in b)if(Object.prototype.hasOwnProperty.call(b,k))g.bonus[k]=b[k];}
+  o.reglages=g;VREG.P=P;VREG.e=c;VREG.o=o;return o;
 }
 function ecartAnnonce(){var c=villeAnnonce(),l=NET.villes||[],i;if(!c)return null;for(i=0;i<l.length;i++)if(l[i]&&l[i].id===c.id)return ecartOk(l[i].ecart)?l[i].ecart:null;return null;}
 function lancer(rang,graineForcee,o){
@@ -11417,7 +11622,7 @@ function lancer(rang,graineForcee,o){
   /* partie classée ou revue : le tableau de sa graine (comme le serveur, qui rejoue avec quatre arguments) */
   /* 0.22.0 (46.173) : espacement des drapeaux : celui que le serveur a fixé pour cette partie classée, sinon celui annoncé pour la carte */
   var etp=o&&o.revoir?null:(partieSrv?(partieSrv.villeEcart||null):ecartAnnonce());   /* 0.23.0 : écart entre deux drapeaux */
-  S=SIM.creer(graineCourante,classee||(o&&o.revoir)?undefined:(TAB_FORCE>=0?TAB_FORCE:tableauDuJour()),o&&o.revoir?o.ville:villeReglee(SIM.villeDefaut(),etp));   /* relecture : la ville de la partie revue (null : ancienne carte) */
+  S=SIM.creer(graineCourante,classee||(o&&o.revoir)?undefined:(TAB_FORCE>=0?TAB_FORCE:tableauDuJour()),o&&o.revoir?o.ville:villeReglee(SIM.villeDefaut(),etp,partieSrv?partieSrv.bonus:null));   /* relecture : la ville de la partie revue (null : ancienne carte) */
   histAvancer('jeu');
   viderEffets();ecran='jeu';sous='';tSous=0;tEcran=0;accu=0;gel=0;ralentiT=0;trauma=0;tMort=-1;tVict=-1;tTouche=9;bordRouge=0;eclairBlanc=0;eclairRouge=0;camDY=0;zoom=1.6;tJeu=0;chaineGemme=0;
   xpEclat=0;dzoEch=1;carteChoisie=-1;musBaisse=0;apercuCarte=null;tDepart=-1;regretFin='';tueurFin=-1;tueurVFin=0;dernierPas=0;aideGemme=false;aideTresor=false;aideT=-1;
@@ -12566,7 +12771,7 @@ function titreEquilibre(s,larg,px){
   return lignes(s,larg,px,0);
 }
 function rendreFin(){
-  nBT=0;
+  nBT=0;if(tEcran<0.2)PZ.detail=false;
   if(PCH.ou==='fin')zone('pchFond',0,0,360,640,fermerChoixPartage);
   var illusF=!!(S&&imageEcran(S.victoire?'victoire':'defaite'));
   if(S){rendreMonde(0);}else rendreFond(9,6,0.6);
@@ -12628,6 +12833,7 @@ function rendreFin(){
          s'il y en a trop, le regret puis le repas cèdent la place (serveur, fidélité, tueur et record restent) */
       var LF=[],lfid=ligneFidelite(),pasL,dispoL=basF-30-14-yl;
       if(lsrv)LF.push({k:'srv',t:lsrv[0],c:lsrv[1],p:12,g:2});
+      if(modePz())LF.push({k:'pz',t:'',c:C.cyan,p:12,g:0});   /* 46.177 : poletzes (relecture UI/UX du 27.11.2026) */
       if(lfid)LF.push({k:'fid',t:lfid[0],c:lfid[1],p:12,g:2});
       if(CP.nouvelle&&deblocageActif()&&Date.now()-CP.nouvelleT<180000)LF.push({k:'carte',t:T('fin.carte',nomVilleJeu(CP.nouvelle)),c:C.or,p:12,g:0});
       if(tueurFin>=0)LF.push({k:'tueur',t:T('fin.liquidePar',nomEnn(tueurFin,tueurVFin)),c:C.creme,p:12,g:2});
@@ -12642,6 +12848,7 @@ function rendreFin(){
       pasL=LF.length>1?Math.max(12,Math.min(17,dispoL/(LF.length-1))):17;
       for(i=0;i<LF.length;i++){var lf=LF[i];
         if(lf.k==='tueur'){cx.font=police(12,2);w=Math.min(300,cx.measureText(lf.t).width);s=SPR.ennV[tueurFin][tueurVFin]||SPR.enn[tueurFin];cx.drawImage(s.c,180-w/2-26,yl-11,22,22);ttFit(lf.t,180+11,yl,12,300,lf.c,'center',2,true);}
+        else if(lf.k==='pz')puceFinPz(yl);
         else ttFit(lf.t,180,yl,lf.p,336,lf.c,'center',lf.g,true);
         if(i<LF.length-1)yl+=pasL;}
       yl+=12;
@@ -12677,6 +12884,7 @@ function rendreFin(){
   bouton('fmenu',6,SAFE_H+5,52,24,T('fin.menu'),1,function(){allerEcran('titre');majJour();},null,10);
   /* 0.8 : bandeau du concours, à droite du bouton menu */
   var bandF=false;if(!REVOIR&&!HORS_RANG){surveillerConcours();bandF=bandeauConcours('fconcours',64,SAFE_H+3,290,30);}
+  if(PZ.detail&&tEcran>1.55)carteDetailPz();
   /* 46.175 (relecture UI/UX du 27.11.2026) : la carte jouée, en pastille au centre de la rangée du bouton menu ;
      le bandeau du concours, quand il existe, garde cette place (il nomme déjà la carte du concours) */
   if(!bandF)pastilleCarteFin(SAFE_H+5);
@@ -12691,6 +12899,106 @@ function pastilleCarteFin(y){var nom=nomCarteJouee(),tw,w,x,px,py;if(!nom)return
   cx.fillStyle='rgba(13,9,20,0.95)';cx.beginPath();cx.arc(px,py,1.8,0,Math.PI*2);cx.fill();
   ttFit(nom,x+27,y+12.5,13,190,C.creme,'left',0,false);}
 var finTampon=0;
+/* ---------- 46.177 : poletzes ----------
+   Gagnés en fin de partie classée validée par un joueur connecté ; le serveur les calcule après le rejeu (poids réglables
+   dans la console). L'entraînement ne rapporte rien. Le touriste voit ce qu'il aurait gagné (calcul local, poids publics).
+   Écran de fin : une pastille sous la ligne du serveur (place réservée dès l'ouverture, chiffre seulement une fois confirmé,
+   compteur de 0,5 s) ; un toucher ouvre le détail (temps, drapeaux, pièces, points). Profil : le solde. */
+var PZ={detail:false};
+function modePz(){if(REVOIR||BOT||VITESSE>1||TAB_FORCE>=0)return'';if(partieSrv)return'srv';if(essaiTouriste&&NET.pzPoids)return'tour';return'';}
+function pzCalcul(p,nPas,etapes,xp,score){var d={temps:Math.round(p.temps*nPas/60/10),drapeaux:Math.round(p.drapeau*Math.max(0,etapes||0)),pieces:Math.round(p.pieces*Math.sqrt(Math.max(0,xp||0))),points:Math.round(p.points*Math.sqrt(Math.max(0,score||0)))};d.total=d.temps+d.drapeaux+d.pieces+d.points;return d;}
+function pzEstime(){var p=NET.pzPoids;return p&&S?pzCalcul(p,S.n,S.etapes,S.xpTot,SIM.score(S)):null;}
+function icoPz(x,y,r){var a=r*0.72;cx.beginPath();cx.moveTo(x,y-r);cx.lineTo(x+a,y);cx.lineTo(x,y+r);cx.lineTo(x-a,y);cx.closePath();cx.fillStyle='#6FE6FF';cx.fill();
+  cx.beginPath();cx.moveTo(x,y-r);cx.lineTo(x-a,y);cx.lineTo(x,y);cx.closePath();cx.fillStyle='rgba(255,255,255,0.5)';cx.fill();
+  cx.beginPath();cx.moveTo(x,y+r);cx.lineTo(x+a,y);cx.lineTo(x,y);cx.closePath();cx.fillStyle='rgba(13,9,20,0.3)';cx.fill();
+  cx.beginPath();cx.moveTo(x,y-r);cx.lineTo(x+a,y);cx.lineTo(x,y+r);cx.lineTo(x-a,y);cx.closePath();cx.strokeStyle=C.creme;cx.lineWidth=1;cx.stroke();}
+/* pastille : icône, nombre (cyan), libellé ; tirets crème pour le touriste (estimation, touche : connexion) */
+function pucePz(x0,y,txt,lab,tirets,centre){cx.font=police(14,1);var w1=cx.measureText(txt).width;cx.font=police(11,2);var w2=Math.min(cx.measureText(lab).width,centre?230:120),w=w1+w2+40,x=centre?180-w/2:x0-w;
+  cx.save();cx.fillStyle='rgba(13,9,20,0.85)';cx.beginPath();rrect(cx,x,y-9,w,18,9);cx.fill();if(tirets)cx.setLineDash([4,3]);cx.strokeStyle=tirets?C.creme:C.cyan;cx.lineWidth=1.5;cx.stroke();cx.restore();
+  icoPz(x+14,y,6);tn(txt,x+26,y+0.5,14,C.cyan,'left',1);ttFit(lab,x+30+w1,y+0.5,11,w2,C.creme,'left',2,false);return{x:x,w:w};}
+function puceFinPz(y){var m=modePz(),f=NET.fin,e=1,b;
+  if(m==='srv'){if(!f||f.statut!=='validee'||!f.pz)return;e=Math.max(0,Math.min(1,(Date.now()-(f.pzT||0))/500));
+    b=pucePz(0,y,'+'+fmtNb(Math.round(f.pz.total*e)),T('pz.nom'),false,true);if(e<1)son('compte');
+    zone('fpz',b.x,y-12,b.w,24,function(){PZ.detail=!PZ.detail;});}
+  else if(m==='tour'){var p=pzEstime();if(!p)return;b=pucePz(0,y,'≈ +'+fmtNb(p.total),T('pz.garder'),true,true);
+    zone('fpz',b.x,y-12,b.w,24,function(){allerEcran('connexion');});}}
+/* détail du gain : par-dessus la rangée du build, au-dessus de REJOUER ; un toucher le ferme */
+function carteDetailPz(){var f=NET.fin;if(modePz()!=='srv'||!f||!f.pz){PZ.detail=false;return;}var d=f.pz,L=[['pz.temps',d.temps],['pz.drapeaux',d.drapeaux],['pz.pieces',d.pieces],['pz.points',d.points]],i,y0=372,h=118;
+  if(d.boutique>0){L.push(['bq.n.gain',d.boutique]);h+=16;y0-=16;}
+  panneau(70,y0,220,h,12,'rgba(38,27,54,0.97)','rgba(20,13,32,0.97)',C.cyan,1.5);
+  icoPz(96,y0+18,7);tn('+'+fmtNb(d.total)+' '+T('pz.nom'),108,y0+18.5,14,C.cyan,'left',1);
+  for(i=0;i<L.length;i++){tn(T(L[i][0]),88,y0+42+i*16,11.5,C.creme,'left',2);tn('+'+fmtNb(L[i][1]),272,y0+42+i*16,11.5,C.cyan,'right',1);}
+  ttFit(T('pz.fermer'),180,y0+h-9,9,200,'rgba(246,241,231,0.55)','center',2,false);
+  zone('fpzx',70,y0,220,h,function(){PZ.detail=false;});}
+/* profil : le solde, en haut à droite du panneau ; un toucher : « Boutique bientôt » (rien de plus à l'écran) */
+function pucePzProfil(y){if(!NET.poletzes||typeof NET.poletzes.solde!=='number')return;var ouv=boutiqueOuverte(),b=pucePz(ouv?326:340,y+16,fmtNb(NET.poletzes.solde),T('pz.nom'),false,false);
+  if(ouv)tn('›',b.x+b.w+7,y+15,18,C.cyan,'center',1);
+  zone('ppz',b.x,y-2,b.w+(ouv?16:0),36,function(){if(boutiqueOuverte())allerEcran('boutique');else afficherMsg(T('pz.boutique'),C.cyan);});}
+
+/* ---------- 46.179 : boutique de poletzes ----------
+   Sept bonus permanents à 5 rangs, achetés rang par rang (un toucher, le prix est sur le bouton : pas de confirmation) ;
+   valables en partie classée seulement, fixés par le serveur au début de la partie. Spécification : relecture UI/UX du
+   27.11.2026 (conception/boutique-ui.md). Une seule entrée : la pastille de solde du profil. */
+var BQ={attente:'',anim:null,trem:'',tremT:0,flash:{},flashT:{},rangT:{}};
+var BQ_CLES=['deg','cd','pvMax','peau','xp','ramassage','gain'];
+function boutiqueOuverte(){var b=NET.poletzes&&NET.poletzes.boutique;return connecte()&&!!b&&Array.isArray(b.bonus);}
+/* valeur d'effet lisible : PV entiers, sinon un pourcentage à une décimale au plus (virgule hors anglais) */
+function bqVal(k,v){if(k==='pvMax')return''+Math.round(v);var p=Math.round(v*1000)/10,t=''+p;return LANGUE==='en'?t:t.replace('.',',');}
+function icoBonus(k,x,y){cx.save();var i,a;
+  if(k==='deg'){cx.beginPath();for(i=0;i<16;i++){a=i*Math.PI/8-Math.PI/2;var r=i%2?5:11;cx.lineTo(x+Math.cos(a)*r,y+Math.sin(a)*r);}cx.closePath();cx.fillStyle='#FF5468';cx.fill();cx.beginPath();cx.arc(x,y,3,0,Math.PI*2);cx.fillStyle=C.creme;cx.fill();}
+  else if(k==='cd'){cx.beginPath();cx.arc(x,y,8,-Math.PI*0.5,Math.PI);cx.strokeStyle=C.cyan;cx.lineWidth=2.5;cx.stroke();cx.beginPath();cx.moveTo(x-12,y-1);cx.lineTo(x-4,y-1);cx.lineTo(x-8,y+5);cx.closePath();cx.fillStyle=C.cyan;cx.fill();}
+  else if(k==='pvMax'){cx.beginPath();cx.moveTo(x,y+9);cx.bezierCurveTo(x-13,y,x-8,y-11,x,y-4);cx.bezierCurveTo(x+8,y-11,x+13,y,x,y+9);cx.fillStyle='#FF5468';cx.fill();cx.beginPath();cx.arc(x-4,y-3,2,0,Math.PI*2);cx.fillStyle='rgba(255,255,255,0.5)';cx.fill();}
+  else if(k==='peau'){cx.beginPath();cx.moveTo(x-9,y-9);cx.lineTo(x+9,y-9);cx.lineTo(x+8,y+1);cx.quadraticCurveTo(x+5,y+8,x,y+11);cx.quadraticCurveTo(x-5,y+8,x-8,y+1);cx.closePath();cx.fillStyle=C.or;cx.fill();cx.fillStyle='rgba(13,9,20,0.55)';cx.fillRect(x-1.5,y-7,3,14);}
+  else if(k==='xp'){cx.beginPath();cx.arc(x,y-2,7,0,Math.PI*2);cx.fillStyle=C.creme;cx.fill();cx.fillStyle='rgba(246,241,231,0.7)';cx.fillRect(x-3,y+5,6,3);cx.strokeStyle=C.or;cx.lineWidth=1.5;
+    for(i=0;i<3;i++){a=-Math.PI/2+(i-1)*0.8;cx.beginPath();cx.moveTo(x+Math.cos(a)*9,y-2+Math.sin(a)*9);cx.lineTo(x+Math.cos(a)*12,y-2+Math.sin(a)*12);cx.stroke();}}
+  else if(k==='ramassage'){cx.beginPath();cx.arc(x,y-1,7,Math.PI,0,true);cx.strokeStyle='#FF5468';cx.lineWidth=4;cx.stroke();cx.fillStyle=C.creme;cx.fillRect(x-9,y-5,4,4);cx.fillRect(x+5,y-5,4,4);}
+  else{icoPz(x,y,9);cx.strokeStyle=C.creme;cx.lineWidth=1.6;cx.beginPath();cx.moveTo(x-2-2.5,y-2);cx.lineTo(x-2+2.5,y-2);cx.moveTo(x-2,y-4.5);cx.lineTo(x-2,y+0.5);cx.stroke();}
+  cx.restore();}
+function majBoutique(b,anim){var p=NET.poletzes;if(!p||!b||!Array.isArray(b.bonus))return;var avant=p.solde;p.boutique=b;if(typeof b.solde==='number'){p.solde=b.solde;
+  if(anim)BQ.anim={de:avant,a:b.solde,t:Date.now(),x:anim.x,y:anim.y,k:anim.k};}}
+function acheterBonus(k,x,y){if(BQ.attente)return;var b=NET.poletzes&&NET.poletzes.boutique,l=null,i;if(!b)return;
+  for(i=0;i<b.bonus.length;i++)if(b.bonus[i].cle===k)l=b.bonus[i];if(!l)return;
+  if(l.prix===null){afficherMsg(T('bq.dejaMax'),C.cyan);return;}
+  if(NET.poletzes.solde<l.prix){BQ.trem=k;BQ.tremT=Date.now();son('non');afficherMsg(T('bq.manque',fmtNb(l.prix-NET.poletzes.solde)),C.cyan);return;}
+  BQ.attente=k;
+  apiAppel('POST','/api/boutique/acheter',{bonus:k,version:VERSION}).then(function(r){BQ.attente='';var e=r.json||{};
+    if(r.statut===200&&e.boutique){majBoutique(e.boutique,{x:x,y:y,k:k});BQ.flashT[k]=Date.now();BQ.rangT[k]=Date.now();son('compte');setTimeout(function(){son('niveau');},380);return;}
+    if(e.boutique)majBoutique(e.boutique,null);
+    if(e.erreur==='solde_insuffisant'){BQ.trem=k;BQ.tremT=Date.now();son('non');afficherMsg(T('bq.manque',fmtNb(Math.max(1,(e.prix||0)-((NET.poletzes&&NET.poletzes.solde)||0)))),C.cyan);}
+    else if(e.erreur==='rang_max')afficherMsg(T('bq.dejaMax'),C.cyan);
+    else if(e.erreur==='boutique_fermee'){if(NET.poletzes)delete NET.poletzes.boutique;afficherMsg(T('bq.ferme'),C.cyan);allerEcran('profil');}
+    else afficherMsg(r.statut===0||r.statut>=500?T('bq.reseau'):texteErreur(e),C.danger);});}
+function rendreBoutique(){
+  fondMenu();retourBas(function(){allerEcran('profil');});
+  ttFit(T('bq.titre'),180,SAFE_H+22,22,336,C.creme,'center',0,true);
+  if(!boutiqueOuverte()){if(!connecte())inviterConnexion(SAFE_H+176);else ttFit(T('bq.ferme'),180,SAFE_H+176,13,320,C.creme,'center',2,true);return;}
+  var b=NET.poletzes.boutique,an=BQ.anim,now=Date.now(),e=an?Math.min(1,(now-an.t)/400):1,sol=an&&e<1?Math.round(an.de+(an.a-an.de)*e):NET.poletzes.solde;
+  if(an&&now-an.t>700)BQ.anim=an=null;
+  var yb=SAFE_H+56;pucePz(0,yb,fmtNb(sol),T('pz.nom'),false,true);
+  var x0=12,y0=SAFE_H+78,n=b.bonus.length,PAS=58;
+  panneau(x0,y0,336,n*PAS+8,12,'rgba(38,27,54,0.95)','rgba(20,13,32,0.95)',C.cyan,1.2);
+  var i,l,yr,k,j,fl,rt,sc,dx,prx;
+  for(i=0;i<n;i++){l=b.bonus[i];k=l.cle;yr=y0+6+i*PAS;
+    fl=BQ.flashT[k]?Math.max(0,1-(now-BQ.flashT[k])/300):0;
+    if(fl>0){cx.fillStyle='rgba(111,230,255,'+(0.22*fl)+')';cx.beginPath();rrect(cx,x0+4,yr,328,54,9);cx.fill();}
+    if(i>0){cx.fillStyle='rgba(246,241,231,0.08)';cx.fillRect(x0+14,yr-2,308,1);}
+    cx.beginPath();cx.arc(x0+28,yr+27,15,0,Math.PI*2);cx.fillStyle=C.encre;cx.fill();cx.strokeStyle=C.cyan;cx.lineWidth=1.2;cx.stroke();icoBonus(k,x0+28,yr+27);
+    ttFit(T('bq.n.'+k),x0+52,yr+18,13,124,C.creme,'left',0,false);
+    ttFit(T('bq.e.'+k,bqVal(k,l.effet)),x0+52,yr+37,11,124,l.rang>0?C.cyan:'rgba(246,241,231,0.45)','left',2,false);
+    rt=BQ.rangT[k]?(now-BQ.rangT[k])/250:9;
+    for(j=0;j<b.rangsMax;j++){sc=j===l.rang-1&&rt<1?1+0.5*Math.sin(rt*Math.PI):1;cx.beginPath();cx.arc(x0+194+j*12,yr+27,4*sc,0,Math.PI*2);
+      if(j<l.rang){cx.fillStyle=l.prix===null?C.or:C.cyan;cx.fill();}else{cx.strokeStyle='rgba(246,241,231,0.4)';cx.lineWidth=1.2;cx.stroke();}}
+    if(l.prix===null){cx.fillStyle='rgba(13,9,20,0.85)';cx.beginPath();rrect(cx,x0+260,yr+15,60,24,12);cx.fill();cx.strokeStyle=C.or;cx.lineWidth=1.5;cx.stroke();tn(T('bq.max'),x0+290,yr+27.5,13,C.or,'center',1);continue;}
+    dx=BQ.trem===k&&now-BQ.tremT<200?Math.sin((now-BQ.tremT)/200*Math.PI*6)*4:0;prx=x0+252+dx;
+    var peu=NET.poletzes.solde<l.prix,att=BQ.attente===k;
+    (function(k,px,py){bouton('bq_'+k,px,yr+8,76,38,att?' ':fmtNb(l.prix),peu?1:3,function(){acheterBonus(k,px+38,py);},peu||att?null:'+'+bqVal(k,l.parRang)+(k==='pvMax'?'':' %'),13);})(k,prx,yr+27);
+    if(att){cx.save();cx.beginPath();cx.arc(prx+38,yr+25,7,(now/150)%(Math.PI*2),(now/150)%(Math.PI*2)+Math.PI*1.4);cx.strokeStyle=C.encre;cx.lineWidth=2.5;cx.stroke();cx.restore();}
+    else icoPz(prx+11,yr+(peu?27:21),5);}
+  para(T('bq.pied'),180,y0+n*PAS+26,320,10,'rgba(246,241,231,0.6)','center',2,13,false);
+  /* achat : six losanges partent du bouton vers le solde */
+  if(an&&now-an.t<500){var u=(now-an.t)/500;for(j=0;j<6;j++){var v=Math.min(1,u*1.2-j*0.04);if(v<=0)continue;var ee=v*v*(3-2*v);
+    icoPz(an.x+(180-an.x)*ee+Math.sin(j*1.7)*14*(1-ee),an.y+(yb-an.y)*ee-Math.sin(ee*Math.PI)*30,4);}}
+}
 
 /* ---------- partage ---------- */
 /* 0.7 : le lien partagé est celui d'une carte de partage (son image s'affiche sous le post), choisie selon le résultat */
@@ -12808,7 +13116,7 @@ var PCH={ou:'',sc:null,i:-1};
 function fermerChoixPartage(){PCH.ou='';PCH.sc=null;PCH.i=-1;}
 function ouvrirChoixPartage(ou,sc,i){PCH.ou=ou;PCH.sc=sc>0?sc:null;PCH.i=i>=0?i:-1;if(connecte()&&boostsV2()&&!BX.charge&&!BX.enVol)chargerEtatBoost();}
 function partageVers(canal){
-  var sc=PCH.sc,p=sc?textePost('fin',sc):textePost('fin'),carteP=sc?carteDuScore(sc,false,false):carteDeLaPartie();
+  var sc=PCH.sc,e=PCH.ou==='pj'&&PCH.i>=0?listeParties()[PCH.i]:null,cx0=e&&e.s===sc?{n:e.n||0,w:!!e.w,v:e.v?nomVilleJeu(e.v):''}:null,p=sc?textePost('fin',sc,cx0):textePost('fin'),carteP=sc?carteDuScore(sc,false,false):carteDeLaPartie();
   if(canal==='x'&&connecte()&&!xLie()&&boostsV2()&&!BX.charge)return;      /* état du compte X en cours de lecture */
   fermerChoixPartage();
   if(!connecte()){allerEcran('connexion');return;}
@@ -13020,6 +13328,7 @@ function appliquerSession(j){
   if(NET.jour&&NET.jour.jour!==j.jour.jour)NET.code=null;
   NET.joueur=j.joueur;NET.jour=j.jour;NET.regles=j.regles||null;NET.versions=j.versions||NET.versions;
   NET.modeGraine=j.modeGraine||(j.regles&&j.regles.modeGraine)||'jour';NET.horde=j.horde||null;
+  NET.poletzes=j.poletzes&&typeof j.poletzes.solde==='number'?j.poletzes:null;if(NET.poletzes&&NET.poletzes.poids)NET.pzPoids=NET.poletzes.poids;   /* 46.177 */
   appliquerConcours(j);
   if(j.serveur&&typeof j.serveur.maintenant==='number'){NET.decalage=j.serveur.maintenant-Date.now();NET.prochainJour=j.serveur.prochainJour||0;}
   NET.etat='ok';NET.majT=Date.now();garderSession();
@@ -13068,7 +13377,7 @@ function chargerVilles(){if(NET.villesVol)return;NET.villesVol=true;
   apiAppel('GET','/api/sante').then(function(r){NET.villesVol=false;if(r.statut===200&&Array.isArray(r.json.villes)){NET.villes=r.json.villes;NET.deblocage=r.json.deblocage===true;chargerCartes();majVilles();}},function(){NET.villesVol=false;});}
 function sante(){
   return apiAppel('GET','/api/sante').then(function(r){NET.majT=Date.now();NET.etat=r.statut===200?'ok':'hors';
-    if(r.statut===200){if(r.json.versions)NET.versions=r.json.versions;if(Array.isArray(r.json.villes)){NET.villes=r.json.villes;NET.deblocage=r.json.deblocage===true;chargerCartes();majVilles();}if(r.json.regles&&!connecte())NET.regles=r.json.regles;if(r.json.modeGraine&&!connecte())NET.modeGraine=r.json.modeGraine;
+    if(r.statut===200){if(r.json.versions)NET.versions=r.json.versions;if(Array.isArray(r.json.villes)){NET.villes=r.json.villes;NET.deblocage=r.json.deblocage===true;chargerCartes();majVilles();}if(r.json.regles&&!connecte())NET.regles=r.json.regles;if(r.json.poletzes&&typeof r.json.poletzes.temps==='number')NET.pzPoids=r.json.poletzes;if(r.json.modeGraine&&!connecte())NET.modeGraine=r.json.modeGraine;
       if(typeof r.json.maintenant==='number'&&!connecte())NET.decalage=r.json.maintenant-Date.now();appliquerConcours(r.json);}return r;});
 }
 /* ---- 0.8 : concours ----
@@ -13378,7 +13687,7 @@ function debutServeur(suite,repli){
     if(e.erreur==='niveau_touriste'){if(NIV.d)NIV.d.niveau='touriste';else NIV.d={niveau:'touriste',conditions:{},essais:{}};chargerNiveau();
       if(repli)repli();return;}
     if(r.statut===200&&typeof e.graine==='number'&&typeof e.jeton==='string'){
-      NET.partie={jeton:e.jeton,graine:e.graine>>>0,essai:e.essai,essaisMax:e.essaisMax,jour:e.jour,debut:e.debut,joueur:NET.joueur.id,pauseMaxS:typeof e.pauseMaxS==='number'?e.pauseMaxS:undefined,villeEcart:ecartOk(e.villeEcart)?e.villeEcart:null,t0:Date.now()};
+      NET.partie={jeton:e.jeton,graine:e.graine>>>0,essai:e.essai,essaisMax:e.essaisMax,jour:e.jour,debut:e.debut,joueur:NET.joueur.id,pauseMaxS:typeof e.pauseMaxS==='number'?e.pauseMaxS:undefined,villeEcart:ecartOk(e.villeEcart)?e.villeEcart:null,bonus:e.bonus&&SIM.bonusValide(e.bonus)?e.bonus:null,t0:Date.now()};
       NET.partie.vieBonus=e.vieBonus===true;
       if(NET.jour){
         /* 0.10 : essai pris sur la vie bonus : elle n'est plus utilisable aujourd'hui (le serveur le redira au rafraîchissement) */
@@ -13441,7 +13750,10 @@ function resultatFin(it,r){
     retirerAttente(it.k);majFin(it,{statut:'validee',score:e.score,rangJour:e.rangJour,scoreJour:e.scoreJour,rangConcours:e.rangConcours||null,scoreConcours:e.scoreConcours||null,
       /* 0.10 : score = score final ; scoreBrut, état du bonus de fidélité, vie bonus (absents d'un serveur plus ancien) */
       partie:e.partie||null,scoreBrut:typeof e.scoreBrut==='number'?e.scoreBrut:null,fidelite:typeof e.fidelite==='string'?e.fidelite:null,
-      fidelitePourcent:typeof e.fidelitePourcent==='number'?e.fidelitePourcent:0,vieBonus:e.vieBonus===true});
+      fidelitePourcent:typeof e.fidelitePourcent==='number'?e.fidelitePourcent:0,vieBonus:e.vieBonus===true,
+      /* 46.177 : poletzes gagnés (absents d'un serveur plus ancien) ; pzT : arrivée, pour le compteur qui monte */
+      pz:e.poletzes&&typeof e.poletzes.total==='number'?e.poletzes:null,pzT:Date.now()});
+    if(typeof e.poletzesSolde==='number'){if(!NET.poletzes)NET.poletzes={solde:0};NET.poletzes.solde=e.poletzesSolde;}
     if(!courant)afficherMsg(T('net.envoyee',fmtNb(e.score)),C.vert);
     else if(e.fidelite==='en_attente'&&e.partie)setTimeout(function(){suivreFidelite(it.k,e.partie,0);},20000);
     rafraichir();return;}
@@ -13516,13 +13828,14 @@ function retourNavigateur(){
   if(ecran==='jeu'){if(REVOIR){quitterRevoir();return;}mettreEnPause();return;}
   if(ecran==='niveau'&&NIV.feuille){fermerFeuilleWallet();return;}
   if(ecran==='parties'){allerEcran(PJ.de||'titre');return;}
+  if(ecran==='boutique'){allerEcran('profil');return;}
   if(MENUS_HIST.indexOf(ecran)>=0)allerEcran('titre');
 }
 try{window.addEventListener('popstate',function(){
-  var avant=ecran,feuille=!!(ecran==='niveau'&&NIV.feuille),parties=ecran==='parties';
+  var avant=ecran,feuille=!!(ecran==='niveau'&&NIV.feuille),parties=ecran==='parties',bq=ecran==='boutique';
   HIST_POP=true;try{retourNavigateur();}catch(e){}HIST_POP=false;
   /* on est resté dans la partie (pause), dans « Mon niveau » (feuille fermée) ou dans un menu : le cran est reposé */
-  if(ecran==='jeu'||feuille||(parties&&ecran!=='titre'))histAvancer(ecran);
+  if(ecran==='jeu'||feuille||(parties&&ecran!=='titre')||bq)histAvancer(ecran);
 });}catch(e){}
 function allerEcran(e){
   fermerChoixPartage();
@@ -13537,6 +13850,7 @@ function allerEcran(e){
   if((e==='parties'||e==='niveau')&&pjServeur()&&Date.now()-PJ.charge>3000)chargerParties();
   if(e==='parties'){PJ.erreur='';PJ.defil=0;}
   if(e==='parrainage'){NET.parr=null;chargerParrainage();}
+  if(e==='boutique'){BQ.attente='';BQ.anim=null;}
   if(e==='classement'){NET.cl.defil=0;if(NET.cl.periode==='concours'&&!enConcours())NET.cl.periode='jour';chargerClassement(NET.cl.periode);}
   if(e==='connexion'){NET.widgetT=0;if(NET.cnx&&NET.cnx.etat!=='attente'&&NET.cnx.etat!=='demande')NET.cnx=null;}
   REVOIR=e==='jeu'?REVOIR:null;
@@ -13688,6 +14002,7 @@ function rendreProfil(){
   if(!connecte()){inviterConnexion(y+120);return;}
   if(profilInit){profilInit=false;['pseudo','wallet','x','email'].forEach(function(k){if(CHAMPS[k])poserChamp(k,profilVal[k]);});}
   panneau(12,y,336,388+(j&&('email' in j)?30:0),14,'rgba(38,27,54,0.95)','rgba(20,13,32,0.95)','rgba(246,241,231,0.18)',1);
+  pucePzProfil(y);   /* 46.177 : solde de poletzes */
   /* 46.143 (relecture UI/UX) : l'adresse e-mail facultative a sa ligne entière sous le pseudo (côte à côte, le pseudo et
      l'adresse étaient rognés), avec son aide à elle : à quoi elle sert, la promesse, comment se désinscrire. La règle du
      pseudo n'est plus affichée en permanence : le message d'erreur la donne. Tout ce qui suit descend de DM px. */
@@ -13807,9 +14122,12 @@ function boostEtat(canal){
 }
 /* =====================================================================
    0.11 : TEXTES DES POSTS (X, Telegram, fin de partie, parrainage)
-   Trois lignes, dans la langue du jeu : 1. une ligne de score (post.score.1 à 6, ou post.sansScore) ;
-   2. « 987NES : <signature> » (registre ci-dessous) ; 3. le lien d'une page de partage de la bibliothèque d'images
-   (partage/p/<id>?r=<code de parrainage>&l=<langue>), qui montre une image et invite au jeu.
+   46.182 (27.11.2026) : 1. « 🏰 DZÔ Survivors · <ville> » ; 2. le score en chiffres gras (Unicode), le temps tenu sur 10:00
+   (ou 🏆 en victoire) ; 3. la barre des 10 minutes (une case verte par minute tenue, quand le temps est connu) ; 4. une
+   phrase de défi (post.defi.1 à 6, post.defiT quand la horde a gagné) ; 5. une ligne 987NES qui dit ce qu'est DZÔ
+   (post.sig.1 à 3, le mot 987NES exigé par le serveur), une fois sur quatre suivie d'une signature du registre ;
+   6. le lien d'une page de partage de la bibliothèque d'images (partage/p/<id>?r=<code de parrainage>&l=<langue>).
+   Sans score : post.sans1, post.sans2, la ligne 987NES et le lien.
    Jamais deux fois de suite la même signature (les 8 dernières sont évitées) ni la même image.
    ===================================================================== */
 /* ---- REGISTRE DES SIGNATURES : modifiable par l'organisateur ----
@@ -13877,17 +14195,29 @@ function lienPartagePost(m,sc){
   return l&&code?l+(l.indexOf('?')<0?'?':'&')+'r='+code:l;
 }
 /* cible : 'boost' (X, Telegram), 'fin' (fin de partie), 'parr' (parrainage). Rend {l1, l2, lien, texte}. */
-function textePost(cible,scImpose){
-  var m=postMemoire(),sc=scImpose>0?scImpose:(cible==='fin'&&S?scoreFin():scorePartage()),k,l1,l2,lien;
-  if(sc>0){do{k=1+Math.floor(Math.random()*POST_LIGNES);}while(k===m.l&&POST_LIGNES>1);m.l=k;l1=T('post.score.'+k,fmtNb(sc));}
-  else l1=T('post.sansScore');
-  l2='987NES : '+tirerSignature(m);
+/* ctx (facultatif) : {n : pas de simulation tenus, w : victoire, v : nom de la ville} de la partie partagée */
+var POST_DEFIS=6,POST_SIGS=3;
+function grasChiffres(t){return String(t).replace(/[0-9]/g,function(d){return String.fromCodePoint(0x1D7EC+(+d));});}
+function barrePost(n,w){var k=w?10:Math.max(0,Math.min(10,Math.floor(n/3600))),b='',i;for(i=0;i<10;i++)b+=i<k?'🟩':'⬜';return b;}
+function villeDefautNom(){var d=SIM.villeDefaut?SIM.villeDefaut():null,n=d&&d.fiche&&d.fiche.noms;return n&&typeof n==='object'&&(n[LANGUE]||n.fr)||'Fribourg';}
+function textePost(cible,scImpose,ctx){
+  var m=postMemoire(),sc=scImpose>0?scImpose:(cible==='fin'&&S?scoreFin():scorePartage()),k,L=[],lien,v,n,w,g,corps;
+  if(!ctx)ctx=cible==='fin'&&S&&!(scImpose>0)?{n:S.n,w:!!S.victoire,v:nomCarteJouee()}:{};
+  v=ctx.v||villeDefautNom();n=ctx.n>0?Math.floor(ctx.n):0;w=!!ctx.w;
+  if(sc>0){g=grasChiffres(fmtNb(sc));
+    L.push(T('post.tete',v));
+    L.push(w?T('post.scoreV',g):(n?T('post.scoreT',g,fmtTemps(n)):T('post.scoreS',g)));
+    if(n||w)L.push(barrePost(n,w));
+    do{k=1+Math.floor(Math.random()*(POST_DEFIS+(n&&!w?1:0)));}while(k===m.l&&POST_DEFIS>1);m.l=k;
+    L.push(k>POST_DEFIS?T('post.defiT',v,fmtTemps(n)):T('post.defi.'+k,v));}
+  else{L.push(T('post.sans1',v));L.push(T('post.sans2'));}
+  L.push(T('post.sig.'+(1+Math.floor(Math.random()*POST_SIGS)))+(Math.random()<0.25?' · '+tirerSignature(m):''));
   lien=lienPartagePost(m,sc);
-  postGarder(m);
-  var p={l1:l1,l2:l2,lien:lien,texte:l1+'\n'+l2+(lien?'\n'+lien:'')};BX.dernierPost=p;return p;
+  postGarder(m);corps=L.join('\n');
+  var p={l1:L[0],l2:L.slice(1).join('\n'),corps:corps,lien:lien,texte:corps+(lien?'\n'+lien:'')};BX.dernierPost=p;return p;
 }
 /* Telegram : la conversation est choisie par le joueur, le message est déjà écrit (le lien en tête, le texte dessous) */
-function lienTgPost(p){return'https://t.me/share/url?url='+encodeURIComponent(p.lien||'https://987nes.com/survivors/')+'&text='+encodeURIComponent(p.l1+'\n'+p.l2);}
+function lienTgPost(p){return'https://t.me/share/url?url='+encodeURIComponent(p.lien||'https://987nes.com/survivors/')+'&text='+encodeURIComponent(p.corps||(p.l1+'\n'+p.l2));}
 
 /* =====================================================================
    0.11 : BOOSTS SANS CODE (serveur 0.11 : regles.x.sansCode)
@@ -15098,7 +15428,7 @@ function partiesLocales(){
 function noterPartieLocale(sc,srv){
   var o=null;try{o=JSON.parse(window.localStorage.getItem('dzo.pj')||'null');}catch(e){}
   if(!o||o.j!==JOUR||!Array.isArray(o.l))o={j:JOUR,l:[]};
-  o.l.push({s:Math.max(0,Math.floor(sc)||0),t:Date.now(),e:essaiNo|0,srv:srv?1:0});if(o.l.length>30)o.l=o.l.slice(-30);
+  var fv=S&&S.M&&S.M.ville&&S.M.ville.fiche;o.l.push({s:Math.max(0,Math.floor(sc)||0),t:Date.now(),e:essaiNo|0,srv:srv?1:0,n:S?S.n|0:0,w:S&&S.victoire?1:0,v:fv&&typeof fv.id==='string'?fv.id:''});if(o.l.length>30)o.l=o.l.slice(-30);
   try{window.localStorage.setItem('dzo.pj',JSON.stringify(o));}catch(e){}
 }
 function chargerParties(){
@@ -15111,10 +15441,10 @@ function listeParties(){
   var L=[],i,b=-1,p;
   if(pjServeur()){var d=PJ.d,Q=d&&Array.isArray(d.parties)?d.parties:[];
     for(i=0;i<Q.length;i++){p=Q[i];if(!p||typeof p.score!=='number')continue;
-      L.push({s:p.score,t:typeof p.debut==='number'?p.debut-(NET.decalage||0):0,e:p.essai||i+1,m:p.meilleure===true||(d.meilleure!=null&&p.partie===d.meilleure)});}
+      L.push({s:p.score,t:typeof p.debut==='number'?p.debut-(NET.decalage||0):0,e:p.essai||i+1,m:p.meilleure===true||(d.meilleure!=null&&p.partie===d.meilleure),n:typeof p.pas==='number'?p.pas:0,w:p.victoire===true,v:typeof p.ville==='string'?p.ville:''});}
     return L;}
   var Q2=partiesLocales();
-  for(i=0;i<Q2.length;i++){L.push({s:Q2[i].s,t:Q2[i].t||0,e:Q2[i].e||i+1,m:false});if(b<0||Q2[i].s>L[b].s)b=i;}
+  for(i=0;i<Q2.length;i++){L.push({s:Q2[i].s,t:Q2[i].t||0,e:Q2[i].e||i+1,m:false,n:Q2[i].n|0,w:Q2[i].w===1,v:typeof Q2[i].v==='string'?Q2[i].v:''});if(b<0||Q2[i].s>L[b].s)b=i;}
   if(b>=0&&L[b].s>0)L[b].m=true;
   return L;
 }
@@ -15243,12 +15573,12 @@ function chargerRevoir(id,pseudo){
     /* la partie se revoit dans SA ville : paquet chargé par son empreinte ; partie sans ville : ancienne carte */
     if(d.ville&&typeof d.ville==='object'&&typeof d.ville.id==='string'&&typeof d.ville.empreinte==='string'){
       NET.revoirCharge=true;
-      paquetVille(d.ville.id,d.ville.empreinte).then(function(P){NET.revoirCharge=false;R.ville=P;R.ecart=ecartOk(d.ville.ecart)?d.ville.ecart:null;lancerRevoir(R);},function(){NET.revoirCharge=false;afficherMsg(T('ville.echec'),C.danger);});
+      paquetVille(d.ville.id,d.ville.empreinte).then(function(P){NET.revoirCharge=false;R.ville=P;R.ecart=ecartOk(d.ville.ecart)?d.ville.ecart:null;R.bonus=d.ville.bonus&&SIM.bonusValide(d.ville.bonus)?d.ville.bonus:null;lancerRevoir(R);},function(){NET.revoirCharge=false;afficherMsg(T('ville.echec'),C.danger);});
       return;}
     lancerRevoir(R);});
 }
 function lancerRevoir(R){
-  lancer(false,R.graine,{revoir:true,ville:R.ville===undefined?null:(villeReglee(R.ville,R.ecart)||R.ville)});
+  lancer(false,R.graine,{revoir:true,ville:R.ville===undefined?null:(villeReglee(R.ville,R.ecart,R.bonus)||R.ville)});
   REVOIR={graine:R.graine,j:R.j,choix:R.choix,ic:0,nPas:R.nPas,pseudo:R.pseudo,version:R.version,score:R.score,vit:1,partie:R.partie};
   bandeau(T('revoir.bandeau',R.pseudo),4);
   if(R.version&&R.version!==VERSION&&!SIM_IDENTIQUE[R.version])afficherMsg(T('revoir.version',R.version),C.or);
@@ -15296,7 +15626,7 @@ function hymneDebloquer(){
 function hymneVoulu(){
   if(!HY.debloque||!SAUV.son)return'';
   try{if(document.hidden)return'';}catch(e){}
-  if(ecran==='entree'||ecran==='titre'||ecran==='connexion'||ecran==='profil'||ecran==='niveau'||ecran==='classement'||ecran==='lots'||ecran==='villes'||ecran==='parrainage')return tDepart>=0?'':'titre';
+  if(ecran==='entree'||ecran==='titre'||ecran==='connexion'||ecran==='profil'||ecran==='boutique'||ecran==='niveau'||ecran==='classement'||ecran==='lots'||ecran==='villes'||ecran==='parrainage')return tDepart>=0?'':'titre';
   if(ecran==='fin'&&!REVOIR&&S)return S.victoire?'victoire':'fin';
   return'';
 }
@@ -15534,6 +15864,7 @@ function rendreEcran(dt){
   if(ecran==='fin'){rendreFin();if(NES_OUVERT)rendrePanneauNes();rendreMarges();return;}
   if(ecran==='connexion'){rendreConnexion();rendreMarges();return;}
   if(ecran==='profil'){rendreProfil();rendreMarges();return;}
+  if(ecran==='boutique'){rendreBoutique();rendreMarges();return;}
   if(ecran==='niveau'){rendreNiveau();rendreMarges();return;}
   if(ecran==='signer'){rendreSigner();rendreMarges();return;}
   if(ecran==='parties'){rendreParties();rendreMarges();return;}
@@ -15595,6 +15926,8 @@ window.__dzo={
   demarrer:function(graine){lancer(false,graine===undefined?undefined:graine>>>0);return window.__dzo.etat();},
   /* villes : état du choix, et choix direct pour les essais */
   carteFin:function(){return nomCarteJouee();},
+  boutique:function(){var b=NET.poletzes&&NET.poletzes.boutique;return{ouverte:boutiqueOuverte(),solde:NET.poletzes?NET.poletzes.solde:null,bonus:b?b.bonus:null,attente:BQ.attente,partie:S&&S.perm?S.perm:null};},
+  poletzes:function(){var f=NET.fin;return{mode:modePz(),gain:f&&f.pz?f.pz:null,solde:NET.poletzes?NET.poletzes.solde:null,poids:NET.pzPoids||null,estime:modePz()==='tour'?pzEstime():null,xpTot:S?S.xpTot:null,detail:PZ.detail};},
   villes:function(){var c=villeAnnonce();return{courante:c||null,chargee:VIL.id,enVol:VIL.enVol,jouables:villesJouables().map(function(v){return v.id;}),pastille:false,texte:c?nomVilleJeu(c.id):'',lm:S&&S.M?S.M.lm:(MW?MW.lm:0)};},
   choisirVille:function(id){return choisirVille(id);},
   /* 0.7 : état du réseau, écrans, cartes de partage */
