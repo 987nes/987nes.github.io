@@ -1635,7 +1635,7 @@ function majBornes(n){
 /* ---------- 0.16 (tournée) : étapes à rallier et élan ---------- */
 function initTournee(s,graine){
   s.rTour=mulberry32(melange(graine,141));
-  s.tour={on:0,x:0,y:0,k:0,nais:0};s.tx=0;s.ty=0;s.tdir=-1;s.tourN=0;   /* tx, ty, tdir : dernière étape posée (chaîne) */
+  s.tour={on:0,x:0,y:0,k:0,nais:0};s.tx=0;s.ty=0;s.tdir=-1;s.tourN=0;s.tH=[];   /* 46.183 : tH, les dernières étapes posées (x, y alternés) */   /* tx, ty, tdir : dernière étape posée (chaîne) */
   s.etapes=0;s.elan=0;s.elanMax=0;s.elanT=0;
   s.tourSans=new Int32Array(s.M.cobj.length);   /* cassables tous intacts : la pose ne dépend jamais des casses du joueur */
 }
@@ -1644,9 +1644,9 @@ function poserEtape(n){
   if(S.tdir<0)a=Math.floor(r()*NA);else{a=(S.tdir+Math.floor(r()*(2*TOUR.ecart+1))-TOUR.ecart)%NA;if(a<0)a+=NA;}
   d=M.dhi?M.dlo+r()*(M.dhi-M.dlo):(TOUR.dMin+r()*TOUR.dAmp)*(M.td||1);   /* 0.23.0 : écart réglé (m.dlo à m.dhi) */
   x=S.tx+cs(a)*d;y=S.ty+sn(a)*d;
-  if(M.etp){etapeLieu(x,y);x=CX;y=CY;}   /* carte bornée (vraie ville) : l'étape se pose sur un lieu dégagé de la carte */
+  if(M.etp){etapeLieu(x,y);x=CX;y=CY;a=dirVers(x-S.tx,y-S.ty,a);}   /* carte bornée (vraie ville) : l'étape se pose sur un lieu dégagé de la carte ; 46.183 : on garde la direction du saut réel */
   sv=S.cas;S.cas=S.tourSans;posSure(x,y,22);S.cas=sv;x=CX;y=CY;
-  S.tdir=a;S.tx=x;S.ty=y;
+  S.tdir=a;S.tx=x;S.ty=y;S.tH.push(x,y);if(S.tH.length>TOUR_MEM*2)S.tH.splice(0,2);
   t.on=1;t.x=x;t.y=y;t.k=S.tourN++;t.nais=n;ev(EV_TOUR,0,t.k,x,y);
 }
 /* Carte qui fournit ses lieux dégagés (M.etp : u, v alternés, coordonnées de carte) : parmi ceux qui sont à la bonne distance de
@@ -1655,11 +1655,16 @@ function poserEtape(n){
 function etapeLieu(x,y){
   var e=M.etp,i,u,v,dx,dy,dp,dc,b=-1,bd=1e18,b2=-1,bd2=1e18,tk=M.td||1,lo=M.dhi?M.dlo:TOUR.dMin*tk,hi=M.dhi?M.dhi:(TOUR.dMin+TOUR.dAmp)*tk,pres=Math.min(150*tk,lo);
   for(i=0;i<e.length;i+=2){u=e[i]-M.ofu;v=e[i+1]-M.ofv;dx=u-S.tx;dy=v-S.ty;dp=Math.sqrt(dx*dx+dy*dy);dx=u-x;dy=v-y;dc=dx*dx+dy*dy;
-    if(dp>=lo&&dp<=hi){if(dc<bd){bd=dc;b=i;}}else if(dp>=pres&&dc<bd2){bd2=dc;b2=i;}}
+    if(dp>=lo&&dp<=hi){dc=Math.min(eloignement(u,v),lo)-0.5*Math.sqrt(dc);if(-dc<bd){bd=-dc;b=i;}}else if(dp>=pres&&dc<bd2){bd2=dc;b2=i;}}
   if(b<0)b=b2;
   if(b<0){CX=x;CY=y;return;}
   CX=e[b]-M.ofu;CY=e[b+1]-M.ofv;
 }
+/* 46.183 : mémoire des étapes (les TOUR_MEM dernières) ; éloignement d'un point à la plus proche d'entre elles ; direction de la
+   table (0 à NA-1) la plus proche d'un vecteur, cherchée par produit scalaire (déterministe, sans Math.atan2) */
+var TOUR_MEM=3;
+function eloignement(u,v){var H=S.tH,i,dx,dy,m=1e18;for(i=0;i<H.length;i+=2){dx=u-H[i];dy=v-H[i+1];if(dx*dx+dy*dy<m)m=dx*dx+dy*dy;}return m>=1e18?1e9:Math.sqrt(m);}
+function dirVers(dx,dy,a0){var i,p,b=a0,bp=-1e18;if(dx===0&&dy===0)return a0;for(i=0;i<NA;i+=4){p=cs(i)*dx+sn(i)*dy;if(p>bp){bp=p;b=i;}}return b;}
 function majTournee(n){
   var t=S.tour,dx,dy,pr;
   /* dans une ville (m.td posé), la première étape est là dès la première seconde : Dom, 24.11.2026, « au démarrage pas de prochaine étape » (elle attendait 10 s) */
@@ -8163,7 +8168,7 @@ SIM.LANGUES=LANGUES;
 (function(){
 'use strict';
 if(typeof document==='undefined')return;
-var VERSION='0.25.1-proto';
+var VERSION='0.25.2-proto';
 /* versions dont le bloc SIM est identique octet pour octet à celui-ci : leurs parties se revoient fidèlement */
 var SIM_IDENTIQUE={'0.7.0-proto':1,'0.7.1-proto':1,'0.7.2-proto':1,'0.7.3-proto':1,'0.8.0-proto':1};
 var URL_JEU=(function(){try{return String((window.DZO_CONFIG||{}).URL_JEU||'');}catch(e){return'';}})();
